@@ -1,0 +1,54 @@
+<div class="col-lg-12 col-xl-12 p-0">
+  <div class="row">
+    @for (list of wishList; track list) {
+      <div class="col-xl-3 col-lg-6 col-md-6 alert">
+        <div class="card item-card">
+          <div class="card-body pb-0">
+            <div class="text-center zoom">
+              <a [routerLink]="['/pages/ecommerce/shop']"><img class="w-100 br-5" src="{{list.img}}" alt="img"></a>
+            </div>
+            <div class="card-body px-0 pb-3">
+              <div class="row">
+                <div class="col-8">
+                  <div class="cardtitle">
+                    <div>
+                      <spk-rating [rating]="list.rating" [readonly]="true"> </spk-rating>
+                      <a href="javascript:void(0);"> ({{list.review}})</a>
+                    </div>
+                    <a class="shop-title">{{list.title}}</a>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="cardprice-2">
+                    <span class="type--strikethrough number-font">{{list.originalPrice}}</span>
+                    <span class="number-font">{{list.newPrice}}</span>
+                  </div>
+                </div>
+                <div>
+                  <p class="shop-description fs-13 mt-2 text-muted mb-0">{{list.caption}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer text-center">
+            <div class="text-center ps-2 pe-2">
+              <a [routerLink]="['/pages/ecommerce/cart']" class="btn btn-md btn-primary mb-2 ms-2 w-45"><i
+              class="fe fe-shopping-cart ms-1 me-1"></i>Add to Cart</a>
+              <a (click)="RemoveElementFromObjectArray(list.id)" href="javascript:void(0);" class="btn btn-md btn-light mb-2 ms-2 w-45 me-1">
+                <span class="me-2 fs-14">Remove</span>
+                <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#495057">
+                  <path d="M0 0h24v24H0V0z" fill="none" />
+                  <path
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+  <div class="d-flex justify-content-end">
+    <ngb-pagination [collectionSize]="50" [(page)]="page" aria-label="Default pagination" />
+  </div>
+</div>

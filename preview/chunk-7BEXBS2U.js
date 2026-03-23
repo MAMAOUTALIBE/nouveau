@@ -1,0 +1,81 @@
+import {
+  CareersService
+} from "./chunk-ZPIDEWWO.js";
+import {
+  GridJsAngularComponent
+} from "./chunk-H6VXTY66.js";
+import "./chunk-2RQ7HY24.js";
+import "./chunk-7C46ZOJO.js";
+import "./chunk-BMX4STFJ.js";
+import {
+  Component,
+  inject,
+  setClassMetadata,
+  ɵsetClassDebugInfo,
+  ɵɵadvance,
+  ɵɵdefineComponent,
+  ɵɵelement,
+  ɵɵelementEnd,
+  ɵɵelementStart,
+  ɵɵproperty,
+  ɵɵtext
+} from "./chunk-MOIGQQUQ.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-KWSTWQNB.js";
+
+// src/app/modules/careers/pages/promotions/promotions.ts
+var PromotionsPage = class _PromotionsPage {
+  careersService = inject(CareersService);
+  gridConfig = {
+    columns: ["R\xE9f\xE9rence", "Agent", "Ancien poste", "Nouveau poste", "Date effet", "Statut"],
+    search: true,
+    sort: true,
+    pagination: { limit: 10 },
+    data: []
+  };
+  ngOnInit() {
+    this.careersService.getMovesByType("Promotion").subscribe((items) => {
+      this.gridConfig = __spreadProps(__spreadValues({}, this.gridConfig), {
+        data: items.map((m) => [m.reference, m.agent, m.from || "\u2014", m.to, m.effectiveDate, m.status])
+      });
+    });
+  }
+  static \u0275fac = function PromotionsPage_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _PromotionsPage)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PromotionsPage, selectors: [["app-promotions"]], decls: 13, vars: 1, consts: [[1, "row", "row-sm"], [1, "col-xl-12"], [1, "card", "custom-card"], [1, "card-header", "justify-content-between"], [1, "card-title"], [1, "btn-list"], [1, "btn", "btn-primary"], [1, "btn", "btn-outline-primary"], [1, "card-body"], [3, "config"]], template: function PromotionsPage_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3)(4, "div", 4);
+      \u0275\u0275text(5, "Promotions");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(6, "div", 5)(7, "button", 6);
+      \u0275\u0275text(8, "Nouvelle promotion");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(9, "button", 7);
+      \u0275\u0275text(10, "Exporter");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(11, "div", 8);
+      \u0275\u0275element(12, "gridjs-angular", 9);
+      \u0275\u0275elementEnd()()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(12);
+      \u0275\u0275property("config", ctx.gridConfig);
+    }
+  }, dependencies: [GridJsAngularComponent], encapsulation: 2 });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PromotionsPage, [{
+    type: Component,
+    args: [{ selector: "app-promotions", standalone: true, imports: [GridJsAngularComponent], template: '<div class="row row-sm">\n  <div class="col-xl-12">\n    <div class="card custom-card">\n      <div class="card-header justify-content-between">\n        <div class="card-title">Promotions</div>\n        <div class="btn-list">\n          <button class="btn btn-primary">Nouvelle promotion</button>\n          <button class="btn btn-outline-primary">Exporter</button>\n        </div>\n      </div>\n      <div class="card-body">\n        <gridjs-angular [config]="gridConfig"></gridjs-angular>\n      </div>\n    </div>\n  </div>\n</div>\n' }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PromotionsPage, { className: "PromotionsPage", filePath: "src/app/modules/careers/pages/promotions/promotions.ts", lineNumber: 11 });
+})();
+export {
+  PromotionsPage
+};
+//# sourceMappingURL=chunk-7BEXBS2U.js.map

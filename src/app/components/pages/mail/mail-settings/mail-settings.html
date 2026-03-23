@@ -1,0 +1,148 @@
+<!-- row -->
+<div class="row row-sm">
+  <!-- Col -->
+  <div class="col-lg-4 col-xl-3 col-md-12 col-sm-12">
+    <div class="card mg-b-20">
+      <div class="main-content-left main-content-left-mail card-body">
+        <a class="btn btn-primary btn-compose" href="javascript:void(0);" id="btnCompose">Email Settings</a>
+        <div class="main-mail-menu">
+          <nav class="nav main-nav-column mg-b-20">
+            <a class="nav-link thumb active" href="javascript:void(0);"><i class="far fa-envelope"></i> Inbox
+              <span>18</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-star"></i> Starred <span>8</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-clock"></i> Snoozed <span>6</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-bookmark"></i> Important
+              <span>15</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-paper-plane"></i> Sent Mail
+              <span>24</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-hourglass"></i> Drafts
+              <span>2</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-dot-circle"></i> Spam
+              <span>32</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-comments"></i> Chats
+              <span>14</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="far fa-user-circle"></i> Contacts
+              <span>547</span></a>
+            <a class="nav-link thumb" href="javascript:void(0);"><i class="fe fe-trash"></i> Trash <span>365</span></a>
+          </nav>
+          <label class="main-content-label main-content-label-sm">Settings</label>
+          <nav class="nav main-nav-column">
+            <a class="nav-link active" href="javascript:void(0);">Email Settings</a>
+          </nav>
+        </div><!-- main-mail-menu -->
+      </div>
+    </div>
+  </div>
+  <!-- /Col -->
+
+  <!-- Col -->
+  <div class="col-lg-8 col-xl-9">
+    <div class="card">
+      <div class="card-body">
+        <form class="form-horizontal">
+          <div class="mb-4 main-content-label">Account</div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">User Name</label>
+              </div>
+              <div class="col-md-9">
+                <input type="text" class="form-control" placeholder="User Name" value="Petey">
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Email</label>
+              </div>
+              <div class="col-md-9">
+                <input type="text" class="form-control" placeholder="Email" value="info@Nowa.in">
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Language</label>
+              </div>
+              <div class="col-md-9">
+                <spk-ng-select [options]="languages" [bindLabel]="'name'" [bindValue]="'id'"
+                  [placeholder]="'--Select--'"  [searchable]="false"
+                  [clearable]="true">
+                </spk-ng-select>
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Timezone</label>
+              </div>
+              <div class="col-md-9">
+                <spk-ng-select [options]="timezones" [bindLabel]="'label'" [bindValue]="'value'"
+                  [placeholder]="'(GMT-11:00) Midway Island, Samoa'" [(defaultValue)]="selectedTimezone"
+                  [searchable]="true">
+                </spk-ng-select>
+
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3 col">
+                <label class="form-label">Verification</label>
+              </div>
+              <div class="col-md-9 col">
+                <label class="ckbox mb-2"><input class="form-check-input mt-0" type="checkbox" value=""
+                    id="flexCheckChecked1"><span>Email</span></label>
+                <label class="ckbox mb-2"><input class="form-check-input mt-0" type="checkbox" value=""
+                    id="flexCheckChecked2" checked=""><span>SMS</span></label>
+                <label class="ckbox mb-2"><input class="form-check-input mt-0" type="checkbox" value=""
+                    id="flexCheckChecked3"><span>Phone</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="mb-4 main-content-label">Security Settings</div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Login Verification</label>
+              </div>
+              <div class="col-md-9">
+                <a class="" href="javascript:void(0);">Settup Verification</a>
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+                <label class="form-label">Password Verification</label>
+              </div>
+              <div class="col-md-9">
+                <label class="ckbox mg-b-10"><input class="form-check-input mt-0" type="checkbox" value=""
+                    id="flexCheckChecked"><span>Require Personal Details</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="form-group ">
+            <div class="row">
+              <div class="col-md-3">
+              </div>
+              <div class="col-md-9">
+                <a class="me-2" href="javascript:void(0);">Deactivate Account</a>
+                <a class="me-2" href="javascript:void(0);">Change Password</a>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer justify-content-end">
+        <div><a href="javascript:void(0);" class="btn btn-success">Save Changes</a></div>
+      </div>
+    </div>
+  </div>
+  <!-- /Col -->
+
+</div>
+<!-- /row -->

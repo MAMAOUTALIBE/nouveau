@@ -1,0 +1,24 @@
+
+<ng-select
+  [items]="options()"
+  [id]="id()"
+  [ngClass]="mainClass()"
+  [class]="selectClass()"
+  [bindLabel]="bindLabel()"
+  [bindValue]="bindValue()"
+  [disabled]="disabled()"
+  [multiple]="multiple()"
+  [addTag]="addTag()"
+  [selectOnTab]="selectOnTab()"
+  [placeholder]="placeholder()"
+  [ngModel]="defaultValue()"
+  [clearable]="clearable()"
+  [searchable]="searchable()"
+  [hideSelected]="hideSelected()"
+  [maxSelectedItems]="maxSelectedItems()"
+  (change)="onValueChange($event)"
+  (change)="onSelectionChange($event)"
+  [groupBy]="groupBy()"
+  [selectableGroup]="selectableGroup()">
+
+</ng-select>

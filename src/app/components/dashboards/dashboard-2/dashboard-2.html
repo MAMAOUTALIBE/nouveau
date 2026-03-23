@@ -1,0 +1,365 @@
+<!-- row -->
+<div class="row">
+  <div class="col-xxl-9 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 px-0">
+      <div class="card px-3 ps-4">
+        <div class="row index1">
+          @for (data of cardData; track $index) {
+          <div [class]="`col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xxl-3 border-end ${data.customcardClass}`">
+            <div class="row bd-sm-e-0 p-3">
+              <div class="col-2 d-flex align-items-center justify-content-center">
+                <div class="circle-icon bg-{{data.iconBg}} text-center align-self-center overflow-hidden shadow">
+                  <i class="fe fe-{{data.icon}} fs-15 text-fixed-white"></i>
+                </div>
+              </div>
+              <div class="col-10 py-0">
+                <div class="pt-4 pb-3">
+                  <div class="d-flex">
+                    <span class="mb-2 fs-12 d-block">{{data.title}}</span>
+                    <span
+                      class="badge bg-{{data.Bgcolor}}-transparent text-{{data.textcolor}} fw-semibold ms-auto rounded-pill lh-maincard px-2 my-auto"><i
+                        class="bx bx-caret-{{data.direction}} me-1"></i>{{data.sales}}</span>
+                  </div>
+                  <div class="pb-0 mt-0">
+                    <div class="d-flex">
+                      <h4 class="fs-18 fw-semibold mb-0">{{data.value}}</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 px-0">
+      <div class="row">
+        <div class="col-sm-12 col-lg-12 col-xl-8">
+          <div class="card custom-card overflow-hidden">
+            <div class="card-header border-bottom-0 d-flex">
+              <h3 class="card-title mb-2 ">Sales Activity</h3>
+              <div class="card-options ms-auto">
+                <div class="btn-group p-0">
+                  <button class="btn btn-outline-light btn-sm" type="button">Week</button>
+                  <button class="btn btn-light btn-sm" type="button">Month</button>
+                  <button class="btn btn-outline-light btn-sm" type="button">Year</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row mb-2 ps-lg-5">
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+                  <p class="mb-1">Total Sales</p>
+                  <h5 class="mb-1">$52,618</h5>
+                  <p class="fs-11 text-muted">This month<span class="text-success ms-2"><i
+                        class="bx bx-caret-up me-2"></i><span
+                        class="badge bg-success text-fixed-white fs-11">0.9%</span></span></p>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+                  <p class=" mb-1">Total Sales</p>
+                  <h5 class="mb-1">$11,197</h5>
+                  <p class="fs-11 text-muted">This Week<span class="text-danger ms-2"><i
+                        class="bx bx-caret-down me-2"></i><span
+                        class="badge bg-danger text-fixed-white fs-11">0.15%</span></span></p>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4">
+                  <p class=" mb-1">Total Sales</p>
+                  <h5 class="mb-1">$1,143</h5>
+                  <p class="fs-11 text-muted">Today<span class="text-success ms-2"><i
+                        class="bx bx-caret-up me-2"></i><span
+                        class="badge bg-success text-fixed-white fs-11">0.11%</span></span></p>
+                </div>
+              </div>
+
+              <spk-apexcharts id="statistics2" [chartOptions]="SalesActivity" />
+
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-12 col-lg-12 col-xl-4">
+          <div class="card">
+            <div class="card-header bg-transparent pb-0">
+              <div>
+                <h3 class="card-title mb-2">Timeline</h3>
+              </div>
+            </div>
+            <div class="card-body mt-0">
+              <div class="latest-timelines mt-4">
+                <ul class="timelines mb-0">
+                  @for (event of timelineEvents; track $index ;let last=$last) {
+                  <li>
+                    <div [class]="event.iconClass">
+                      <i class="fas fa-{{event.iconState}}"></i>
+                    </div>
+                  </li>
+                  <li [class]="last?'mt-0 activity mb-0':'mt-0 activity'">
+                    <div>
+                      <span class="fs-11 text-muted float-end">{{ event.date }}</span>
+                    </div>
+                    <a href="javascript:void(0);" class="fs-12 text-dark">
+                      <p class="mb-1 fw-semibold text-dark fs-13">{{ event.name }}</p>
+                    </a>
+                    <p class="text-muted mt-0 mb-0 fs-12">{{ event.description }}</p>
+                  </li>
+                  }
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 px-0">
+      <div class="row">
+        <div class="col-sm-12 col-lg-12 col-xl-4">
+          <div class="card">
+            <div class="card-header pb-3">
+              <h3 class="card-title mb-2">COUNTRY STATISTICS</h3>
+            </div>
+            <div class="card-body p-0 customers mt-1">
+              <div class="country-card pt-0">
+                @for (country of countries; track $index) {
+                <div class="mb-4">
+                  <div class="d-flex">
+                    <span class="fs-13 fw-semibold">{{ country.country}}</span>
+                    <div class="ms-auto">
+                      <span class="mx-1 {{country.trendColor}}">
+                        <i [class]="country.trendIcon"></i>
+                      </span>
+                      <span class="number-font">{{ country.value }}</span> ({{ country.percentage
+                      }})
+                    </div>
+                  </div>
+                  <div class="progress {{country.progreClass}} ht-5 br-5 mt-2">
+                    <div
+                      class="progress-bar {{country.progressStriped}} progress-bar-animated {{country.progressBarColor}}"
+                      [style.width]="country.progressWidth"></div>
+                  </div>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-md-12 col-lg-12">
+          <div class="card">
+            <div class="card-header pb-0">
+              <h3 class="card-title mb-0">Weekly Visitors</h3>
+            </div>
+            <div class="card-body pb-0">
+              <div class="row mb-4">
+                <div class="col-6">
+                  <div class="text-muted fs-12 text-center mb-2">Average Male Visitors</div>
+                  <div class="d-flex justify-content-center align-items-center flex-wrap">
+                    <span class="me-3 fs-26 fw-semibold">2,132</span>
+                    <span class="text-success fw-semibold"><i class="bx bx-caret-up me-2"></i>0.23%</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-muted fs-12 text-center mb-2">Average Female Visitors</div>
+                  <div class="d-flex justify-content-center align-items-center flex-wrap">
+                    <span class="me-3 fs-26 fw-semibold">1,053</span>
+                    <span class="text-danger fw-semibold"><i class="bx bx-caret-down me-2"></i>0.11%</span>
+                  </div>
+                </div>
+              </div>
+
+              <spk-apexcharts id="Viewers1" [chartOptions]="WeeklyVisitors" />
+
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-md-12 col-lg-12">
+          <div class="card">
+            <div class="card-header pb-3">
+              <h3 class="card-title mb-2">MAIN TASKS</h3>
+            </div>
+            <div class="card-body p-0 customers mt-1">
+              <div class="">
+                @for (item of checkboxItems; track $index) {
+                <label class="p-2 d-flex">
+                  <span class="form-check mb-0 ms-2">
+                    <input class="form-check-input" type="checkbox" [checked]="item.checked">
+                  </span>
+                  <span class="mx-3 my-auto">
+                    {{ item.label }}
+                  </span>
+                  @if(item.badgeText){
+                  <span class="ms-auto">
+                    <span class="badge fw-semibold px-2 py-1 fs-11 me-2" [class]="'bg-' + item.badgeColor">
+                      {{ item.badgeText }}
+                    </span>
+                  </span>
+                  }
+                </label>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-12 col-lg-12 col-md-12 col-xs-12">
+    <div class="card overflow-hidden">
+      <div class="card-header pb-1">
+        <h3 class="card-title mb-0">Recent Transactions</h3>
+      </div>
+      <div class="card-body p-0 customers mt-1">
+        <div class="list-group list-lg-group list-group-flush">
+          @for (item of RecentTransactions; track item.name) {
+          <a href="javascript:void(0);" class="border-0">
+            <div class="list-group-item list-group-item-action border-0">
+              <div class="media mt-0 flex-wrap">
+                <span class="me-3 {{item.bgClass}} {{item.textClass}} transaction-icon">
+                  <i class="{{item.icon}}"></i>
+                </span>
+
+                <div class="media-body flex-fill">
+                  <div class="d-flex align-items-center">
+                    <div class="mt-0">
+                      <h5 class="mb-1 fs-13 font-weight-sembold text-dark">
+                        <span class="me-3">{{item.name}}</span>
+                      </h5>
+                      <p class="mb-0 fs-12 text-muted">{{item.date}}</p>
+                    </div>
+
+                    <span class="ms-auto wd-45p fs-12">
+                      @if (item.status) {
+                      <span class="text-primary fs-11 text-end d-block">{{item.status}}</span>
+                      }
+                      <span class="float-end {{item.amountClass}} fw-semibold">
+                        {{item.amount}}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          }
+
+
+
+        </div>
+      </div>
+    </div>
+    <div class="card custom-card overflow-hidden">
+      <div class="card-header border-bottom-0">
+        <div>
+          <h3 class="card-title mb-0">Weekly Budget</h3> <span class="d-block fs-12 mb-0 text-muted"></span>
+        </div>
+      </div>
+      <div class="card-body p-0">
+
+        <spk-apexcharts id="budget" [chartOptions]="weeklyBudget" />
+
+      </div>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="card-header pb-0">
+        <h3 class="card-title mb-0">Recent Customers</h3>
+      </div>
+      <div class="card-body p-0 customers mt-1">
+        <div class="list-group list-lg-group list-group-flush">
+
+          @for (user of userData; track $index) {
+          <a href="javascript:void(0);" class="border-0">
+            <div class="list-group-item list-group-item-action p-3 border-0">
+              <div class="media mt-0">
+                <img class="avatar-lg rounded-circle me-3 my-auto shadow" [src]="user.avatar" alt="Image description">
+                <div class="media-body flex-fill">
+                  <div class="d-flex align-items-center">
+                    <div class="mt-0">
+                      <h5 class="mb-1 fs-13 font-weight-sembold text-dark">{{ user.name }}
+                      </h5>
+                      <p class="mb-0 fs-12 text-muted">User ID: {{ user.userId }}</p>
+                    </div>
+                    <span class="ms-auto fs-14 flex-shrink-0 bgcolor">
+                      <span
+                        [class]="{   'bg-success': user.status === 'paid',   'bg-danger': user.status !== 'paid',   'bg-success-transparent': user.status === 'paid',    'bg-danger-transparent': user.status !== 'paid' }"
+                        class="float-end badge">
+                        <span [class]="user.status === 'paid' ? 'text-' + ' fw-semibold' : 'text-' +  ' fw-semibold'">{{
+                          user.status }}</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- row  -->
+<div class="row">
+  <div class="col-12 col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Product Summary</h4>
+      </div>
+      <div class="card-body pt-0">
+        <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <input class="form-control form-control-sm" type="text" placeholder="Search Here"
+              aria-label=".form-control-sm example" (input)="onSearch($event)">
+          </div>
+          <spk-dropdowns [Customclass]="'dropdown'"
+            [class]="'btn-primary btn-sm btn-wave waves-effect waves-light no-caret'" [Toggletext]="'Sort By'"
+            [Arrowicon]="true" [Menuclass]="'dropdown-menu'">
+
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">New</a></li>
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Popular</a></li>
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Relevant</a></li>
+
+          </spk-dropdowns>
+        </div>
+        <div class="table-responsive">
+          <spk-reusable-tables [tableClass]="'table  table-bordered text-nowrap mb-0'" [columns]="ProductSummary.colums"
+            id="example2">
+            @for (order of filteredRows(); track order.id) { <tr>
+              <td class="text-center">{{order.id}}</td>
+              <td>{{order.customer}}</td>
+              <td>{{order.productCode}}</td>
+              <td>{{order.productName}}</td>
+              <td>{{order.price}}</td>
+              <td>{{order.paymentMode}}</td>
+              <td><span [class]="`badge ${order.badgeClass}`">{{order.status}}</span></td>
+              <td class="">
+                <a class="btn btn-success btn-sm br-5 me-2" href="javascript:void(0)">
+                  <i>
+                    <svg class="table-edit" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24"
+                      width="16">
+                      <path d="M0 0h24v24H0V0z" fill="none"></path>
+                      <path
+                        d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM5.92 19H5v-.92l9.06-9.06.92.92L5.92 19zM20.71 5.63l-2.34-2.34c-.2-.2-.45-.29-.71-.29s-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41z">
+                      </path>
+                    </svg>
+                  </i>
+                </a>
+                <a class="btn btn-danger btn-sm br-5" href="javascript:void(0)" (click)="deleteOrder(order.id)">
+                  <i>
+                    <svg class="table-delete" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24"
+                      width="16">
+                      <path d="M0 0h24v24H0V0z" fill="none"></path>
+                      <path
+                        d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5l-1-1h-5l-1 1H5v2h14V4h-3.5z">
+                      </path>
+                    </svg>
+                  </i>
+                </a>
+              </td>
+            </tr> }
+          </spk-reusable-tables>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->

@@ -1,0 +1,37 @@
+<div class="row row-sm">
+  <div class="col-xl-3 col-lg-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Filtres rapides</div>
+      </div>
+      <div class="card-body d-grid gap-2">
+        <button class="btn btn-primary">Planifier une absence</button>
+        <button class="btn btn-outline-primary">Exporter</button>
+      </div>
+    </div>
+
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Légende</div>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="d-flex align-items-center mb-2"><span class="badge bg-primary me-2">&nbsp;</span> Congés annuels</li>
+          <li class="d-flex align-items-center mb-2"><span class="badge bg-warning me-2">&nbsp;</span> Maladie / exceptionnels</li>
+          <li class="d-flex align-items-center mb-2"><span class="badge bg-success me-2">&nbsp;</span> Maternité / paternité</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-9 col-lg-8">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Calendrier des absences</div>
+      </div>
+      <div class="card-body">
+        <full-calendar [options]="calendarOptions"></full-calendar>
+      </div>
+    </div>
+  </div>
+</div>

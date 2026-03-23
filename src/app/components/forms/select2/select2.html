@@ -1,0 +1,149 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Basic Select2
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-ng-select [options]="Selection" [clearable]="true"  [bindValue]="'value'"  [bindLabel]="'label'" [defaultValue]="BasicSelect2" [searchable]="true"  [additionalProperties]="{}">
+        </spk-ng-select>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Multiple Select
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-ng-select [options]="multipleSelect" [clearable]="true" [multiple]="true" [bindValue]="'value'"
+          [bindLabel]="'label'" [defaultValue]="selectedMulti" [searchable]="true" [hideSelected]="true"
+          [placeholder]="'Texas'" [additionalProperties]="{}">
+        </spk-ng-select>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Single Select With Placeholder
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-ng-select [options]="singleSelection" [selectClass]="'js-example-basic-single js-states'"
+          [clearable]="true" [searchable]="true" [hideSelected]="true" [placeholder]="'Texas'"
+          [additionalProperties]="{}">
+        </spk-ng-select>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Multiple Select With Placeholder
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-ng-select [options]="multipleSelection" [selectClass]="'js-example-basic-single js-states'"
+          [clearable]="true" [multiple]="true" [searchable]="true" [hideSelected]="true"
+          [placeholder]="'Multiple Select'" [additionalProperties]="{}">
+        </spk-ng-select>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Templating
+        </div>
+      </div>
+      <div class="card-body">
+        <ng-select [items]="cities1" [(ngModel)]="selectedCity1" bindLabel="name" bindValue="name" [searchable]="true"
+          class="js-example-templating js-persons ">
+          <ng-template ng-label-tmp let-item="item">
+            <img class="me-1" [src]="item.avatar" />
+            {{ item.name }}
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item">
+            <img height="23" width="23" class="img-flag rounded-circle" [src]="item.avatar" />
+            {{item.name}}
+          </ng-template>
+        </ng-select>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Templating Selection
+        </div>
+      </div>
+      <div class="card-body">
+        <ng-select [items]="cities1" [(ngModel)]="selectedCity2" [maxSelectedItems]="2" bindLabel="name"
+          [searchable]="true" bindValue="name">
+
+          <ng-template ng-label-tmp let-item="item">
+            <img class="me-1" [src]="item.avatar" />
+            {{ item.name }}
+          </ng-template>
+          <ng-template ng-option-tmp let-item="item" let-index="index" class="select2-results__option">
+            <img height="23" width="23" class="rounded-circle" [src]="item.avatar" />
+            {{ item.name }}
+          </ng-template>
+        </ng-select>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Max Selections Limiting
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-ng-select #select [options]="Selection" [selectClass]="''" [clearable]="true" [bindLabel]="'label'"
+          [bindValue]="'value'" [defaultValue]="selectedPersonId" [multiple]="true" [searchable]="true"
+          [hideSelected]="true" [maxSelectedItems]="3" [additionalProperties]="{}" />
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Disabling a Select2 control
+        </div>
+      </div>
+      <div class="card-body vstack gap-3">
+        <spk-ng-select [selectClass]="'js-example-disabled mb-3'" [clearable]="true" [options]="DisablingaSelect2"  [bindValue]="'value'"  [bindLabel]="'label'"
+          [searchable]="true" [disabled]="disable" [hideSelected]="true" placeholder="Selection-1" [defaultValue]="1"
+          [additionalProperties]="{}" (valueChange)="onCitySelected($event)" />
+        <spk-ng-select [selectClass]="'js-example-disabled mb-3 CustomDisablingngSelect2'" [clearable]="true"
+          [multiple]="true" [options]="DisablingaSelect2" [defaultValue]="selectedMulti" [searchable]="true"
+          [disabled]="disable" bindLabel="label" bindValue="value" [hideSelected]="true" [additionalProperties]="{}"
+          (valueChange)="onCitySelected($event)" />
+        <div>
+          <button class="btn btn-primary-light js-programmatic-enable me-2" (click)="enableSelect()">Enable</button>
+          <button class="btn btn-primary js-programmatic-disable" (click)="disableSelect()">Disable</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-2 -->

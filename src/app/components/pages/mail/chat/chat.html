@@ -1,0 +1,320 @@
+<!-- row -->
+<div class="row row-sm mb-4">
+  <div class="col-xl-12">
+    <div class="row main-chart-wrapper">
+      <div class="col-xxl-3 col-lg-12">
+        <div class="card">
+          <div class="main-content-app d-block">
+            <div class="main-content-left main-content-left-chat overflow-hidden">
+              <nav ngbNav #nav="ngbNav" class="nav main-nav-line main-nav-line-chat">
+                <ng-container [ngbNavItem]="1">
+                  <a ngbNavLink class="nav-link" data-bs-toggle="tab">Recent Chat</a>
+                  <ng-template ngbNavContent />
+                </ng-container>
+                <ng-container [ngbNavItem]="2">
+                  <a ngbNavLink class="nav-link" data-bs-toggle="tab">Groups</a>
+                  <ng-template ngbNavContent />
+                </ng-container>
+                <ng-container [ngbNavItem]="3">
+                  <a ngbNavLink class="nav-link" data-bs-toggle="tab">Calls</a>
+                  <ng-template ngbNavContent />
+                </ng-container>
+              </nav>
+              <overlay-scrollbars>
+                <div class="main-chat-list chat-users-tab" id="chat-msg-scroll">
+                  @for (contact of contacts; track $index) {
+                  <div class="media" [class.new]="contact.status === 'new'"
+                    [class.selected]="contact.status === 'selected'">
+
+                    <div class="main-img-user" [class.online]="contact.online">
+                      <img [alt]="contact.name" [src]="'./assets/images/faces/' + contact.img">
+
+                      @if (contact.unread) {
+                      <span>{{ contact.unread }}</span>
+                      }
+                    </div>
+
+                    <div class="media-body">
+                      <div class="media-contact-name">
+                        <span>{{ contact.name }}</span>
+                        <span>{{ contact.time }}</span>
+                      </div>
+                      <p>{{ contact.message }}</p>
+                    </div>
+
+                  </div>
+                  }
+                </div>
+              </overlay-scrollbars>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12 col-xxl-6">
+        <div class="card">
+          <div class="main-content-app d-block">
+            <div class="main-content-body main-content-body-chat">
+              <div class="main-chat-header">
+                <div class="main-img-user"><img alt="" src="./assets/images/faces/9.jpg"></div>
+                <div class="main-chat-msg-name">
+                  <h6>Reynante Labares</h6><small>Last seen: 2 minutes ago</small>
+                </div>
+                <nav class="nav">
+                  <a class="nav-link"><i class="icon ion-md-more"></i></a>
+                  <a class="nav-link" placement="top"><i class="fe fe-star" data-bs-toggle="tooltip" placement="top"
+                      ngbTooltip="Call"></i></a>
+                  <a class="nav-link"><i class="fe fe-trash" data-bs-toggle="tooltip" placement="top"
+                      ngbTooltip="Trash"></i></a>
+                  <a class="nav-link"><i class="fe fe-alert-circle" data-bs-toggle="tooltip" placement="top"
+                      ngbTooltip="View Info"></i></a>
+                </nav>
+              </div>
+              <div class="main-chat-body">
+                <overlay-scrollbars>
+                  <div class="content-inner chat-content" id="main-chat-content">
+                    <label class="main-chat-time"><span>3 days ago</span></label>
+                    <div class="media flex-row-reverse">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/9.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper right">
+                          Nulla consequat massa quis enim. Donec pede justo, fringilla vel...
+                        </div>
+                        <div class="main-msg-wrapper right">
+                          rhoncus ut, imperdiet a, venenatis vitae, justo...
+                        </div>
+                        <div class="main-msg-wrapper p-0"><img alt="" class="wd-100 ht-100 br-5"
+                            src="./assets/images/ecommerce/6.jpg"></div>
+                        <div>
+                          <span>9:48 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="media">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/6.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper left">
+                          Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+                        </div>
+                        <div>
+                          <span>9:32 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="media flex-row-reverse">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/9.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper right">
+                          Nullam dictum felis eu pede mollis pretium
+                        </div>
+                        <div>
+                          <span>11:22 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div><label class="main-chat-time"><span>Yesterday</span></label>
+                    <div class="media">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/6.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper left">
+                          Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+                        </div>
+                        <div>
+                          <span>9:32 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="media flex-row-reverse">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/9.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper right">
+                          Donec quam felis, ultricies nec, pellentesque euerdiet a, venenatis vitae, justo.
+                        </div>
+                        <div class="main-msg-wrapper right">
+                          Nullam dictum felis eu pede mollis pretium
+                        </div>
+                        <div>
+                          <span>9:48 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div><label class="main-chat-time"><span>Today</span></label>
+                    <div class="media">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/6.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper left">
+                          Maecenas tempus, tellus eget condimentum rhoncus
+                        </div>
+                        <div class="main-msg-wrapper left">
+                          Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante
+                          tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus.
+                        </div>
+                        <div>
+                          <span>10:12 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="media flex-row-reverse mb-2">
+                      <div class="main-img-user online"><img alt="" src="./assets/images/faces/9.jpg"></div>
+                      <div class="media-body">
+                        <div class="main-msg-wrapper right">
+                          Maecenas tempus, tellus eget condimentum rhoncus
+                        </div>
+                        <div class="main-msg-wrapper right">
+                          Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante
+                          tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus.
+                        </div>
+                        <div>
+                          <span>10:40 am</span> <a><i class="icon ion-android-more-horizontal"></i></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </overlay-scrollbars>
+              </div>
+              <div class="main-chat-footer rounded-bottom mt-2">
+                <nav class="nav">
+                </nav><input class="form-control mb-1" placeholder="Type your message here..." type="text">
+                <a class="nav-link me-2 mb-1" data-bs-toggle="tooltip" ngbTooltip="Add Emoticons"><i
+                    class="fe fe-paperclip"></i></a>
+                <a class="main-msg-send mb-1"><i class="fe fe-send"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12 col-xxl-3">
+        <div class="card overflow-hidden">
+          <div class="main-content-app mb-0">
+            <div class="card-body p-0 chat-main">
+              <overlay-scrollbars>
+                <div class="chat-user-details" id="chat-user-details">
+
+                    <spk-dropdowns [Customclass]="'dropdown show main-contact-star '"
+                      [class]="'new option-dots no-caret float-end ms-auto '" [Icon]="true" [IconClass]="'fe fe-more-vertical  fs-18'"
+                      [Menuclass]="'dropdown-menu shadow'" [Arrowicon]="false">
+
+
+                      <a href="javascript:void(0);" ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Edit</a>
+                      <a href="javascript:void(0);" ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Delete</a>
+                      <a href="javascript:void(0);" ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Settings</a>
+                    </spk-dropdowns>
+
+             
+                  <div class="text-center border-bottom chat-image p-4 pb-0 mb-4 br-5 mt-3">
+                    <div class="main-img-user avatar-xl main-avatar online mb-3 mx-auto">
+                      <a class="" [routerLink]="['/pages/profile']"><img alt="avatar" class="rounded-circle"
+                          src="./assets/images/faces/2.jpg"></a>
+                    </div>
+                    <a [routerLink]="['/pages/profile']">
+                      <h5 class="mb-1">Ryan Gracie</h5>
+                    </a>
+                    <p class="text-muted mt-0 mb-1 pt-0 fs-13">Senior Web Designer</p>
+                    <p class="text-muted mt-0 pt-0 fs-13 mb-0">+123(45)-678-90</p>
+                  </div>
+                  <div class="">
+                    <div class="px-4">
+                      <h6 class="mb-3">Contact Details :</h6>
+                      <div class="d-flex">
+                        <div>
+                          <a class="nav-link border rounded-pill chat-profile me-2" href="javascript:void(0);"><i
+                              class="fe fe-shield"></i></a>
+                        </div>
+                        <div class="ms-2">
+                          <p class="fs-13 font-weight-semibold mb-0">Id</p>
+                          <p class="fs-12 text-muted">2E345D4.</p>
+                        </div>
+                      </div>
+                      <div class="d-flex">
+                        <div>
+                          <a class="nav-link border rounded-pill chat-profile me-2" href="javascript:void(0);"><i
+                              class="fe fe-mail"></i></a>
+                        </div>
+                        <div class="ms-2">
+                          <p class="fs-13 font-weight-semibold mb-0">Email</p>
+                          <p class="fs-12 text-muted">gracie435&#64;gmail.com.</p>
+                        </div>
+                      </div>
+                      <div class="d-flex mt-2">
+                        <div>
+                          <a class="nav-link border rounded-pill chat-profile me-2" href="javascript:void(0);"><i
+                              class="fe fe-map-pin"></i></a>
+                        </div>
+                        <div class="ms-2">
+                          <p class="fs-13 font-weight-semibold mb-0">Address</p>
+                          <p class="fs-12 text-muted">2nd street,houston texas,united states.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="px-4">
+                      <h6 class="mb-0">Shared Files :</h6>
+                      <div class="card custom-card overflow-hidden border-0">
+                        <div class="card-body pb-sm-0 ps-0">
+                          <div class="border-0 p-0 mb-4">
+                            <div class="media mt-0">
+                              <div class="ps-0 me-3"><i class="fa fa-folder-open shared-files text-muted"></i></div>
+                              <div class="media-body">
+                                <div class="d-flex align-items-center">
+                                  <div class="mt-0">
+                                    <h5 class="mb-1 fs-13 font-weight-sembold text-dark"> Ex Document</h5>
+                                    <p class="mb-0 fs-13 text-muted">ppt<span class="fs-11 ms-2">1.2 mb</span></p>
+                                  </div>
+                                  <span class="ms-auto wd-45p fs-16 ">
+                                    <span id="spark1" class="wd-100p"></span>
+                                    <span class="float-end badge">
+                                      <span class="op-7 text-muted font-weight-semibold">4 hrs ago </span>
+                                    </span>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="border-0 p-0 mb-4">
+                            <div class="media mt-0">
+                              <div class="ps-0 me-3"><i class="fa fa-image shared-files text-muted"></i></div>
+                              <div class="media-body">
+                                <div class="d-flex align-items-center">
+                                  <div class="mt-0">
+                                    <h5 class="mb-1 fs-13 font-weight-sembold text-dark">Sam Photo</h5>
+                                    <p class="mb-0 fs-13 text-muted">img<span class="fs-11 ms-2">12 mb</span></p>
+                                  </div>
+                                  <span class="ms-auto wd-45p fs-16 ">
+                                    <span id="spark2" class="wd-100p"></span>
+                                    <span class="float-end badge">
+                                      <span class="op-7 text-muted font-weight-semibold">4 hrs ago </span>
+                                    </span>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="border-0 p-0 mb-4">
+                            <div class="media mt-0">
+                              <div class="ps-0 me-3"><i class="fa fa-envelope shared-files text-muted"></i></div>
+                              <div class="media-body">
+                                <div class="d-flex align-items-center">
+                                  <div class="mt-0">
+                                    <h5 class="mb-1 fs-13 font-weight-sembold text-dark"> video</h5>
+                                    <p class="mb-0 fs-13 text-muted">Video<span class="fs-12 ms-2">16 mb</span></p>
+                                  </div>
+                                  <span class="ms-auto wd-45p fs-16 ">
+                                    <span id="spark3" class="wd-100p"></span>
+                                    <span class="float-end badge">
+                                      <span class="op-7 text-muted font-weight-semibold text-wrap">22 mins ago </span>
+                                    </span>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </overlay-scrollbars>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- row -->

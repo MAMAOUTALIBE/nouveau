@@ -1,0 +1,26 @@
+<div class="card sales-card circle-image1">
+    <div class="row">
+        <div class="col-8">
+            <div class="ps-4 pt-4 pe-3 pb-4 pt-0">
+                <div class="">
+                    <p class="mb-2 fs-12 fw-semibold">{{data()?.title}}</p>
+                </div>
+                <div class="pb-0 mt-0">
+                    <div class="d-flex">
+                        <h4 class="fs-26 fw-semibold mb-2">{{data()?.value}}</h4>
+                    </div>
+                    <p class="mb-0 fs-12 text-muted">{{data()?.lastWeek}}
+                        <i [class]="`fas fa-arrow-circle-${data()?.trendIcon} mx-2 ${data()?.trendClass}`"></i>
+                        <span [class]="data()?.trendClass"> {{data()?.trendValue}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div
+                [class]="`circle-icon widget ${data()?.cardClass} text-center align-self-center  overflow-hidden `">
+                <i [class]="`fe fe-${data()?.iconClass} fs-20 lh-lg text-fixed-white`"></i>
+            </div>
+        </div>
+    </div>
+</div>

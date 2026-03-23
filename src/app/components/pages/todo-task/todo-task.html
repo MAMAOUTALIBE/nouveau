@@ -1,0 +1,49 @@
+<!-- row -->
+<div class="row row-sm">
+  <!-- col -->
+  <div class="col-xl-3 col-lg-12">
+    <div class="card tasks-card">
+      <div class="list-group list-group-transparent mb-0 mail-inbox pb-3">
+        <div class="mt-4 mb-4 mx-4 text-center">
+          <a href="javascript:void(0);" class="btn btn-primary d-grid">Add New Task</a>
+        </div>
+        @for (item of navItems; track $index) {
+        <a href="javascript:void(0);" class="list-group-item d-flex align-items-center border-0 py-2">
+          <i
+            class="fe {{ item.icon }} fs-18 me-4 p-2 border-{{ item.color }} rounded-circle bg-{{ item.color }}-transparent text-{{ item.color }}"></i>
+
+          <span>{{ item.label }}</span>
+
+          @if (item.badge) {
+          <span class="ms-auto badge {{ item.badge.color }}">
+            {{ item.badge.count }}
+          </span>
+          }
+        </a>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-9 col-lg-12">
+    <div class="row row-sm">
+      <!-- col -->
+      <div class="col-lg-12">
+        <div class="card mg-b-20">
+          <div class="card-body d-flex p-3">
+            <div class="main-content-label mb-0 mt-1">User Today Tasks</div>
+            <div class="ms-auto"><a class="d-block tx-20 px-3" data-placement="top" data-bs-toggle="tooltip"
+                ngbTooltip="Add New User" href="javascript:void(0);"><i class="si si-plus text-muted"></i></a></div>
+          </div>
+        </div>
+      </div>
+      <!-- /col -->
+      @for (item of tasks; track $index) {
+      <div class="col-xl-4 col-md-6">
+        <spk-todo-card [data]="item"></spk-todo-card>
+      </div>
+      }
+    </div>
+  </div>
+  <!-- /col -->
+</div>
+<!-- row closed -->

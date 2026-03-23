@@ -1,0 +1,91 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Basic Pie Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="pie-basic" [chartOptions]="BasicPieChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Simple Donut Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="donut-simple" [chartOptions]="SimpleDonutChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Updating Donut Chart</div>
+      </div>
+      <div class="card-body ">
+        <div id="donut-update">
+
+          <spk-apexcharts id="donut-update" [chartOptions]="UpdatingDonutChart" />
+
+          <div class="text-center mt-6">
+            <button (click)="randomize()" class="btn btn-sm btn-primary m-1" [id]="'randomize'">Randomize</button>
+            <button (click)="appendData()" class="btn btn-sm btn-primary m-1" [id]="'add'">Add</button>
+            <button (click)="removeData()" class="btn btn-sm btn-primary m-1" [id]="'remove'">Remove</button>
+            <button (click)="reset()" class="btn btn-sm btn-primary m-1" [id]="'reset'">Reset</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Monochrome Pie Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="pie-monochrome" [chartOptions]="MonochromePieChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Gradient Donut Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="donut-gradient" [chartOptions]="GradientDonutChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Donut Chart With Patterns</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="donut-pattern" [chartOptions]="DonutChartWithPatterns" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Image Filled Pie Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="pie-image" [chartOptions]="ImageFilledPieChart" />
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

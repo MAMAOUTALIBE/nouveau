@@ -1,0 +1,13 @@
+<div class="d-flex">
+  <span class="fs-13 fw-semibold">{{ country() }}</span>
+  <div class="ms-auto">
+    <span class="mx-1" [ngClass]="trendColor()">
+      <i [class]="trendIcon()"></i>
+    </span>
+    <span class="number-font">{{ value() }}</span> ({{ percentage() }})
+  </div>
+</div>
+<div class="progress {{progreClass()}} ht-5 br-5 mt-2">
+  <div class="progress-bar {{progressStriped()}} progress-bar-animated" [ngClass]="progressBarColor()"
+    [style.width]="progressWidth()"></div>
+</div>

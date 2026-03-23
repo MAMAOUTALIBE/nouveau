@@ -1,0 +1,291 @@
+<!-- breadcrumb -->
+<div class="breadcrumb-header justify-content-between">
+  <div class="left-content">
+    <span class="main-content-title mg-b-0 mg-b-lg-1">CONTACTS</span>
+  </div>
+  <div class="justify-content-center">
+    <button type="button" class="btn btn-primary">
+      <i class="fe fe-plus me-1"></i> Add New Contact
+    </button>
+  </div>
+</div>
+<!-- /breadcrumb -->
+<!-- Page Header Close -->
+<!-- row -->
+<div class="row row-sm">
+  <div class="col-sm-12 col-lg-5 col-xl-4 col-xxl-3">
+    <div class="card custom-card">
+      <div class="">
+        <div class="main-content-contacts pt-0">
+          <div class="main-content-left main-content-left-contacts">
+            <nav ngbNav #nav="ngbNav" [activeId]="1" class="nav main-nav-line  border-bottom-0  main-nav-line-chat ">
+              <ng-container [ngbNavItem]="1">
+                <a ngbNavLink class="nav-link m-0" data-bs-toggle="tab" href="#mainContactList">All
+                  Contacts</a>
+                <ng-template ngbNavContent>
+                  <!-- contacts.component.html -->
+                  <div class="main-contacts-list" id="mainContactList">
+
+                    @for (group of contactGroups; track $index) {
+                    <div class="main-contact-label border-bottom">
+                      {{ group.label }}
+                    </div>
+
+                    @for (contact of group.contacts; track $index) {
+                    <div [class]="`main-contact-item ${contact.active ? 'selected':''}`">
+
+                      <!-- Avatar / Image -->
+                      @if (contact.avatar) {
+                      <div class="main-img-user" [class.online]="contact.online">
+                        <img [src]="contact.avatar" alt="avatar">
+                      </div>
+                      } @else {
+                      <div class="main-avatar" [class.online]="contact.online" [ngClass]="contact.avatarBg">
+                        {{ contact.initial }}
+                      </div>
+                      }
+
+                      <!-- Body -->
+                      <div class="main-contact-body">
+                        <h6>{{ contact.name }}</h6>
+                        <span>{{ contact.value }}</span>
+                      </div>
+
+                      <!-- Actions -->
+                      <spk-dropdowns Customclass="main-contact-star" class="border-0 p-0 no-caret" [Icon]="true"
+                        IconClass="fe fe-more-vertical fs-18" Menuclass="dropdown-menu-end">
+
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-star me-2"></i>Add to Favorite
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-edit me-2"></i>Edit
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-trash-2 me-2"></i>Delete
+                          </a>
+                        </li>
+                      </spk-dropdowns>
+                    </div>
+                    }
+                    }
+
+                  </div>
+
+                </ng-template>
+              </ng-container>
+
+              <ng-container [ngbNavItem]="2">
+                <a ngbNavLink class="nav-link" data-bs-toggle="tab" href="#mainContactList">Favorites</a>
+                <ng-template ngbNavContent>
+                  <!-- contacts.component.html -->
+                  <div class="main-contacts-list" id="mainContactList">
+
+                    @for (group of contactGroups; track $index) {
+                    <div class="main-contact-label border-bottom">
+                      {{ group.label }}
+                    </div>
+
+                    @for (contact of group.contacts; track $index) {
+                    <div class="main-contact-item">
+
+                      <!-- Avatar / Image -->
+                      @if (contact.avatar) {
+                      <div class="main-img-user" [class.online]="contact.online">
+                        <img [src]="contact.avatar" alt="avatar">
+                      </div>
+                      } @else {
+                      <div class="main-avatar" [class.online]="contact.online" [ngClass]="contact.avatarBg">
+                        {{ contact.initial }}
+                      </div>
+                      }
+
+                      <!-- Body -->
+                      <div class="main-contact-body">
+                        <h6>{{ contact.name }}</h6>
+                        <span>{{ contact.value }}</span>
+                      </div>
+
+                      <!-- Actions -->
+                      <spk-dropdowns Customclass="main-contact-star" class="border-0 p-0 no-caret" [Icon]="true"
+                        IconClass="fe fe-more-vertical fs-18" Menuclass="dropdown-menu-end">
+
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-star me-2"></i>Add to Favorite
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-edit me-2"></i>Edit
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="javascript:void(0);">
+                            <i class="fe fe-trash-2 me-2"></i>Delete
+                          </a>
+                        </li>
+                      </spk-dropdowns>
+
+                    </div>
+                    }
+                    }
+
+                  </div>
+
+                </ng-template>
+              </ng-container>
+            </nav>
+            <div [ngbNavOutlet]="nav" class="no-tab-border no-tap-padding"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 col-lg-7 col-xl-8 col-xxl-9">
+    <div class="">
+      <div class="main-content-body main-content-body-contacts card custom-card">
+        <div class="main-contact-info-header pt-3">
+          <div class="media">
+            <div class="main-img-user">
+              <div class="avatar-upload">
+                <img [src]="url1" alt="avatar" class="rounded-circle">
+
+                <a href="javascript:void(0);" (click)="fileInput.click()">
+                  <i class="fe fe-camera"></i>
+                </a>
+
+                <input type="file" #fileInput (change)="handleFileInput($event)" style="display: none;"
+                  accept="image/*">
+              </div>
+            </div>
+            <div class="media-body">
+              <h5>Teri Dactyl</h5>
+              <p>Web Designer</p>
+              <nav class="contact-info">
+                <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
+                  ngbTooltip="Call"><i class="fe fe-phone"></i></a>
+                <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
+                  ngbTooltip="Video"><i class="fe fe-video"></i></a>
+                <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
+                  ngbTooltip="message"><i class="fe fe-message-square"></i></a>
+                <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
+                  ngbTooltip="Add to Group"><i class="fe fe-user-plus"></i></a>
+                <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
+                  ngbTooltip="Block"><i class="fe fe-slash"></i></a>
+              </nav>
+            </div>
+          </div>
+          <div class="main-contact-action btn-list pt-3 pe-0">
+            <a href="javascript:void(0);" class="btn ripple btn-primary text-fixed-white btn-icon" data-placement="top"
+              data-bs-toggle="tooltip" ngbTooltip="Edit Profile"><i class="fe fe-edit"></i></a>
+            <a href="javascript:void(0);" class="btn ripple btn-secondary text-fixed-white btn-icon"
+              data-placement="top" data-bs-toggle="tooltip" ngbTooltip="Delete Profile"><i
+                class="fe fe-trash-2"></i></a>
+            <a href="javascript:void(0);" class="btn ripple btn-warning text-fixed-white btn-icon" data-placement="top"
+              data-bs-toggle="tooltip" ngbTooltip="Add Favorite"><i class="fe fe-star"></i></a>
+          </div>
+        </div>
+        <div class="main-contact-info-body">
+          <div class="px-4 py-3">
+            <h6>Biography :</h6>
+            <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam,
+              nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
+              voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo
+              voluptas nulla pariatur.</p>
+            <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam,
+              nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
+              voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo
+              voluptas nulla pariaturexplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur
+              aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi
+              nesciunt.</p>
+          </div>
+          <div class="media-list pb-0">
+            <div class="media">
+              <div class="media-body px-4">
+                <div>
+                  <label>Work :</label> <span class="tx-medium">+1 (234) 567 8901</span>
+                </div>
+                <div>
+                  <label>Personal :</label> <span class="tx-medium">+1 (498) 021 0090</span>
+                </div>
+              </div>
+            </div>
+            <div class="media">
+              <div class="media-body px-4">
+                <div>
+                  <label>Gmail Account :</label> <span class="tx-medium">Dactyl.taylor@gmail.com</span>
+                </div>
+                <div>
+                  <label>Other Account :</label> <span class="tx-medium">me@bootstrapdash.me</span>
+                </div>
+              </div>
+            </div>
+            <div class="media">
+              <div class="media-body px-4">
+                <div>
+                  <label>Current Address :</label> <span class="tx-medium">012 Dashboard Apartments,
+                    Dayl Francisco, California 13245</span>
+                </div>
+              </div>
+            </div>
+            <div class="media mb-0">
+              <div class="media-body px-4 pb-3">
+                <div>
+                  <label>Call History :</label> <span class="tx-medium">Duration of last call: 5m
+                    25sec</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card custom-card">
+        <div class="card-header pb-0">
+          <div class="card-title">Recent Contacts</div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            @for (contact of contacts; track $index) {
+            <div class="col-md-12 col-lg-12 col-xl-6 col-xxl-4">
+              <div class="border d-flex p-2 br-5 mb-2 flex-wrap">
+                <div class="recent-contacts me-3">
+                  <div class="main-img-user avatar avatar-md">
+                    <img alt="avatar" class="rounded-circle" [src]="contact.image">
+                  </div>
+                </div>
+                <div>
+                  <h6 class="mt-1 mb-1">{{ contact.name }}</h6>
+                  <p class="mb-0 text-muted">{{ contact.role }}</p>
+                </div>
+                <div class="my-auto ms-auto d-md-flex">
+                  <nav class="contact-info d-flex">
+                    <a href="javascript:void(0);" class="contact-icon border tx-inverse rounded-pill"
+                      data-bs-toggle="tooltip" ngbTooltip="Call">
+                      <i class="fe fe-phone tx-12"></i>
+                    </a>
+                    <a href="javascript:void(0);" class="contact-icon border tx-inverse rounded-pill"
+                      data-bs-toggle="tooltip" ngbTooltip="Video">
+                      <i class="fe fe-video tx-12"></i>
+                    </a>
+                  </nav>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- End Row -->

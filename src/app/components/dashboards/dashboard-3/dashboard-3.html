@@ -1,0 +1,312 @@
+<!-- row -->
+<div class="row">
+  <div class="col-xl-7 col-lg-12 col-md-12 col-sm-12">
+    <div class="card primary-custom-card1">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-xl-5 col-lg-6 col-md-12 col-sm-12">
+            <div class="prime-card"><img class="img-fluid" src="./assets/images/png/dashboard8.png" alt="">
+            </div>
+          </div>
+          <div class="col-xl-7 col-lg-6 col-md-12 col-sm-12">
+            <div class="text-justified align-items-center">
+              <h2 class="text-dark fw-semibold mb-3 mt-2">Hi, Welcome Back <span class="text-primary">Nick!</span></h2>
+              <p class="text-dark fs-17 mb-2 lh-3"> You have used the 100% of free plan storage. Please
+                upgrade your plan to get unlimited storage.</p>
+              <p class="fw-semibold fs-12 mb-4">For billing related queries, contact us through support
+                chat or mail us at team&#64;spruko.com </p>
+              <button class="btn btn-primary mb-3 shadow">Upgrade to new Plan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12">
+    <!-- <div class="container"> -->
+    <div class="row">
+      @for(data of cardData;track $index){
+      <div class="col-xl-6 col-lg-6 col-md-6 col-xs-12">
+        <div class="card sales-card circle-image1">
+          <div class="row">
+            <div class="col-8">
+              <div class="ps-4 pt-4 pe-3 pb-4">
+                <div class="">
+                  <h6 class="mb-2 fs-12">{{data.title}}</h6>
+                </div>
+                <div class="pb-0 mt-0">
+                  <div class="d-flex">
+                    <h4 class="fs-20 fw-semibold mb-2">{{data.value}}</h4>
+                  </div>
+                  <p class="mb-0 fs-12 text-muted">{{data.status}}<i
+                      class="bx bx-caret-{{data.direction}} mx-2 text-{{data.textcolor}}"></i>
+                    <span class="text-{{data.textcolor}} fw-semibold"> {{data.sales}}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="circle-icon bg-{{data.Bgcolor}}-transparent text-center align-self-center overflow-hidden">
+                <i class="fe fe-{{data.icon}} fs-16 text-{{data.iconBg}}"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  <!-- </div> -->
+</div>
+<!-- row closed -->
+
+<!-- row -->
+<div class="row">
+  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-6">
+    <div class="card custom-card overflow-hidden">
+      <div class="card-header border-bottom-0">
+        <div>
+          <h3 class="card-title mb-2 ">Project Budget</h3> <span class="d-block fs-12 mb-0 text-muted"></span>
+        </div>
+      </div>
+      <div class="card-body">
+
+          <spk-apexcharts  id="statistics3" [chartOptions]="ProjectBudget" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 col-lg-12 col-xl-6 col-xxl-3">
+    <div class="card overflow-hidden">
+      <div class="card-header pb-0">
+        <h3 class="card-title mb-0">Recent Customers</h3>
+      </div>
+      <div class="card-body p-0 customers ">
+        <div class="list-group list-lg-group list-group-flush ">
+          @for (user of userData; track $index) {
+          <a href="javascript:void(0);" class="border-0">
+            <div class="list-group-item list-group-item-action p-3 border-0">
+              <div class="media mt-0">
+                <img class="avatar-lg rounded-circle me-3 my-auto shadow" [src]="user.avatar" alt="Image description">
+                <div class="media-body flex-fill">
+                  <div class="d-flex align-items-center">
+                    <div class="mt-0">
+                      <h5 class="mb-1 fs-13 font-weight-sembold text-dark">{{ user.name }}
+                      </h5>
+                      <p class="mb-0 fs-12 text-muted">User ID: {{ user.userId }}</p>
+                    </div>
+                    <span class="ms-auto fs-14 flex-shrink-0 bgcolor">
+                      <span
+                        [class]="{   'bg-success': user.status === 'paid',   'bg-danger': user.status !== 'paid',   'bg-success-transparent': user.status === 'paid',    'bg-danger-transparent': user.status !== 'paid' }"
+                        class="float-end badge">
+                        <span [class]="user.status === 'paid' ? 'text-' + ' fw-semibold' : 'text-' +  ' fw-semibold'">{{
+                          user.status }}</span>
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-12 col-xl-6 col-xxl-3">
+    <div class="card overflow-hidden">
+      <div class="card-header pb-2">
+        <div class="card-title mb-2">Warehouse Operating Costs</div>
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group projects-list border-0">
+          @for (project of projects; track $index) {
+          <div class="list-group-item list-group-item-action flex-column align-items-start border-0">
+            <div class="d-flex w-100 justify-content-between">
+              <p class="fs-13 mb-2 fw-semibold text-dark">{{ project.title }}</p>
+              <h4 class="text-dark mb-1 fw-semibold text-dark fs-18">{{ project.value }}</h4>
+            </div>
+            <div class="d-flex w-100 justify-content-between">
+              <span class="text-muted fs-12">
+                <i [class]="`me-2 bx bx-caret-${project.trend === 'up'?'up text-success':'down text-danger'}`"></i>
+                <span [class.text-success]="project.trend === 'up'" [class.text-danger]="project.trend === 'down'">
+                  {{ project.percent }}
+                </span> {{ project.lastMonthLabel }}
+              </span>
+              <span class="text-muted fs-11">{{ project.daysAgo }}</span>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- row -->
+<div class="row row-sm">
+  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
+    <div class="card">
+      <div class="card-header bg-transparent pb-0">
+        <div>
+          <h3 class="card-title mb-2">Timeline</h3>
+        </div>
+      </div>
+      <div class="card-body  mt-0">
+        <div class="latest-timelines mt-4">
+          <ul class="timelines mb-0">
+
+            @for (event of timelineEvents; track $index ;let last=$last) {
+            <li>
+              <div [class]="event.iconClass">
+                <i class="fas fa-{{event.iconState}}"></i>
+              </div>
+            </li>
+            <li [class]="last?'mt-0 activity border br-5 p-2 mb-3':'mt-0 activity border br-5 p-2'">
+              <div>
+                <span class="fs-11 text-muted float-end">{{ event.date }}</span>
+              </div>
+              <a href="javascript:void(0);" class="fs-12 text-dark">
+                <p class="mb-1 fw-semibold text-dark fs-13">{{ event.name }}</p>
+              </a>
+              <p class="text-muted mt-0 mb-0 fs-12">{{ event.description }}</p>
+            </li>
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
+    <div class="card">
+      <div class="card-header pb-1">
+        <h3 class="card-title mb-2">MAIN TASKS</h3>
+      </div>
+      <div class="card-body p-0 customers mt-1">
+        <div class="">
+          @for (item of checkboxItems; track $index) {
+          <label class="p-2 d-flex">
+            <span class="form-check mb-0 ms-2">
+              <input class="form-check-input" type="checkbox" [checked]="item.checked">
+            </span>
+            <span class="mx-3 my-auto">
+              {{ item.label }}
+            </span>
+            @if(item.badgeText){
+            <span class="ms-auto">
+              <span class="badge fw-semibold px-2 py-1 fs-11 me-2" [class]="'bg-' + item.badgeColor">
+                {{ item.badgeText }}
+              </span>
+            </span>
+            }
+          </label>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-12 col-xl-6 col-lg-12 col-xxl-3">
+    <div class="card">
+      <div class="card-header pb-3">
+        <h3 class="card-title mb-2">SALES ACTIVITY</h3>
+      </div>
+      <div class="card-body p-0 customers mt-1">
+        <div class="country-card pt-1">
+          @for (country of countries; track $index;let last =$last) {
+          <div [class]="last?'mb-3':'mb-4'">
+            <div class="d-flex">
+              <span class="fs-13 fw-semibold">{{ country.country }}</span>
+              <div class="ms-auto">
+                <span class="mx-1" [class]="country.trendColor">
+                  <i [class]="country.trendIcon"></i>
+                </span>
+                <span class="number-fontcountry.">{{ country.value }}</span> ({{ country.percentage }})
+              </div>
+            </div>
+            <div [class]="`progress  ht-5 br-5 mt-2`">
+              <div class="progress-bar {{country.progressStriped}} progress-bar-animated"
+                [class]="country.progressBarColor" [style.width]="country.progressWidth"></div>
+            </div>
+          </div>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
+    <div class="card">
+      <div class="card-header pb-0">
+        <h3 class="card-title mb-2">Weekly Visitors</h3>
+      </div>
+      <div class="card-body pb-0">
+        <div class="row mb-5">
+          <div class="col-6">
+            <div class="text-muted fs-12 text-center mb-2">Average Male Visitors</div>
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="me-3 fs-26 fw-semibold">2,132</span>
+              <span class="text-success fw-semibold"><i class="bx bx-caret-up me-2"></i>0.23%</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="text-muted fs-12 text-center mb-2">Average Female Visitors</div>
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="me-3 fs-26 fw-semibold">1,053</span>
+              <span class="text-danger fw-semibold"><i class="bx bx-caret-down me-2"></i>0.11%</span>
+            </div>
+          </div>
+        </div>
+
+        <spk-apexcharts id="Viewers2" [chartOptions]="WeeklyVisitors" />
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- row closed -->
+
+<!-- row  -->
+<div class="row">
+  <div class="col-12 col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Product Summary</h4>
+      </div>
+      <div class="card-body pt-0">
+        <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <input class="form-control form-control-sm" type="text" placeholder="Search Here"
+              aria-label=".form-control-sm example" (input)="onSearch($event)">
+          </div>
+          <spk-dropdowns [Customclass]="'dropdown'" [class]="'btn-primary btn-sm no-caret'"
+            [Toggletext]="'Sort By'" [Arrowicon]="true" [Menuclass]="'dropdown-menu'">
+
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">New</a></li>
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Popular</a></li>
+            <li><a ngbDropdownItem class="dropdown-item" href="javascript:void(0);">Relevant</a></li>
+
+          </spk-dropdowns>
+
+        </div>
+        <div class="table-responsive">
+          <spk-reusable-tables [tableClass]="'table  table-bordered text-nowrap mb-0'"
+            [columns]="ProductSummary.colums">
+            @for (order of filteredRows(); track order.id) { <tr>
+              <td class="text-center">{{order.id}}</td>
+              <td>{{order.customer}}</td>
+              <td>{{order.productCode}}</td>
+              <td>{{order.productName}}</td>
+              <td>{{order.price}}</td>
+              <td>{{order.paymentMode}}</td>
+              <td> <span class="badge {{order.badgeClass}}">{{order.status}}</span> </td>
+            </tr> }
+          </spk-reusable-tables>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->

@@ -1,0 +1,35 @@
+<table class="{{tableClass()}}">
+  @if (captionbeforehead()) {
+    <caption>{{captiontitle()}}</caption>
+  }
+  @if(columns()){
+    <thead class="{{tableHead()}}">
+      <tr [class]="trHeadClass()">
+        @if(showCheckbox()){
+        <th [class]="checkboxClass()">
+          <input [class]="`form-check-input ${checkboxinputClass()}`" type="checkbox" [checked]="allTasksChecked" (change)="onToggleSelectAll($event)"
+            aria-label="Select all" />
+        </th>
+        }
+        @for(column of columns(); track $index){
+        <th [class]="column.tableHeadColumn">{{ column.header }}</th>
+        }
+      </tr>
+    </thead>
+  }
+
+  <tbody class="{{tableBody()}}">
+    <ng-content></ng-content>
+  </tbody>
+
+  @if(showFooter()){
+  <tfoot [class]="tableFooter()">
+    @if(footerData()){
+    @for(column of footerData(); track $index){
+    <th>{{ column }}</th>
+    }
+    }
+    <ng-content select="[footer]"></ng-content>
+  </tfoot>
+  }
+</table>

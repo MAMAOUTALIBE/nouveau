@@ -1,0 +1,254 @@
+<!-- Start:: row-1 -->
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Basic Alert
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button type="button" class="btn ripple btn-primary" aria-label="Try me! Example: A basic message"
+                    id="swal-basic" [swal]="['Welcome TO Your Admin Page', '']"> Basic Alert</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Title With Text Under
+                </div>
+            </div>
+            <div class="card-body text-center">
+
+                <button type="button" class="btn ripple btn-primary" aria-label="Try me! Example: Title with text"
+                    id="swal-title" [swal]="['The Internet ?', 'That thing is still around ?', 'question']">
+                    Title With Text
+                </button>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    With Text,Error Icon & Footer
+                </div>
+            </div>
+            <div class="card-body text-center">
+
+                <button type="button" class="btn ripple btn-primary" id="swal-Error" [swal]="{
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Something went wrong!',
+          footer: '<a href=\'\'>Why do I have this issue ?</a>'
+        }">
+                    Alert Footer
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Alert With Long Window
+                </div>
+            </div>
+            <div class="card-body text-center">
+
+                <button class="btn btn-primary" id="long-window" [swal]="{
+          imageUrl: 'https://placeholder.pics/svg/300x1500',
+          imageHeight: 1500,
+          imageAlt: 'A tall image'
+        }">
+                    Long Window Here
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Custom HTML Description
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-description" [swal]="{
+          title: 'HTML example',
+          icon: 'info',
+          html: 'You can use <b>bold text</b>, <a href=//sweetalert2.github.io>links</a> and other HTML tags',
+          showCloseButton: true,
+          showCancelButton: true,
+          focusConfirm: false,
+          confirmButtonText: '<i class=\'fa fa-thumbs-up\'></i> Great!',
+          confirmButtonAriaLabel: 'Thumbs up, great!',
+          cancelButtonText: '<i class=\'fa fa-thumbs-down\'></i>',
+          cancelButtonAriaLabel: 'Thumbs down'
+        }">
+                    Custom HTML Alert
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Alert With Multiple Buttons
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="three-buttons" (click)="MultipleButtones()">Multiple
+                    Buttons</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End:: row-2 -->
+
+<!-- Start:: row-3 -->
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Custom Positioned Dialog Alert
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-dialog" [swal]="{
+          position: 'top-end',
+          icon: 'success',
+          title: 'Your work has been saved',
+          showConfirmButton: false,
+          timer: 1500
+        }">
+                    Alert Dialog
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Confirm Alert
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-confirm" (click)="ConformAlert()">Confirm Alert</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Alert With Parameters
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-parameter" (click)="parametersAlert()">Alert
+                    Parameters</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End:: row-3 -->
+
+<!-- Start:: row-4 -->
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Alert With Image
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-image" [swal]="{
+          title: 'Sweet!',
+          text: 'Modal with a custom image.',
+          imageUrl: './assets/images/media/media-59.jpg',
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: 'Custom image'
+        }">
+                    Image Alert
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Alert With Image
+                </div>
+            </div>
+            <div class="card-body text-center">
+
+                <button class="btn btn-primary" id="alert-custom-bg" [swal]="{
+          title: 'Custom width, padding, color, background.',
+          width: 600,
+          padding: '3em',
+          color: '#716add',
+          background: 'rgba(26,98,48,0.5) url(./assets/images/media/media-27.jpg)'
+        }">
+                    Custom Alert
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Auto Close Alert
+                </div>
+            </div>
+            <div class="card-body text-center">
+
+                <button class="btn btn-primary" id="alert-auto-close" [swal]="{
+          title: 'Auto close alert!',
+          text: 'I will close in 2 seconds.',
+          confirmButtonColor: '#0162e8',
+          timer: 2000,
+          timerProgressBar: true
+        }">
+                    Auto Close
+                </button>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Ajax Request Alert
+                </div>
+            </div>
+            <div class="card-body text-center">
+                <button class="btn btn-primary" id="alert-ajax" (click)="AjaxRequesrAlert()">Ajax Request</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End:: row-4 -->

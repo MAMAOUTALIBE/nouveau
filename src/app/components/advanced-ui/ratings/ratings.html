@@ -1,0 +1,144 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xxl-6 col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Basic Rater</div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">
+            Show Some <span class="text-danger">&#10084;</span> with rating
+          </h6>
+          <div id="rater-basic">
+            <spk-rating [rating]="4" [maxStars]="5"> </spk-rating>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-6 col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">5 star rater with steps</div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">Dont forget to rate the product</h6>
+          <div id="rater-steps">
+            <spk-rating [rating]="3.5" [maxStars]="5"> </spk-rating>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-6 col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Custom messages</div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">Your rating is much appreciated👏</h6>
+          <div id="custom-messages">
+            <spk-rating [rating]="4.5" [maxStars]="5"> </spk-rating>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-6 col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Unlimited number of stars readOnly</div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">Thanks for rating</h6>
+          <div id="stars-unlimited">
+            <spk-rating [rating]="4.5" [maxStars]="10" [readonly]="true"> </spk-rating>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-6 col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          5 Star rater with custom isBusyText and simulated backend
+        </div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">Thanks for rating</h6>
+          <div id="stars-busytext">
+            <spk-rating [rating]="4" [maxStars]="5"> </spk-rating>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-6 col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">On hover event</div>
+      </div>
+      <div class="card-body ">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+          <h6 class="fs-14 fw-medium">Please give your valuable rating</h6>
+
+          <div class="d-flex flex-wrap align-items-center">
+            <div id="stars-hover">
+              <spk-rating [rating]="3" [maxStars]="5" (hoverChange)="onHoverChange($event)"
+                (rateChange)="onRateChange($event)">
+              </spk-rating>
+            </div>
+            <span class="live-rating badge bg-success-transparent ms-3">
+              @if(hovered!=0){
+
+              <ng-container>
+                Hovered: <b>{{ hovered }}</b>
+              </ng-container>
+              }@else{
+              <ng-container>
+                Hovered: <b>{{ selected }}</b>
+              </ng-container>
+              }
+
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-xxl-6 col-xl-6">
+  <div class="card custom-card">
+    <div class="card-header">
+      <div class="card-title">Clear/reset rater</div>
+    </div>
+    <div class="card-body ">
+      <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <p class="fs-14 mb-0 fw-medium">
+          Thank You so much for your support :
+        </p>
+        <div class="d-flex flex-wrap align-items-center justify-content-center">
+          <div id="rater-reset">
+            <spk-rating [control]="ctrl1" [maxStars]="5"> </spk-rating>
+          </div>
+          <button class="btn btn-icon btn-sm btn-danger-light ms-3" (click)="resetRating()" id="rater-reset-button"
+            placement="top" ngbTooltip="Reset">
+            <i class="ri-restart-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--End::row-1 -->

@@ -1,0 +1,22 @@
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <div>{{ data()?.title }}</div>
+                <div class="h3 mt-2 mb-2"> <b>{{ data()?.value }}</b> <span
+                        class="{{ data()?.changeClass }} fs-13 ms-2 d-inline-block"> {{ data()?.change }} </span> </div>
+            </div>
+            <div class="col-auto align-self-center">
+                <div class="feature mt-0 mb-0"> <i class="{{ data()?.iconClass }}"></i> </div>
+            </div>
+        </div>
+        <div>
+            <p class="mb-1">Overview of Last month</p>
+            <div class="progress progress-sm h-1 mb-1">
+                <div class="progress-bar {{ data()?.progressClass }} {{ data()?.progressWidth }}" role="progressbar">
+                </div>
+            </div> <small class="mb-0 text-muted"> Monthly<span class="float-end text-muted">{{ data()?.monthly }}</span>
+            </small>
+        </div>
+    </div>
+</div>

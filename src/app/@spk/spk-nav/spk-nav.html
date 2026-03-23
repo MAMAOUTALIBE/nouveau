@@ -1,0 +1,42 @@
+
+<ul ngbNav #nav="ngbNav" [(activeId)]="activeId" [class]="navClasses()" role="tablist">
+  @for (tab of tabs(); track tab.id) {
+    <li [ngbNavItem]="tab.id" [class]="navItemClass() + (tab.isDropdown ? ' dropdown' : '')" [disabled]="!!tab.disabled">
+
+      @if (tab.isDropdown) {
+        <div ngbDropdown>
+          <button ngbNavLink ngbDropdownToggle
+                  [class]="(tab.navbuttonClass ? tab.navbuttonClass : navbuttonClass()) + ' dropdown-toggle'"
+                  role="button">
+            @if (tab.icon) { <i [class]="tab.icon" class="me-2 align-middle d-inline-block"></i> }
+            {{ tab.label }}
+          </button>
+
+          <div ngbDropdownMenu>
+            @for (item of tab.dropdownItems; track item.label) {
+              @if (item.isDivider) {
+                <div class="dropdown-divider"></div>
+              } @else {
+                <button ngbDropdownItem type="button" class="dropdown-item">
+                  {{ item.label }}
+                </button>
+              }
+            }
+          </div>
+        </div>
+      } @else {
+        <button ngbNavLink [class]="tab.navbuttonClass ? tab.navbuttonClass : navbuttonClass()">
+          @if (tab.icon) { <i [class]="tab.icon" class="me-2 align-middle d-inline-block"></i> }
+          {{ tab.label }}
+          @if (tab.badge) {
+            <span class="badge {{ tab.badge.class }} ms-1 rounded-pill">{{ tab.badge.text }}</span>
+          }
+        </button>
+      }
+
+      <ng-template ngbNavContent>
+        <ng-container [ngTemplateOutlet]="contentTemplate()" [ngTemplateOutletContext]="{ $implicit: tab }"></ng-container>
+      </ng-template>
+    </li>
+  }
+</ul>

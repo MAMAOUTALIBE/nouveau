@@ -1,0 +1,28 @@
+<div class="card">
+  <div class="card-body iconfont text-start">
+    <div class="d-flex justify-content-between">
+      <h4 class="card-title mb-3">{{data()?.title}}</h4>
+    </div>
+    <div class="d-flex mb-0">
+      <div>
+        <h4 class="mb-1 fw-bold">
+          {{data()?.value}}
+          <span class="{{data()?.changeColor}} fs-13 ms-2">{{data()?.change}}</span>
+        </h4>
+        <p class="mb-2 fs-12 text-muted">{{data()?.description}}</p>
+      </div>
+      <div class="card-chart {{data()?.chartBg}} rounded-circle ms-auto mt-0">
+        <i class="{{data()?.chartIcon}} {{data()?.chartColor}} fs-4"></i>
+      </div>
+    </div>
+
+    <div class="progress progress-sm mt-2">
+      <div class="progress-bar {{data()?.progressColor}} {{data()?.progressWidth}}" role="progressbar" aria-valuemin="0"
+        aria-valuemax="100"></div>
+    </div>
+    <small class="mb-0 text-muted">
+      Monthly
+      <span class="float-end text-muted">{{data()?.progressLabel}}</span>
+    </small>
+  </div>
+</div>

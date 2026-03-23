@@ -1,0 +1,21 @@
+  <div ngbAccordion [closeOthers]="closeOthers()" [id]="accordionId()" [class]="accordionClass()">
+    @for (item of items(); track item.id || $index) {
+    <div ngbAccordionItem [id]="item.id" [collapsed]="!item.expanded" [class]="item.itemClass || 'accordion-item'">
+
+      <h2 ngbAccordionHeader [class]="item.headerClass || 'accordion-header'">
+        <button ngbAccordionButton [class]="buttonClass()">
+          <ng-container [ngTemplateOutlet]="headerTemplate() || null" [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
+        </button>
+      </h2>
+
+      <div ngbAccordionCollapse>
+        <div ngbAccordionBody [class]="item.bodyClass || 'accordion-body'">
+          <ng-template>
+            <ng-container [ngTemplateOutlet]="bodyTemplate() || null" [ngTemplateOutletContext]="{ $implicit: item }"></ng-container>
+          </ng-template>
+        </div>
+      </div>
+
+    </div>
+    }
+  </div>

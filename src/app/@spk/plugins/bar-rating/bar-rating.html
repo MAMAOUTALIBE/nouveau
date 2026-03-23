@@ -1,0 +1,7 @@
+<ngb-rating class="star flex-wrap" [rate]="currentRating" [max]="maxStars()" [disabled]="disabled()"
+  [readonly]="readonly()" [resettable]="resettable()"
+  (rateChange)="onRateChange($event)"
+  (hover)="onHover($event)"
+  (leave)="onLeave()" [ngClass]="ngClass()">
+</ngb-rating>
+

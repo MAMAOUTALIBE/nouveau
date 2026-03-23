@@ -1,0 +1,66 @@
+<div class="card custom-card">
+  <div class="card-header justify-content-between">
+    <div class="card-title">Nouvel agent</div>
+  </div>
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Matricule</label>
+          <input type="text" class="form-control" formControlName="matricule" />
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label">Nom complet *</label>
+          <input type="text" class="form-control" formControlName="fullName" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Direction *</label>
+          <input type="text" class="form-control" formControlName="direction" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Unite</label>
+          <input type="text" class="form-control" formControlName="unit" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Poste *</label>
+          <input type="text" class="form-control" formControlName="position" />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Manager *</label>
+          <input type="text" class="form-control" formControlName="manager" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Statut *</label>
+          <select class="form-select" formControlName="status">
+            <option value="Actif">Actif</option>
+            <option value="En absence">En absence</option>
+            <option value="Inactif">Inactif</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Telephone</label>
+          <input type="text" class="form-control" formControlName="phone" />
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 justify-content-end mt-4">
+        <a routerLink="/personnel/agents" class="btn btn-light">Annuler</a>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting">
+          {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

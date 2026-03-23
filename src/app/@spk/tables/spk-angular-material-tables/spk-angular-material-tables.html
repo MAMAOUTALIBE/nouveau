@@ -1,0 +1,50 @@
+@if (showFilter()) {
+
+<div class="col-xl-2 mb-2">
+
+  <input type="text" id="search" class="form-control angualr-search" placeholder="Search..." (keyup)="applyFilter($event)" />
+</div>
+
+}
+
+@if (showAddButton() || showDeleteButton()) {
+<div class="demo-button-container">
+  @if (showAddButton()) {
+  <button type="button" (click)="addData()" class="demo-button mb-2 btn btn-primary " id="reactivity-add">
+    Add New Row
+  </button>
+  }
+  @if (showDeleteButton()) {
+  <button type="button" [disabled]="!dataToDisplay().length" (click)="removeData()"
+    class="demo-button btn btn-primary mb-2" id="reactivity-delete">
+    Remove Row
+  </button>
+  }
+</div>
+}
+
+<div class="table-responsive">
+  <div [id]="id()" [class]="divClass()">
+    <table mat-table [dataSource]="DatatableSource()" matSort [class]="tableClass()">
+      @for (column of displayedColumns(); track column) {
+      <ng-container [matColumnDef]="column">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ column | titlecase }} </th>
+        <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>
+      </ng-container>
+      }
+
+      <tr class="mat-row " *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns().length" style="padding:10px; text-align: center;">
+          No data
+        </td>
+      </tr>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+    </table>
+  </div>
+</div>
+@if (showPaginator()) {
+<mat-paginator #paginator class="custom-mat-paginator" [pageSizeOptions]="[5, 10, 20]"
+  showFirstLastButtons aria-label="Select page"></mat-paginator>
+}

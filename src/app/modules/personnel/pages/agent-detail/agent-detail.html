@@ -1,0 +1,78 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-body d-md-flex">
+        <div>
+          <img [src]="agent.photoUrl" alt="" class="br-5" />
+        </div>
+        <div class="my-md-auto mt-4 prof-details">
+          <h4 class="font-weight-semibold ms-md-4 mb-1">{{ agent.fullName }}</h4>
+          <p class="fs-13 text-muted ms-md-4 mb-2">
+            <span class="me-3 d-inline-block"><i class="far fa-address-card me-2"></i>{{ agent.position }}</span>
+            <span class="d-inline-block"><i class="far fa-building me-2"></i>{{ agent.unit }}</span>
+          </p>
+          <p class="text-muted ms-md-4 mb-2"><i class="fa fa-envelope me-2"></i>{{ agent.email }}</p>
+          <p class="text-muted ms-md-4 mb-0"><i class="fa fa-phone me-2"></i>{{ agent.phone }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer py-0">
+        <nav ngbNav #nav="ngbNav" class="main-nav-line p-0 tabs-menu profile-nav-line border-0 br-5 mb-0">
+          <ng-container ngbNavItem>
+            <a ngbNavLink class="mb-2 mt-2">État civil</a>
+            <ng-template ngbNavContent>
+              <div class="p-4">
+                <div class="row">
+                  <div class="col-md-4"><strong>Matricule</strong><div>{{ agent.matricule }}</div></div>
+                  <div class="col-md-4"><strong>Fonction</strong><div>{{ agent.position }}</div></div>
+                  <div class="col-md-4"><strong>Structure</strong><div>{{ agent.unit }}</div></div>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-container ngbNavItem>
+            <a ngbNavLink class="mb-2 mt-2">Carrière</a>
+            <ng-template ngbNavContent>
+              <div class="p-4">
+                @for (event of careerEvents; track event.date) {
+                  <div class="border-bottom pb-3 mb-3">
+                    <div class="fw-semibold">{{ event.title }}</div>
+                    <div class="text-muted">{{ event.description }}</div>
+                    <small class="text-muted">{{ event.date }}</small>
+                  </div>
+                }
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-container ngbNavItem>
+            <a ngbNavLink class="mb-2 mt-2">Documents</a>
+            <ng-template ngbNavContent>
+              <div class="p-4 table-responsive">
+                <spk-reusable-tables
+                  [tableClass]="'table text-nowrap'"
+                  [columns]="[
+                    { header: 'Type' },
+                    { header: 'Référence' },
+                    { header: 'Statut' }
+                  ]"
+                  [data]="documents"
+                >
+                  @for (doc of documents; track doc.reference) {
+                    <tr>
+                      <td>{{ doc.type }}</td>
+                      <td>{{ doc.reference }}</td>
+                      <td><span class="badge bg-success-transparent text-success">{{ doc.status }}</span></td>
+                    </tr>
+                  }
+                </spk-reusable-tables>
+              </div>
+            </ng-template>
+          </ng-container>
+        </nav>
+        <div class="border-top-0" [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
+  </div>
+</div>

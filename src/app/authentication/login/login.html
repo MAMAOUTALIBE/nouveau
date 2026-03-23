@@ -1,0 +1,152 @@
+<div class="square-box">
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+<div class="container">
+  <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
+    <div   class="col-xl-5 col-lg-6 col-md-8 col-sm-8 col-xs-10 card-sigin-main mx-auto my-auto py-4 justify-content-center">
+      <div class="card-sigin">
+        <!-- Demo content-->
+        <div class="main-card-signin d-md-flex">
+          <div class="wd-100p">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="active"
+              class=" justify-content-center align-items-center custom-login-autentication authentication-tabs nav nav-pills nav-tabs border-0 mb-2">
+              <!-- Angular Tab -->
+              <li ngbNavItem="Angular" class="">
+                <a ngbNavLink>
+                  <img class="firebase" src="./assets/images/angular.svg" alt="Angular" />
+                </a>
+                <ng-template ngbNavContent>
+                  <form [formGroup]="angularLoginForm" (ngSubmit)="Submit()">
+
+                    <div class="col-xl-12">
+                      <label for="signin-username" class="form-label text-default">User Name</label>
+                      <input type="text" class="form-control mb-3" id="signin-username" placeholder="user name"
+                        formControlName="username" autocomplete />
+                    </div>
+                    <div class="col-xl-12 mb-2">
+                      <label for="signin-password" class="form-label text-default d-block">
+                        Password
+                        <a [routerLink]="'/pages/authentication/reset-password'" class="float-end text-danger">Forget
+                          password ?</a></label>
+                      <div class="input-group">
+                        <input formControlName="password" autocomplete
+                          [type]="visibilityMap['Angular'] ? 'text' : 'password'" class="form-control form-control-lg"
+                          id="signin-password" placeholder="password" />
+                        <button class="btn btn-light rounded-start-0 custom-space-button" type="button"
+                          (click)="toggleVisibility('Angular')">
+                          <i class="{{ iconMap['Angular'] }} align-middle"></i>
+                        </button>
+                      </div>
+                      <div class="mt-2">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                          <label class="form-check-label text-muted fw-normal" for="defaultCheck1">
+                            Remember password ?
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-xl-12 d-grid mt-2">
+                      <button type="submit" [disabled]=" !angularLoginForm.valid || authservice.showLoader"
+                        class="btn btn-lg btn-primary">Sign In</button>
+                    </div>
+                  </form>
+                </ng-template>
+
+              </li>
+              <li ngbNavItem="Firebase" class="">
+                <a ngbNavLink>
+                  <img class="firebase" src="./assets/images/firebase.svg" alt="Firebase" />
+                </a>
+                <ng-template ngbNavContent>
+                  <form [formGroup]="firebaseLoginForm" (ngSubmit)="login()">
+
+                    <div class="col-xl-12">
+                      <label for="signin-username" class="form-label text-default">User Name</label>
+                      <input type="text" class="form-control  mb-3" id="signin-username" placeholder="user name"
+                        autocomplete formControlName="username" required />
+                    </div>
+                    <div class="col-xl-12 mb-2">
+
+                      <label for="signin-password" class="form-label text-default d-block">
+                        Password
+                        <a [routerLink]="['/authentication/reset-password/basic']" class="float-end text-danger">Forget
+                          password ?</a></label>
+                      <div class="input-group">
+                        <input [type]="visibilityMap['Firebase'] ? 'text' : 'password'" formControlName="password"
+                          required class="form-control form-control-lg" id="signin-password" placeholder="password" />
+                        <button class="btn btn-light rounded-start-0 custom-space-button" type="button"
+                          (click)="toggleVisibility('Firebase')">
+                          <i class="{{ iconMap['Firebase'] }} align-middle"></i>
+                        </button>
+                      </div>
+                      <div class="mt-2">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck2" />
+                          <label class="form-check-label text-muted fw-normal" for="defaultCheck2">
+                            Remember password ?
+                          </label>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-xl-12 d-grid mt-2">
+                      <button type="submit" [disabled]="!firebaseLoginForm.valid || authservice.showLoader"
+                        class="btn btn-lg btn-primary">Sign In</button>
+                    </div>
+                  </form>
+                </ng-template>
+              </li>
+            </ul>
+            <div class="d-flex mb-4"><a [routerLink]="['/dashboards/dashboard-1']"><img
+                  src="./assets/images/brand-logos/toggle-logo.png" class="sign-favicon ht-40" alt="logo"></a></div>
+            <div class="">
+              <div class="main-signup-header">
+                <h2>Welcome back!</h2>
+                <h6 class="font-weight-semibold mb-4">Please sign in to continue.</h6>
+                <div class="panel panel-primary">
+                  <div class="" [ngbNavOutlet]="nav"></div>
+                </div>
+                <div class="mt-4 d-flex text-center justify-content-center mb-2">
+                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                    <span class="btn-inner--icon"> <i class="bx bxl-facebook fs-18 tx-prime"></i> </span>
+                  </a>
+                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                    <span class="btn-inner--icon"> <i class="ri-twitter-x-line fs-15 tx-prime"></i> </span>
+                  </a>
+                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                    <span class="btn-inner--icon"> <i class="bx bxl-linkedin fs-18 tx-prime"></i> </span>
+                  </a>
+                  <a href="javascript:void(0);" class="btn  btn-icon me-3">
+                    <span class="btn-inner--icon"> <i class="bx bxl-instagram fs-18 tx-prime"></i> </span>
+                  </a>
+                </div>
+                <div class="main-signin-footer text-center mt-3">
+                  <p>
+                    <a [routerLink]="['/pages/authentication/forgot-password']" class="mb-3">Forgot password?</a>
+                  </p>
+                  <p>Don't have an account? <a [routerLink]="['/pages/authentication/signup']">Create an Account</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1530 @@
+0 verbose cli /Users/bahmamadou/.nvm/versions/node/v20.19.5/bin/node /Users/bahmamadou/.nvm/versions/node/v20.19.5/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.19.5
+3 silly config load:file:/Users/bahmamadou/.nvm/versions/node/v20.19.5/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/bahmamadou/Desktop/GPA-GOUVE/Final/.npmrc
+5 silly config load:file:/Users/bahmamadou/.npmrc
+6 silly config load:file:/Users/bahmamadou/.nvm/versions/node/v20.19.5/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" ".npm-cache" "--no-audit" "--no-fund"
+9 verbose logfile logs-max:10 dir:/Users/bahmamadou/Desktop/GPA-GOUVE/Final/.npm-cache/_logs/2026-03-22T21_08_34_605Z-
+10 verbose logfile /Users/bahmamadou/Desktop/GPA-GOUVE/Final/.npm-cache/_logs/2026-03-22T21_08_34_605Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile done cleaning log files
+13 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with ENOTFOUND
+14 silly idealTree buildDeps
+15 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/beasties' ]
+16 silly reify mark retired [
+16 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/brace-expansion'
+16 silly reify ]
+17 silly reify mark retired [
+17 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/cli-truncate'
+17 silly reify ]
+18 silly reify mark retired [
+18 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/electron-to-chromium'
+18 silly reify ]
+19 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/encoding' ]
+20 silly reify mark retired [
+20 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/express-rate-limit'
+20 silly reify ]
+21 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/filepond' ]
+22 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/immutable' ]
+23 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ip-address' ]
+24 silly reify mark retired [
+24 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/is-core-module'
+24 silly reify ]
+25 silly reify mark retired [
+25 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/make-fetch-happen'
+25 silly reify ]
+26 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/mdn-data' ]
+27 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/minimatch' ]
+28 silly reify mark retired [
+28 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/minipass-fetch'
+28 silly reify ]
+29 silly reify mark retired [
+29 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ng-apexcharts'
+29 silly reify ]
+30 silly reify mark retired [
+30 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-releases'
+30 silly reify ]
+31 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ora' ]
+32 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/path-parse' ]
+33 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/postcss' ]
+34 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/strip-ansi' ]
+35 silly reify mark retired [
+35 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/stdin-discarder'
+35 silly reify ]
+36 silly reify mark retired [
+36 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/supports-preserve-symlinks-flag'
+36 silly reify ]
+37 silly reify mark retired [
+37 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/tinyrainbow'
+37 silly reify ]
+38 silly reify mark retired [ '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/watchpack' ]
+39 silly reify mark retired [
+39 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-abtesting'
+39 silly reify ]
+40 silly reify mark retired [
+40 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/abtesting'
+40 silly reify ]
+41 silly reify mark retired [
+41 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-common'
+41 silly reify ]
+42 silly reify mark retired [
+42 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-insights'
+42 silly reify ]
+43 silly reify mark retired [
+43 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-query-suggestions'
+43 silly reify ]
+44 silly reify mark retired [
+44 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/monitoring'
+44 silly reify ]
+45 silly reify mark retired [
+45 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-personalization'
+45 silly reify ]
+46 silly reify mark retired [
+46 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/recommend'
+46 silly reify ]
+47 silly reify mark retired [
+47 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-browser-xhr'
+47 silly reify ]
+48 silly reify mark retired [
+48 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-fetch'
+48 silly reify ]
+49 silly reify mark retired [
+49 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-node-http'
+49 silly reify ]
+50 silly reify mark retired [
+50 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/aria'
+50 silly reify ]
+51 silly reify mark retired [
+51 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/animations'
+51 silly reify ]
+52 silly reify mark retired [
+52 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/compiler'
+52 silly reify ]
+53 silly reify mark retired [
+53 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/forms'
+53 silly reify ]
+54 silly reify mark retired [
+54 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/google-maps'
+54 silly reify ]
+55 silly reify mark retired [
+55 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/platform-browser'
+55 silly reify ]
+56 silly reify mark retired [
+56 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/platform-browser-dynamic'
+56 silly reify ]
+57 silly reify mark retired [
+57 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/router'
+57 silly reify ]
+58 silly reify mark retired [
+58 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@csstools/css-syntax-patches-for-csstree'
+58 silly reify ]
+59 silly reify mark retired [
+59 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/runtime'
+59 silly reify ]
+60 silly reify mark retired [
+60 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/wasi-threads'
+60 silly reify ]
+61 silly reify mark retired [
+61 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm'
+61 silly reify ]
+62 silly reify mark retired [
+62 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm64'
+62 silly reify ]
+63 silly reify mark retired [
+63 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-x64'
+63 silly reify ]
+64 silly reify mark retired [
+64 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/aix-ppc64'
+64 silly reify ]
+65 silly reify mark retired [
+65 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/darwin-x64'
+65 silly reify ]
+66 silly reify mark retired [
+66 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-arm64'
+66 silly reify ]
+67 silly reify mark retired [
+67 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-x64'
+67 silly reify ]
+68 silly reify mark retired [
+68 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm'
+68 silly reify ]
+69 silly reify mark retired [
+69 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ia32'
+69 silly reify ]
+70 silly reify mark retired [
+70 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-loong64'
+70 silly reify ]
+71 silly reify mark retired [
+71 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-mips64el'
+71 silly reify ]
+72 silly reify mark retired [
+72 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ppc64'
+72 silly reify ]
+73 silly reify mark retired [
+73 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm64'
+73 silly reify ]
+74 silly reify mark retired [
+74 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-riscv64'
+74 silly reify ]
+75 silly reify mark retired [
+75 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-s390x'
+75 silly reify ]
+76 silly reify mark retired [
+76 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-x64'
+76 silly reify ]
+77 silly reify mark retired [
+77 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-arm64'
+77 silly reify ]
+78 silly reify mark retired [
+78 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-x64'
+78 silly reify ]
+79 silly reify mark retired [
+79 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-arm64'
+79 silly reify ]
+80 silly reify mark retired [
+80 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-x64'
+80 silly reify ]
+81 silly reify mark retired [
+81 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openharmony-arm64'
+81 silly reify ]
+82 silly reify mark retired [
+82 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/sunos-x64'
+82 silly reify ]
+83 silly reify mark retired [
+83 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-arm64'
+83 silly reify ]
+84 silly reify mark retired [
+84 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-x64'
+84 silly reify ]
+85 silly reify mark retired [
+85 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-ia32'
+85 silly reify ]
+86 silly reify mark retired [
+86 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@hono/node-server'
+86 silly reify ]
+87 silly reify mark retired [
+87 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-arm64'
+87 silly reify ]
+88 silly reify mark retired [
+88 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm'
+88 silly reify ]
+89 silly reify mark retired [
+89 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-x64'
+89 silly reify ]
+90 silly reify mark retired [
+90 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-x64'
+90 silly reify ]
+91 silly reify mark retired [
+91 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-arm64'
+91 silly reify ]
+92 silly reify mark retired [
+92 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-darwin-x64'
+92 silly reify ]
+93 silly reify mark retired [
+93 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-x64'
+93 silly reify ]
+94 silly reify mark retired [
+94 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm64'
+94 silly reify ]
+95 silly reify mark retired [
+95 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm'
+95 silly reify ]
+96 silly reify mark retired [
+96 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm64'
+96 silly reify ]
+97 silly reify mark retired [
+97 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-x64'
+97 silly reify ]
+98 silly reify mark retired [
+98 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-win32-x64'
+98 silly reify ]
+99 silly reify mark retired [
+99 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm-eabi'
+99 silly reify ]
+100 silly reify mark retired [
+100 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm64'
+100 silly reify ]
+101 silly reify mark retired [
+101 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-darwin-x64'
+101 silly reify ]
+102 silly reify mark retired [
+102 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-freebsd-x64'
+102 silly reify ]
+103 silly reify mark retired [
+103 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm-gnueabihf'
+103 silly reify ]
+104 silly reify mark retired [
+104 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-musl'
+104 silly reify ]
+105 silly reify mark retired [
+105 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-ppc64-gnu'
+105 silly reify ]
+106 silly reify mark retired [
+106 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-gnu'
+106 silly reify ]
+107 silly reify mark retired [
+107 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-s390x-gnu'
+107 silly reify ]
+108 silly reify mark retired [
+108 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-gnu'
+108 silly reify ]
+109 silly reify mark retired [
+109 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-musl'
+109 silly reify ]
+110 silly reify mark retired [
+110 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-openharmony-arm64'
+110 silly reify ]
+111 silly reify mark retired [
+111 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-riscv64-gnu'
+111 silly reify ]
+112 silly reify mark retired [
+112 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-arm64-msvc'
+112 silly reify ]
+113 silly reify mark retired [
+113 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-ia32-msvc'
+113 silly reify ]
+114 silly reify mark retired [
+114 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-x64-msvc'
+114 silly reify ]
+115 silly reify mark retired [
+115 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@ng-select/ng-select'
+115 silly reify ]
+116 silly reify mark retired [
+116 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/git'
+116 silly reify ]
+117 silly reify mark retired [
+117 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/run-script'
+117 silly reify ]
+118 silly reify mark retired [
+118 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@oxc-project/types'
+118 silly reify ]
+119 silly reify mark retired [
+119 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-android-arm64'
+119 silly reify ]
+120 silly reify mark retired [
+120 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-darwin-x64'
+120 silly reify ]
+121 silly reify mark retired [
+121 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-freebsd-x64'
+121 silly reify ]
+122 silly reify mark retired [
+122 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-glibc'
+122 silly reify ]
+123 silly reify mark retired [
+123 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-glibc'
+123 silly reify ]
+124 silly reify mark retired [
+124 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-musl'
+124 silly reify ]
+125 silly reify mark retired [
+125 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-musl'
+125 silly reify ]
+126 silly reify mark retired [
+126 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-ia32'
+126 silly reify ]
+127 silly reify mark retired [
+127 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-x64'
+127 silly reify ]
+128 silly reify mark retired [
+128 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-glibc'
+128 silly reify ]
+129 silly reify mark retired [
+129 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-musl'
+129 silly reify ]
+130 silly reify mark retired [
+130 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-arm64'
+130 silly reify ]
+131 silly reify mark retired [
+131 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-android-arm64'
+131 silly reify ]
+132 silly reify mark retired [
+132 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-arm64'
+132 silly reify ]
+133 silly reify mark retired [
+133 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-x64'
+133 silly reify ]
+134 silly reify mark retired [
+134 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-freebsd-x64'
+134 silly reify ]
+135 silly reify mark retired [
+135 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-musl'
+135 silly reify ]
+136 silly reify mark retired [
+136 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-gnu'
+136 silly reify ]
+137 silly reify mark retired [
+137 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-gnu'
+137 silly reify ]
+138 silly reify mark retired [
+138 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm-gnueabihf'
+138 silly reify ]
+139 silly reify mark retired [
+139 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-musl'
+139 silly reify ]
+140 silly reify mark retired [
+140 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-openharmony-arm64'
+140 silly reify ]
+141 silly reify mark retired [
+141 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-wasm32-wasi'
+141 silly reify ]
+142 silly reify mark retired [
+142 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-arm64-msvc'
+142 silly reify ]
+143 silly reify mark retired [
+143 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-x64-msvc'
+143 silly reify ]
+144 silly reify mark retired [
+144 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/pluginutils'
+144 silly reify ]
+145 silly reify mark retired [
+145 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm-eabi'
+145 silly reify ]
+146 silly reify mark retired [
+146 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm64'
+146 silly reify ]
+147 silly reify mark retired [
+147 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-darwin-x64'
+147 silly reify ]
+148 silly reify mark retired [
+148 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-x64'
+148 silly reify ]
+149 silly reify mark retired [
+149 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-gnueabihf'
+149 silly reify ]
+150 silly reify mark retired [
+150 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-musleabihf'
+150 silly reify ]
+151 silly reify mark retired [
+151 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-gnu'
+151 silly reify ]
+152 silly reify mark retired [
+152 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-musl'
+152 silly reify ]
+153 silly reify mark retired [
+153 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-gnu'
+153 silly reify ]
+154 silly reify mark retired [
+154 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-musl'
+154 silly reify ]
+155 silly reify mark retired [
+155 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-gnu'
+155 silly reify ]
+156 silly reify mark retired [
+156 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-musl'
+156 silly reify ]
+157 silly reify mark retired [
+157 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-gnu'
+157 silly reify ]
+158 silly reify mark retired [
+158 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-s390x-gnu'
+158 silly reify ]
+159 silly reify mark retired [
+159 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-gnu'
+159 silly reify ]
+160 silly reify mark retired [
+160 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-musl'
+160 silly reify ]
+161 silly reify mark retired [
+161 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openbsd-x64'
+161 silly reify ]
+162 silly reify mark retired [
+162 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openharmony-arm64'
+162 silly reify ]
+163 silly reify mark retired [
+163 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-arm64-msvc'
+163 silly reify ]
+164 silly reify mark retired [
+164 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-ia32-msvc'
+164 silly reify ]
+165 silly reify mark retired [
+165 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-musl'
+165 silly reify ]
+166 silly reify mark retired [
+166 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-gnu'
+166 silly reify ]
+167 silly reify mark retired [
+167 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-msvc'
+167 silly reify ]
+168 silly reify mark retired [
+168 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-arm64'
+168 silly reify ]
+169 silly reify mark retired [
+169 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@vitejs/plugin-basic-ssl'
+169 silly reify ]
+170 silly reify mark retired [
+170 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/baseline-browser-mapping',
+170 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/baseline-browser-mapping'
+170 silly reify ]
+171 silly reify mark retired [
+171 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/browserslist',
+171 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/browserslist'
+171 silly reify ]
+172 silly reify mark retired [
+172 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/esbuild',
+172 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/esbuild'
+172 silly reify ]
+173 silly reify mark retired [
+173 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/jsesc',
+173 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/jsesc'
+173 silly reify ]
+174 silly reify mark retired [
+174 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/json5',
+174 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/json5'
+174 silly reify ]
+175 silly reify mark retired [
+175 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/lmdb',
+175 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/download-lmdb-prebuilds'
+175 silly reify ]
+176 silly reify mark retired [
+176 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/msgpackr-extract',
+176 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/download-msgpackr-prebuilds'
+176 silly reify ]
+177 silly reify mark retired [
+177 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/nanoid',
+177 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/nanoid'
+177 silly reify ]
+178 silly reify mark retired [
+178 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-gyp-build-optional-packages',
+178 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages',
+178 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages-optional',
+178 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages-test'
+178 silly reify ]
+179 silly reify mark retired [
+179 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-gyp',
+179 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp'
+179 silly reify ]
+180 silly reify mark retired [
+180 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/nopt',
+180 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/nopt'
+180 silly reify ]
+181 silly reify mark retired [
+181 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/pacote',
+181 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/pacote'
+181 silly reify ]
+182 silly reify mark retired [
+182 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/resolve',
+182 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/resolve'
+182 silly reify ]
+183 silly reify mark retired [
+183 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/rolldown',
+183 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/rolldown'
+183 silly reify ]
+184 silly reify mark retired [
+184 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/rollup',
+184 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/rollup'
+184 silly reify ]
+185 silly reify mark retired [
+185 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/sass',
+185 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/sass'
+185 silly reify ]
+186 silly reify mark retired [
+186 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/semver',
+186 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/semver'
+186 silly reify ]
+187 silly reify mark retired [
+187 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/tldts',
+187 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tldts'
+187 silly reify ]
+188 silly reify mark retired [
+188 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/typescript',
+188 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tsc',
+188 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tsserver'
+188 silly reify ]
+189 silly reify mark retired [
+189 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/update-browserslist-db',
+189 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/update-browserslist-db'
+189 silly reify ]
+190 silly reify mark retired [
+190 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/vite',
+190 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/vite'
+190 silly reify ]
+191 silly reify mark retired [
+191 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/vitest',
+191 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/vitest'
+191 silly reify ]
+192 silly reify mark retired [
+192 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/which',
+192 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-which'
+192 silly reify ]
+193 silly reify mark retired [
+193 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/why-is-node-running',
+193 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/why-is-node-running'
+193 silly reify ]
+194 silly reify mark retired [
+194 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/sass',
+194 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/.bin/sass'
+194 silly reify ]
+195 silly reify mark retired [
+195 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/cli',
+195 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ng'
+195 silly reify ]
+196 silly reify mark retired [
+196 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/compiler-cli',
+196 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ngc',
+196 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ng-xi18n'
+196 silly reify ]
+197 silly reify mark retired [
+197 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/localize',
+197 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-translate',
+197 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-extract',
+197 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-migrate'
+197 silly reify ]
+198 silly reify mark retired [
+198 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular-devkit/architect',
+198 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/architect'
+198 silly reify ]
+199 silly reify mark retired [
+199 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app'
+199 silly reify ]
+200 silly reify mark retired [
+200 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/analytics'
+200 silly reify ]
+201 silly reify mark retired [
+201 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/ai'
+201 silly reify ]
+202 silly reify mark retired [
+202 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-compat'
+202 silly reify ]
+203 silly reify mark retired [
+203 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/analytics-compat'
+203 silly reify ]
+204 silly reify mark retired [
+204 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/auth-compat'
+204 silly reify ]
+205 silly reify mark retired [
+205 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/data-connect'
+205 silly reify ]
+206 silly reify mark retired [
+206 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-check'
+206 silly reify ]
+207 silly reify mark retired [
+207 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-check-compat'
+207 silly reify ]
+208 silly reify mark retired [
+208 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/database-types'
+208 silly reify ]
+209 silly reify mark retired [
+209 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/firestore-compat'
+209 silly reify ]
+210 silly reify mark retired [
+210 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/functions'
+210 silly reify ]
+211 silly reify mark retired [
+211 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/functions-compat'
+211 silly reify ]
+212 silly reify mark retired [
+212 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/installations'
+212 silly reify ]
+213 silly reify mark retired [
+213 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/installations-compat'
+213 silly reify ]
+214 silly reify mark retired [
+214 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/component'
+214 silly reify ]
+215 silly reify mark retired [
+215 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/messaging-compat'
+215 silly reify ]
+216 silly reify mark retired [
+216 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/messaging'
+216 silly reify ]
+217 silly reify mark retired [
+217 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/performance'
+217 silly reify ]
+218 silly reify mark retired [
+218 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/performance-compat'
+218 silly reify ]
+219 silly reify mark retired [
+219 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/remote-config'
+219 silly reify ]
+220 silly reify mark retired [
+220 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/remote-config-compat'
+220 silly reify ]
+221 silly reify mark retired [
+221 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/storage-compat'
+221 silly reify ]
+222 silly reify mark retired [
+222 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/storage'
+222 silly reify ]
+223 silly reify mark retired [
+223 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/util'
+223 silly reify ]
+224 silly reify mark retired [
+224 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/semver',
+224 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/.bin/semver'
+224 silly reify ]
+225 silly reify mark retired [
+225 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/semver',
+225 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/.bin/semver'
+225 silly reify ]
+226 silly reify mark retired [
+226 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/parser',
+226 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/parser'
+226 silly reify ]
+227 silly reify mark retired [
+227 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@grpc/proto-loader',
+227 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/proto-loader-gen-types'
+227 silly reify ]
+228 silly reify mark retired [
+228 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/installed-package-contents',
+228 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/installed-package-contents'
+228 silly reify ]
+229 silly reify mark retired [
+229 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/which',
+229 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/.bin/node-which'
+229 silly reify ]
+230 silly reify moves {
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/beasties': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.beasties-97xEPua7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/brace-expansion': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.brace-expansion-aVIy5dcK',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/cli-truncate': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.cli-truncate-RGmYcpe4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/electron-to-chromium': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.electron-to-chromium-ngIGR8Du',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/encoding': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.encoding-tFXmmajh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/express-rate-limit': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.express-rate-limit-7SFNB3uZ',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/filepond': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.filepond-rliYuvKy',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/immutable': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.immutable-rS4kAywm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ip-address': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.ip-address-2LdsN83Y',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/is-core-module': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.is-core-module-35sdL7iY',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/make-fetch-happen': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.make-fetch-happen-O4i4hNoK',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/mdn-data': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.mdn-data-kjX4uMlk',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/minimatch': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.minimatch-Mlc3D9td',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/minipass-fetch': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.minipass-fetch-l652tUll',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ng-apexcharts': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.ng-apexcharts-dz9MT33a',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-releases': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.node-releases-FPeqRmVK',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/ora': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.ora-sU4w2hgD',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/path-parse': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.path-parse-t1z6PQxj',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/postcss': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.postcss-XbGBmmsM',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/strip-ansi': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.strip-ansi-Xmdq36BB',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/stdin-discarder': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.stdin-discarder-ZX298qrh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/supports-preserve-symlinks-flag': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.supports-preserve-symlinks-flag-WCKay4dh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/tinyrainbow': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.tinyrainbow-BD14alWM',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/watchpack': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.watchpack-Y5ptzdBb',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-abtesting': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.client-abtesting-OfAhqloe',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/abtesting': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.abtesting-0pEc1BIS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-common': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.client-common-2yIGNjEm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-insights': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.client-insights-BPwhFVHS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-query-suggestions': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.client-query-suggestions-UNyoinCj',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/monitoring': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.monitoring-Zx1l9x1g',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/client-personalization': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.client-personalization-wbcDpojt',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/recommend': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.recommend-cbZDBEpU',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-browser-xhr': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.requester-browser-xhr-2aReYC2g',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-fetch': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.requester-fetch-TpQJNMsl',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/requester-node-http': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@algolia/.requester-node-http-amPOOXdc',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/aria': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.aria-RtB7LYIF',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/animations': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.animations-FMlG52Ix',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/compiler': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.compiler-o95zMnV2',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/forms': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.forms-O6bTJCq1',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/google-maps': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.google-maps-eT3CCQ5T',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/platform-browser': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.platform-browser-9AJfPl55',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/platform-browser-dynamic': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.platform-browser-dynamic-dSFG1yU6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/router': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.router-MPp8Idyh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@csstools/css-syntax-patches-for-csstree': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@csstools/.css-syntax-patches-for-csstree-UiW2woZB',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/runtime': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/.runtime-ZxYw31vn',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/wasi-threads': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/.wasi-threads-eLxxZH3Z',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.android-arm-1Y8CgGW7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.android-arm64-NtBY4rbA',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.android-x64-Hgxm3Wxi',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/aix-ppc64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.aix-ppc64-FcxRizBN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.darwin-x64-vAeCrfmV',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.freebsd-arm64-mxTX9chW',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.freebsd-x64-DC6dDfAm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-arm-b4rmaJlo',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ia32': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-ia32-lYGFhJiP',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-loong64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-loong64-cmG9WsX7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-mips64el': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-mips64el-hJiI6lfx',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ppc64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-ppc64-iXaThA6c',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-arm64-FrrbgM4Z',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-riscv64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-riscv64-z805VTDG',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-s390x': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-s390x-N5XhHgBE',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.linux-x64-lDZ9xtx5',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.netbsd-arm64-ORjdze9c',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.netbsd-x64-659hh9zC',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.openbsd-arm64-Ui91nVBt',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.openbsd-x64-bYbTSBBm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openharmony-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.openharmony-arm64-s7fnwFFF',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/sunos-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.sunos-x64-BNgXbF04',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.win32-arm64-5791By7i',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.win32-x64-b6XIEE0z',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-ia32': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/.win32-ia32-9N51r8KN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@hono/node-server': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@hono/.node-server-2ymba0Hi',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-darwin-arm64-lRvMOV8B',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-linux-arm-FDpfkKHH',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-linux-x64-qRyCL6ci',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-win32-x64-JhMWN7ki',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-win32-arm64-F47lZWgl',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/.msgpackr-extract-darwin-x64-BR2hJ0I6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-darwin-x64-xSqNLOAh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/.lmdb-linux-arm64-GnTxBYp8',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/.msgpackr-extract-linux-arm-LpcEMUl7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/.msgpackr-extract-linux-arm64-qQa1cfkp',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/.msgpackr-extract-linux-x64-44UynsE9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-win32-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/.msgpackr-extract-win32-x64-qOJCWohS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm-eabi': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-android-arm-eabi-5lsRfdP5',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-android-arm64-NDb3crxf',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-darwin-x64-mccpPMap',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-freebsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-freebsd-x64-Wx2tlHD7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm-gnueabihf': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-arm-gnueabihf-V0NKuHsc',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-arm64-musl-oqJ4Jntq',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-ppc64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-ppc64-gnu-FJV7vQTC',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-arm64-gnu-ppNwGsVR',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-s390x-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-s390x-gnu-ovFJsQ9c',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-x64-gnu-vOvP3sfh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-x64-musl-yf7W5Xso',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-openharmony-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-openharmony-arm64-y0KjF4mo',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-riscv64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-linux-riscv64-gnu-gMrkRqt8',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-arm64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-win32-arm64-msvc-4EJKPFeR',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-ia32-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-win32-ia32-msvc-g4xt2NNb',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-x64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/.nice-win32-x64-msvc-kMY507CI',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@ng-select/ng-select': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@ng-select/.ng-select-AABbDlGX',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/git': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/.git-TcljwynF',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/run-script': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/.run-script-PRRnI72a',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@oxc-project/types': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@oxc-project/.types-dDWzOEyg',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-android-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-android-arm64-J0IkW3IN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-darwin-x64-6tmtgolx',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-freebsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-freebsd-x64-MJjbYTja',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-glibc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-arm-glibc-BumefDim',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-glibc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-x64-glibc-Y13PYms4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-x64-musl-KHDX4CYx',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-arm64-musl-dknIYFKX',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-ia32': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-win32-ia32-3knrt4BL',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-win32-x64-6BUGiOSN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-glibc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-arm64-glibc-jL9zFMAa',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-linux-arm-musl-h8SGsDY1',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/.watcher-win32-arm64-ZCUwrClj',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-android-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-android-arm64-k6mpPssK',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-darwin-arm64-3CUtoLtD',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-darwin-x64-WXWNVDSs',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-freebsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-freebsd-x64-3IQ5D9K5',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-linux-arm64-musl-QjecRkM0',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-linux-arm64-gnu-T7J84fJ2',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-linux-x64-gnu-p1ZndNyN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm-gnueabihf': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-linux-arm-gnueabihf-VjCdwzR6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-linux-x64-musl-mXlSieTf',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-openharmony-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-openharmony-arm64-ujtRV07j',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-wasm32-wasi': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-wasm32-wasi-ZjAfbFvk',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-arm64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-win32-arm64-msvc-yzTTLKce',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-x64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.binding-win32-x64-msvc-FhGDgYwj',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/pluginutils': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/.pluginutils-7nCPspnR',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm-eabi': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-android-arm-eabi-sJEnb6Xz',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-android-arm64-8fak61Yo',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-darwin-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-darwin-x64-BRLzJ8hy',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-freebsd-x64-dNTh8FhF',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-gnueabihf': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-arm-gnueabihf-Ijad7PkV',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-musleabihf': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-arm-musleabihf-9DJyyN0v',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-arm64-gnu-qkYAuQV4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-arm64-musl-HpMBc1fo',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-loong64-gnu-CaQ9Pjdm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-loong64-musl-Bf9gUZaS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-ppc64-gnu-CwwdqxPF',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-ppc64-musl-dWVIbJRy',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-riscv64-gnu-I7pc3zwY',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-s390x-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-s390x-gnu-MzbmFoZ3',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-x64-gnu-ZcyNYNf9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-x64-musl-mrtzx5qa',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openbsd-x64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-openbsd-x64-SJDnOyha',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openharmony-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-openharmony-arm64-d2rt8wx9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-arm64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-win32-arm64-msvc-MT3O2EeT',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-ia32-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-win32-ia32-msvc-oWJokmZS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-musl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-linux-riscv64-musl-wrZxd2q4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-gnu': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-win32-x64-gnu-yK4IdTag',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-msvc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-win32-x64-msvc-aNXkWolJ',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-arm64': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/.rollup-freebsd-arm64-TxGugccx',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@vitejs/plugin-basic-ssl': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@vitejs/.plugin-basic-ssl-Xi14PPZl',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/baseline-browser-mapping': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.baseline-browser-mapping-UuJ4fQ91',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/baseline-browser-mapping': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.baseline-browser-mapping-9fVRMKCh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/browserslist': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.browserslist-JTtSUUTY',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/browserslist': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.browserslist-qUNdX1Nk',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/esbuild': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.esbuild-Pyk7DvMl',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/esbuild': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.esbuild-aNrs4pUT',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/jsesc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.jsesc-HDxSQZ33',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/jsesc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.jsesc-VAhLmWIB',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/json5': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.json5-lQV8nc3w',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/json5': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.json5-KPiKxbdq',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/lmdb': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.lmdb-EmBtXjSV',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/download-lmdb-prebuilds': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.download-lmdb-prebuilds-qMC7oOjs',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/msgpackr-extract': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.msgpackr-extract-PGr2HNZR',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/download-msgpackr-prebuilds': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.download-msgpackr-prebuilds-RQsmQ9Sq',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/nanoid': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.nanoid-8HpAlFJt',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/nanoid': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.nanoid-TykHV6ic',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-gyp-build-optional-packages': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.node-gyp-build-optional-packages-085XeujA',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.node-gyp-build-optional-packages-ySRQ387I',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages-optional': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.node-gyp-build-optional-packages-optional-lk0MDaZd',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp-build-optional-packages-test': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.node-gyp-build-optional-packages-test-ZBNWtiVI',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/node-gyp': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.node-gyp-sSckPFP9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-gyp': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.node-gyp-qyKEPmfk',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/nopt': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.nopt-nMpytwE8',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/nopt': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.nopt-0ZMPTv1a',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/pacote': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.pacote-ELGD0g7I',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/pacote': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.pacote-rKAKSnVr',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/resolve': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.resolve-4S512Vze',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/resolve': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.resolve-KlzqQp65',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/rolldown': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.rolldown-xrX8cEUg',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/rolldown': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.rolldown-fa4wg65E',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/rollup': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.rollup-49WMWyMa',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/rollup': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.rollup-ZtYE5BHT',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/sass': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.sass-m1PTB0T6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/sass': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.sass-pebb6sOV',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.semver-FkgckIfc',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.semver-KVfouoVT',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/tldts': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.tldts-19VKyAoY',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tldts': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.tldts-mMvjpMnD',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/typescript': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.typescript-DqHhcQCh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tsc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.tsc-NuuPiaMz',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/tsserver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.tsserver-n6wJ0uKK',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/update-browserslist-db': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.update-browserslist-db-dj5W27F6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/update-browserslist-db': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.update-browserslist-db-s3qOwR09',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/vite': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.vite-2x9ZmO96',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/vite': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.vite-7XRCMA8D',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/vitest': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.vitest-5726TXkb',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/vitest': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.vitest-7V1UIKPa',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/which': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.which-j5ukhyR9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/node-which': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.node-which-e7uUgNee',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/why-is-node-running': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.why-is-node-running-SEZMZnoc',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/why-is-node-running': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.why-is-node-running-4vkfiRPR',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/sass': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/.sass-JGgFRa5E',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/.bin/sass': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/build/node_modules/.bin/.sass-6JGO0LNh',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/cli': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.cli-Yx8nwQwb',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ng': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.ng-papaW4u2',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/compiler-cli': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.compiler-cli-qy7Jn9l4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ngc': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.ngc-dQWm9Bdi',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/ng-xi18n': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.ng-xi18n-D38UvNAm',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/localize': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/.localize-TWYTwde7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-translate': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.localize-translate-9aJ9Yws2',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-extract': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.localize-extract-d4XFxGKq',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/localize-migrate': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.localize-migrate-VFTZAkYs',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular-devkit/architect': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular-devkit/.architect-sqghrUyZ',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/architect': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.architect-Aqyg0S02',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.app-uJKaz2xz',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/analytics': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.analytics-OcHTwuOL',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/ai': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.ai-jxRqsA5k',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.app-compat-9L9pZvIY',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/analytics-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.analytics-compat-iXUahQCU',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/auth-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.auth-compat-IRwwlMMv',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/data-connect': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.data-connect-GKJvPCj2',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-check': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.app-check-3jimOn0X',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/app-check-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.app-check-compat-gQo3dP4I',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/database-types': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.database-types-nI4lEDAH',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/firestore-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.firestore-compat-s5KFBNmp',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/functions': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.functions-wb09OjnZ',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/functions-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.functions-compat-TMByBU3T',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/installations': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.installations-54KFotPW',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/installations-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.installations-compat-cAIRQf5G',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/component': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.component-npj7ltaN',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/messaging-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.messaging-compat-qzF8un83',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/messaging': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.messaging-Kmmb9MZ6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/performance': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.performance-LNf5taL7',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/performance-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.performance-compat-s4J7vL4v',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/remote-config': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.remote-config-G1govGBy',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/remote-config-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.remote-config-compat-67CjXKyT',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/storage-compat': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.storage-compat-IFPuDOep',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/storage': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.storage-rmtt8u2o',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/util': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@angular/fire/node_modules/@firebase/.util-4pnGtejV',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/.semver-cWESL2vU',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/.bin/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/helper-compilation-targets/node_modules/.bin/.semver-7imHkSRS',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/.semver-oRDupS6d',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/.bin/semver': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/core/node_modules/.bin/.semver-tvKhyR4G',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/parser': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@babel/.parser-TqLkySo6',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/parser': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.parser-orPtntBr',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@grpc/proto-loader': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@grpc/.proto-loader-PtHHvPN1',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/proto-loader-gen-types': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.proto-loader-gen-types-63YvJUY4',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/installed-package-contents': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/.installed-package-contents-6dWuE2XG',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/installed-package-contents': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/.bin/.installed-package-contents-Q3pniWK9',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/which': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/.which-locMExnt',
+230 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/.bin/node-which': '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@npmcli/promise-spawn/node_modules/.bin/.node-which-OuBTGSsB'
+230 silly reify }
+231 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-arm64
+232 silly reify mark deleted [
+232 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-arm64'
+232 silly reify ]
+233 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-msvc
+234 silly reify mark deleted [
+234 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-msvc'
+234 silly reify ]
+235 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-gnu
+236 silly reify mark deleted [
+236 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-x64-gnu'
+236 silly reify ]
+237 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-musl
+238 silly reify mark deleted [
+238 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-musl'
+238 silly reify ]
+239 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-ia32-msvc
+240 silly reify mark deleted [
+240 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-ia32-msvc'
+240 silly reify ]
+241 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-arm64-msvc
+242 silly reify mark deleted [
+242 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-win32-arm64-msvc'
+242 silly reify ]
+243 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openharmony-arm64
+244 silly reify mark deleted [
+244 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openharmony-arm64'
+244 silly reify ]
+245 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openbsd-x64
+246 silly reify mark deleted [
+246 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-openbsd-x64'
+246 silly reify ]
+247 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-musl
+248 silly reify mark deleted [
+248 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-musl'
+248 silly reify ]
+249 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-gnu
+250 silly reify mark deleted [
+250 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-x64-gnu'
+250 silly reify ]
+251 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-s390x-gnu
+252 silly reify mark deleted [
+252 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-s390x-gnu'
+252 silly reify ]
+253 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-gnu
+254 silly reify mark deleted [
+254 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-riscv64-gnu'
+254 silly reify ]
+255 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-musl
+256 silly reify mark deleted [
+256 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-musl'
+256 silly reify ]
+257 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-gnu
+258 silly reify mark deleted [
+258 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-ppc64-gnu'
+258 silly reify ]
+259 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-musl
+260 silly reify mark deleted [
+260 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-musl'
+260 silly reify ]
+261 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-gnu
+262 silly reify mark deleted [
+262 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-loong64-gnu'
+262 silly reify ]
+263 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-musl
+264 silly reify mark deleted [
+264 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-musl'
+264 silly reify ]
+265 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-gnu
+266 silly reify mark deleted [
+266 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm64-gnu'
+266 silly reify ]
+267 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-musleabihf
+268 silly reify mark deleted [
+268 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-musleabihf'
+268 silly reify ]
+269 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-gnueabihf
+270 silly reify mark deleted [
+270 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-linux-arm-gnueabihf'
+270 silly reify ]
+271 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-x64
+272 silly reify mark deleted [
+272 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-freebsd-x64'
+272 silly reify ]
+273 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-darwin-x64
+274 silly reify mark deleted [
+274 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-darwin-x64'
+274 silly reify ]
+275 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm64
+276 silly reify mark deleted [
+276 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm64'
+276 silly reify ]
+277 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm-eabi
+278 silly reify mark deleted [
+278 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rollup/rollup-android-arm-eabi'
+278 silly reify ]
+279 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-x64-msvc
+280 silly reify mark deleted [
+280 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-x64-msvc'
+280 silly reify ]
+281 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-arm64-msvc
+282 silly reify mark deleted [
+282 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-win32-arm64-msvc'
+282 silly reify ]
+283 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-wasm32-wasi
+284 silly reify mark deleted [
+284 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-wasm32-wasi'
+284 silly reify ]
+285 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/wasm-runtime
+286 silly reify mark deleted [
+286 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/wasm-runtime'
+286 silly reify ]
+287 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/core
+288 silly reify mark deleted [
+288 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/core'
+288 silly reify ]
+289 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/runtime
+290 silly reify mark deleted [
+290 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/runtime'
+290 silly reify ]
+291 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@tybys/wasm-util
+292 silly reify mark deleted [
+292 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@tybys/wasm-util'
+292 silly reify ]
+293 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/wasi-threads
+294 silly reify mark deleted [
+294 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@emnapi/wasi-threads'
+294 silly reify ]
+295 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-openharmony-arm64
+296 silly reify mark deleted [
+296 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-openharmony-arm64'
+296 silly reify ]
+297 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-musl
+298 silly reify mark deleted [
+298 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-musl'
+298 silly reify ]
+299 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm-gnueabihf
+300 silly reify mark deleted [
+300 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm-gnueabihf'
+300 silly reify ]
+301 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-gnu
+302 silly reify mark deleted [
+302 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-x64-gnu'
+302 silly reify ]
+303 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-gnu
+304 silly reify mark deleted [
+304 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-gnu'
+304 silly reify ]
+305 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-musl
+306 silly reify mark deleted [
+306 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-linux-arm64-musl'
+306 silly reify ]
+307 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-freebsd-x64
+308 silly reify mark deleted [
+308 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-freebsd-x64'
+308 silly reify ]
+309 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-x64
+310 silly reify mark deleted [
+310 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-darwin-x64'
+310 silly reify ]
+311 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-android-arm64
+312 silly reify mark deleted [
+312 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@rolldown/binding-android-arm64'
+312 silly reify ]
+313 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-arm64
+314 silly reify mark deleted [
+314 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-arm64'
+314 silly reify ]
+315 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-musl
+316 silly reify mark deleted [
+316 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-musl'
+316 silly reify ]
+317 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-glibc
+318 silly reify mark deleted [
+318 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-glibc'
+318 silly reify ]
+319 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-x64
+320 silly reify mark deleted [
+320 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-x64'
+320 silly reify ]
+321 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-ia32
+322 silly reify mark deleted [
+322 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-win32-ia32'
+322 silly reify ]
+323 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-musl
+324 silly reify mark deleted [
+324 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm64-musl'
+324 silly reify ]
+325 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-musl
+326 silly reify mark deleted [
+326 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-musl'
+326 silly reify ]
+327 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-glibc
+328 silly reify mark deleted [
+328 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-x64-glibc'
+328 silly reify ]
+329 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-glibc
+330 silly reify mark deleted [
+330 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-linux-arm-glibc'
+330 silly reify ]
+331 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-freebsd-x64
+332 silly reify mark deleted [
+332 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-freebsd-x64'
+332 silly reify ]
+333 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-darwin-x64
+334 silly reify mark deleted [
+334 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-darwin-x64'
+334 silly reify ]
+335 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-android-arm64
+336 silly reify mark deleted [
+336 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@parcel/watcher-android-arm64'
+336 silly reify ]
+337 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-x64-msvc
+338 silly reify mark deleted [
+338 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-x64-msvc'
+338 silly reify ]
+339 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-ia32-msvc
+340 silly reify mark deleted [
+340 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-ia32-msvc'
+340 silly reify ]
+341 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-arm64-msvc
+342 silly reify mark deleted [
+342 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-win32-arm64-msvc'
+342 silly reify ]
+343 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-riscv64-gnu
+344 silly reify mark deleted [
+344 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-riscv64-gnu'
+344 silly reify ]
+345 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-openharmony-arm64
+346 silly reify mark deleted [
+346 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-openharmony-arm64'
+346 silly reify ]
+347 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-musl
+348 silly reify mark deleted [
+348 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-musl'
+348 silly reify ]
+349 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-gnu
+350 silly reify mark deleted [
+350 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-x64-gnu'
+350 silly reify ]
+351 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-s390x-gnu
+352 silly reify mark deleted [
+352 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-s390x-gnu'
+352 silly reify ]
+353 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-gnu
+354 silly reify mark deleted [
+354 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-gnu'
+354 silly reify ]
+355 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-ppc64-gnu
+356 silly reify mark deleted [
+356 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-ppc64-gnu'
+356 silly reify ]
+357 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-musl
+358 silly reify mark deleted [
+358 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm64-musl'
+358 silly reify ]
+359 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm-gnueabihf
+360 silly reify mark deleted [
+360 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-linux-arm-gnueabihf'
+360 silly reify ]
+361 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-freebsd-x64
+362 silly reify mark deleted [
+362 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-freebsd-x64'
+362 silly reify ]
+363 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-darwin-x64
+364 silly reify mark deleted [
+364 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-darwin-x64'
+364 silly reify ]
+365 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm64
+366 silly reify mark deleted [
+366 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm64'
+366 silly reify ]
+367 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm-eabi
+368 silly reify mark deleted [
+368 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@napi-rs/nice-android-arm-eabi'
+368 silly reify ]
+369 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-win32-x64
+370 silly reify mark deleted [
+370 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-win32-x64'
+370 silly reify ]
+371 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-x64
+372 silly reify mark deleted [
+372 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-x64'
+372 silly reify ]
+373 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm64
+374 silly reify mark deleted [
+374 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm64'
+374 silly reify ]
+375 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm
+376 silly reify mark deleted [
+376 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-linux-arm'
+376 silly reify ]
+377 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm64
+378 silly reify mark deleted [
+378 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm64'
+378 silly reify ]
+379 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-x64
+380 silly reify mark deleted [
+380 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-darwin-x64'
+380 silly reify ]
+381 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-darwin-x64
+382 silly reify mark deleted [
+382 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@msgpackr-extract/msgpackr-extract-darwin-x64'
+382 silly reify ]
+383 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-arm64
+384 silly reify mark deleted [
+384 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-arm64'
+384 silly reify ]
+385 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-x64
+386 silly reify mark deleted [
+386 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-win32-x64'
+386 silly reify ]
+387 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-x64
+388 silly reify mark deleted [
+388 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-x64'
+388 silly reify ]
+389 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm
+390 silly reify mark deleted [
+390 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@lmdb/lmdb-linux-arm'
+390 silly reify ]
+391 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-ia32
+392 silly reify mark deleted [
+392 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-ia32'
+392 silly reify ]
+393 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-x64
+394 silly reify mark deleted [
+394 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-x64'
+394 silly reify ]
+395 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-arm64
+396 silly reify mark deleted [
+396 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/win32-arm64'
+396 silly reify ]
+397 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/sunos-x64
+398 silly reify mark deleted [
+398 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/sunos-x64'
+398 silly reify ]
+399 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openharmony-arm64
+400 silly reify mark deleted [
+400 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openharmony-arm64'
+400 silly reify ]
+401 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-x64
+402 silly reify mark deleted [
+402 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-x64'
+402 silly reify ]
+403 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-arm64
+404 silly reify mark deleted [
+404 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/openbsd-arm64'
+404 silly reify ]
+405 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-x64
+406 silly reify mark deleted [
+406 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-x64'
+406 silly reify ]
+407 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-arm64
+408 silly reify mark deleted [
+408 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/netbsd-arm64'
+408 silly reify ]
+409 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-x64
+410 silly reify mark deleted [
+410 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-x64'
+410 silly reify ]
+411 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-s390x
+412 silly reify mark deleted [
+412 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-s390x'
+412 silly reify ]
+413 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-riscv64
+414 silly reify mark deleted [
+414 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-riscv64'
+414 silly reify ]
+415 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm64
+416 silly reify mark deleted [
+416 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm64'
+416 silly reify ]
+417 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ppc64
+418 silly reify mark deleted [
+418 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ppc64'
+418 silly reify ]
+419 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-mips64el
+420 silly reify mark deleted [
+420 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-mips64el'
+420 silly reify ]
+421 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-loong64
+422 silly reify mark deleted [
+422 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-loong64'
+422 silly reify ]
+423 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ia32
+424 silly reify mark deleted [
+424 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-ia32'
+424 silly reify ]
+425 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm
+426 silly reify mark deleted [
+426 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/linux-arm'
+426 silly reify ]
+427 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-x64
+428 silly reify mark deleted [
+428 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-x64'
+428 silly reify ]
+429 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-arm64
+430 silly reify mark deleted [
+430 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/freebsd-arm64'
+430 silly reify ]
+431 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/darwin-x64
+432 silly reify mark deleted [
+432 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/darwin-x64'
+432 silly reify ]
+433 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/aix-ppc64
+434 silly reify mark deleted [
+434 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/aix-ppc64'
+434 silly reify ]
+435 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-x64
+436 silly reify mark deleted [
+436 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-x64'
+436 silly reify ]
+437 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm64
+438 silly reify mark deleted [
+438 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm64'
+438 silly reify ]
+439 verbose reify failed optional dependency /Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm
+440 silly reify mark deleted [
+440 silly reify   '/Users/bahmamadou/Desktop/GPA-GOUVE/Final/node_modules/@esbuild/android-arm'
+440 silly reify ]
+441 silly tarball no local data for @grpc/proto-loader@https://registry.npmjs.org/@grpc/proto-loader/-/proto-loader-0.7.15.tgz. Extracting by manifest.
+442 silly tarball no local data for @npmcli/installed-package-contents@https://registry.npmjs.org/@npmcli/installed-package-contents/-/installed-package-contents-4.0.0.tgz. Extracting by manifest.
+443 silly tarball no local data for @babel/parser@https://registry.npmjs.org/@babel/parser/-/parser-7.29.0.tgz. Extracting by manifest.
+444 silly tarball no local data for @angular-devkit/architect@https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2101.4.tgz. Extracting by manifest.
+445 silly tarball no local data for @angular/compiler-cli@https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-21.1.5.tgz. Extracting by manifest.
+446 silly tarball no local data for @angular/cli@https://registry.npmjs.org/@angular/cli/-/cli-21.1.4.tgz. Extracting by manifest.
+447 silly tarball no local data for why-is-node-running@https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz. Extracting by manifest.
+448 silly tarball no local data for vitest@https://registry.npmjs.org/vitest/-/vitest-4.0.18.tgz. Extracting by manifest.
+449 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-2.0.2.tgz. Extracting by manifest.
+450 silly tarball no local data for vite@https://registry.npmjs.org/vite/-/vite-7.3.0.tgz. Extracting by manifest.
+451 silly tarball no local data for typescript@https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz. Extracting by manifest.
+452 silly tarball no local data for update-browserslist-db@https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz. Extracting by manifest.
+453 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-7.7.3.tgz. Extracting by manifest.
+454 silly tarball no local data for rollup@https://registry.npmjs.org/rollup/-/rollup-4.59.0.tgz. Extracting by manifest.
+455 silly tarball no local data for rolldown@https://registry.npmjs.org/rolldown/-/rolldown-1.0.0-beta.58.tgz. Extracting by manifest.
+456 silly tarball no local data for resolve@https://registry.npmjs.org/resolve/-/resolve-1.22.11.tgz. Extracting by manifest.
+457 silly tarball no local data for pacote@https://registry.npmjs.org/pacote/-/pacote-21.0.4.tgz. Extracting by manifest.
+458 silly tarball no local data for nopt@https://registry.npmjs.org/nopt/-/nopt-9.0.0.tgz. Extracting by manifest.
+459 silly tarball no local data for node-gyp@https://registry.npmjs.org/node-gyp/-/node-gyp-12.2.0.tgz. Extracting by manifest.
+460 silly tarball no local data for msgpackr-extract@https://registry.npmjs.org/msgpackr-extract/-/msgpackr-extract-3.0.3.tgz. Extracting by manifest.
+461 silly tarball no local data for sass@https://registry.npmjs.org/sass/-/sass-1.97.3.tgz. Extracting by manifest.
+462 silly tarball no local data for node-gyp-build-optional-packages@https://registry.npmjs.org/node-gyp-build-optional-packages/-/node-gyp-build-optional-packages-5.2.2.tgz. Extracting by manifest.
+463 silly tarball no local data for @angular/localize@https://registry.npmjs.org/@angular/localize/-/localize-21.1.5.tgz. Extracting by manifest.
+464 silly tarball no local data for lmdb@https://registry.npmjs.org/lmdb/-/lmdb-3.4.4.tgz. Extracting by manifest.
+465 silly tarball no local data for json5@https://registry.npmjs.org/json5/-/json5-2.2.3.tgz. Extracting by manifest.
+466 silly tarball no local data for nanoid@https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz. Extracting by manifest.
+467 silly tarball no local data for esbuild@https://registry.npmjs.org/esbuild/-/esbuild-0.27.2.tgz. Extracting by manifest.
+468 silly tarball no local data for jsesc@https://registry.npmjs.org/jsesc/-/jsesc-3.1.0.tgz. Extracting by manifest.
+469 silly tarball no local data for browserslist@https://registry.npmjs.org/browserslist/-/browserslist-4.28.1.tgz. Extracting by manifest.
+470 silly tarball no local data for @rolldown/pluginutils@https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.0.0-beta.58.tgz. Extracting by manifest.
+471 silly tarball no local data for baseline-browser-mapping@https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.0.tgz. Extracting by manifest.
+472 silly tarball no local data for @vitejs/plugin-basic-ssl@https://registry.npmjs.org/@vitejs/plugin-basic-ssl/-/plugin-basic-ssl-2.1.0.tgz. Extracting by manifest.
+473 silly tarball no local data for @rolldown/binding-darwin-arm64@https://registry.npmjs.org/@rolldown/binding-darwin-arm64/-/binding-darwin-arm64-1.0.0-beta.58.tgz. Extracting by manifest.
+474 silly tarball no local data for @oxc-project/types@https://registry.npmjs.org/@oxc-project/types/-/types-0.106.0.tgz. Extracting by manifest.
+475 silly tarball no local data for @npmcli/git@https://registry.npmjs.org/@npmcli/git/-/git-7.0.1.tgz. Extracting by manifest.
+476 silly tarball no local data for @ng-select/ng-select@https://registry.npmjs.org/@ng-select/ng-select/-/ng-select-21.4.0.tgz. Extracting by manifest.
+477 silly tarball no local data for @lmdb/lmdb-darwin-arm64@https://registry.npmjs.org/@lmdb/lmdb-darwin-arm64/-/lmdb-darwin-arm64-3.4.4.tgz. Extracting by manifest.
+478 silly tarball no local data for @hono/node-server@https://registry.npmjs.org/@hono/node-server/-/node-server-1.19.9.tgz. Extracting by manifest.
+479 silly tarball no local data for @emnapi/wasi-threads@https://registry.npmjs.org/@emnapi/wasi-threads/-/wasi-threads-1.1.0.tgz. Extracting by manifest.
+480 silly tarball no local data for @csstools/css-syntax-patches-for-csstree@https://registry.npmjs.org/@csstools/css-syntax-patches-for-csstree/-/css-syntax-patches-for-csstree-1.0.28.tgz. Extracting by manifest.
+481 silly tarball no local data for @emnapi/runtime@https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.8.1.tgz. Extracting by manifest.
+482 silly tarball no local data for @angular/platform-browser-dynamic@https://registry.npmjs.org/@angular/platform-browser-dynamic/-/platform-browser-dynamic-21.1.5.tgz. Extracting by manifest.
+483 silly tarball no local data for @angular/platform-browser@https://registry.npmjs.org/@angular/platform-browser/-/platform-browser-21.1.5.tgz. Extracting by manifest.
+484 silly tarball no local data for @angular/router@https://registry.npmjs.org/@angular/router/-/router-21.1.5.tgz. Extracting by manifest.
+485 silly tarball no local data for @angular/google-maps@https://registry.npmjs.org/@angular/google-maps/-/google-maps-21.1.5.tgz. Extracting by manifest.
+486 silly tarball no local data for @angular/animations@https://registry.npmjs.org/@angular/animations/-/animations-21.1.5.tgz. Extracting by manifest.
+487 silly tarball no local data for @algolia/requester-node-http@https://registry.npmjs.org/@algolia/requester-node-http/-/requester-node-http-5.46.2.tgz. Extracting by manifest.
+488 silly tarball no local data for @angular/aria@https://registry.npmjs.org/@angular/aria/-/aria-21.1.5.tgz. Extracting by manifest.
+489 silly tarball no local data for tldts@https://registry.npmjs.org/tldts/-/tldts-7.0.23.tgz. Extracting by manifest.
+490 silly tarball no local data for @angular/compiler@https://registry.npmjs.org/@angular/compiler/-/compiler-21.1.5.tgz. Extracting by manifest.
+491 silly tarball no local data for @algolia/requester-browser-xhr@https://registry.npmjs.org/@algolia/requester-browser-xhr/-/requester-browser-xhr-5.46.2.tgz. Extracting by manifest.
+492 silly tarball no local data for @algolia/client-personalization@https://registry.npmjs.org/@algolia/client-personalization/-/client-personalization-5.46.2.tgz. Extracting by manifest.
+493 silly tarball no local data for @algolia/monitoring@https://registry.npmjs.org/@algolia/monitoring/-/monitoring-1.46.2.tgz. Extracting by manifest.
+494 silly tarball no local data for @algolia/client-query-suggestions@https://registry.npmjs.org/@algolia/client-query-suggestions/-/client-query-suggestions-5.46.2.tgz. Extracting by manifest.
+495 silly tarball no local data for @algolia/client-insights@https://registry.npmjs.org/@algolia/client-insights/-/client-insights-5.46.2.tgz. Extracting by manifest.
+496 silly tarball no local data for @algolia/client-common@https://registry.npmjs.org/@algolia/client-common/-/client-common-5.46.2.tgz. Extracting by manifest.
+497 silly tarball no local data for @algolia/abtesting@https://registry.npmjs.org/@algolia/abtesting/-/abtesting-1.12.2.tgz. Extracting by manifest.
+498 silly tarball no local data for @algolia/client-abtesting@https://registry.npmjs.org/@algolia/client-abtesting/-/client-abtesting-5.46.2.tgz. Extracting by manifest.
+499 silly tarball no local data for watchpack@https://registry.npmjs.org/watchpack/-/watchpack-2.5.0.tgz. Extracting by manifest.
+500 silly tarball no local data for tinyrainbow@https://registry.npmjs.org/tinyrainbow/-/tinyrainbow-3.0.3.tgz. Extracting by manifest.
+501 silly tarball no local data for supports-preserve-symlinks-flag@https://registry.npmjs.org/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz. Extracting by manifest.
+502 silly tarball no local data for stdin-discarder@https://registry.npmjs.org/stdin-discarder/-/stdin-discarder-0.2.2.tgz. Extracting by manifest.
+503 silly tarball no local data for postcss@https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz. Extracting by manifest.
+504 silly tarball no local data for strip-ansi@https://registry.npmjs.org/strip-ansi/-/strip-ansi-7.1.2.tgz. Extracting by manifest.
+505 silly tarball no local data for path-parse@https://registry.npmjs.org/path-parse/-/path-parse-1.0.7.tgz. Extracting by manifest.
+506 silly tarball no local data for ora@https://registry.npmjs.org/ora/-/ora-9.0.0.tgz. Extracting by manifest.
+507 silly tarball no local data for node-releases@https://registry.npmjs.org/node-releases/-/node-releases-2.0.27.tgz. Extracting by manifest.
+508 silly tarball no local data for ng-apexcharts@https://registry.npmjs.org/ng-apexcharts/-/ng-apexcharts-2.2.0.tgz. Extracting by manifest.
+509 silly tarball no local data for minipass-fetch@https://registry.npmjs.org/minipass-fetch/-/minipass-fetch-5.0.1.tgz. Extracting by manifest.
+510 silly tarball no local data for minimatch@https://registry.npmjs.org/minimatch/-/minimatch-10.2.2.tgz. Extracting by manifest.
+511 silly tarball no local data for mdn-data@https://registry.npmjs.org/mdn-data/-/mdn-data-2.12.2.tgz. Extracting by manifest.
+512 silly tarball no local data for make-fetch-happen@https://registry.npmjs.org/make-fetch-happen/-/make-fetch-happen-15.0.3.tgz. Extracting by manifest.
+513 silly tarball no local data for is-core-module@https://registry.npmjs.org/is-core-module/-/is-core-module-2.16.1.tgz. Extracting by manifest.
+514 silly tarball no local data for ip-address@https://registry.npmjs.org/ip-address/-/ip-address-10.0.1.tgz. Extracting by manifest.
+515 silly tarball no local data for immutable@https://registry.npmjs.org/immutable/-/immutable-5.1.4.tgz. Extracting by manifest.
+516 silly tarball no local data for @npmcli/run-script@https://registry.npmjs.org/@npmcli/run-script/-/run-script-10.0.3.tgz. Extracting by manifest.
+517 silly tarball no local data for express-rate-limit@https://registry.npmjs.org/express-rate-limit/-/express-rate-limit-8.2.1.tgz. Extracting by manifest.
+518 silly tarball no local data for encoding@https://registry.npmjs.org/encoding/-/encoding-0.1.13.tgz. Extracting by manifest.
+519 silly tarball no local data for electron-to-chromium@https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.302.tgz. Extracting by manifest.
+520 silly tarball no local data for filepond@https://registry.npmjs.org/filepond/-/filepond-4.32.11.tgz. Extracting by manifest.
+521 silly tarball no local data for cli-truncate@https://registry.npmjs.org/cli-truncate/-/cli-truncate-5.1.1.tgz. Extracting by manifest.
+522 silly tarball no local data for brace-expansion@https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.3.tgz. Extracting by manifest.
+523 silly tarball no local data for beasties@https://registry.npmjs.org/beasties/-/beasties-0.3.5.tgz. Extracting by manifest.
+524 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-6.0.1.tgz. Extracting by manifest.
+525 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+526 silly tarball no local data for semver@https://registry.npmjs.org/semver/-/semver-6.3.1.tgz. Extracting by manifest.
+527 silly tarball no local data for @firebase/storage@https://registry.npmjs.org/@firebase/storage/-/storage-0.14.0.tgz. Extracting by manifest.
+528 silly tarball no local data for @firebase/storage-compat@https://registry.npmjs.org/@firebase/storage-compat/-/storage-compat-0.4.0.tgz. Extracting by manifest.
+529 silly tarball no local data for @angular/forms@https://registry.npmjs.org/@angular/forms/-/forms-21.1.5.tgz. Extracting by manifest.
+530 silly tarball no local data for @firebase/remote-config-compat@https://registry.npmjs.org/@firebase/remote-config-compat/-/remote-config-compat-0.2.21.tgz. Extracting by manifest.
+531 silly tarball no local data for @firebase/util@https://registry.npmjs.org/@firebase/util/-/util-1.13.0.tgz. Extracting by manifest.
+532 silly tarball no local data for @firebase/performance-compat@https://registry.npmjs.org/@firebase/performance-compat/-/performance-compat-0.2.22.tgz. Extracting by manifest.
+533 silly tarball no local data for @firebase/remote-config@https://registry.npmjs.org/@firebase/remote-config/-/remote-config-0.8.0.tgz. Extracting by manifest.
+534 silly tarball no local data for @firebase/messaging-compat@https://registry.npmjs.org/@firebase/messaging-compat/-/messaging-compat-0.2.23.tgz. Extracting by manifest.
+535 silly tarball no local data for @firebase/component@https://registry.npmjs.org/@firebase/component/-/component-0.7.0.tgz. Extracting by manifest.
+536 silly tarball no local data for @firebase/installations-compat@https://registry.npmjs.org/@firebase/installations-compat/-/installations-compat-0.2.19.tgz. Extracting by manifest.
+537 silly tarball no local data for @firebase/performance@https://registry.npmjs.org/@firebase/performance/-/performance-0.7.9.tgz. Extracting by manifest.
+538 silly tarball no local data for @firebase/installations@https://registry.npmjs.org/@firebase/installations/-/installations-0.6.19.tgz. Extracting by manifest.
+539 silly tarball no local data for @firebase/functions-compat@https://registry.npmjs.org/@firebase/functions-compat/-/functions-compat-0.4.1.tgz. Extracting by manifest.
+540 silly tarball no local data for @firebase/app-check-compat@https://registry.npmjs.org/@firebase/app-check-compat/-/app-check-compat-0.4.0.tgz. Extracting by manifest.
+541 silly tarball no local data for @firebase/functions@https://registry.npmjs.org/@firebase/functions/-/functions-0.13.1.tgz. Extracting by manifest.
+542 silly tarball no local data for @firebase/messaging@https://registry.npmjs.org/@firebase/messaging/-/messaging-0.12.23.tgz. Extracting by manifest.
+543 silly tarball no local data for @firebase/app-check@https://registry.npmjs.org/@firebase/app-check/-/app-check-0.11.0.tgz. Extracting by manifest.
+544 silly tarball no local data for @firebase/database-types@https://registry.npmjs.org/@firebase/database-types/-/database-types-1.0.16.tgz. Extracting by manifest.
+545 silly tarball no local data for @firebase/data-connect@https://registry.npmjs.org/@firebase/data-connect/-/data-connect-0.3.12.tgz. Extracting by manifest.
+546 silly tarball no local data for @firebase/auth-compat@https://registry.npmjs.org/@firebase/auth-compat/-/auth-compat-0.6.2.tgz. Extracting by manifest.
+547 silly tarball no local data for @firebase/analytics-compat@https://registry.npmjs.org/@firebase/analytics-compat/-/analytics-compat-0.2.25.tgz. Extracting by manifest.
+548 silly tarball no local data for @firebase/app-compat@https://registry.npmjs.org/@firebase/app-compat/-/app-compat-0.5.8.tgz. Extracting by manifest.
+549 silly tarball no local data for @firebase/ai@https://registry.npmjs.org/@firebase/ai/-/ai-2.8.0.tgz. Extracting by manifest.
+550 silly tarball no local data for @firebase/analytics@https://registry.npmjs.org/@firebase/analytics/-/analytics-0.10.19.tgz. Extracting by manifest.
+551 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-6.0.1.tgz. Extracting by manifest.
+552 silly tarball no local data for @firebase/firestore-compat@https://registry.npmjs.org/@firebase/firestore-compat/-/firestore-compat-0.4.5.tgz. Extracting by manifest.
+553 silly tarball no local data for @firebase/app@https://registry.npmjs.org/@firebase/app/-/app-0.14.8.tgz. Extracting by manifest.
+554 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-6.0.1.tgz. Extracting by manifest.
+555 silly tarball no local data for which@https://registry.npmjs.org/which/-/which-6.0.1.tgz. Extracting by manifest.
+556 silly tarball no local data for @algolia/recommend@https://registry.npmjs.org/@algolia/recommend/-/recommend-5.46.2.tgz. Extracting by manifest.
+557 silly tarball no local data for @algolia/requester-fetch@https://registry.npmjs.org/@algolia/requester-fetch/-/requester-fetch-5.46.2.tgz. Extracting by manifest.
+558 silly tarball no local data for sass@https://registry.npmjs.org/sass/-/sass-1.97.1.tgz. Extracting by manifest.
+559 http fetch GET https://registry.npmjs.org/@grpc/proto-loader/-/proto-loader-0.7.15.tgz attempt 1 failed with ENOTFOUND
+560 http fetch GET https://registry.npmjs.org/@npmcli/installed-package-contents/-/installed-package-contents-4.0.0.tgz attempt 1 failed with ENOTFOUND
+561 http fetch GET https://registry.npmjs.org/@babel/parser/-/parser-7.29.0.tgz attempt 1 failed with ENOTFOUND
+562 http fetch GET https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2101.4.tgz attempt 1 failed with ENOTFOUND
+563 http fetch GET https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-21.1.5.tgz attempt 1 failed with ENOTFOUND
+564 http fetch GET https://registry.npmjs.org/@angular/cli/-/cli-21.1.4.tgz attempt 1 failed with ENOTFOUND
+565 http fetch GET https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz attempt 1 failed with ENOTFOUND
+566 http fetch GET https://registry.npmjs.org/vitest/-/vitest-4.0.18.tgz attempt 1 failed with ENOTFOUND
+567 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 1 failed with ENOTFOUND
+568 http fetch GET https://registry.npmjs.org/vite/-/vite-7.3.0.tgz attempt 1 failed with ENOTFOUND
+569 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 1 failed with ENOTFOUND
+570 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 1 failed with ENOTFOUND
+571 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.3.tgz attempt 1 failed with ENOTFOUND
+572 http fetch GET https://registry.npmjs.org/rollup/-/rollup-4.59.0.tgz attempt 1 failed with ENOTFOUND
+573 http fetch GET https://registry.npmjs.org/rolldown/-/rolldown-1.0.0-beta.58.tgz attempt 1 failed with ENOTFOUND
+574 http fetch GET https://registry.npmjs.org/npm attempt 2 failed with ENOTFOUND
+575 http fetch GET https://registry.npmjs.org/@grpc/proto-loader/-/proto-loader-0.7.15.tgz attempt 2 failed with ENOTFOUND
+576 http fetch GET https://registry.npmjs.org/@npmcli/installed-package-contents/-/installed-package-contents-4.0.0.tgz attempt 2 failed with ENOTFOUND
+577 http fetch GET https://registry.npmjs.org/@babel/parser/-/parser-7.29.0.tgz attempt 2 failed with ENOTFOUND
+578 http fetch GET https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2101.4.tgz attempt 2 failed with ENOTFOUND
+579 http fetch GET https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-21.1.5.tgz attempt 2 failed with ENOTFOUND
+580 http fetch GET https://registry.npmjs.org/@angular/cli/-/cli-21.1.4.tgz attempt 2 failed with ENOTFOUND
+581 http fetch GET https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz attempt 2 failed with ENOTFOUND
+582 http fetch GET https://registry.npmjs.org/vitest/-/vitest-4.0.18.tgz attempt 2 failed with ENOTFOUND
+583 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 2 failed with ENOTFOUND
+584 http fetch GET https://registry.npmjs.org/vite/-/vite-7.3.0.tgz attempt 2 failed with ENOTFOUND
+585 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 2 failed with ENOTFOUND
+586 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 2 failed with ENOTFOUND
+587 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.3.tgz attempt 2 failed with ENOTFOUND
+588 http fetch GET https://registry.npmjs.org/rollup/-/rollup-4.59.0.tgz attempt 2 failed with ENOTFOUND
+589 http fetch GET https://registry.npmjs.org/rolldown/-/rolldown-1.0.0-beta.58.tgz attempt 2 failed with ENOTFOUND
+590 http fetch GET https://registry.npmjs.org/npm attempt 3 failed with ENOTFOUND
+591 http fetch GET https://registry.npmjs.org/@grpc/proto-loader/-/proto-loader-0.7.15.tgz attempt 3 failed with ENOTFOUND
+592 http fetch GET https://registry.npmjs.org/@npmcli/installed-package-contents/-/installed-package-contents-4.0.0.tgz attempt 3 failed with ENOTFOUND
+593 http fetch GET https://registry.npmjs.org/@babel/parser/-/parser-7.29.0.tgz attempt 3 failed with ENOTFOUND
+594 http fetch GET https://registry.npmjs.org/@angular-devkit/architect/-/architect-0.2101.4.tgz attempt 3 failed with ENOTFOUND
+595 http fetch GET https://registry.npmjs.org/@angular/compiler-cli/-/compiler-cli-21.1.5.tgz attempt 3 failed with ENOTFOUND
+596 http fetch GET https://registry.npmjs.org/@angular/cli/-/cli-21.1.4.tgz attempt 3 failed with ENOTFOUND
+597 http fetch GET https://registry.npmjs.org/why-is-node-running/-/why-is-node-running-2.3.0.tgz attempt 3 failed with ENOTFOUND
+598 http fetch GET https://registry.npmjs.org/vitest/-/vitest-4.0.18.tgz attempt 3 failed with ENOTFOUND
+599 http fetch GET https://registry.npmjs.org/which/-/which-2.0.2.tgz attempt 3 failed with ENOTFOUND
+600 http fetch GET https://registry.npmjs.org/vite/-/vite-7.3.0.tgz attempt 3 failed with ENOTFOUND
+601 http fetch GET https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz attempt 3 failed with ENOTFOUND
+602 http fetch GET https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz attempt 3 failed with ENOTFOUND
+603 http fetch GET https://registry.npmjs.org/semver/-/semver-7.7.3.tgz attempt 3 failed with ENOTFOUND
+604 http fetch GET https://registry.npmjs.org/rollup/-/rollup-4.59.0.tgz attempt 3 failed with ENOTFOUND
+605 http fetch GET https://registry.npmjs.org/rolldown/-/rolldown-1.0.0-beta.58.tgz attempt 3 failed with ENOTFOUND
+606 verbose cwd /Users/bahmamadou/Desktop/GPA-GOUVE/Final
+607 verbose os Darwin 21.3.0
+608 verbose node v20.19.5
+609 verbose npm  v10.8.2
+610 error Exit handler never called!
+611 error This is an error with npm itself. Please report this error at:
+612 error   <https://github.com/npm/cli/issues>
+613 verbose exit 0
+614 info ok
+615 error A complete log of this run can be found in: /Users/bahmamadou/Desktop/GPA-GOUVE/Final/.npm-cache/_logs/2026-03-22T21_08_34_605Z-debug-0.log

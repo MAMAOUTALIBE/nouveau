@@ -1,0 +1,101 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Basic Table
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-angular-material-tables id="basic-table" [tableClass]="'table '" [divClass]="'mat-elevation-z8 '"
+          [dataSource]="datatableData.BasicDatatable" [displayedColumns]="datatableData.BasicDatatableColumns"
+          [showPaginator]="true"></spk-angular-material-tables>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Responsive Datatable
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-angular-material-tables id="sort-table" [class]="'table'" [divClass]="'mat-elevation-z8 '"
+          [dataSource]="datatableData.ResponsiveDatatable" [displayedColumns]="datatableData.ResponsiveColumns"
+          [showPaginator]="true" [showFilter]="true"></spk-angular-material-tables>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-2 -->
+
+<!-- Start:: row-3 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Reactivity DataTable
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-angular-material-tables id="reactivity-table" [class]="'table'" [divClass]="'mat-elevation-z8 '"
+          [dataSource]="datatableData.ResponsiveDatatable" [displayedColumns]="datatableData.ResponsiveColumns"
+          [showPaginator]="true" [showFilter]="true"></spk-angular-material-tables>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-3 -->
+
+<!-- Start:: row-4 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Add New Row
+        </div>
+      </div>
+      <div class="card-body">
+        <spk-angular-material-tables id="reactivity-table"
+          class="ti-custom-table ti-striped-table ti-custom-table-hover"
+          [dataSource]="datatableData.ResponsiveDatatable" [displayedColumns]="datatableData.ResponsiveColumns"
+          [showPaginator]="true" [showFilter]="true" [showAddButton]="true"
+          [showDeleteButton]="false"></spk-angular-material-tables>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-4 -->
+
+<!-- Start:: row-6 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Delete Row
+        </div>
+      </div>
+      <div class="card-body">
+
+        <spk-angular-material-tables id="reactivity-table"
+          class="ti-custom-table ti-striped-table ti-custom-table-hover"
+          [dataSource]="datatableData.ResponsiveDatatable" [displayedColumns]="datatableData.ResponsiveColumns"
+          [showPaginator]="true" [showFilter]="true" [showAddButton]="false"
+          [showDeleteButton]="true"></spk-angular-material-tables>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-6 -->

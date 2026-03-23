@@ -1,0 +1,65 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+      <app-showcode-card classHeader="pb-0" title="Slides Only" [prism]="prismCodeData.SlidesOnly">
+       <spk-ngb-carousel [images]="images" [interval]="1000" [showNavigationArrows]="false"
+      [showNavigationIndicators]="false"></spk-ngb-carousel>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+      <app-showcode-card classHeader="pb-0" title="With controls" [prism]="prismCodeData.Withcontrols">
+            <spk-ngb-carousel [images]="imagescontrol" [id]="'carouselExampleControls'" [interval]="3000"
+      [showNavigationArrows]="true" [showNavigationIndicators]="false"></spk-ngb-carousel>
+
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+      <app-showcode-card classHeader="pb-0" title="With indicators" [prism]="prismCodeData.Withindicators">
+          <spk-ngb-carousel [images]="imagesIndicators" [interval]="3000" [showNavigationArrows]="false"
+      [showNavigationIndicators]="true"></spk-ngb-carousel>
+      </app-showcode-card>
+
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+      <app-showcode-card classHeader="pb-0" title="With captions" [prism]="prismCodeData.Withcaptions">
+          <spk-ngb-carousel [images]="carouselImages" [interval]="3000" [showNavigationArrows]="true"
+  [showNavigationIndicators]="true"></spk-ngb-carousel>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+      <app-showcode-card classHeader="pb-0" title="Crossfade" [prism]="prismCodeData.Crossfade">
+          <spk-ngb-carousel [images]="imagescross" [id]="'carouselExampleFade'" [carouselClass]="'carousel-fade'"
+      [interval]="3200" [showNavigationArrows]="true" [showNavigationIndicators]="false"></spk-ngb-carousel>
+
+      </app-showcode-card>
+
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+
+      <app-showcode-card classHeader="pb-0" title="Individual .carousel-item interval" [prism]="prismCodeData.Individual">
+         <spk-ngb-carousel [images]="imagesindividual" [id]="'carouselExampleInterval'" [interval]="2800"
+      [showNavigationArrows]="true" [showNavigationIndicators]="false"></spk-ngb-carousel>
+
+      </app-showcode-card>
+
+  </div>
+  <div class="col-xxl-4 col-md-6">
+
+      <app-showcode-card classHeader="pb-0" title="Disable touch swiping" [prism]="prismCodeData.Disabletouchswiping">
+            <spk-ngb-carousel [images]="images1" [id]="'carouselExampleControlsNoTouching'" [interval]="2800"
+      [showNavigationArrows]="true" [showNavigationIndicators]="false"></spk-ngb-carousel>
+      </app-showcode-card>
+
+  </div>
+  <div class="col-xxl-4 col-md-6">
+
+      <app-showcode-card classHeader="pb-0" title="Dark variant" [prism]="prismCodeData.Darkvariant">
+             <spk-ngb-carousel [images]="darkVariantlImages" [interval]="3000" [showNavigationArrows]="true"
+      [id]="'carouselExampleDark'" [showNavigationIndicators]="false"></spk-ngb-carousel>
+      </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-1 -->

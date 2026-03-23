@@ -1,0 +1,57 @@
+<div class="card p-3 pricing-card" [class.border]="data()?.isAdvanced" [class.border-primary]="data()?.isAdvanced">
+
+  <div class="card-header pt-2 d-block">
+    <p class="fs-18 fw-semibold mb-1">
+      {{ data()?.name }}
+      @if (data()?.statusBadge) {
+      <span class="tx-11 float-end badge bg-secondary text-fixed-white mt-2">{{ data()?.statusBadge }}</span>
+      }
+    </p>
+    <p class="fs-13 mb-1 text-muted">{{ data()?.subTitle }}</p>
+    <p class="fs-13 mb-1 fw-semibold">Best price is {{ data()?.bestPrice }}</p>
+  </div>
+
+  <div class="card-body pt-2 pb-0">
+    <ul class="pricing-body text-muted ps-0 mb-4">
+      @for (feat of data()?.features; track $index) {
+      <li class="mb-1">
+        <label class="d-flex align-items-center p-2 br-5 border" [class.bg-primary-transparent]="feat.isPrimary"
+          [class.border-primary]="feat.isPrimary">
+          <span class="check-box mb-0">
+            <span class="ckbox">
+              <input class="form-check-input" type="checkbox" [checked]="feat.isSelected">
+              <span></span>
+            </span>
+          </span>
+          <span class="ms-3 tx-14 my-auto" [class.text-primary]="feat.isPrimary">
+            {{ feat.label }}
+            @if (feat.badge) {
+            <span class="tx-10 rounded-pill lh-1 badge bg-light-transparent text-dark fw-semibold ms-2">
+              {{ feat.badge }}
+            </span>
+            }
+          </span>
+          <strong class="ms-auto" [class.text-dark]="!feat.isPrimary" [class.text-primary]="feat.isPrimary">
+            {{ feat.price }}
+          </strong>
+        </label>
+      </li>
+      }
+    </ul>
+  </div>
+
+  <div class="card-footer pt-1 d-block">
+    <p class="text-dark mb-2 pt-2">
+      <span class="fs-13 fw-semibold">Vat Tax</span>
+      <strong class="fs-16 float-end">{{ data()?.vatTax }}</strong>
+    </p>
+    <p class="text-dark mb-4">
+      <span class="fs-13 fw-semibold">Total</span>
+      <strong class="fs-22 text-primary float-end">{{ data()?.total }}</strong>
+    </p>
+    <button class="btn btn-lg btn-primary text-fixed-white btn-block">
+      <span class="ms-4 me-4">{{ data()?.buttonText }}</span>
+    </button>
+  </div>
+
+</div>

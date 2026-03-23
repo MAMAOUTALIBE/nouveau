@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/shared/feature-placeholder/feature-placeholder.ts"],
+  "sourcesContent": ["import { Component, input } from '@angular/core';\n\n@Component({\n  selector: 'app-feature-placeholder',\n  standalone: true,\n  template: `\n    <div class=\"card\">\n      <div class=\"card-body text-center py-5\">\n        <h5 class=\"mb-2\">{{ title() }}</h5>\n        <p class=\"text-muted mb-0\">Cette fonctionnalité sera livrée dans une prochaine itération.</p>\n      </div>\n    </div>\n  `,\n})\nexport class FeaturePlaceholder {\n  title = input<string>('En construction');\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAcM,IAAO,qBAAP,MAAO,oBAAkB;EAC7B,QAAQ,MAAc,mBAAiB,GAAA,YAAA,CAAA,EAAA,WAAA,QAAA,CAAA,IAAA,CAAA,CAAA;;qCAD5B,qBAAkB;EAAA;yEAAlB,qBAAkB,WAAA,CAAA,CAAA,yBAAA,CAAA,GAAA,QAAA,EAAA,OAAA,CAAA,GAAA,OAAA,EAAA,GAAA,OAAA,GAAA,MAAA,GAAA,QAAA,CAAA,CAAA,GAAA,MAAA,GAAA,CAAA,GAAA,aAAA,eAAA,MAAA,GAAA,CAAA,GAAA,MAAA,GAAA,CAAA,GAAA,cAAA,MAAA,CAAA,GAAA,UAAA,SAAA,4BAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;AAR3B,MAAA,4BAAA,GAAA,OAAA,CAAA,EAAkB,GAAA,OAAA,CAAA,EACwB,GAAA,MAAA,CAAA;AACrB,MAAA,iBAAA,CAAA;AAAa,MAAA,0BAAA;AAC9B,MAAA,4BAAA,GAAA,KAAA,CAAA;AAA2B,MAAA,iBAAA,GAAA,yEAAA;AAA8D,MAAA,0BAAA,EAAI,EACzF;;;AAFa,MAAA,oBAAA,CAAA;AAAA,MAAA,4BAAA,IAAA,MAAA,CAAA;;;;;sEAMZ,oBAAkB,CAAA;UAZ9B;WAAU;MACT,UAAU;MACV,YAAY;MACZ,UAAU;;;;;;;;KAQX;;;;6EACY,oBAAkB,EAAA,WAAA,sBAAA,UAAA,qEAAA,YAAA,GAAA,CAAA;AAAA,GAAA;",
+  "names": []
+}

@@ -1,0 +1,110 @@
+<div class="square-box">
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+<div class="container">
+  <div class="row justify-content-center align-items-center authentication authentication-basic h-100">
+    <div
+      class="col-xl-5 col-lg-6 col-md-8 col-sm-8 col-xs-10 card-sigin-main mx-auto my-auto py-4 justify-content-center">
+      <div class="card-sigin">
+        <!-- Demo content-->
+        <div class="main-card-signin d-md-flex">
+          <div class="wd-100p">
+            <div class="d-flex mb-4"><a [routerLink]="['/dashboards/dashboard-1']"><img
+                  src="./assets/images/brand-logos/toggle-logo.png" class="sign-favicon ht-40" alt="logo"></a></div>
+            <div class="">
+              <div class="main-signup-header">
+                <h2>Welcome back!</h2>
+                <h6 class="font-weight-semibold mb-4">Please sign in to continue.</h6>
+                <div class="panel panel-primary">
+                  <div class=" tab-menu-heading mb-2 border-bottom-0">
+                    <div class="tabs-menu1">
+                      <ul ngbNav #nav="ngbNav" class="nav panel-tabs">
+                        <li [ngbNavItem]="1" class="me-2"><a ngbNavLink class="" data-bs-toggle="tab">Email</a>
+                          <ng-template ngbNavContent>
+                            <div>
+                              <form action="#">
+                                <div class="form-group">
+                                  <label>Email</label> <input class="form-control" placeholder="Enter your email"
+                                    type="text">
+                                </div>
+                                <div class="form-group">
+                                  <label>Password</label> <input class="form-control" placeholder="Enter your password"
+                                    type="password">
+                                </div><a [routerLink]="['/dashboards/dashboard-1']"
+                                  class="btn btn-primary btn-block">Sign In</a>
+                                <div class="mt-4 d-flex text-center justify-content-center mb-2">
+                                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                                    <span class="btn-inner--icon"> <i class="bx bxl-facebook fs-18 tx-prime"></i>
+                                    </span>
+                                  </a>
+                                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                                    <span class="btn-inner--icon"> <i class="ri-twitter-x-line fs-15 tx-prime"></i>
+                                    </span>
+                                  </a>
+                                  <a href="javascript:void(0);" class="btn btn-icon me-3">
+                                    <span class="btn-inner--icon"> <i class="bx bxl-linkedin fs-18 tx-prime"></i>
+                                    </span>
+                                  </a>
+                                  <a href="javascript:void(0);" class="btn  btn-icon me-3">
+                                    <span class="btn-inner--icon"> <i class="bx bxl-instagram fs-18 tx-prime"></i>
+                                    </span>
+                                  </a>
+                                </div>
+                              </form>
+                            </div>
+                          </ng-template>
+                        </li>
+                        <li [ngbNavItem]="2"><a ngbNavLink data-bs-toggle="tab" class="">Mobile no</a>
+                          <ng-template ngbNavContent>
+                            <div>
+                              <div id="mobile-num" class="wrap-input100 validate-input input-group mb-2">
+                                <a href="javascript:void(0);" class="input-group-text bg-white text-muted">
+                                  <span>+91</span>
+                                </a>
+                                <input class="input100 form-control" type="number" placeholder="number">
+                              </div>
+                              <span>Note : Login with registered mobile number to generate OTP.</span>
+                              <div class="container-login100-form-btn mt-3">
+                                <a href="javascript:void(0);" class="btn login100-form-btn btn-primary"
+                                  id="generate-otp">
+                                  Proceed
+                                </a>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="panel-body tabs-menu-body border-0 p-3">
+                    <div class="tab-content" [ngbNavOutlet]="nav">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="main-signin-footer text-center mt-3">
+                  <p><a [routerLink]="['/pages/authentication/forgot-password']" class="mb-3">Forgot password?</a></p>
+                  <p>Don't have an account? <a [routerLink]="['/pages/authentication/signup']">Create an Account</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

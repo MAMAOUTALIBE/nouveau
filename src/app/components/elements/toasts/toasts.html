@@ -1,0 +1,177 @@
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title="Live example" [prism]="prismCodeData.Liveexample">
+      <button type="button" class="btn btn-primary" (click)="triggerToast('primary', false, 'top-end')">
+        Show live toast
+      </button>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Toastify JS">
+      <button type="button" class="btn btn-primary-gradient btn-wave" (click)="triggerToast('primary', true)">Click For
+        Live Toast</button>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Basic example" [prism]="prismCodeData.Basicexample">
+      @if(showBasic) { <spk-toast (closeToast)="showBasic = false" [autohide]="false"
+        content="Hello, world! This is a toast message"></spk-toast> }
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Translucent">
+      @if(showTranslucent) { <spk-toast (closeToast)="showTranslucent = false" [autohide]="false"
+        content="Hello, world! This is a toast message"></spk-toast> }
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-4">
+    <app-showcode-card title="Color schemes" [prism]="prismCodeData.Colorschemes">
+      @if(showColors.primary) {
+      <spk-toast  [btnClass]="'btn-close-white'" [buttonClass]="'toast align-items-center text-bg-primary border-0 mb-4'"
+        (closeToast)="showColors.primary = false" content1="Hello, world! This is a toast message."
+        [autohide]="false"></spk-toast>
+      }
+      @if(showColors.secondary) {
+      <spk-toast  [btnClass]="'btn-close-white'" [buttonClass]="'toast align-items-center text-bg-secondary border-0 mb-4'"
+        (closeToast)="showColors.secondary = false" content1="Hello, world! This is a toast message."
+        [autohide]="false"></spk-toast>
+      }
+      @if(showColors.success) {
+      <spk-toast  [btnClass]="'btn-close-white'" [buttonClass]="'toast align-items-center text-bg-success border-0 mb-4'"
+        (closeToast)="showColors.success = false" content1="Hello, world! This is a toast message."
+        [autohide]="false"></spk-toast>
+      }
+      @if(showColors.info) {
+      <spk-toast  [btnClass]="'btn-close-white'" [buttonClass]="'toast align-items-center text-bg-info border-0 mb-4'"
+        (closeToast)="showColors.info = false" content1="Hello, world! This is a toast message."
+        [autohide]="false"></spk-toast>
+      }
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-4">
+    <app-showcode-card title="Custom content" [prism]="prismCodeData.Customcontent">
+      @if(showContent) {
+      <spk-toast [buttonClass]="'toast align-items-center fade show mb-3'"
+        content1="Hello, world! This is a toast message." (closeToast)="showContent = false"
+        [autohide]="false"></spk-toast>
+      }
+      @if(showCustomClose) {
+      <spk-toast [buttonClass]="'toast fade show mt-2'" content="" [autohide]="false">
+        Hello, world! This is a toast message.
+        <div class="mt-3 pt-2 border-top">
+          <button class="btn btn-primary btn-sm me-2">Take action</button>
+          <button class="btn btn-secondary btn-sm" (click)="showCustomClose = false">Close</button>
+        </div>
+      </spk-toast>
+      }
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-4">
+    <app-showcode-card title="Stacking" [prism]="prismCodeData.Stacking">
+      <div class="toast-container position-static">
+        @if(showStack1){ <spk-toast buttonClass="mb-3" (closeToast)="showStack1 = false" [autohide]="false"
+          content="See? Just like this."></spk-toast> }
+        @if(showStack2){ <spk-toast buttonClass="mb-3" (closeToast)="showStack2 = false" [autohide]="false"
+          content="Heads up, toasts will stack automatically"></spk-toast> }
+      </div>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Color Variants Live" [prism]="prismCodeData.ColorVariantsLive">
+      <div class="btn-list">
+        <button (click)="triggerToast('primary')" class="btn btn-primary-light">Primary</button>
+        <button (click)="triggerToast('secondary')" class="btn btn-secondary-light">Secondary</button>
+        <button (click)="triggerToast('warning')" class="btn btn-warning-light">Warning</button>
+        <button (click)="triggerToast('danger')" class="btn btn-danger-light">Danger</button>
+      </div>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Solid Background Toasts" [prism]="prismCodeData.SolidBackgroundToasts">
+      <div class="btn-list">
+        <button (click)="triggerToast('primary', true)" class="btn btn-primary">Primary</button>
+        <button (click)="triggerToast('secondary', true)" class="btn btn-secondary">Secondary</button>
+        <button (click)="triggerToast('success', true)" class="btn btn-success">Success</button>
+        <button (click)="triggerToast('danger', true)" class="btn btn-danger">Danger</button>
+      </div>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-12">
+    <app-showcode-card title="Toast Placements" [prism]="prismCodeData.ToastPlacements">
+      <div class="btn-list">
+        <button (click)="triggerToast('primary', false, 'top-start')" class="btn btn-outline-primary">Top Left</button>
+        <button (click)="triggerToast('primary', false, 'top-center')" class="btn btn-outline-primary">Top
+          Center</button>
+        <button (click)="triggerToast('primary', false, 'top-end')" class="btn btn-outline-primary">Top Right</button>
+        <button (click)="triggerToast('primary', false, 'middle-start')" class="btn btn-outline-primary">Middle
+          Left</button>
+        <button (click)="triggerToast('primary', false, 'middle-center')" class="btn btn-outline-primary">Middle
+          Center</button>
+        <button (click)="triggerToast('primary', false, 'bottom-end')" class="btn btn-outline-primary">Bottom
+          Right</button>
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+<div class="toast-container position-fixed top-0 start-0 p-3 mt-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'top-start') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)"></spk-toast>
+  }
+  }
+</div>
+
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3 mt-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'top-center') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)"></spk-toast>
+  }
+  }
+</div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3 mt-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'top-end') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)" [toastImage]="true"></spk-toast>
+  }
+  }
+</div>
+
+<div class="toast-container position-fixed top-50 start-0 translate-middle-y p-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'middle-start') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)"></spk-toast>
+  }
+  }
+</div>
+
+<div class="toast-container position-fixed top-50 start-50 translate-middle p-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'middle-center') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)"></spk-toast>
+  }
+  }
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3 mb-3" style="z-index: 9999">
+  @for (toast of toastService.toasts; track toast.id) {
+  @if (toast.position === 'bottom-end') {
+  <spk-toast [buttonClass]="toast.buttonClass" [content]="toast.content" [toastImage]="true"
+    (closeToast)="toastService.remove(toast)"></spk-toast>
+  }
+  }
+</div>

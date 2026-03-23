@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/widgets/widgets/widgets.scss"],
+  "sourcesContent": ["::ng-deep .leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive {\r\n    width: 100%;\r\n    height: 100%;\r\n    z-index: 100;\r\n  }\r\n  \r\n  ::ng-deep #leaflet2 {\r\n    -ms-touch-action: none;\r\n        touch-action: none;\r\n  }"],
+  "mappings": ";AAAA,UAAA,CAAA,mBAAA,CAAA,qBAAA,CAAA;AACI,SAAA;AACA,UAAA;AACA,WAAA;;AAGF,UAAA,CAAA;AACE,oBAAA;AACI,gBAAA;;",
+  "names": []
+}

@@ -1,0 +1,21 @@
+<div class="media mt-0">
+    <img class="avatar-lg rounded-circle me-3 my-auto shadow" [src]="avatar()" alt="Image description">
+    <div class="media-body flex-fill">
+      <div class="d-flex align-items-center">
+        <div class="mt-0">
+          <h5 class="mb-1 fs-13 font-weight-sembold text-dark">{{ name() }}</h5>
+          <p class="mb-0 fs-12 text-muted">User ID: {{ userId() }}</p>
+        </div>
+        <span  [ngClass]="bgClass()"  class="ms-auto fs-14 flex-shrink-0 bgcolor">
+          <span [class]="{
+                      'bg-success': status() === 'paid',
+                      'bg-danger': status() !== 'paid',
+                      'bg-success-transparent': status() === 'paid', 
+                      'bg-danger-transparent': status() !== 'paid'
+                    }"  class="float-end badge">
+            <span [ngClass]="status() === 'paid' ? 'text-'+ textcolor() + ' fw-semibold' : 'text-' + textcolor() + ' fw-semibold'">{{ status() }}</span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>

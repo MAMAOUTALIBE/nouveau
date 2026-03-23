@@ -1,0 +1,72 @@
+<!-- Display header if content is projected -->
+<div class="card custom-card" [(ngbCollapse)]="isClosed"
+     [ngClass]="[toggleClass === 'fe fe-minimize' ? 'card-fullscreen' : '', cardClass()]">
+
+
+     <ng-content select="[beforeheader]"></ng-content>
+
+
+     <!-- Display header if content is projected -->
+     @if (hasHeader) {
+     <div class="card-header" [ngClass]="cardheaderClass()">
+          <ng-content select="[header]">
+          </ng-content>
+
+          @if(cardOptions()){
+          <div class="card-options ">
+               @if (collapsable()) {
+               <a href="javascript:void(0);" class="card-options-collapse" (click)="collapse.toggle()"
+                    [attr.aria-expanded]="!isCollapsed">
+                    <i class="fe fe-chevron-{{ !isCollapsed ? 'up' : 'down'}}" [ngClass]="iconClass()"></i>
+               </a>
+               }
+
+               @if(fullScreenable()){
+               <a href="javascript:void(0);" class="card-options-fullscreen" (click)="fullScreenToggle()">
+                    <i class="{{toggleClass}}"></i></a>
+               }
+               @if(closeable()){
+               <a href="javascript:void(0)" class="card-options-remove" data-bs-toggle="card-remove"
+                    [attr.aria-expanded]="!isClosed" (click)="Closetoggle()">
+                    <i class="fe fe-x" [ngClass]="iconClass()"></i>
+               </a>
+               }
+               @if (switchable()) {
+               <label class="custom-switch m-0">
+                    <input type="checkbox" value="1" class="custom-switch-input" checked=""/>
+                    <span class="custom-switch-indicator"></span>
+               </label>
+               }
+
+          </div>
+          }
+     </div>
+     }
+
+     <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed" >
+
+          <div  [ngClass]="afterHeaderClass()">
+               <ng-content select="[afterheader]"></ng-content>
+          </div>
+
+
+
+          <!-- Always display body content -->
+          <div  class="card-body" [ngClass]="cardBodyClass()" >
+               <ng-content></ng-content>
+          </div>
+
+
+
+          <ng-content select="[beforefooter]"></ng-content>
+
+          <!-- Display footer if content is projected -->
+          @if (hasFooter) {
+          <div class="card-footer" [ngClass]="cardFooterClass()" >
+               <ng-content select="[footer]"></ng-content>
+          </div>
+          }
+          <ng-content select="[afterfooter]"></ng-content>
+     </div>
+
+</div>

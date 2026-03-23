@@ -1,0 +1,73 @@
+<div class="row row-sm">
+  @for (kpi of kpis; track $index) {
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <spk-widgets-metric-card [data]="kpi"></spk-widgets-metric-card>
+    </div>
+  }
+</div>
+
+<div class="row row-sm">
+  <div class="col-xxl-8 col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Évolution des effectifs</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="hr-headcount-trend" [chartOptions]="headcountTrend"></spk-apexcharts>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xxl-4 col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Alertes administratives</div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning-transparent mb-2">12 dossiers incomplets</div>
+        <div class="alert alert-danger-transparent mb-2">5 départs à la retraite sous 90 jours</div>
+        <div class="alert alert-info-transparent mb-0">9 validations manager en attente</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Demandes à traiter</div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <spk-reusable-tables
+            [tableClass]="'table text-nowrap'"
+            [showCheckbox]="true"
+            [columns]="[
+              { header: 'Référence' },
+              { header: 'Agent' },
+              { header: 'Type' },
+              { header: 'Structure' },
+              { header: 'Soumis le' },
+              { header: 'Statut' }
+            ]"
+            [data]="pendingRequests"
+            (toggleSelectAll)="toggleAllRows($event)"
+          >
+            @for (row of pendingRequests; track row.reference) {
+              <tr>
+                <td><input class="form-check-input" type="checkbox" [(ngModel)]="row.checked" /></td>
+                <td>{{ row.reference }}</td>
+                <td>{{ row.agent }}</td>
+                <td>{{ row.type }}</td>
+                <td>{{ row.unit }}</td>
+                <td>{{ row.submittedAt }}</td>
+                <td><span class="badge bg-warning-transparent text-warning">{{ row.status }}</span></td>
+              </tr>
+            }
+          </spk-reusable-tables>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

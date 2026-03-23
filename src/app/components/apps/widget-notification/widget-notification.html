@@ -1,0 +1,133 @@
+<!-- row -->
+<div class="row row-sm">
+  @for (item of alerts; track $index) {
+  <div class="col-lg-6 col-md-12 col-xl-3">
+    <spk-card [cardClass]="'bd-0 mg-b-20'"
+      [cardBodyClass]="`text-${item.type} bg-${item.type}-transparent br-5 border border-${item.type}`">
+      <div class="main-error-wrapper">
+        <i [class]="`bi ${item.icon} mg-b-20 fs-50 lh-1`"></i>
+        <h4 [class]="`mg-b-20 text-${item.type}`">{{item.title}}</h4>
+        <a [class]="`btn btn-outline-${item.type} btn-sm`" href="javascript:void(0);">Click to view details</a>
+      </div>
+    </spk-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+<div class="row row-sm">
+  @for (item of alertWidgets; track $index) {
+  <div class="col-lg-6 col-md-12 col-xl-3">
+    <spk-card [cardClass]="`bd-0 mg-b-20 bg-${item.type}-transparent p-0 border-0`"
+      [cardheaderClass]="`p-3 text-${item.type} fw-bold`" [cardBodyClass]="`text-${item.type}`">
+      <ng-container #header header>
+        <i [class]="`bi ${item.icon} me-1`"></i> {{item.title}}
+      </ng-container>
+      <strong>{{item.strongText}} </strong>{{item.message}}
+    </spk-card>
+  </div>
+  }
+
+</div>
+<!-- row -->
+<div class="row row-sm mt-3">
+  @for (alert of alerts3; track $index) {
+  <div class="col-lg-6 col-md-12 col-xl-3">
+    <spk-card [cardClass]="'bd-0 mb-2'" [cardBodyClass]="`border border-${alert.colorClass} text-center rounded`">
+
+
+      <div [class]="`${alert.type}-widget`">
+        <i [class]="`${alert.icon} mg-b-20 fs-50 text-${alert.colorClass} lh-1`"></i>
+        <h3 [class]="`mt-3 text-${alert.colorClass}`">{{alert.title}}</h3>
+        <p class="mt-3 mb-0">
+          Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit.
+        </p>
+      </div>
+    </spk-card>
+
+  </div>
+  }
+
+</div>
+<!-- /row -->
+<!-- row -->
+<div class="row row-sm mt-3">
+  @for (alert of alerts4; track $index) {
+  <div class="col-lg-6 col-md-12 col-xl-3">
+    <spk-card [cardClass]="`bd-0 mg-b-20`" [cardBodyClass]="`border border-${alert.color} text-center rounded`">
+      <div class="{{alert.type}}-widget">
+        <h3 class="text-{{alert.color}}">{{alert.title}}</h3>
+        <p class="mt-3 mb-0">
+          Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit.
+        </p>
+      </div>
+    </spk-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row row-sm">
+  <!-- alert-cards.component.html -->
+
+    @for (alert of alertCards; track alert.type) {
+
+    <div class="col-lg-6 col-md-12 col-xl-3">
+      <spk-card [cardClass]="`bd-0 mg-b-20 ${alert.bgClass}`">
+        <div class="main-error-wrapper text-center">
+          <i class="{{alert.icon}} mg-b-20 fs-50 lh-1 text-fixed-white"></i>
+          <h4 class="mg-b-0 text-fixed-white">
+            {{alert.message}}
+          </h4>
+        </div>
+      </spk-card>
+    </div>
+    }
+
+
+</div>
+<!-- row -->
+<div class="row row-sm">
+
+    @for (alert of alerts6; track $index) {
+    <div class="col-lg-6 col-md-12 col-xl-3">
+      <spk-card [cardClass]="`bd-0 mg-b-20 `" [cardBodyClass]="`text-${alert.type}`">
+        <div class="main-error-wrapper text-center">
+          <i class="{{alert.icon}} mg-b-20 fs-50 lh-1"></i>
+          <h4 class="mg-b-0 text-{{alert.type}}">
+            {{alert.message}}
+          </h4>
+
+        </div>
+      </spk-card>
+    </div>
+    }
+
+
+</div>
+<!-- /row -->
+<div class="row row-sm">
+
+    @for (state of emptyStates; track $index) {
+    <div class="col-lg-6 col-md-6 col-xl-4">
+      <spk-card [cardClass]="`mg-b-20 text-center `" [cardBodyClass]="`h-100`">
+
+        <img [src]="state.image" alt="" class="wd-35p">
+
+        <h5 class="mg-b-10 mg-t-15 tx-18">
+          {{state.title}}
+        </h5>
+
+        <a href="javascript:void(0);" class="text-muted">
+          Check The Settings
+        </a>
+      </spk-card>
+
+    </div>
+    }
+
+
+</div>
+<!-- /row -->

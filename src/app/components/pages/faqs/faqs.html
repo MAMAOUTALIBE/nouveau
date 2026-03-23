@@ -1,0 +1,47 @@
+<!-- row -->
+<div class="row">
+  <div class="col-xl-12">
+    <spk-accordion [items]="faqItems" accordionId="accordioncustomicon1Example"
+      accordionClass="accordion accordion-customicon1 accordions-items-seperate" buttonClass="accordion-button fs-15"
+      [closeOthers]="true">
+
+      <ng-template #header let-item>
+        {{ item.title }}
+      </ng-template>
+
+      <ng-template #body let-item>
+        <div class="fs-14">
+          {{ item.content }}
+        </div>
+      </ng-template>
+
+    </spk-accordion>
+  </div>
+ 
+</div>
+<!-- row closed -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Ask Question</h3>
+      </div>
+      <div class="card-body">
+        <h6>If Your Query Not Clarified Post Your Question, My Customer Support will help You.</h6>
+        <div class="pt-4">
+          <div class="form-group">
+            <input type="text" class="form-control" id="name1" placeholder="Your Name">
+          </div>
+          <div class="form-group">
+            <input type="email" class="form-control" id="email" placeholder="Email Address">
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" name="example-textarea-input" rows="6"
+              placeholder="Post Your Query"></textarea>
+          </div>
+          <a href="javascript:void(0);" class="btn btn-primary">Send Question</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

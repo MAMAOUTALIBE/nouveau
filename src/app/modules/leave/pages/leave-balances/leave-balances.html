@@ -1,0 +1,43 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Soldes de congés</div>
+        <div class="btn-list">
+          <button class="btn btn-primary">Mettre à jour les droits</button>
+          <button class="btn btn-outline-primary">Exporter</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Alloué</th>
+                <th>Consommé</th>
+                <th>Restant</th>
+                <th>Progression</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let balance of balances">
+                <td class="fw-semibold">{{ balance.type }}</td>
+                <td>{{ balance.allocated }} j</td>
+                <td>{{ balance.consumed }} j</td>
+                <td>
+                  <span class="badge bg-light text-default">{{ balance.remaining }} j</span>
+                </td>
+                <td class="w-25">
+                  <div class="progress progress-sm">
+                    <div class="progress-bar" role="progressbar" [style.width.%]="percent(balance.allocated, balance.consumed)"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

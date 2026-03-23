@@ -1,0 +1,106 @@
+<!-- row -->
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-md-12">
+    <div class="card ">
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label text-dark">Course Title</label>
+          <input type="text" class="form-control" value="Advanced Web Develpment">
+        </div>
+        <div class="form-group">
+          <label class="form-label text-dark">Category</label>
+          <spk-ng-select [id]="'choices-single-default'" [options]="subjects" [bindLabel]="'label'"
+            [bindValue]="'value'" [placeholder]="'--select--'">
+          </spk-ng-select>
+
+        </div>
+        <div class="form-group">
+          <label class="form-label text-dark">Instructor</label>
+          <spk-ng-select [id]="'choices-single-default1'" [options]="people" [bindLabel]="'name'" [bindValue]="'value'"
+            [placeholder]="'--select--'" [(defaultValue)]="selectedPerson">
+          </spk-ng-select>
+        </div>
+        <div class="form-group">
+          <label class="form-label text-dark">Type of mode</label>
+          <div class="d-md-flex ad-post-details">
+            <div class="form-check mb-2 me-4">
+              <input class="form-check-input" type="radio" name="flexRadioDefault05" id="Radio1" checked>
+              <label class="form-check-label" for="Radio1">
+                Free
+              </label>
+            </div>
+            <div class="form-check mb-2 me-4">
+              <input class="form-check-input" type="radio" name="flexRadioDefault05" id="Radio2">
+              <label class="form-check-label" for="Radio2">
+                Paid
+              </label>
+            </div>
+          </div>
+        </div>
+        <div id="editor" class="mb-3">
+          <quill-editor id="editor" class="w-100" [modules]="quillModules" [(ngModel)]="editorContent"> </quill-editor>
+        </div>
+        <div class="form-group">
+          <label class="form-label text-dark">Course Type</label>
+          <div class="d-md-flex ad-post-details">
+            <div class="form-check mb-2 me-4">
+              <input class="form-check-input" type="radio" name="flexRadioDefault01" id="Radio-sm" checked>
+              <label class="form-check-label" for="Radio-sm">
+                Free
+              </label>
+            </div>
+            <div class="form-check mb-2 me-4">
+              <input class="form-check-input" type="radio" name="flexRadioDefault01" id="Radio-sm1">
+              <label class="form-check-label" for="Radio-sm">
+                Paid
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 border mb-4 form-group edit-dropzon">
+          <div>
+            @if(type === 'component'){
+            <dropzone [config]="config1" [disabled]="disabled" [message]="'Drop File here to upload'"/>
+            }
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Upload Video URL</label>
+          <input type="text" class="form-control" placeholder="https://videos.com"
+            value="https://www.youtube.com/embed/tMWkeBIohBs">
+        </div>
+        <div class="control-group form-group  mb-0">
+          <label class="form-label text-dark">Course Post Package</label>
+          <div class=" border p-3 br-7">
+            <div class="d-md-flex ad-post-details">
+              <div class="form-check mb-0 me-5">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+                <label class="form-check-label" for="flexRadioDefault2"> 30 Days Free</label>
+              </div>
+              <div class="form-check mb-0 me-4">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault02" checked="">
+                <label class="form-check-label" for="flexRadioDefault02"> 60 days / <span
+                    class="fw-bold">$20</span></label>
+              </div>
+              <div class="form-check mb-0 me-4">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
+                <label class="form-check-label" for="flexRadioDefault3"> 6months /<span
+                    class="fw-bold">$50</span></label>
+              </div>
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault4">
+                <label class="form-check-label" for="flexRadioDefault4"> 1 year / <span
+                    class="fw-bold">$80</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer d-flex justify-content-between">
+        <a href="javascript:void(0)" class="btn btn-secondary">Save to Draft</a>
+        <a href="javascript:void(0)" class="btn btn-primary">Publish Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->

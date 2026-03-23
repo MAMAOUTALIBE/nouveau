@@ -1,0 +1,240 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+      <app-showcode-card title="badges" classbody="d-flex flex-wrap gap-2 "
+          [prism]="prismCodeData.badges">
+          @for (item of Pillbadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card title=" Light Pill Badges" [prism]="prismCodeData.LightPillBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of LightPillBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+
+  </div>
+</div>
+
+<!-- End::row-1 -->
+
+<!-- Start::row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+
+      <app-showcode-card title=" Pill Rounded Badges" [prism]="prismCodeData.PillRoundedBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of PillRoundedBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card title="Light Pill Rounded Badges" [prism]="prismCodeData.LightPillRoundedBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of LightPillRoundedBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End::row-2 -->
+
+<!-- Start::row-3 -->
+<div class="row">
+  <div class="col-xl-6">
+      <app-showcode-card title="Gradient Badges" [prism]="prismCodeData.GradientBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of GradientBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+
+
+
+  </div>
+  <div class="col-xl-6">
+
+      <app-showcode-card title=" Gradient Rounded Badges" [prism]="prismCodeData.GradientRoundedBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of GradientPillRoundedBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+
+
+  </div>
+</div>
+<!-- End::row-3 -->
+
+<!-- Start::row-4 -->
+<div class="row">
+  <div class="col-xl-6">
+
+      <app-showcode-card title="Outline Badges" [prism]="prismCodeData.OutlineBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of OutlineBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+
+
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card title=" Outline Pill Rounded Badges" [prism]="prismCodeData.OutlinePillRoundedBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of OutlinePillRoundedBadges; track $index) {
+          <span [class]="item.class">
+              {{item.title}}
+          </span>
+          }
+      </app-showcode-card>
+
+  </div>
+</div>
+
+<!-- End::row-4 -->
+
+<!-- Start::row-5 -->
+<div class="row">
+  <div class="col-xl-6">
+      <app-showcode-card title="Buttons With Badges" [prism]="prismCodeData.ButtonsWithBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of ButtonsWithBadges; track $index) {
+          <button type="button" [class]="item.buttonClass">
+              Notifications <span [class]="item.spanClass">{{item.number}}</span>
+          </button>
+          }
+      </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card title="Outline Button Badges" [prism]="prismCodeData.OutlineButtonBadges"
+          classbody="d-flex flex-wrap gap-2 ">
+          @for (item of OutlineButtonBadges; track $index) {
+          <button type="button" [class]="item.buttonClass">
+              Notifications <span class="badge ms-2">{{item.number}}</span>
+          </button>
+          }
+      </app-showcode-card>
+
+  </div>
+</div>
+<!-- End::row-5 -->
+
+<!-- Start::row- -->
+<div class="row">
+  <div class="col-xl-6">
+      <div class="row">
+          <div class="col-xl-12">
+              <app-showcode-card title="Positioned Badges" [prism]="prismCodeData.PositionedBadges"
+                  classbody="d-flex flex-wrap gap-4 ">
+                  <button type="button" class="btn btn-primary position-relative">
+                      Inbox
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                          99+
+                          <span class="visually-hidden">unread messages</span>
+                      </span>
+                  </button>
+                  <button type="button" class="btn btn-secondary position-relative">
+                      Profile
+                      <span
+                          class="position-absolute top-80 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
+                          <span class="visually-hidden">New alerts</span>
+                      </span>
+                  </button>
+                  <span class="avatar">
+                      <img src="./assets/images/faces/2.jpg" alt="img">
+                      <span
+                          class="position-absolute top-0 start-100 translate-middle p-1 bg-primary border border-light rounded-circle">
+                          <span class="visually-hidden">New alerts</span>
+                      </span>
+                  </span>
+                  <span class="avatar avatar-rounded">
+                      <img src="./assets/images/faces/15.jpg" alt="img">
+                      <span
+                          class="position-absolute top-80 start-100 translate-middle p-1 bg-primary border border-light  rounded-circle">
+                          <span class="visually-hidden">New alerts</span>
+                      </span>
+                  </span>
+                  <span class="avatar avatar-rounded">
+                      <img src="./assets/images/faces/10.jpg" alt="img">
+                      <span
+                          class="position-absolute top-0 start-100 translate-middle badge bg-secondary rounded-pill shadow-lg">1000+
+                          <span class="visually-hidden">New alerts</span>
+                      </span>
+                  </span>
+
+              </app-showcode-card>
+          </div>
+
+          <div class="col-xl-12">
+              <app-showcode-card title="Custom Badges" [prism]="prismCodeData.CustomBadges"
+                  >
+                  <div class="d-flex align-items-center gap-5 flex-wrap">
+                      <div>
+                          <span
+                              class="badge bg-outline-secondary custom-badge fs-15 d-inline-flex align-items-center"><i
+                                  class="ti ti-flame me-1"></i>Hot</span>
+                      </div>
+                      <div>
+                          <span class="icon-badge">
+                              <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24"
+                                  width="24px" fill="#000000">
+                                  <path
+                                      d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+                              </svg>
+                              <span class="badge rounded-pill bg-primary">14</span>
+                          </span>
+                      </div>
+                      <div>
+                          <span class="badge border bg-light text-default custom-badge"><i
+                                  class="fe fe-eye me-2 d-inline-block"></i>13.2k</span>
+                      </div>
+                      <div>
+                          <span class="text-badge">
+                              <span class="text fs-18">Inbox</span>
+                              <span class="badge rounded-pill bg-primary">32</span>
+                          </span>
+                      </div>
+                  </div>
+              </app-showcode-card>
+
+          </div>
+      </div>
+  </div>
+  <div class="col-xl-6">
+
+    <app-showcode-card title="Headings"
+        [prism]="prismCodeData.Headings">
+        <h1>Example heading <span class="badge bg-primary">New</span></h1>
+        <h2>Example heading <span class="badge bg-primary">New</span></h2>
+        <h3>Example heading <span class="badge bg-primary">New</span></h3>
+        <h4>Example heading <span class="badge bg-primary">New</span></h4>
+        <h5>Example heading <span class="badge bg-primary">New</span></h5>
+        <h6>Example heading <span class="badge bg-primary">New</span></h6>
+    </app-showcode-card>
+
+
+</div>
+
+
+</div>
+<!-- End::row- -->

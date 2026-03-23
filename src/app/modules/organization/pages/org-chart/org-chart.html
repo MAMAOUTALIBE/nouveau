@@ -1,0 +1,56 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Organigramme</div>
+        <div class="btn-list">
+          <button class="btn btn-primary">Ajouter une unité</button>
+          <button class="btn btn-outline-primary">Exporter</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-4" *ngFor="let node of roots">
+            <div class="card border shadow-none mb-3">
+              <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-semibold">{{ node.unit.name }}</div>
+                    <div class="text-muted fs-12">
+                      {{ node.unit.head || 'Responsable à définir' }}
+                      <ng-container *ngIf="node.unit.headTitle"> · {{ node.unit.headTitle }}</ng-container>
+                    </div>
+                  </div>
+                  <span class="badge bg-primary-transparent">{{ node.unit.staffCount }} agents</span>
+                </div>
+              </div>
+              <div class="card-body p-2">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item" *ngFor="let child of node.children">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div>
+                        <div class="fw-semibold">{{ child.unit.name }}</div>
+                        <div class="text-muted fs-12">
+                          {{ child.unit.head || 'Responsable à définir' }}
+                          <ng-container *ngIf="child.unit.headTitle"> · {{ child.unit.headTitle }}</ng-container>
+                        </div>
+                        <div class="text-muted fs-12">{{ child.unit.staffCount }} agents</div>
+                      </div>
+                      <span class="badge bg-light text-default">Sous-unités: {{ child.children.length }}</span>
+                    </div>
+                    <ul class="mt-2 ps-3 text-muted fs-12" *ngIf="child.children.length">
+                      <li *ngFor="let sub of child.children">
+                        {{ sub.unit.name }} — {{ sub.unit.staffCount }} agents
+                      </li>
+                    </ul>
+                  </li>
+                  <li *ngIf="!node.children.length" class="list-group-item text-muted fs-12">Aucune sous-unité</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Parcours d'intégration</div>
+        <div class="btn-list">
+          <button class="btn btn-primary">Planifier une arrivée</button>
+          <button class="btn btn-outline-primary">Exporter</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-xl-6" *ngFor="let item of items">
+            <div class="card shadow-none border mb-0">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="fw-semibold">{{ item.agent }}</div>
+                  <div class="text-muted fs-12">{{ item.position }}</div>
+                </div>
+                <span class="badge bg-primary-transparent">{{ item.startDate }}</span>
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                  <li *ngFor="let step of item.checklist" class="d-flex align-items-center mb-2">
+                    <i class="ri-check-line text-success me-2"></i> {{ step }}
+                  </li>
+                </ul>
+              </div>
+              <div class="card-footer">
+                <span class="badge" [ngClass]="item.status === 'Validé' ? 'bg-success-transparent' : 'bg-warning-transparent'">
+                  {{ item.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

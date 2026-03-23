@@ -1,0 +1,50 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Line & Column Chart</div>
+      </div>
+      <div class="card-body">
+
+        <spk-apexcharts id="mixed-linecolumn" [chartOptions]="LineColumnChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Multiple Y-Axis Chart</div>
+      </div>
+      <div class="card-body">
+            <spk-apexcharts id="mixed-multiple-y" [chartOptions]="MultipleYAxisChart" />
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Line & Area Chart</div>
+      </div>
+      <div class="card-body">
+
+            <spk-apexcharts id="mixed-linearea" [chartOptions]="LineAreaChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Line,Column & Area Chart</div>
+      </div>
+      <div class="card-body">
+
+            <spk-apexcharts id="mixed-all" [chartOptions]="LineColumnAreaChart" />
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

@@ -1,0 +1,54 @@
+::ng-deep {
+
+  .showDefaulttoastClass {
+    background-color: #ffff;
+    padding: 1.25rem;
+    min-width: 300px;
+    margin-top: 1rem;
+  }
+
+  [data-theme-mode="dark"] {
+    .showDefaulttoastClass {
+      background-color: #19202f;
+      padding: 1.25rem;
+      min-width: 300px;
+    }
+  }
+
+  [dir="rtl"] {
+    .overlay-container {
+      .toast-bottom-right.toast-container {
+        left: 12px !important;
+      }
+    }
+
+    .ngx-notifier {
+      left: 24px !important;
+      right: auto !important;
+
+    }
+
+    .toast-bottom-right {
+      right: auto !important;
+      left: 12px !important;
+    }
+  }
+
+  .custom-toast-svg {
+    font-size: 50px
+  }
+
+  @media only screen and (max-width: 420px) {
+    .ngx-notifier {
+      max-width: 18rem !important;
+      min-width: 18rem !important;
+    }
+  }
+
+
+
+  .InfoClass {
+    background-color: #d3ebf8;
+    color: #1c76a6;
+  }
+}

@@ -1,0 +1,448 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title=" Basic Accordion" [prism]="prismCodeData.BasicAccordion">
+      <spk-accordion [items]="BasicAccordion" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Always Open Accordion " [prism]="prismCodeData.alwaysOpenAccordion">
+      <spk-accordion [items]="AlwaysOpenAccordion" accordionId="accordionPanelsStayOpenExample" [closeOthers]="false">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-12">
+    <app-showcode-card  [prism]="prismCodeData.FlushAccordion" title="Flush Accordion "
+      classbody="p-0">
+      <spk-accordion [items]="FlushAccordion" accordionId="accordionFlushExample" accordionClass="accordion accordion-flush"
+        [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+
+  </div>
+</div>
+<!-- End:: row-2 -->
+
+<!-- Start:: row-3 -->
+<h6 class="mb-3">Light Colors:</h6>
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Primary" [prism]="prismCodeData.LightColorsPrimary">
+      <spk-accordion [items]="LightColorsPrimary" accordionId="accordionPrimaryExample"
+        accordionClass="accordion accordion-primary" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Secondary" [prism]="prismCodeData.LightColorsSecondary">
+
+      <spk-accordion [items]="LightColorsSecondary" accordionId="accordionSecondaryExample"
+        accordionClass="accordion accordion-secondary" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-3 -->
+
+<!-- Start:: row-4 -->
+<h6 class="mb-3">Solid Colors:</h6>
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title=" Primary" [prism]="prismCodeData.SolidColorsPrimary">
+      <spk-accordion [items]="SolidColorsPrimary" accordionId="accordionPrimarySolidExample"
+        accordionClass="accordion accordion-solid-primary" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Secondary" [prism]="prismCodeData.SolidColorsSecondary">
+      <spk-accordion [items]="SolidColorsSecondary" accordionId="accordionSecondarySolidExample"
+        accordionClass="accordion accordion-solid-secondary" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-4 -->
+
+<!-- Start:: row-5 -->
+<h6 class="mb-3">Colored Borders:</h6>
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Primary" [prism]="prismCodeData.BorderColorsPrimary">
+
+
+      <spk-accordion [items]="ColoredBordersPrimary" accordionId="accordionprimaryborderExample"
+        accordionClass="accordion accordion-border-primary accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Secondary" [prism]="prismCodeData.BorderColorsSecondary">
+
+
+      <spk-accordion [items]="ColoredBordersSecondary" accordionId="accordionsuccessborderExample"
+        accordionClass="accordion accordion-border-success accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-5 -->
+<!-- Start:: row-9 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title=" Left Aligned Icons" [prism]="prismCodeData.LeftIconAccordion">
+
+
+      <spk-accordion [items]="LeftAlignedIcons" accordionId="accordioniconLeftExample"
+        accordionClass="accordion accordionicon-left accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="  Without Icon" [prism]="prismCodeData.NoIconAccordion">
+
+      <spk-accordion [items]="WithoutIcon" accordionId="accordioniconnoIconExample"
+        accordionClass="accordion accordionicon-none accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-9 -->
+<!-- Start:: row-7 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Custom Icon Accordion" [prism]="prismCodeData.CustomIconAccordion">
+
+
+      <spk-accordion [items]="CustomIconAccordion" accordionId="accordioncustomicon1Example"
+        accordionClass="accordion accordion-customicon1 accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          {{ item.title }}
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+
+          @if (item.highlight) {
+          <code>{{ item.highlight }}</code>
+          }
+
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" title="Custom Accordion" [prism]="prismCodeData.CustomAccordion">
+
+
+      <spk-accordion [items]="CustomAccordion" accordionId="customizedAccordion"
+        accordionClass="accordion customized-accordion accordions-items-seperate" [closeOthers]="true">
+
+        <ng-template #header let-item>
+          <div [class]="item.customClass">
+            {{ item.title }}
+          </div>
+        </ng-template>
+
+        <ng-template #body let-item>
+          <strong>{{ item.boldText }}</strong>
+          {{ item.description }}
+          <code>{{ item.highlight }}</code>
+          {{ item.subDescription }}
+        </ng-template>
+
+      </spk-accordion>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-7 -->
+
+
+
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" [title]="'Example'" [prism]="prismCodeData.Example">
+      <p class="mb-0">
+        <a class="btn btn-primary collapsed mb-2 me-1" (click)="collapse.toggle()" data-bs-toggle="collapse"
+          role="button" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseExample">
+          Link with href
+        </a>
+        <button class="btn btn-secondary collapsed mb-2" (click)="isCollapsed = !isCollapsed" type="button"
+          data-bs-toggle="collapse" data-bs-target="#collapseExample" [attr.aria-expanded]="!isCollapsed"
+          aria-controls="collapseExample">
+          Button with data-bs-target
+        </button>
+      </p>
+      <div #collapse="ngbCollapse" [(ngbCollapse)]="isCollapsed" id="collapseExample">
+        <div class="card card-body mb-0">
+          Some placeholder content for the collapse component. This panel is hidden by default but revealed
+          when the user activates the relevant trigger.
+        </div>
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card classHeader="pb-0" [title]="'Targets Collapse'" classbody="collapsebody"
+      [prism]="prismCodeData.TargetsCollapse">
+      <p class="mb-0">
+        <a class="btn btn-primary mb-2 me-1" (click)="isCollapsed1 = !isCollapsed1" role="button"
+          [attr.aria-expanded]="!isCollapsed1" [attr.aria-controls]="'multiCollapseExample1'">Toggle
+          first element</a>
+        <button class="btn btn-success mb-2 me-1" (click)="isCollapsed2 = !isCollapsed2"
+          [attr.aria-expanded]="!isCollapsed2" [attr.aria-controls]="'multiCollapseExample2'">Toggle
+          second element</button>
+        <button class="btn btn-danger mb-2 me-1" (click)="isCollapsed1 = !isCollapsed1; isCollapsed2 = !isCollapsed2"
+          [attr.aria-expanded]="!isCollapsed1 && !isCollapsed2"
+          [attr.aria-controls]="'multiCollapseExample1 multiCollapseExample2'">Toggle both
+          elements</button>
+      </p>
+      <div class="row flex-column flex-sm-row">
+        <div class="col m-1">
+          <div class="collapse multi-collapse" id="multiCollapseExample1" [ngbCollapse]="isCollapsed1">
+            <div class="card card-body mb-0 shadow-none">
+              Some placeholder content for the first collapse component of this multi-collapse
+              example. This panel is hidden by default but revealed when the user activates the
+              relevant trigger.
+            </div>
+          </div>
+        </div>
+        <div class="col m-1">
+          <div class="collapse multi-collapse" id="multiCollapseExample2" [ngbCollapse]="isCollapsed2">
+            <div class="card card-body mb-0 shadow-none">
+              Some placeholder content for the second collapse component of this multi-collapse
+              example. This panel is hidden by default but revealed when the user activates the
+              relevant trigger.
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+
+<!-- Start:: row-10 -->
+<div class="row">
+  <div class="col-xl-4">
+    <app-showcode-card classHeader="pb-0" title="Horizontal Collapse" [prism]="prismCodeData.HorizontalCollapse">
+      <div class="collapse-container">
+        @for(item of HorizontalCollapse;track $index){
+
+        <ng-container>
+          <p class="mb-0">
+            <button class="btn btn-{{item.collapseClass}} collapsed mb-2 me-1"
+              (click)="item.isCollapsed = !item.isCollapsed" role="button" [attr.aria-expanded]="!item.isCollapsed"
+              [attr.aria-controls]="item.targetId">
+              {{ item.triggerText }}
+            </button>
+          </p>
+          <div [ngbCollapse]="item.isCollapsed" [attr.id]="item.targetId" [horizontal]="item.horizontal">
+            <div class="card card-body mb-0" [style.width]="item.width">
+              {{ item.bodyText }}
+            </div>
+          </div>
+        </ng-container>
+        }
+      </div>
+
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-10 -->

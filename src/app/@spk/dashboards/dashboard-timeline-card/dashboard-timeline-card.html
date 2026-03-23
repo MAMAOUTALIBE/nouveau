@@ -1,0 +1,12 @@
+@for (event of events(); track $index) {
+    <div class="" [ngClass]="event.iconClass">
+      <i class="fas fa-{{event.iconState}}"></i>
+    </div>
+    <li class="mt-0 activity">
+      <div><span class="fs-11 text-muted float-end">{{ event.date }}</span></div>
+      <a href="javascript:void(0);" class="fs-12 text-dark">
+        <p class="mb-1 fw-semibold text-dark fs-13">{{ event.name }}</p> 
+      </a>
+      <p class="text-muted mt-0 mb-0 fs-12">{{ event.description }}</p>
+    </li>
+}

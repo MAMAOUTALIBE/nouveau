@@ -1,0 +1,99 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Line Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-line" class="chartjs-chart" [chartjs]="ChartjsLineChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Bar Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-bar" class="chartjs-chart" [chartjs]="ChartjsBarChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Pie Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-pie" class="chartjs-chart" [chartjs]="ChartjsPieChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Doughnut Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-doughnut" class="chartjs-chart" [chartjs]="ChartjsDoughnutChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Mixed Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-mixed" class="chartjs-chart" [chartjs]="ChartjsMixedChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Polar Chart</div>
+      </div>
+      <div class="card-body">
+          <canvas id="chartjs-polar"  class="chartjs-chart" baseChart [data]="ChartjsPolarChart.data" [options]="ChartjsPolarChart.options"
+          [type]="ChartjsPolarChart.type">
+        </canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Radial Chart</div>
+      </div>
+      <div class="card-body">
+        <canvas id="chartjs-radar" class="chartjs-chart" baseChart [data]="ChartjsRadialChart.data" [options]="ChartjsRadialChart.options"
+          [type]="ChartjsRadialChart.type">
+        </canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Scatter Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-scatter" class="chartjs-chart" [chartjs]="ChartjsScatterChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Chartjs Bubble Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-chartjs id="chartjs-bubble" class="chartjs-chart" [chartjs]="ChartjsBubbleChart"></spk-chartjs>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

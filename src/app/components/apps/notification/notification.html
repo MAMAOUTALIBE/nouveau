@@ -1,0 +1,150 @@
+
+
+
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Basic Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" (click)="showDefault()" class="btn btn-primary" id="basic">Basic Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Async Notification With Error Message</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-primary" (click)="showAsyncError() " id="async-error">Async
+          Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Async Notification With Success Message</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" (click)="showAsyncSuccess() " class="btn btn-primary" id="async-success">Async
+          Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">PopUp Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-primary" (click)="popupAlert.fire()" id="popup">Notification</button>
+        <swal #popupAlert title="Welcome To Bootstrap Admin Template" text="Click outside the modal window to close it."
+          [showConfirmButton]="false" [showCancelButton]="false" [allowOutsideClick]="true"
+          [showClass]="{ popup: 'animate__animated animate__fadeInUp animate__faster' }"
+          [hideClass]="{ popup: 'animate__animated animate__fadeOutDown animate__faster' }"></swal>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End::row-1 -->
+
+<!-- Start::row-2 -->
+<div class="row">
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Info Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn  btn-info" (click)="info()" id="info">Info Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Success Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn  btn-success" (click)="success()" id="success">Success
+          Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Warning Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-warning" id="warning" (click)="warning()">Warning Notification</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Error Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-danger" id="error" (click)="error()">Error Notification</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End::row-2 -->
+
+<!-- Start::row-3 -->
+<div class="row">
+  <div class="col-xl-4 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Confirmation Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn  btn-secondary" (click)="confirmSwal.fire()" id="confirm">Notification</button>
+        <swal #confirmSwal title="CONFIRMATION REQUIRED" text="Are you sure you want to reset the password?"
+          icon="warning" [showCancelButton]="true" [confirmButtonColor]="'#28a745'" [allowOutsideClick]="false"
+          [cancelButtonColor]="'#007bff'" confirmButtonText="OK" cancelButtonText="Cancel" (confirm)="onConfirm()">
+        </swal>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Async Block With Error Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-primary" (click)="triggerAsyncError()" id="async">Notification</button>
+        <swal #loadingSwal [title]="'Please wait...'" [allowOutsideClick]="false" [showConfirmButton]="false">
+        </swal>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6">
+    <div class="card">
+      <div class="card-header border-bottom">
+        <h3 class="card-title">Async Block With Success Notification</h3>
+      </div>
+      <div class="card-body text-center">
+        <button type="button" class="btn btn-primary" (click)="triggerAsyncSuccess()"
+          id="async-block">Notification</button>
+        <swal #loadingSwal [title]="'Please wait...'" [allowOutsideClick]="false" [showConfirmButton]="false">
+        </swal>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End::row-3 -->
+
+
+<ngx-notifier [allowDuplicates]="true" [allowHTML]="false" [duration]="5000" [disableAnimations]="false"
+  [dismissOnClick]="false" [insertOnTop]="true" [max]="5">
+</ngx-notifier>

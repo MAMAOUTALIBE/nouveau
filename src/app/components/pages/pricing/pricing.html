@@ -1,0 +1,68 @@
+<!--row-->
+<div class="row d-flex align-items-center justify-content-center">
+  @for (plan of pricing; track $index) {
+  <div class="col-lg-6 col-xxl-3 col-xl-6 col-md-6 col-sm-12">
+    <spk-pricing-card [plan]="plan" [isYearly]="false"></spk-pricing-card>
+  </div>
+  }
+
+</div>
+<!--/row-->
+
+<!--row-->
+<div class="row d-flex align-items-center justify-content-center">
+  @for (plan of pricingPlans2; track $index) {
+  <div class="col-lg-6 col-xxl-3 col-xl-6 col-md-6 col-sm-12">
+    <spk-pricing-card2 [data]="plan"></spk-pricing-card2>
+  </div>
+  }
+
+</div>
+<!--/row-->
+
+<!--row-->
+<div class="my-5 pricing-tabs">
+  <div class="pri-tabs-heading d-flex justify-content-center mb-4">
+    <ul ngbNav #nav="ngbNav" class="nav nav-tabs mb-3 tab-style-6 bg-primary-transparent" id="myTab" role="tablist">
+      <li [ngbNavItem]="1" class="nav-item" role="presentation">
+        <button ngbNavLink class="nav-link" id="pricing-monthly" data-bs-toggle="tab"
+          data-bs-target="#pricing-monthly-pane" type="button" role="tab" aria-controls="pricing-monthly-pane"
+          aria-selected="true">Yearly</button>
+        <ng-template ngbNavContent>
+          <div class="show p-0 border-0" id="pricing-monthly-pane" role="tabpanel" aria-labelledby="pricing-monthly"
+            tabindex="0">
+
+            <div class="row d-flex align-items-center justify-content-center">
+              @for (plan of pricing; track $index) {
+              <div class="col-lg-6 col-xxl-3 col-xl-6 col-md-6 col-sm-12">
+                <spk-pricing-card [plan]="plan" [isYearly]="true"></spk-pricing-card>
+              </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="2" class="nav-item" role="presentation">
+        <button ngbNavLink class="nav-link" id="pricing-yearly" data-bs-toggle="tab"
+          data-bs-target="#pricing-yearly-pane" type="button" role="tab" aria-controls="pricing-yearly-pane"
+          aria-selected="false">Monthly</button>
+        <ng-template ngbNavContent>
+          <div class="p-0 border-0" id="pricing-yearly-pane" role="tabpanel" aria-labelledby="pricing-yearly"
+            tabindex="0">
+
+            <div class="row d-flex align-items-center justify-content-center">
+              @for (plan of pricing; track $index) {
+              <div class="col-lg-6 col-xxl-3 col-xl-6 col-md-6 col-sm-12">
+                <spk-pricing-card [plan]="plan" [isYearly]="false"></spk-pricing-card>
+              </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+  <div class="tab-content customtab no-tab-border" id="myTabContent" [ngbNavOutlet]="nav">
+  </div>
+</div>
+<!--/row-->

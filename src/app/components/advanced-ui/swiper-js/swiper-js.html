@@ -1,0 +1,426 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Basic Swiper</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper swiper-basic" loop="true" navigation="false" slides-per-view="1"
+          slides-per-group="1" autoplay-delay="2000">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-27.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-26.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-25.jpg" alt=""></swiper-slide>
+        </swiper-container>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Swiper With Navigation</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper swiper-navigation custom-swiper-navigation" loop="true" navigation="true" slides-per-view="1"
+          slides-per-group="1" autoplay-delay="2000">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-32.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-31.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-32.jpg" alt=""></swiper-slide>
+        </swiper-container>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Swiper with Pagination</div>
+      </div>
+      <div class="card-body">
+        <swiper-container [pagination]="{clickable: true}" class="swiper pagination custom-swiper" slides-per-view="1"
+          space-between="30" autoplay-delay="2000">
+
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-21.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-17.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-16.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Dynamic Pagination</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper pagination-dynamic custom-swiper" space-between="30" slides-per-view="1"
+          slides-per-group="1" autoplay-delay="2000" [pagination]="{clickable: true, el:'.swiper-pagination '}"
+          pagination-dynamic-bullets="true" autoplay-disable-on-interaction="false">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-16.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-30.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-31.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Pagination With Progress</div>
+      </div>
+      <div class="card-body">
+
+        <swiper-container class="swiper pagination-progress custom-swiper-navigation" space-between="30" slides-per-view="1" slides-per-group="1"
+          autoplay-delay="2000" autoplay-disable-on-interaction="false" pagination="true" pagination-type="progressbar"
+          navigation="true">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-12.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-8.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-5.jpg" alt=""></swiper-slide>
+        </swiper-container>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Pagination Fraction</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper pagination-fraction custom-swiper-navigation" space-between="30" slides-per-view="1" slides-per-group="1"
+          autoplay-delay="2000" autoplay-disable-on-interaction="false" pagination="true" pagination-type="fraction"
+          navigation="true">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-16.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-30.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-31.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Custom Pagination</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper swiper-custom-pagination custom-pagination  " [pagination]="paginationOptions">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-25.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-5.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-33.jpg" alt=""></swiper-slide>
+          <div class="swiper-pagination"></div>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Scrollbar Swiper</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper scrollbar-swiper" space-between="30" slides-per-view="1" slides-per-group="1"
+          autoplay-delay="2000" scrollbar-hide="true" autoplay-disable-on-interaction="false">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-30.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-28.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-29.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Vertical Swiper</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper vertical swiper-vertical custom-swiper" space-between="10" slides-per-view="1"
+          slides-per-group="1" autoplay-delay="2000" [pagination]="{clickable: true, el:'.swiper-pagination '}"
+          mousewheel="true" direction="vertical" autoplay-disable-on-interaction="false"
+          breakpoints='{"320": {"spaceBetween": 20}, "770": {"spaceBetween": 20}, "1020": {"spaceBetween": 20}, "1300": {"spaceBetween": 20}}'>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-8.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-32.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-17.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Mouse Wheel Control</div>
+      </div>Basic Swiper
+      <div class="card-body">
+        <div class="swiper vertical vertical-mouse-control">
+          <div class="swiper-wrapper">
+            <swiper-container class="swiper mySwiper custom-swiper" space-between="10" slides-per-view="1"
+              mousewheel="true" direction="vertical" slides-per-group="1" pagination-clickable="true" pagination="true"
+              [autoplay]="{
+                        delay: 2000,
+                        disableOnInteraction: false
+                      }">
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-28.jpg" alt=""></swiper-slide>
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-30.jpg" alt=""></swiper-slide>
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-32.jpg" alt=""></swiper-slide>
+            </swiper-container>
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Keyboard Control</div>
+      </div>
+      <div class="card-body">
+        <swiper-container class="swiper keyboard-control  custom-swiper custom-swiper-navigation" space-between="30" slides-per-view="1"
+          slides-per-group="1" autoplay-delay="2000" pagination-clickable="true" navigation="true" pagination="true"
+          keyboard="true" autoplay-disable-on-interaction="false">
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-31.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-12.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-8.jpg" alt=""></swiper-slide>
+        </swiper-container>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Nested Swiper</div>
+      </div>
+      <div class="card-body">
+
+        <swiper-container class="swiper swiper-horizontal1" [pagination]="{clickable: true, el:'.swiper-pagination '}">
+
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-30.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <swiper-container class="swiper vertical swiper-vertical1"
+              [pagination]="{clickable: true, el:'.swiper-pagination '}" direction="vertical">
+
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-25.jpg" alt=""></swiper-slide>
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-31.jpg" alt=""></swiper-slide>
+              <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-32.jpg" alt=""></swiper-slide>
+            </swiper-container>
+            <div class="swiper-pagination"></div>
+          </swiper-slide>
+
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-28.jpg" alt=""></swiper-slide>
+          <swiper-slide class="swiper-slide"><img src="./assets/images/media/media-29.jpg" alt=""></swiper-slide>
+
+          <div class="swiper-pagination"></div>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Effect Cube</div>
+      </div>
+      <div class="card-body">
+        <div class="swiper swiper-effect-cube swiper-cube ">
+          <swiper-container class=" swiper swiper-wrapper  custom-swiper" space-between="30" slides-per-view="1"
+            slides-per-group="1" autoplay-delay="2000" autoplay-disable-on-interaction="false" effect="cube"
+            pagination="true">
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-62.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-64.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-63.jpg" alt="img" />
+            </swiper-slide>
+
+          </swiper-container>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Effect Fade</div>
+      </div>
+      <div class="card-body">
+        <div class="swiper swiper-fade ">
+          <swiper-container class="swiper mySwiper custom-swiper custom-swiper-navigation" space-between="30" slides-per-view="1"
+            slides-per-group="1" autoplay-delay="2000" navigation="true" pagination="true" pagination-clickable="true"
+            autoplay-disable-on-interaction="false" effect="fade">
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-18.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-20.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-19.jpg" alt="img" />
+            </swiper-slide>
+          </swiper-container>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Effect Flip</div>
+      </div>
+      <div class="card-body">
+        <div class="swiper swiper-flip ">
+          <swiper-container class="swiper mySwiper custom-swiper custom-swiper-navigation" space-between="30" slides-per-view="1"
+            slides-per-group="1" autoplay-delay="2000" navigation="true" pagination="true" pagination-clickable="true"
+            autoplay-disable-on-interaction="false" effect="flip">
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-64.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-62.jpg" alt="img" />
+            </swiper-slide>
+
+            <swiper-slide class="swiper-slide">
+              <img src="./assets/images/media/media-63.jpg" alt="img" />
+            </swiper-slide>
+
+          </swiper-container>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header ">
+        <div class="card-title">
+          Effect Coverflow
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="swiper swiper-overflow">
+            <swiper-container class="swiper mySwiper custom-swiper" space-between="10" slides-per-view="5"
+              slides-per-group="1" autoplay-delay="200000" pagination="true" pagination-clickable="true"
+              autoplay-disable-on-interaction="false" effect="coverflow">
+
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-40.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-41.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-42.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-43.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-44.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-59.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-46.jpg" alt="img">
+              </swiper-slide>
+              <swiper-slide class="swiper-slide">
+                <img class="img-fluid" src="./assets/images/media/media-61.jpg" alt="img">
+              </swiper-slide>
+
+            </swiper-container>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-2 -->
+
+
+<!-- Start:: row-3 -->
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Thumbs Gallery
+        </div>
+      </div>
+      <div class="card-body">
+        <swiper-container style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
+          class="swiper swiper-preview custom-swiper-navigation" space-between="10" navigation="true" thumbs-swiper=".swiper-view-details">
+
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-1.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-2.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-3.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-6.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-7.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-10.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-11.jpg" alt="img">
+          </swiper-slide>
+
+
+        </swiper-container>
+        <swiper-container class="swiper swiper-view swiper-view-details mt-3" slides-per-view="4" free-mode="true"
+          space-between="10" watch-slides-progress="true">
+
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-1.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-2.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-11.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-6.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-7.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-10.jpg" alt="img">
+          </swiper-slide>
+          <swiper-slide class="swiper-slide">
+            <img class="img-fluid rounded" src="./assets/images/media/media-11.jpg" alt="img">
+          </swiper-slide>
+
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End:: row-3 -->

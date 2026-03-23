@@ -1,0 +1,963 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Basic Modal'" [prism]="prismCodeData.BasicModal">
+          <button (click)="openBasic(basicModal)" type="button" class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#exampleModal">
+              Launch demo modal
+          </button>
+          <ng-template #basicModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalLabel1">Modal title</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Static backdrop'" [prism]="prismCodeData.Staticbackdrop">
+          <button (click)="StaticBackdrop(staticbackdropModal)" type="button" class="btn btn-primary"
+              data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+              Launch static backdrop modal
+          </button>
+          <ng-template #staticbackdropModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel">Modal title</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <p>
+                      I will not close if you click outside me. Don't even try to press
+                      escape key.
+                  </p>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Understood</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Scrolling long content'" [prism]="prismCodeData.Scrollinglongcontent">
+          <button (click)="scrollableContent(ScrollingcontentModal)" type="button" class="btn btn-primary"
+              data-bs-toggle="modal" data-bs-target="#exampleModalScrollable">
+              Scrolling long content
+          </button>
+          <ng-template #ScrollingcontentModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel1">Modal title</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <p>
+                      Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero
+                      ipsum quasi, error quibusdam debitis maiores hic eum? Vitae nisi
+                      ipsa maiores fugiat deleniti quis reiciendis veritatis.
+                  </p>
+                  <p>
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea
+                      voluptatibus, ipsam quo est rerum modi quos expedita facere, ex
+                      tempore fuga similique ipsa blanditiis et accusamus temporibus
+                      commodi voluptas! Nobis veniam illo architecto expedita quam
+                      ratione quaerat omnis. In, recusandae eos! Pariatur, deleniti quis
+                      ad nemo ipsam officia temporibus, doloribus fuga asperiores
+                      ratione distinctio velit alias hic modi praesentium aperiam
+                      officiis eaque, accusamus aut. Accusantium assumenda, commodi
+                      nulla provident asperiores fugit inventore iste amet aut placeat
+                      consequatur reprehenderit. Ratione tenetur eligendi, quis aperiam
+                      dolores magni iusto distinctio voluptatibus minus a unde at!
+                      Consequatur voluptatum in eaque obcaecati, impedit accusantium ea
+                      soluta, excepturi, quasi quia commodi blanditiis? Qui blanditiis
+                      iusto corrupti necessitatibus dolorem fugiat consequuntur quod quo
+                      veniam? Labore dignissimos reiciendis accusamus recusandae est
+                      consequuntur iure.
+                  </p>
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <p>Lorem ipsum dolor sit amet.</p>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save Changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Vertically centered modal'" [prism]="prismCodeData.Verticallycenteredmodal">
+          <button (click)="VerticalCenter(VerticalCenterModal)" type="button" class="btn btn-primary"
+              data-bs-toggle="modal" data-bs-target="#exampleModalScrollable2">
+              Vertically centered modal
+          </button>
+          <ng-template #VerticalCenterModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel2">Modal title</h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <p>
+                      Lorem ipsum dolor sit, amet consectetur adipisicing elit. Libero
+                      ipsum quasi, error quibusdam debitis maiores hic eum? Vitae nisi
+                      ipsa maiores fugiat deleniti quis reiciendis veritatis.
+                  </p>
+              </div>
+              <div class="modal-footer">
+                  <a (click)="modal.close('Save click')" type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save Changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Vertical Centered Scrollable'" [prism]="prismCodeData.VerticalCenteredScrollable">
+          <button type="button" (click)="VerticalCenterScroll(VerticalCenterScrollModal)" class="btn btn-primary"
+              data-bs-toggle="modal" data-bs-target="#exampleModalScrollable3">
+              Vertically centered scrollable modal
+          </button>
+          <ng-template #VerticalCenterScrollModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel3">Modal title</h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <p>
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Ea
+                      voluptatibus, ipsam quo est rerum modi quos expedita facere, ex
+                      tempore fuga similique ipsa blanditiis et accusamus temporibus
+                      commodi voluptas! Nobis veniam illo architecto expedita quam
+                      ratione quaerat omnis. In, recusandae eos! Pariatur, deleniti quis
+                      ad nemo ipsam officia temporibus, doloribus fuga asperiores
+                      ratione distinctio velit alias hic modi praesentium aperiam
+                      officiis eaque, accusamus aut. Accusantium assumenda, commodi
+                      nulla provident asperiores fugit inventore iste amet aut placeat
+                      consequatur reprehenderit. Ratione tenetur eligendi, quis aperiam
+                      dolores magni iusto distinctio voluptatibus minus a unde at!
+                      Consequatur voluptatum in eaque obcaecati, impedit accusantium ea
+                      soluta, excepturi, quasi quia commodi blanditiis? Qui blanditiis
+                      iusto corrupti necessitatibus dolorem fugiat consequuntur quod quo
+                      veniam? Labore dignissimos reiciendis accusamus recusandae est
+                      consequuntur iure.
+                  </p>
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <br />
+                  <p>Lorem ipsum dolor sit amet.</p>
+              </div>
+              <div class="modal-footer">
+                  <a (click)="modal.close('Save click')" type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save Changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Tooltips and popovers'" [prism]="prismCodeData.Tooltipsandpopovers">
+          <button (click)="TooltipPopovers(TooltipPopoversModal)" type="button" class="btn btn-primary"
+              data-bs-toggle="modal" data-bs-target="#exampleModalScrollable4">
+              Launch demo modal
+          </button>
+          <ng-template #TooltipPopoversModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel4">Modal title</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <h5>Popover in a modal</h5>
+                  <p>
+                      This
+                      <button type="button" class="btn btn-secondary"
+                          ngbPopover="Popover body content is set in this attribute" popoverTitle="Pop Bottom"
+                          placement="bottom">
+                          Button
+                      </button>
+
+                      triggers a popover on click.
+                  </p>
+                  <hr />
+                  <h5>Tooltips in a modal</h5>
+                  <p>
+                      <a class="text-primary" ngbTooltip="tooltip" title="Tooltip">This link</a>
+                      and
+                      <a class="text-primary" ngbTooltip="tooltip" title="Tooltip">that link</a>
+
+                      have tooltips on hover.
+                  </p>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" (click)="modal.close('Save click')" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save Changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Using the grid'" [prism]="prismCodeData.Usingthegrid">
+          <button (click)="Gridmodal(GridCenterModal)" type="button" class="btn btn-primary" data-bs-toggle="modal"
+              data-bs-target="#exampleModalScrollable5">
+              Launch demo modal
+          </button>
+          <ng-template #GridCenterModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="staticBackdropLabel5">Modal title</h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <div class="container-fluid">
+                      <div class="row">
+                          <div class="col-md-4 bg-light border">.col-md-4</div>
+                          <div class="col-md-4 ms-auto bg-light border">
+                              .col-md-4 .ms-auto
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-md-3 ms-auto bg-light border">
+                              .col-md-3 .ms-auto
+                          </div>
+                          <div class="col-md-2 ms-auto bg-light border">
+                              .col-md-2 .ms-auto
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-md-6 ms-auto bg-light border">
+                              .col-md-6 .ms-auto
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-sm-9 bg-light border">
+                              Level 1: .col-sm-9
+                              <div class="row">
+                                  <div class="col-8 col-sm-6 bg-light border">
+                                      Level 2: .col-8 .col-sm-6
+                                  </div>
+                                  <div class="col-4 col-sm-6 bg-light border">
+                                      Level 2: .col-4 .col-sm-6
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <a (click)="modal.close('Save click')" type="button" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Save Changes</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card  classHeader="" [title]="'Toggle between modals'" [prism]="prismCodeData.Togglebetweenmodals">
+          <a (click)="openFirstModal(content1)" class="btn btn-primary" data-bs-toggle="modal" role="button">Open
+              first modal
+          </a>
+          <ng-template #content1 let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title">Modal 1</h6>
+                  <a type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></a>
+              </div>
+              <div class="modal-body">
+                  Show a second modal and hide this one with the button below.
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" (click)="openSecondModal(content1, content2)">
+                      Open second modal
+                  </button>
+              </div>
+          </ng-template>
+
+          <ng-template #content2 let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title">Modal 2</h6>
+                  <a type="button" class="btn-close" (click)="modal.dismiss('Cross click')"></a>
+              </div>
+              <div class="modal-body">
+                  Hide this modal and show the first with the button below.
+              </div>
+              <div class="modal-footer">
+                  <button class="btn btn-primary" (click)="openFirstModal(content1)">
+                      Back to first
+                  </button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-12">
+      <app-showcode-card  classHeader="" [title]="'Optional sizes'" [prism]="prismCodeData.Optionalsizes">
+          <button (click)="openXl(XlContentModal)" type="button" class="btn btn-primary m-1" data-bs-toggle="modal"
+              data-bs-target="#exampleModalXl">
+              Extra large modal
+          </button>
+          <button (click)="openLg(LargeModal)" type="button" class="btn btn-secondary m-1" data-bs-toggle="modal"
+              data-bs-target="#exampleModalLg">
+              Large modal
+          </button>
+          <button (click)="openSm(SmallModal)" type="button" class="btn btn-warning m-1" data-bs-toggle="modal"
+              data-bs-target="#exampleModalSm">
+              Small modal
+          </button>
+          <ng-template #XlContentModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalXlLabel">
+                      Extra large modal
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+          </ng-template>
+          <ng-template #LargeModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalLgLabel">Large modal</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+          </ng-template>
+          <ng-template #SmallModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalSmLabel">Small modal</h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-4 -->
+<div class="row">
+  <div class="col-xl-12">
+      <app-showcode-card  classHeader="" [title]="'Fullscreen modal'" [prism]="prismCodeData.Fullscreenmodal">
+          <div class="bd-example">
+              <button (click)="openFullscreen(FullscreenModal)" type="button" class="btn btn-primary mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreen">
+                  Full screen
+              </button>
+              <button (click)="BelowSm(BelowSmModal)" type="button" class="btn btn-secondary mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreenSm">
+                  Full screen below sm
+              </button>
+              <button (click)="BelowMd(BelowMdModal)" type="button" class="btn btn-warning mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreenMd">
+                  Full screen below md
+              </button>
+              <button (click)="BelowLg(BelowLgModal)" type="button" class="btn btn-info mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreenLg">
+                  Full screen below lg
+              </button>
+              <button (click)="BelowXl(BelowXlModal)" type="button" class="btn btn-success mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreenXl">
+                  Full screen below xl
+              </button>
+              <button type="button" (click)="BelowXxl(BelowXxlModal)" class="btn btn-danger mb-1 me-1"
+                  data-bs-toggle="modal" data-bs-target="#exampleModalFullscreenXxl">
+                  Full screen below xxl
+              </button>
+          </div>
+          <ng-template #FullscreenModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenLabel">
+                      Full screen modal
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+          <ng-template #BelowSmModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenSmLabel">
+                      Full screen below sm
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                      (click)="modal.dismiss('Cross click')"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+          <ng-template #BelowMdModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenMdLabel">
+                      Full screen below md
+                  </h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+          <ng-template #BelowLgModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenLgLabel">
+                      Full screen below lg
+                  </h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" (click)="modal.close('Save click')" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+          <ng-template #BelowXlModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenXlLabel">
+                      Full screen below xl
+                  </h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" (click)="modal.close('Save click')" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+          <ng-template #BelowXxlModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalFullscreenXxlLabel">
+                      Full screen below xxl
+                  </h6>
+                  <a (click)="modal.dismiss('Cross click')" type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">...</div>
+              <div class="modal-footer">
+                  <a type="button" (click)="modal.close('Save click')" class="btn btn-secondary"
+                      data-bs-dismiss="modal">
+                      Close
+                  </a>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-4 -->
+
+<!-- Start:: row-5 -->
+<div class="row">
+  <div class="col-xl-12">
+      <app-showcode-card  classHeader="" [title]="'Varying modal content'" [prism]="prismCodeData.Varyingmodalcontent">
+          <button (click)="Openmdo(OpenmdoModal)" type="button" class="btn btn-primary mb-1 me-1"
+              data-bs-toggle="modal" data-bs-target="#formmodal" data-bs-whatever="&#64;mdo">
+              Open modal for &#64;mdo
+          </button>
+          <button type="button" (click)="Openfat(OpenfatModal)" class="btn btn-secondary mb-1 me-1"
+              data-bs-toggle="modal" data-bs-target="#formmodal" data-bs-whatever="&#64;fat">
+              Open modal for &#64;fat
+          </button>
+          <button (click)="Opengetbootstrap(OpengetbootstrapModal)" type="button" class="btn btn-light mb-1 me-1"
+              data-bs-toggle="modal" data-bs-target="#formmodal" data-bs-whatever="&#64;getbootstrap">
+              Open modal for &#64;getbootstrap
+          </button>
+          <ng-template #OpenmdoModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalLabel">
+                      New Message to &#64;mdo
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <form>
+                      <div class="mb-3">
+                          <label for="recipient-name" class="col-form-label">Recipient:</label>
+                          <input value="&#64;mdo" type="text" class="form-control" id="recipient-name" />
+                      </div>
+                      <div class="mb-3">
+                          <label for="message-text" class="col-form-label">Message:</label>
+                          <textarea class="form-control" id="message-text"></textarea>
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Send message</button>
+              </div>
+          </ng-template>
+          <ng-template #OpenfatModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalLabel">
+                      New Message to &#64;fat
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <form>
+                      <div class="mb-3">
+                          <label for="recipient-name" class="col-form-label">Recipient:</label>
+                          <input value="&#64;fat" type="text" class="form-control" id="recipient-name" />
+                      </div>
+                      <div class="mb-3">
+                          <label for="message-text" class="col-form-label">Message:</label>
+                          <textarea class="form-control" id="message-text"></textarea>
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Send message</button>
+              </div>
+          </ng-template>
+          <ng-template #OpengetbootstrapModal let-modal>
+              <div class="modal-header">
+                  <h6 class="modal-title" id="exampleModalLabel">
+                      New Message to &#64;getbootstrap
+                  </h6>
+                  <a type="button" class="btn-close" data-bs-dismiss="modal" (click)="modal.dismiss('Cross click')"
+                      aria-label="Close"></a>
+              </div>
+              <div class="modal-body">
+                  <form>
+                      <div class="mb-3">
+                          <label for="recipient-name" class="col-form-label">Recipient:</label>
+                          <input value="&#64;getbootstrap" type="text" class="form-control" id="recipient-name" />
+                      </div>
+                      <div class="mb-3">
+                          <label for="message-text" class="col-form-label">Message:</label>
+                          <textarea class="form-control" id="message-text"></textarea>
+                      </div>
+                  </form>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                      (click)="modal.close('Save click')">
+                      Close
+                  </a>
+                  <button type="button" class="btn btn-primary">Send message</button>
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-5 -->
+
+<!-- Start:: row-6 -->
+<div class="row">
+  <div class="col-xl-12">
+      <app-showcode-card  classHeader="" [title]="'Modal Animation Effects'" [prism]="prismCodeData.ModalAnimationEffects">
+          <div class="row">
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-scale"
+                      data-bs-toggle="modal" (click)="openScale(scale)">Scale</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-slide-in-right"
+                      data-bs-toggle="modal" (click)="openSlideRight(right)">Slide In Right</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-slide-in-bottom"
+                      data-bs-toggle="modal" (click)="openSlideBottom(bottom)">Slide In Bottom</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-newspaper"
+                      data-bs-toggle="modal" (click)="openNewspaper(newspaper)">News Paper</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-fall"
+                      data-bs-toggle="modal" (click)="openFall(fall)">Fall</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-flip-horizontal"
+                      data-bs-toggle="modal" (click)="openFlipHorizontal(flip)">Flip Horizontal</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-flip-vertical"
+                      data-bs-toggle="modal" (click)="openFlipVertical(flipV)">Flip Vertical</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-super-scaled"
+                      data-bs-toggle="modal" (click)="openSuperScaled(super)">Super Scaled</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-sign"
+                      data-bs-toggle="modal" (click)="openSign(sign)">Sign</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-rotate-bottom"
+                      data-bs-toggle="modal" (click)="openRotateBottom(bottom)">Rotate Bottom</a>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-3">
+                  <a class="modal-effect btn btn-primary d-grid mb-3" data-bs-effect="effect-rotate-left"
+                      data-bs-toggle="modal" (click)="openRotateLeft(left)">Rotate Left</a>
+              </div>
+          </div>
+
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-6 -->
+
+<!-- Start:: row-6 -->
+<h6 class="mb-3">Close Buttons:</h6>
+<div class="row">
+  <div class="col-xl-4">
+      <app-showcode-card    [prism]="prismCodeData.BasicClose" [title]="'Basic Close'">
+          <button type="button" class="btn-close" aria-label="Close"></button>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-4">
+      <app-showcode-card  classHeader=""  [prism]="prismCodeData.Disabeltate" [title]="'Disabel state'">
+          <button type="button" class="btn-close" aria-label="Close"></button>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-4">
+      <app-showcode-card  [classHeader]="'pb-3'"  [prism]="prismCodeData.Whitevariant" classCard="overflow-hidden" [title]="'White variant'" classbody="bg-black ">
+          <button type="button" class="btn-close btn-close-white" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white" aria-label="Close" disabled></button>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-6 -->
+
+<!-- Animation -->
+<ng-template #scale let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #right let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #bottom let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #newspaper let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #fall let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #flip let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #flipV let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #super let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #sign let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+
+<ng-template #left let-modal>
+  <div class="modal-header">
+      <h6 class="modal-title">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<ng-template #justme let-modal>
+  <div class="modal-header">
+      <h6 class="fs-6">Message Preview</h6>
+      <a type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></a>
+  </div>
+  <div class="modal-body">
+      <h6>Why We Use Electoral College, Not Popular Vote</h6>
+      <p class="text-muted mb-0">
+          It is a long established fact that a reader will be distracted by the
+          readable content of a page when looking at its layout. The point of using
+          Lorem Ipsum is that it has a more-or-less normal distribution of letters,
+          as opposed to using 'Content here, content here', making it look like
+          readable English.
+      </p>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn ripple btn-primary">Save changes</button>
+      <a type="button" class="btn ripple btn-secondary" (click)="modal.close('Save click')">
+          Close
+      </a>
+  </div>
+</ng-template>
+
+<!-- Animation Close -->

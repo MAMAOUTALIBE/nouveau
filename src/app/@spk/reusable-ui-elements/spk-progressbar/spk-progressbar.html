@@ -1,0 +1,15 @@
+
+
+@if(stackedprogress()){
+<ngb-progressbar-stacked  [class]="stackedClass()">
+    @for (bar of progressBars(); track bar.type) {
+    <ngb-progressbar  [class]="class()" [type]="bar.type" [value]="bar.value" [showValue]="showValue()" [striped]="striped()" [animated]="animated()"></ngb-progressbar>
+    } @empty {
+    <div>No progress bars to display</div>
+    }
+</ngb-progressbar-stacked>
+}@else{
+
+<ngb-progressbar [class]="class()" [type]="type()" [value]="value()" [showValue]="showValue()" [striped]="striped()" [animated]="animated()"
+    [height]="height()" />
+}

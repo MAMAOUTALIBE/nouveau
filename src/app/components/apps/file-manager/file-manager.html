@@ -1,0 +1,140 @@
+<!-- row -->
+<div class="row">
+  <div class="col-lg-4 col-xl-3">
+    <div class="card">
+      <div class="main-content-left main-content-left-mail card-body">
+        <a (click)="openWindowCustomClass(content)" class="btn btn-primary btn-compose" id="btnCompose"
+          data-bs-target="#Vertically" data-bs-toggle="modal"><i class="fe fe-plus me-2"></i> Create Folder</a>
+        <div class="main-mail-menu">
+          <nav class="nav main-nav-column">
+            <!-- file: nav-links.component.html -->
+            @for (item of navItems; track $index) {
+            <a class="nav-link thumb" [class.active]="item.active" href="javascript:void(0);">
+              <i [class]="item.icon"></i> {{ item.label }}
+            </a>
+            }
+
+
+          </nav>
+        </div><!-- main-mail-menu -->
+        <div class="card custom-card mt-3 pb-0 mb-0 border-0">
+          <div class="card-header fw-bold"><i class="fe fe-hard-drive me-2"></i>Storage</div>
+          <div class="card-body pt-0">
+
+            <spk-progressbar [class]="'mg-b-10 ht-5'" [type]="'primary'" [value]="15" />
+
+
+            <div class="text-muted fw-semibold fs-13 mb-1">26.24 GB Used of 128GB</div>
+            <div class="fs-13 text-primary fw-semibold">Upgrade Storage</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8 col-xl-9">
+    <div class="row">
+      <div class="col-6">
+        <div class="fs-18 mb-4">
+          FIle Manager
+        </div>
+      </div>
+      <div class="col-6 col-auto">
+        <div class="input-group mb-2">
+          <input type="text" class="form-control text-truncate" placeholder="Search folder....."
+            aria-label="Search folder....." aria-describedby="button-addon2">
+          <button class="btn btn-primary" type="button">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="text-muted mb-2 fs-16">All Files</div>
+    <div class="row">
+
+      @for (item of categories; track $index) {
+      <div class="col-md-6 col-xl-3">
+        <div class="card">
+          <a [routerLink]="['/apps/file-manager1']">
+            <div class="card-body">
+              <div class="fs-16 mb-1">
+                <span [appSvgReplace]="item.svg"></span>
+                {{item.name}}
+                <div class="float-end fs-13 text-muted mt-1">{{item.size}}</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      }
+
+
+
+    </div>
+    <div class="text-muted mb-2 fs-16">Folders</div>
+    <div class="row">
+
+
+      @for (item of files; track $index) {
+      <div class="col-xl-3 col-sm-6">
+        <div class="card p-0">
+          <div class="d-flex align-items-center justify-content-between px-3 pt-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'flexCheckChecked' + item.id" />
+            </div>
+
+            <spk-dropdowns Customclass="float-end ms-auto custom-drop-end" [class]="'option-dots no-caret'"
+              [Icon]="true" [IconClass]="'fe fe-more-vertical'" [Menuclass]="'dropdown-menu'">
+              <a ngbDropdownItem class="dropdown-item" href="javascript:void(0);"><i class="fe fe-edit me-2"></i>
+                Edit</a>
+              <a ngbDropdownItem class="dropdown-item" href="javascript:void(0);"><i class="fe fe-share me-2"></i>
+                Share</a>
+              <a ngbDropdownItem class="dropdown-item" href="javascript:void(0);"><i class="fe fe-download me-2"></i>
+                Download</a>
+              <a ngbDropdownItem class="dropdown-item" href="javascript:void(0);"><i class="fe fe-trash me-2"></i>
+                Delete</a>
+            </spk-dropdowns>
+          </div>
+
+          <div class="card-body pt-0 text-center">
+            <div class="file-manger-icon">
+              <a [routerLink]="['/apps/file-details']">
+                <img [src]="item.icon" [alt]="item.name" class="br-7" />
+              </a>
+            </div>
+            <h6 class="mb-1 fw-semibold">{{ item.name }}</h6>
+            <span class="text-muted">{{ item.size }}</span>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    <ul class="pagination float-end mb-4">
+      <li class="page-item page-prev disabled">
+        <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+      </li>
+      <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+      <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+      <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+      <li class="page-item page-next">
+        <a class="page-link" href="javascript:void(0);">Next</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- End Row -->
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h6 class="modal-title">Add file</h6><button (click)="modal.dismiss('Cross click')" aria-label="Close"
+      class="btn-close" data-bs-dismiss="modal" type="button"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-2">
+      <input type="file" class="dropify form-control" data-height="200">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn ripple btn-primary" type="button">Add</button>
+    <button (click)="modal.dismiss('Cross click')" class="btn ripple btn-secondary" data-bs-dismiss="modal"
+      type="button">Cancel</button>
+  </div>
+</ng-template>

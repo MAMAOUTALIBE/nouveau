@@ -1,0 +1,528 @@
+export let Listgroup = {
+    Html: ` <div class="bd-example">
+        <div class="row">
+          <div class="col-md-2 col-12">
+            <div id="list-example" class="list-group" [ngbScrollSpyMenu]="spy1">
+              <a [ngbScrollSpyItem]="[spy1, 'items-1']" class="list-group-item list-group-item-action">Item 1</a>
+              <a class="list-group-item list-group-item-action" [ngbScrollSpyItem]="spy1" fragment="items-2">Item 2</a>
+              <a class="list-group-item list-group-item-action" [ngbScrollSpyItem]="spy1" fragment="items-3">Item 3</a>
+              <a routerLink="." class="list-group-item list-group-item-action" [ngbScrollSpyItem]="spy1"
+                fragment="items-4">Item 4</a>
+            </div>
+          </div>
+          <div class="col-md-10 col-12">
+            <div ngbScrollSpy #spy1="ngbScrollSpy" data-bs-spy="scroll" data-bs-target="#list-example"
+              data-bs-smooth-scroll="true" class="scrollspy-example-3" tabindex="0">
+              <h6 class="fw-semibold" id="list-item-01" ngbScrollSpyFragment="items-1">
+                Item 1
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+              </p>
+              <h6 class="fw-semibold" id="list-item-02" ngbScrollSpyFragment="items-2">
+                Item 2
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+              </p>
+              <h6 class="fw-semibold" id="list-item-03" ngbScrollSpyFragment="items-3">
+                Item 3
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+              </p>
+              <h6 class="fw-semibold" id="list-item-04" ngbScrollSpyFragment="items-4">
+                Item 4
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Vel,
+                laborum reiciendis sunt officia doloribus, soluta ratione id
+                reprehenderit autem temporibus cupiditate necessitatibus atque
+                similique quam ex minus, sint ipsum deleniti sed assumenda
+                fugiat numquam saepe incidunt perferendis. Aliquid, quas.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div> `,
+    Ts: `
+import { Component } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-scrollspy',
+  imports: [NgbModule],
+  templateUrl: './scrollspy.html',
+  styleUrl: './scrollspy.scss'
+})
+export class ScrollspyComponent {
+
+}
+
+    `,
+
+}
+export let Nestednav = {
+    Html: ` <div class="row">
+        <div class="col-md-3 col-sm-4">
+          <nav [ngbScrollSpyMenu]="spy" id="navbar-example3"
+            class="navbar bg-light flex-column align-items-stretch p-3">
+            <nav href="javascript:void(0);" class="nav nav-pills flex-column">
+              <a class="nav-link" ngbScrollSpyItem="nested-1">Item 1</a>
+              <nav class="nav nav-pills flex-column">
+                <a href="javascript:void(0);" class="nav-link ms-3 my-1" ngbScrollSpyItem="nested-1-1"
+                  parent="nested-1">Item 1-1</a>
+                <a href="javascript:void(0);" class="nav-link ms-3 my-1" ngbScrollSpyItem="nested-1-2"
+                  parent="nested-1">Item 1-2</a>
+              </nav>
+              <a class="nav-link" href="javascript:void(0);" ngbScrollSpyItem="nested-2">Item 2</a>
+              <a class="nav-link" href="javascript:void(0);" ngbScrollSpyItem="nested-3">Item 3</a>
+              <nav class="nav nav-pills flex-column">
+                <a href="javascript:void(0);" class="nav-link ms-3 my-1" ngbScrollSpyItem="nested-3-1"
+                  parent="nested-3">Item 3-1</a>
+                <a href="javascript:void(0);" class="nav-link ms-3 my-1" ngbScrollSpyItem="nested-3-2"
+                  parent="nested-3">Item 3-2</a>
+              </nav>
+            </nav>
+          </nav>
+        </div>
+        <div class="col-md-9 col-sm-8">
+          <div ngbScrollSpy #spy="ngbScrollSpy" data-bs-spy="scroll" data-bs-target="#navbar-example3"
+            data-bs-smooth-scroll="true" tabindex="0" class="scrollspy-example-2">
+            <div id="item-1">
+              <h6 class="fw-semibold" ngbScrollSpy #spy="ngbScrollSpy">
+                Item 1
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Asperiores explicabo in delectus nostrum aut ab quasi placeat
+                facilis? Laborum corporis eaque ipsum laboriosam animi
+                possimus.
+              </p>
+            </div>
+            <div id="item-1-1">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-1-1">
+                Item 1-1
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+                Placeat minus distinctio itaque odit magnam voluptate quos
+                ipsam ab provident! Facere minus aperiam non architecto sequi,
+                temporibus aspernatur harum consequatur, laboriosam nam
+                ratione adipisci? Doloremque sed ducimus aliquid dicta beatae!
+                Quasi voluptas aliquam aliquid error reiciendis enim! Iure
+                obcaecati consequatur harum suscipit delectus.
+              </p>
+            </div>
+            <div id="item-1-2">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-1-2">
+                Item 1-2
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Tempore eius consectetur quae modi iste voluptatibus a quidem
+                amet ea corporis neque non quasi nesciunt sunt numquam minima
+                maiores eveniet ratione soluta temporibus, quam harum nostrum.
+                Laudantium repellat, dolores blanditiis iusto tempora
+                corrupti. Distinctio, nesciunt. Tenetur sapiente cumque, totam
+                veniam repellat alias quasi, beatae eveniet quas eos, ea
+                aperiam!
+              </p>
+            </div>
+            <div id="item-2">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-2">
+                Item 2
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                Eius, itaque debitis. Numquam facere sunt adipisci dolores
+                ratione quo magni. Non, officiis minima deserunt consequatur,
+                repellendus nihil laudantium aperiam laborum eaque animi
+                maxime porro saepe nisi quos. Corporis hic tempore illo
+                reiciendis autem, necessitatibus debitis sed molestias.
+              </p>
+            </div>
+            <div id="item-3">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-3">
+                Item 3
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fuga
+                voluptate sequi exercitationem voluptatem, commodi dicta
+                nostrum atque, praesentium consequatur eos at vero animi neque
+                deleniti ipsa. Aliquid facere saepe pariatur porro nihil
+                blanditiis recusandae dolor fuga? Iusto et omnis neque
+                doloremque, cum modi officia facilis placeat repellendus
+                obcaecati mollitia! Id aperiam officiis vitae. Fugit quo id
+                veritatis commodi maiores numquam nostrum necessitatibus
+                eaque, quia exercitationem distinctio ipsa eum, nihil atque
+                perferendis dicta, mollitia sed dignissimos incidunt voluptas
+                ab tempore laborum? Fugiat, deserunt. Harum, repellat
+                praesentium! Fuga!
+              </p>
+            </div>
+            <div id="item-3-1">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-3-1">
+                Item 3-1
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Numquam non deleniti saepe voluptate, est praesentium ducimus
+                sapiente aut dignissimos voluptas blanditiis reiciendis earum
+                accusantium id ex! Lorem ipsum dolor sit, amet consectetur
+                adipisicing elit. Fuga voluptate sequi exercitationem
+                voluptatem, commodi dicta nostrum atque, praesentium
+                consequatur eos at vero animi neque deleniti ipsa. Aliquid
+                facere saepe pariatur porro nihil blanditiis recusandae dolor
+                fuga? Iusto et omnis neque doloremque, cum modi officia
+                facilis placeat repellendus obcaecati mollitia! Id aperiam
+                officiis vitae. Fugit quo id veritatis commodi maiores numquam
+                nostrum necessitatibus eaque, quia exercitationem distinctio
+                ipsa eum, nihil atque perferendis dicta, mollitia sed
+                dignissimos incidunt voluptas ab tempore laborum? Fugiat,
+                deserunt. Harum, repellat praesentium! Fuga!
+              </p>
+            </div>
+            <div id="item-3-2">
+              <h6 class="fw-semibold" ngbScrollSpyFragment="nested-3-2">
+                Item 3-2
+              </h6>
+              <p class="text-muted">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo,
+                est. Blanditiis cupiditate voluptate obcaecati eligendi iusto
+                amet. Cupiditate laborum, itaque laboriosam culpa sunt
+                eligendi. Lorem ipsum dolor sit, amet consectetur adipisicing
+                elit. Fuga voluptate sequi exercitationem voluptatem, commodi
+                dicta nostrum atque, praesentium consequatur eos at vero animi
+                neque deleniti ipsa. Aliquid facere saepe pariatur porro nihil
+                blanditiis recusandae dolor fuga? Iusto et omnis neque
+                doloremque, cum modi officia facilis placeat repellendus
+                obcaecati mollitia! Id aperiam officiis vitae. Fugit quo id
+                veritatis commodi maiores numquam nostrum necessitatibus
+                eaque, quia exercitationem distinctio ipsa eum, nihil atque
+                perferendis dicta, mollitia sed dignissimos incidunt voluptas
+                ab tempore laborum? Fugiat, deserunt. Harum, repellat
+                praesentium! Fuga!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>  `,
+    Ts: `
+import { Component } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-scrollspy',
+  imports: [NgbModule],
+  templateUrl: './scrollspy.html',
+  styleUrl: './scrollspy.scss'
+})
+export class ScrollspyComponent {
+
+}
+
+    `,
+
+}
+export let Exampleinnavbar = {
+    Html: `  <nav id="navbar-example2" class="navbar navbar-light bg-light px-3 mb-3">
+        <ul [ngbScrollSpyMenu]="s" class="nav nav-pills d-sm-flex d-block">
+          <li class="nav-item mb-1 mb-sm-0">
+            <a class="nav-link" ngbScrollSpyItem="basic-1">First</a>
+          </li>
+          <li class="nav-item mb-1 mb-sm-0">
+            <a class="nav-link" ngbScrollSpyItem="basic-2">Second</a>
+          </li>
+          <li ngbDropdown class="nav-item dropdown">
+            <a ngbDropdownToggle ngbScrollSpyItem="basic-p1" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+              role="button" aria-expanded="false">Dropdown</a>
+            <ul ngbDropdownMenu class="dropdown-menu">
+              <li>
+                <a ngbDropdownItem class="dropdown-item" ngbScrollSpyItem="basic-3" parent="basic-p1">Third</a>
+              </li>
+              <li>
+                <a class="dropdown-item" ngbDropdownItem ngbScrollSpyItem="basic-4" parent="basic-p1">Fourth</a>
+              </li>
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+              <li>
+                <a class="dropdown-item" ngbDropdownItem ngbScrollSpyItem="basic-5" parent="basic-p1">Fifth</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <div ngbScrollSpy #s="ngbScrollSpy" rootMargin="0px 0px -40%" data-bs-spy="scroll"
+        data-bs-target="#navbar-example2" data-bs-offset="0" class="scrollspy-example bg-light p-3 rounded-2"
+        data-bs-root-margin="0px 0px -40%" data-bs-smooth-scroll="true" tabindex="0">
+        <h6 ngbScrollSpyFragment="basic-1" class="fw-semibold" id="scrollspyHeading1">First heading</h6>
+        <p class="text-muted">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas sunt!Lorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni, reprehenderit sit deleniti excepturi!
+          Tempore magni adipisci iusto sit illum vero veniam harum quas
+          sunt!Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem
+          culpa alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni, reprehenderit sit deleniti excepturi! Tempore
+          magni adipisci iusto sit illum vero veniam harum quas suntLorem
+          ipsum dolor sit amet consectetur adipisicing elit. Quidem culpa
+          alias, illum vero cupiditate fugiat, placeat nemo assumenda
+          distinctio magni,
+        </p>
+        <h6 class="fw-semibold" ngbScrollSpyFragment="basic-2" id="scrollspyHeading2">Second heading</h6>
+        <p class="text-muted">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Aliquam
+          veniam ullam perspiciatis ut fugit atque iure, quae animi ex
+          tempore. Ducimus illum fugit sapiente quisquam!Lorem ipsum dolor sit
+          amet consectetur adipisicing elit. Quidem culpa alias,Lorem ipsum
+          dolor sit amet consectetur adipisicing elit. Aliquam veniam ullam
+          perspiciatis ut fugit atque iure, quae animi ex tempore. Ducimus
+          illum fugit sapiente quisquam!Lorem ipsum dolor sit amet consectetur
+          adipisicing elit. Quidem culpa alias,Lorem ipsum dolor sit amet
+          consectetur adipisicing elit. Aliquam veniam ullam perspiciatis ut
+          fugit atque iure, quae animi ex tempore. Ducimus illum fugit
+          sapiente quisquam!Lorem ipsum dolor sit amet consectetur adipisicing
+          elit. Quidem culpa alias,Lorem ipsum dolor sit amet consectetur
+          adipisicing elit. Aliquam veniam ullam perspiciatis ut fugit atque
+          iure, quae animi ex tempore. Ducimus illum fugit sapiente
+          quisquam!Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Quidem culpa alias, illum vero cupiditate fugiat, placeat nemo
+          assumenda distinctio magni
+        </p>
+        <h6 class="fw-semibold" ngbScrollSpyFragment="basic-3" id="scrollspyHeading3">Third heading</h6>
+        <p class="text-muted">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet
+          nobis et quaerat asperiores fugit dignissimos rerum qui minus vitae
+          nesciunt nisi aspernatur aperiam quidem magnam, cumque repudiandae
+          quod aliquid quo?
+        </p>
+        <h6 class="fw-semibold" ngbScrollSpyFragment="basic-4" id="scrollspyHeading4">Fourth heading</h6>
+        <p class="text-muted">
+          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maiores
+          tempora pariatur modi corporis aspernatur eveniet?
+        </p>
+        <h6 class="fw-semibold" ngbScrollSpyFragment="basic-5" id="scrollspyHeading5">Fifth heading</h6>
+        <p class="text-muted">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam
+          voluptates consequuntur ipsum eos, magni vitae tempore suscipit
+          excepturi blanditiis!
+        </p>
+      </div>  `,
+    Ts: `
+import { Component } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-scrollspy',
+  imports: [NgbModule],
+  templateUrl: './scrollspy.html',
+  styleUrl: './scrollspy.scss'
+})
+export class ScrollspyComponent {
+
+}
+
+    `,
+
+}
+export let Simpleanchors = {
+    Html: `    <div class="bd-example">
+        <div class="row">
+          <div class="col-md-2 col-12">
+            <div [ngbScrollSpyMenu]="spy2" id="simple-list-example"
+              class="d-flex flex-column gap-2 simple-list-example-scrollspy text-center">
+              <a class="p-2 rounded" [ngbScrollSpyItem]="[spy2, 'items-1']">Item 1</a>
+              <a class="p-2 rounded" [ngbScrollSpyItem]="spy2" fragment="items-2">Item 2</a>
+              <a class="p-2 rounded" [ngbScrollSpyItem]="spy2" fragment="items-3">Item 3</a>
+              <a class="p-2 rounded" [ngbScrollSpyItem]="spy2" fragment="items-4">Item 4</a>
+              <a class="p-2 rounded" [ngbScrollSpyItem]="spy2" fragment="items-5">Item 5</a>
+            </div>
+          </div>
+          <div class="col-md-10 col-12">
+            <div ngbScrollSpy #spy2="ngbScrollSpy" data-bs-spy="scroll" data-bs-target="#simple-list-example"
+              data-bs-offset="0" data-bs-smooth-scroll="true" class="scrollspy-example-4" tabindex="0">
+              <h6 class="fw-semibold" id="simple-list-item-1" ngbScrollSpyFragment="items-1">
+                Item 1
+              </h6>
+              <p class="text-muted">
+                This is some placeholder content for the scrollspy page. Note
+                that as you scroll down the page, the appropriate navigation
+                link is highlighted. It's repeated throughout the component
+                example. We keep adding some more example copy here to
+                emphasize the scrolling and highlighting.
+              </p>
+              <h6 class="fw-semibold" id="simple-list-item-2" ngbScrollSpyFragment="items-2">
+                Item 2
+              </h6>
+              <p class="text-muted">
+                This is some placeholder content for the scrollspy page. Note
+                that as you scroll down the page, the appropriate navigation
+                link is highlighted. It's repeated throughout the component
+                example. We keep adding some more example copy here to
+                emphasize the scrolling and highlighting.
+              </p>
+              <h6 class="fw-semibold" id="simple-list-item-3" ngbScrollSpyFragment="items-3">
+                Item 3
+              </h6>
+              <p class="text-muted">
+                This is some placeholder content for the scrollspy page. Note
+                that as you scroll down the page, the appropriate navigation
+                link is highlighted. It's repeated throughout the component
+                example. We keep adding some more example copy here to
+                emphasize the scrolling and highlighting.
+              </p>
+              <h6 class="fw-semibold" id="simple-list-item-4" ngbScrollSpyFragment="items-4">
+                Item 4
+              </h6>
+              <p class="text-muted">
+                This is some placeholder content for the scrollspy page. Note
+                that as you scroll down the page, the appropriate navigation
+                link is highlighted. It's repeated throughout the component
+                example. We keep adding some more example copy here to
+                emphasize the scrolling and highlighting.
+              </p>
+              <h6 class="fw-semibold" id="simple-list-item-5" ngbScrollSpyFragment="items-5">
+                Item 5
+              </h6>
+              <p class="text-muted">
+                This is some placeholder content for the scrollspy page. Note
+                that as you scroll down the page, the appropriate navigation
+                link is highlighted. It's repeated throughout the component
+                example. We keep adding some more example copy here to
+                emphasize the scrolling and highlighting.This is some
+                placeholder content for the scrollspy page. Note that as you
+                scroll down the page, the appropriate navigation link is
+                highlighted. It's repeated throughout the component example.
+                We keep adding some more example copy here to emphasize the
+                scrolling and highlighting.This is some placeholder content
+                for the scrollspy page. Note that as you scroll down the page,
+                the appropriate navigation link is highlighted. It's repeated
+                throughout the component example. We keep adding some more
+                example copy here to emphasize the scrolling and highlighting.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div> `,
+    Ts: `
+import { Component } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-scrollspy',
+  imports: [NgbModule],
+  templateUrl: './scrollspy.html',
+  styleUrl: './scrollspy.scss'
+})
+export class ScrollspyComponent {
+
+}
+
+    `,
+
+}
+

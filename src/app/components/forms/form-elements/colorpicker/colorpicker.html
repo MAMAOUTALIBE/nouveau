@@ -1,0 +1,53 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-3">
+    <app-showcode-card [title]="'Bootstrap Color Picker'">
+      <input type="color" class="form-control form-control-color border-0" id="exampleColorInput" value="#136ad0"
+        title="Choose your color">
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-9">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">
+          Classic
+        </div>
+      </div>
+      <div class="card-body d-flex justify-content-between  gap-3 flex-wrap">
+        <div>
+          <div class="theme-container"></div>
+          <div class="pickr-container example-picker">
+            <div class="pickr-container example-picker">
+              <div class="pickr custom-color-btn">
+                <input [value]="color1" [style.background]="color1" [cpCancelButton]="true"
+                  [cpCancelButtonClass]="'btn btn-primary btn-xs'" [cpEyeDropper]="true" [(colorPicker)]="color1"
+                  [cpOKButton]="true" [cpSaveClickOutside]="false" [cpOKButtonClass]="'btn btn-primary btn-xs'"
+                  class="text-fixed-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="theme-container1"></div>
+          <div class="pickr-container1 example-picker">
+
+            <ngx-colors ngx-colors-trigger [(ngModel)]="color2" acceptLabel="Select" cancelLabel="Cancel" />
+
+          </div>
+        </div>
+        <div>
+          <div class="theme-container2"></div>
+          <div class="pickr-container2 example-picker">
+            <button type="button" role="button" class="" ngx-colors-trigger [(ngModel)]="color3"
+              [style.color]="color3">
+              <i class="ri-palette-fill fs-3"></i>
+            </button>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

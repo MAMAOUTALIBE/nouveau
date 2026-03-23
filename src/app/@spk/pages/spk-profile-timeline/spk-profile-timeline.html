@@ -1,0 +1,55 @@
+<div class="card custom-card">
+  <div class="card-header justify-content-between">
+    <div class="d-flex align-items-center">
+      <div class="avatar avatar-md avatar-rounded me-2">
+        <img src="./assets/images/faces/6.jpg" alt="img">
+      </div>
+      <div>
+        <span class="fs-14">Mintrona Pechon Pechon</span>
+        <p class="mb-0 text-primary">just now</p>
+      </div>
+    </div>
+    <spk-dropdowns [Customclass]="'dropdown'" [Icon]="true" [IconClass]="'fe fe-more-vertical text-primary'"
+      [class]="'option-dots no-caret'" [Menuclass]="'dropdown-menu dropdown-menu-start folder-options'">
+      <a class="dropdown-item dropdown-hover" href="javascript:void(0);">Edit
+        Post</a>
+      <a class="dropdown-item dropdown-hover" href="javascript:void(0);">Delete
+        Post</a>
+      <a class="dropdown-item dropdown-hover" href="javascript:void(0);">Personal
+        Settings</a>
+    </spk-dropdowns>
+  </div>
+  <div class="card-body">
+    <p>There are many variations of passages of Lorem Ipsum available, but the
+      majority have suffered alteration in some form, by injected humour, or
+      randomised words which don't look even slightly believable.</p>
+    <div class="row">
+      <div class="col">
+        @if(images()){
+
+          @for(img of images(); track $index) {
+            <img [src]="img" alt="img" class="wd-200 br-5 mb-2 mt-2 me-3">
+          }
+        }
+      </div>
+    </div>
+    <div class="media mt-3 profile-footer">
+      <div class="media-user me-2">
+        <div class="demo-avatar-group">
+          <div class="demo-avatar-group main-avatar-list-stacked">
+            <div class="main-img-user"><img alt="" class="rounded-circle" src="../assets/images/faces/12.jpg"> </div>
+            <div class="main-img-user online"><img alt="" class="rounded-circle" src="../assets/images/faces/7.jpg">
+            </div>
+            <div class="main-img-user online"><img alt="" class="rounded-circle" src="../assets/images/faces/5.jpg">
+            </div>
+            <div class="main-img-user"><img alt="" class="rounded-circle" src="../assets/images/faces/6.jpg"> </div>
+            <div class="main-avatar"> +23 </div>
+          </div> <!-- demo-avatar-group -->
+        </div> <!-- demo-avatar-group -->
+      </div>
+      <div class="media-body">
+        <h6 class="mb-0 mg-t-10">28 people like your photo</h6>
+      </div>
+    </div>
+  </div>
+</div>

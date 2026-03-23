@@ -1,0 +1,75 @@
+<!-- Row -->
+
+<div class="row row-sm">
+  <div class="col-xxl-8 col-xl-12 col-lg-12 col-md-12">
+    <div class="card custom-card overflow-hidden">
+      <div class="card-body px-4 pt-4">
+        <a [routerLink]="['/advanced-ui/blog-details']"><img src="./assets/images/photos/blog.jpg" alt="img"
+            class="cover-image br-7 w-100"></a>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-4 col-xl-12 col-lg-12 col-md-12">
+    <div class="card custom-card">
+      <div class=" card-body ">
+        <h5 class="mb-3">File details :</h5>
+        <div class="">
+          <div class="row">
+            <div class="col-xl-12">
+              <div class="table-responsive">
+                <spk-reusable-tables [tableClass]="'table mb-0 border-top table-bordered text-nowrap'">
+                  @for (detail of fileDetails; track $index) {
+                  <tr>
+                    <th scope="row">{{ detail.label }}</th>
+                    <td>{{ detail.value }}</td>
+                  </tr>
+                  }
+                </spk-reusable-tables>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-8 col-xl-12 col-lg-12 col-md-12">
+    <div class="card custom-card">
+      <div class="card-body h-100">
+
+
+        <swiper-container class="swiper keyboard-control custom-swiper-pagination" navigation="true" [pagination]="{clickable:true}" [breakpoints]="breakpoints ">
+
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage4.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage1.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage2.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage3.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage4.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage5.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage1.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage3.jpg" alt=""></swiper-slide>
+            <swiper-slide class="swiper-slide"><img src="./assets/images/photos/fileimage5.jpg" alt=""></swiper-slide>
+        </swiper-container>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-4 col-xl-12 col-lg-12 col-md-12">
+    <div class="card custom-card">
+      <div class="card-body">
+        <h5 class="mb-3">Recent Files</h5>
+        <div class="row" gallerize>
+          @for(img of imageData;track $index){
+          <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+            <a href="javascript:void(0);" class="glightbox card" data-gallery="gallery1">
+              <img [src]="img.srcUrl" alt="image">
+            </a>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- End Row -->

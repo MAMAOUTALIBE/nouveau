@@ -1,0 +1,54 @@
+<div class="card p-3 pricing-card">
+  <div class="card-header pt-2 d-block">
+    <p class="fs-18 fw-semibold mb-1 pe-0">
+      {{ plan()?.name }}
+      @if (plan()?.isPopular) {
+      <span class="tx-11 float-end badge bg-primary text-fixed-white px-2 py-1 rounded-pill mt-2">
+        Most Popular
+      </span>
+      }
+    </p>
+    <p class="fw-semibold mb-1">
+      <span class="fs-30 me-2">$</span>
+      <span class="fs-30 me-1">{{ isYearly() ? plan()?.yearlyPrice : plan()?.monthlyPrice }}</span>
+      <span class="fs-24">
+        <span class="op-5 text-muted tx-20">/</span> {{ isYearly() ? 'year' : 'month' }}
+      </span>
+    </p>
+    <p class="fs-13 mb-2">{{ plan()?.description }}</p>
+    <p class="fs-13 mb-1 text-primary">
+      Billed {{ isYearly() ? 'yearly' : 'monthly' }} on regular basis!
+    </p>
+  </div>
+
+  <div class="card-body pt-2">
+    <ul class="pricing-body text-muted ps-0">
+      <li class="mb-4">
+        <span class="text-primary me-2"><i class="fa-regular fa-circle-check fs-12"></i></span>
+        <strong>{{ plan()?.domains }}</strong> Domain Name
+      </li>
+      <li class="mb-4">
+        <span class="text-primary me-2"><i class="fa-regular fa-circle-check fs-12"></i></span>
+        <strong>{{ plan()?.apps }}</strong> One-Click Apps
+      </li>
+      <li class="mb-4">
+        <span class="text-primary me-2"><i class="fa-regular fa-circle-check fs-12"></i></span>
+        <strong>{{ plan()?.databases }}</strong> Databases
+      </li>
+      <li class="mb-4">
+        <span class="text-primary me-2"><i class="fa-regular fa-circle-check fs-12"></i></span>
+        <strong>Money</strong> Back Guarantee
+      </li>
+      <li class="mb-6">
+        <span class="text-primary me-2"><i class="fa-regular fa-circle-check fs-12"></i></span>
+        <strong>24/7</strong> support
+      </li>
+    </ul>
+  </div>
+
+  <div class="card-footer text-center border-top-0 pt-1">
+    <button class="btn btn-lg btn-primary text-fixed-white btn-block w-100">
+      <span class="ms-4 me-4">Select</span>
+    </button>
+  </div>
+</div>

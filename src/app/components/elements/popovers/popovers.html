@@ -1,0 +1,80 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-5">
+    <app-showcode-card [title]="'Default Popovers'" [prism]="prismCodeData.DefaultPopovers">
+      <div class="d-flex gap-2 flex-wrap">
+        @for(popover of defaultPopovers;track $index){
+        <spk-popovers class="btn  me-2 popover-position {{popover.class}}" [title]="popover.title"
+          [content]="popover.content" [placement]="popover.placement" [buttonText]="popover.buttonText"></spk-popovers>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-7">
+    <app-showcode-card [title]="'Colored Headers'" [prism]="prismCodeData.ColoredHeaders">
+      <div class="d-flex gap-2 flex-wrap">
+        @for(popover of coloredPopovers;track $index){
+        <spk-popovers class="btn btn-outline-{{popover.class}} me-2 " [title]="popover.title"
+          [content]="popover.content" [popoverClass]="popover.header" [buttonText]="popover.title1"></spk-popovers>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-1 -->
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Colored Popovers'" [prism]="prismCodeData.ColoredPopovers">
+      <div class="d-flex gap-2 flex-wrap">
+        @for(popover of coloredBackground;track $index){
+        <spk-popovers class="btn btn-{{popover.class}} me-2 " [title]="popover.header" [content]="popover.content"
+          [popoverClass]="popover.popoverClass" [buttonText]="popover.title"></spk-popovers>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+  <!-- End:: row-2 -->
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Light Popovers'" [prism]="prismCodeData.LightPopovers">
+      <div class="d-flex gap-2 flex-wrap">
+        @for(popover of lightPopovers;track $index){
+        <spk-popovers class="btn btn-outline-{{popover.class}} me-2 " [title]="popover.header"
+          [content]="popover.content" [popoverClass]="popover.popoverClass" [buttonText]="popover.title"></spk-popovers>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-3 -->
+<!-- Start:: row-4 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Dismissible Popovers'" classbody="d-flex flex-wrap justify-content-between"
+      [prism]="prismCodeData.DismissiblePopovers">
+      @for(popover of DismisablePopover;track popover){
+      <spk-popovers [content]="popover.content" [class]="popover.color" [title]="popover.header"
+        [buttonText]="popover.title" [placement]="popover.placement"></spk-popovers>
+      }
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-3">
+    <app-showcode-card [title]="'Disabled Popover'" [prism]="prismCodeData.DisabledPopover">
+      <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" triggers="hover focus" placement="end"
+        ngbPopover="Disabled popover">
+        <button [class]="'btn btn-primary'" type="button" [disabled]="true">Disabled
+          button</button>
+      </span>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-3">
+    <app-showcode-card [title]="'Icon Popovers'" [prism]="prismCodeData.IconPopovers">
+      @for(popover of SvgPopover;track popover){
+      <spk-spkpopovers [placement]="popover.placement" [class]="popover.color" [popoverClass]="popover.class"
+        [popoverContext]="popover.color" [ngbPopover]="popover.content"
+        [innerHTML]="getSanitizedSVG(popover.svg)"></spk-spkpopovers>
+      }
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-4 -->

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/charts/apexcharts/area-charts/area-charts.scss"],
+  "sourcesContent": ["::ng-deep {\r\n  .chart-container {\r\n    /* Make the chart container responsive */\r\n    max-width: 100%;\r\n    width: 100%;\r\n    margin: 0 auto; /* Optional: Center the container */\r\n  }\r\n  apx-chart {\r\n    touch-action: manipulation;\r\n  }\r\n}"],
+  "mappings": ";AACE,UAAA,CAAA;AAEE,aAAA;AACA,SAAA;AACA,UAAA,EAAA;;AAEF,UAAA;AACE,gBAAA;;",
+  "names": []
+}

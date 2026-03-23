@@ -1,0 +1,484 @@
+<!-- row -->
+<div class="row row-sm">
+  <div class="col-xxl-12">
+    <div class="card">
+      <div class="card-body ">
+        <div class="row row-sm ">
+          <div class=" col-xxl-6 col-lg-12 col-md-12">
+            <div class="row">
+              <div class="col-xxl-2 col-xl-2 col-md-2 col-sm-3">
+                <div class="clearfix carousel-slider">
+                  <div id="thumbcarousel" class="carousel slide" data-bs-interval="t">
+                    <div class="carousel-inner">
+                      <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="carousel-item active">
+                        <li [ngbNavItem]="1" class="thumb my-sm-2 m-2 mx-sm-0 border-0 padding-0" data-bs-slide-to="0"
+                          data-bs-target="#Slider">
+                          <a class="p-2 border" ngbNavLink><img alt="img" class="img-fluid mx-auto d-block"
+                              src="./assets/images/ecommerce/25.png" /></a>
+                          <ng-template ngbNavContent>
+                            <img src="./assets/images/ecommerce/25.png" alt="img"
+                              class="img-fluid mx-auto d-block mb-5" />
+                          </ng-template>
+                        </li>
+                        <li [ngbNavItem]="2" class="thumb my-sm-2 m-2 mx-sm-0  border-0 padding-0" data-bs-slide-to="1"
+                          data-bs-target="#Slider">
+                          <a class="p-2 border" ngbNavLink><img alt="img" class="img-fluid mx-auto d-block"
+                              src="./assets/images/ecommerce/27.png" /></a>
+                          <ng-template ngbNavContent>
+                            <img src="./assets/images/ecommerce/27.png" alt="img"
+                              class="img-fluid mx-auto d-block mb-5" />
+                          </ng-template>
+                        </li>
+                        <li [ngbNavItem]="3" class="thumb my-sm-2 m-2 mx-sm-0  border-0 padding-0" data-bs-slide-to="2"
+                          data-bs-target="#Slider">
+                          <a class="p-2 border" ngbNavLink><img alt="img" class="img-fluid mx-auto d-block"
+                              src="./assets/images/ecommerce/28.png" /></a>
+                          <ng-template ngbNavContent>
+                            <img src="./assets/images/ecommerce/28.png" alt="img"
+                              class="img-fluid mx-auto d-block mb-5" />
+                          </ng-template>
+                        </li>
+                        <li [ngbNavItem]="4" class="thumb my-sm-2 m-2 mx-sm-0  border-0 padding-0" data-bs-slide-to="3"
+                          data-bs-target="#Slider">
+                          <a class="p-2 border" ngbNavLink class="p-1 border"><img alt="img"
+                              class="img-fluid mx-auto d-block" src="./assets/images/ecommerce/26.png" /></a>
+                          <ng-template ngbNavContent>
+                            <img src="./assets/images/ecommerce/26.png" class="img-fluid mx-auto d-block mb-5"
+                              alt="img" />
+                          </ng-template>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-10 col-xl-10 col-md-10 col-sm-9">
+                <div class="product-carousel border br-5">
+                  <div id="Slider" class="carousel slide" data-bs-ride="false">
+                    <div class="carousel-inner no-tab-border no-tab-padding" [ngbNavOutlet]="nav">
+                    </div>
+                  </div>
+                </div>
+                <div class="text-center mt-4 btn-list">
+                  <a [routerLink]="['/pages/ecommerce/cart']" class="btn ripple btn-primary me-2"><i
+                      class="fe fe-shopping-cart"> </i> Add to cart</a>
+                  <a [routerLink]="['/pages/ecommerce/checkout']" class="btn ripple btn-secondary"><i
+                      class="fe fe-credit-card"> </i> Buy Now</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="details col-xxl-6 col-lg-12 col-md-12 mt-4">
+            <h4 class="product-title mb-1">Jyothi Fashion Women's Fit & Flare Knee Length
+              Western Frock</h4>
+            <p class="text-muted fs-13 mb-1">women red & Grey Checked Casual frock</p>
+            <div class="rating mb-1">
+              <div class="stars">
+                <span class="fa fa-star me-1 checked"></span>
+                <span class="fa fa-star me-1 checked"></span>
+                <span class="fa fa-star me-1 checked"></span>
+                <span class="fa fa-star me-1 text-muted"></span>
+                <span class="fa fa-star me-1 text-muted"></span>
+              </div>
+              <span class="review-no">41 reviews</span>
+            </div>
+            <h6 class="price">current price: <span class="h3 ms-2">$253</span></h6>
+            <p class="vote"><strong>91%</strong> of buyers enjoyed this product! <strong>(87
+                votes)</strong></p>
+            <div class="mb-3">
+              <div class="">
+                <p class="font-weight-normal"><span class="h4">Hurry Up!</span> Sold:
+                  <span class="text-primary h5 ">110/150</span> products in stock.
+                <p>
+              </div>
+              <div class="progress ht-10  mt-0">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 60%">
+                </div>
+              </div>
+            </div>
+
+            <div class="sizes d-flex">sizes:
+              <span class="size d-flex"><label class="rdiobox mb-0">
+                  <input class="form-check-input me-1" type="radio" name="flexRadioDefault" id="flexRadioDefault1"
+                    checked=""> <span>s</span></label></span>
+              <span class="size d-flex"><label class="rdiobox mb-0">
+                  <input class="form-check-input me-1" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
+                  <span>m</span></label></span>
+              <span class="size d-flex"><label class="rdiobox mb-0">
+                  <input class="form-check-input me-1" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
+                  <span>l</span></label></span>
+              <span class="size d-flex"><label class="rdiobox mb-0">
+                  <input class="form-check-input me-1" type="radio" name="flexRadioDefault" id="flexRadioDefault4">
+                  <span>xl</span></label></span>
+
+            </div>
+            <div class="d-flex  mt-2">
+              <div class="mt-2 product-title">Quantity:</div>
+              <div class="d-flex ms-2">
+                <ul class=" mb-0 Quantity-list">
+                  <li>
+                    <div class="form-group">
+                      <spk-ng-select [id]="'select-countries17'" [selectClass]="'nice-select wd-100'"
+                        [options]="quantities" [bindLabel]="'label'" [bindValue]="'value'" [placeholder]="'1'"
+                        [(defaultValue)]="selectedQuantity">
+                      </spk-ng-select>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="colors d-flex me-3 mt-2">
+              <span class="mt-2">colors:</span>
+              <div class="d-flex ms-4">
+                <div class="me-2">
+                  <label class="colorinput">
+                    <input name="color" type="radio" value="azure" class="colorinput-input" checked="">
+                    <span class="colorinput-color bg-primary"></span>
+                  </label>
+                </div>
+                <div class="me-2">
+                  <label class="colorinput">
+                    <input name="color" type="radio" value="indigo" class="colorinput-input">
+                    <span class="colorinput-color bg-secondary"></span>
+                  </label>
+                </div>
+                <div class="me-2">
+                  <label class="colorinput">
+                    <input name="color" type="radio" value="purple" class="colorinput-input">
+                    <span class="colorinput-color bg-danger"></span>
+                  </label>
+                </div>
+                <div class="me-2">
+                  <label class="colorinput">
+                    <input name="color" type="radio" value="pink" class="colorinput-input">
+                    <span class="colorinput-color bg-pink"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row row-sm">
+  <div class="col-lg-12 col-md-12">
+    <div class="card productdesc">
+      <div class="card-body">
+        <div class="panel panel-primary">
+          <div class=" tab-menu-heading">
+            <div class="tabs-menu1">
+              <!-- Tabs -->
+              <ul ngbNav #nav1="ngbNav" class="nav panel-tabs custom-nav-tabs">
+                <li [ngbNavItem]="1">
+                  <a ngbNavLink data-bs-toggle="tab">Specifications</a>
+                  <ng-template ngbNavContent>
+                    <div class="tab-pane border-0" id="tab5">
+                      <h5 class="mb-2 mt-1 fw-semibold">Description :</h5>
+                      <p class="mb-3 fs-13">At vero eos et accusamus et iusto odio dignissimos
+                        ducimus qui blanditiis praesentium voluptatum deleniti atque
+                        corrupti quos dolores et quas molestias excepturi sint occaecati
+                        cupiditate non provident,
+                        similique sunt in culpa qui officia deserunt mollitia animi, id est
+                        laborum et dolorum fuga.</p>
+                      <p class="mb-3 fs-13">odio dignissimos ducimus qui blanditiis
+                        praesentium voluptatum deleniti atque corrupti quos dolores et quas
+                        molestias excepturi sint occaecati cupiditate non provident,
+                        similique sunt in culpa qui
+                        officia.
+                      </p>
+                      <h5 class="mb-2 mt-3 fw-semibold">Specifications :</h5>
+                      <div class="table-responsive">
+                        <table class="table table-bordered border">
+                          <tr>
+                            <td class="fw-semibold">Package Dimensions</td>
+                            <td> 33 x 22 x 3 cm; 450 Grams</td>
+                          </tr>
+                          <tr>
+                            <td class="fw-semibold">Manufacturer</td>
+                            <td>gownu Production</td>
+                          </tr>
+                          <tr>
+                            <td class="fw-semibold">Item part number </td>
+                            <td>BNVRDMRHENFULL-Z14</td>
+                          </tr>
+                          <tr>
+                            <td class="fw-semibold">Best Sellers Rank</td>
+                            <td> #141 in Clothing & Accessories (See Top 100 in Clothing &
+                              Accessories)</td>
+                          </tr>
+                          <tr>
+                            <td class="fw-semibold">Customer Reviews</td>
+                            <td>
+                              <p class="text-muted float-start ps-0 ">
+                                <span class="fa fa-star me-1 text-warning"></span>
+                                <span class="fa fa-star me-1 text-warning"></span>
+                                <span class="fa fa-star me-1 text-warning"></span>
+                                <span class="text-success me-1  fw-semibold">(2,076
+                                  ratings)</span>
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+                <li [ngbNavItem]="2">
+                  <a ngbNavLink data-bs-toggle="tab">Dimensions</a>
+                  <ng-template ngbNavContent>
+                    <div class="tab-pane border-0" id="tab6">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            <tr>
+                              <td> Care Instructions</td>
+                              <td>Hand Wash Only</td>
+                            </tr>
+                            <tr>
+                              <td> Fit Type</td>
+                              <td>Regular</td>
+                            </tr>
+                            <tr>
+                              <td> Fabric</td>
+                              <td>Soft Crepe || full stitched</td>
+                            </tr>
+                            <tr>
+                              <td> Size</td>
+                              <td>S(34''), M(36"), L(38"), XL(40"), XXL(42")</td>
+                            </tr>
+                            <tr>
+                              <td> Length</td>
+                              <td>Up to 44 inch</td>
+                            </tr>
+                            <tr>
+                              <td> Manufacturer</td>
+                              <td>Jyothi fashions</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+                <li [ngbNavItem]="3">
+                  <a ngbNavLink data-bs-toggle="tab">Features</a>
+                  <ng-template ngbNavContent>
+                    <div class="tab-pane border-0" id="tab7">
+                      <div class="table-responsive">
+                        <table class="table table-bordered">
+                          <tbody>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Care
+                                Instructions: Hand Wash Only</td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Kurta
+                                Material:Poly Crepe</td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Style:
+                                A-line 48" length Kurta with 3/4 Bell Sleeve</td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Ocassion:Casual,
+                                Formal</td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Packet
+                                contains: 1 readymade Kurta.</td>
+                            </tr>
+                            <tr>
+                              <td><i class="fa fa-check me-3 text-success"></i>Size
+                                Declaration: Please choose garment size that is two
+                                inches more than your body measurement.e.g:-For Bust
+                                size -36(S),Select garment size-38''(M).</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </ng-template>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="panel-body tabs-menu-body customtab">
+            <div class="tab-content no-tab-border no-tap-padding" [ngbNavOutlet]="nav1">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-12">
+    <div class="card">
+      <div class="card-body p-0">
+        <div class="d-flex p-3">
+          <h5 class="float-start main-content-label mb-0 mt-2">All Ratings and Reviews</h5>
+          <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm float-end ms-auto">Top Rated</a>
+        </div>
+        <div class="media mt-0 p-3 border-bottom border-top">
+          <div class="d-flex me-3">
+            <a [routerLink]="['/pages/profile']"><img class="media-image avatar avatar-md rounded-circle" alt="64x64"
+                src="./assets/images/faces/6.jpg"> </a>
+          </div>
+          <div class="media-body">
+            <a [routerLink]="['/pages/profile']">
+              <p class="mt-0 mb-1 fw-semibold fs-16">Bruce Tran
+                <span class="fs-14 ms-0" data-bs-toggle="tooltip" data-placement="top" title=""
+                  data-bs-original-title="verified"><i class="fa fa-check-circle-o text-success"></i></span>
+              </p>
+            </a>
+            <span class="text-muted fs-13">Tue, 20 Mar 2020</span>
+            <div class="text-warning mt-1">
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star"></i>
+            </div>
+            <p class="mb-2 mt-2">
+              Lorem Ipsum available, quis Neque porro quisquam est, qui dolorem ipsum quia
+              .
+            </p>
+            <p class="mb-1"> <a href="javascript:void(0);" class="me-2"><span
+                  class="badge badge-primary">Helpful</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Comment</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Report</span></a>
+              <span class="float-end"> <a href="javascript:void(0)" class="new ms-3"><i
+                    class="text-success br-7 text-success fe fe-thumbs-up fs-16 text-icon "></i></a>
+                <a href="javascript:void(0)" class="new ms-3 mt-6"><i
+                    class="text-danger br-7 text-danger fe fe-thumbs-down  fs-16 text-icon"></i></a>
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="media mt-0  p-3 border-bottom">
+          <div class="d-flex me-3">
+            <a [routerLink]="['/pages/profile']"><img class="media-image avatar avatar-md rounded-circle" alt="64x64"
+                src="./assets/images/faces/7.jpg"> </a>
+          </div>
+          <div class="media-body">
+            <a [routerLink]="['/pages/profile']">
+              <p class="mt-0 mb-1 fw-semibold fs-16">Mina Harpe
+                <span class="fs-14 ms-0" data-bs-toggle="tooltip" data-placement="top" title=""
+                  data-bs-original-title="verified"><i class="fa fa-check-circle-o text-success"></i></span>
+              </p>
+            </a>
+            <span class="text-muted fs-13">Tue, 20 Mar 2020</span>
+            <div class="text-warning mt-1">
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star"></i>
+            </div>
+            <p class="mb-2 mt-2">
+              Lorem Ipsum available, quis Neque porro quisquam est, qui dolorem ipsum quia
+              dolor sit amet, et nostrud exercitation ullamco laboris commodo consequat.
+            </p>
+            <p class="mb-1">
+              <a href="javascript:void(0);" class="me-2"><span class="badge badge-primary">Helpful</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Comment</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Report</span></a>
+              <span class="float-end"> <a href="javascript:void(0)" class="new ms-3"><i
+                    class="text-success br-7 text-success fe fe-thumbs-up fs-16 text-icon "></i></a>
+                <a href="javascript:void(0)" class="new ms-3 mt-6"><i
+                    class="text-danger br-7 text-danger fe fe-thumbs-down  fs-16 text-icon"></i></a>
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="media mt-0 p-3">
+          <div class="d-flex me-3">
+            <a [routerLink]="['/pages/profile']"><img class="media-image avatar avatar-md rounded-circle" alt="64x64"
+                src="./assets/images/faces/8.jpg"> </a>
+          </div>
+          <div class="media-body">
+            <a [routerLink]="['/pages/profile']">
+              <h5 class="mt-0 mb-1 fw-semibold fs-16">Maria Quinn
+                <span class="fs-14 ms-0" data-bs-toggle="tooltip" data-placement="top" title=""
+                  data-bs-original-title="verified"><i class="fa fa-check-circle-o text-success"></i></span>
+              </h5>
+            </a>
+            <span class="text-muted fs-13">Tue, 20 Mar 2020</span>
+            <div class="text-warning mt-1">
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star active"></i>
+              <i class="bx bxs-star text-light"></i>
+            </div>
+            <p class="mb-2 mt-2">
+              Lorem Ipsum available, quis Neque porro quisquam est exercitation ullamco
+              laboris commodo consequat.
+            </p>
+            <p class="mb-1">
+              <a href="javascript:void(0);" class="me-2"><span class="badge badge-primary">Helpful</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Comment</span></a>
+              <a href="javascript:void(0)" class="me-2"><span class="">Report</span></a>
+              <span class="float-end"> <a href="javascript:void(0)" class="new ms-3"><i
+                    class="text-success br-7 text-success fe fe-thumbs-up fs-16 text-icon "></i></a>
+                <a href="javascript:void(0)" class="new ms-3 mt-6"><i
+                    class="text-danger br-7 text-danger fe fe-thumbs-down  fs-16 text-icon"></i></a>
+              </span>
+            </p>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-light">More Reviews</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+    <div class="card">
+      <div class="ps-4 pe-4 pb-2 pt-4">
+        <h5 class="mb-4">Write Review</h5>
+        <div class="mb-1">
+          <div class="row">
+            <div class="form-group col-md-6">
+              <div class="mb-3 fw-semibold">Your Name</div> <input class="form-control" placeholder="Your Name"
+                type="text">
+            </div>
+            <div class="form-group col-md-6">
+              <div class="mb-3 fw-semibold">Email Address</div> <input class="form-control" placeholder="Email Address"
+                type="text">
+            </div>
+          </div>
+        </div>
+        <span class="star-rating">
+          <a href="javascript:void(0);"><i class="icofont-ui-rating icofont-2x"></i></a>
+          <a href="javascript:void(0);"><i class="icofont-ui-rating icofont-2x"></i></a>
+          <a href="javascript:void(0);"><i class="icofont-ui-rating icofont-2x"></i></a>
+          <a href="javascript:void(0);"><i class="icofont-ui-rating icofont-2x"></i></a>
+          <a href="javascript:void(0);"><i class="icofont-ui-rating icofont-2x"></i></a>
+        </span>
+        <form>
+          <div class="form-group">
+            <div class="mb-3 fw-semibold">Your Comment</div>
+            <textarea class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary mt-3 mb-0" type="button">Post your
+              review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row">
+  @for (item of products; track item.id) {
+  <div class="col-xl-3 col-sm-6">
+    <spk-product-card [data]="item"></spk-product-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->

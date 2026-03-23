@@ -1,0 +1,1777 @@
+@use "../variables";
+
+.NgxEditor__MenuBar,
+.NgxEditor,
+.NgxEditor__Popup--Col input,
+.angular-editor-toolbar,
+.angular-editor-toolbar .angular-editor-toolbar-set .angular-editor-button,
+.ae-font .ae-picker-label {
+  background-color: variables.$custom-white !important;
+  color: variables.$default-text-color !important;
+  border-color: variables.$default-border !important;
+}
+
+.NgxEditor__Wrapper .NgxEditor__MenuBar {
+  border-bottom: 1px solid var(--default-border) !important;
+}
+
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Icon:hover,
+.NgxEditor__MenuItem.NgxEditor__MenuItem--Active,
+.NgxEditor__MenuItem .NgxEditor__MenuItem--Active,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Selected,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Open,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--DropdownMenu,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--DropdownMenu,
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Item:hover,
+.NgxEditor__Popup {
+  background-color: variables.$light !important;
+}
+
+.NgxEditor__Wrapper,
+.angular-editor .angular-editor-wrapper .angular-editor-textarea {
+  border-color: variables.$default-border !important;
+}
+
+.NgxEditor__Seperator {
+  border-inline-start-color: variables.$default-border !important;
+}
+
+.NgxEditor__Wrapper .NgxEditor {
+  height: 197px !important;
+}
+
+.ae-font .ae-picker-options {
+  background-color: variables.$light !important;
+  color: variables.$default-text-color !important;
+  border-color: variables.$default-border !important;
+}
+
+.ae-font .ae-picker-options .ae-picker-item {
+  color: variables.$default-text-color !important;
+
+}
+
+.ae-font .ae-picker-options .ae-picker-item.focused,
+.ae-font .ae-picker-options .ae-picker-item:hover {
+  background-color: variables.$primary !important;
+  color: white !important;
+}
+
+.ae-font .ae-picker-label svg .ae-stroke {
+  stroke: var(--default-text-color) !important;
+}
+
+[data-theme-mode=dark] .NgxEditor__Dropdown:hover,
+[data-theme-mode=dark] .NgxEditor__Dropdown .NgxEditor__Dropdown--Active {
+  background-color: var(--custom-white) !important;
+}
+
+.ng-select .ng-select-container .ng-value-container .ng-input>input {
+  color: var(--default-text-color) !important;
+}
+
+// Angular Calendar
+.cal-month-view {
+  background-color: var(--custom-white) !important;
+}
+
+.cal-month-view {
+  background-color: variables.$custom-white !important;
+}
+
+.cal-month-view .cal-day-cell:not(:last-child) {
+  border-right-color: variables.$default-border !important;
+}
+
+.cal-month-view .cal-days .cal-cell-row {
+  border-bottom-color: variables.$default-border !important;
+}
+
+.cal-month-view .cal-days {
+  border-color: variables.$default-border;
+}
+
+.cal-month-view .cal-cell-row .cal-cell:hover,
+.cal-month-view .cal-cell-row:hover {
+  background-color: variables.$light !important;
+}
+
+.cal-week-view {
+  background-color: variables.$custom-white !important;
+  border-top: 1px solid variables.$default-border !important;
+}
+
+.cal-week-view .cal-hour:not(:last-child) .cal-hour-segment,
+.cal-week-view .cal-hour:last-child :not(:last-child) .cal-hour-segment {
+  border-bottom-color: variables.$default-border !important;
+}
+
+.cal-week-view .cal-hour-odd {
+  background-color: variables.$custom-white !important;
+}
+
+.cal-week-view .cal-time-events {
+  border-color: variables.$default-border !important;
+}
+
+.cal-week-view .cal-day-headers .cal-header:not(:last-child) {
+  border-right-color: variables.$default-border !important;
+}
+
+.cal-week-view .cal-day-column {
+  border-left-color: variables.$default-border !important;
+}
+
+.cal-week-view .cal-day-headers .cal-header:first-child {
+  border-left-color: variables.$default-border !important;
+}
+
+.cal-week-view .cal-day-headers {
+  border-color: variables.$default-border !important;
+}
+
+.cal-month-view .cal-days {
+  border-color: variables.$default-border !important;
+}
+
+[dir=rtl] {
+  .cal-month-view .cal-day-cell:not(:last-child) {
+    border-left-color: var(--default-border) !important;
+  }
+}
+
+.cal-week-view .cal-day-headers .cal-header:hover {
+  background-color: var(--default-body-bg-color) !important;
+}
+
+.cal-week-view .cal-header.cal-today {
+  background-color: var(--default-body-bg-color) !important;
+}
+
+.cal-week-view .cal-time-events .cal-day-columns:not(.cal-resize-active) .cal-hour-segment:hover {
+  background-color: var(--custom-white) !important;
+
+}
+
+[ngbDatepickerDayView]:hover:not(.bg-primary) {
+  background-color: rgba(var(--light-rgb), 0.8) !important;
+  outline: rgb(var(--light-rgb)) !important
+}
+
+.os-scrollbar .os-scrollbar-handle:active,
+.os-scrollbar .os-scrollbar-handle:hover {
+  background-color: var(--light-rgb);
+}
+
+@media (min-width: 992px) {
+  .app-sidebar {
+
+    #sidebar-scroll [overlayscrollbars] {
+      position: inherit;
+    }
+
+
+  }
+}
+
+[data-theme-mode="dark"] {
+  .os-scrollbar .os-scrollbar-handle {
+    background: rgba(variables.$white, 0.2) !important;
+    border-radius: .3rem !important;
+    inset-inline-end: 0 !important;
+    width: .375rem;
+  }
+
+
+}
+
+.os-scrollbar .os-scrollbar-handle {
+  background: var(--gray-2) !important;
+  border-radius: .3rem !important;
+  inset-inline-end: 0 !important;
+  width: .375rem;
+}
+
+
+
+.os-scrollbar .os-scrollbar-handle:active,
+.os-scrollbar .os-scrollbar-handle:hover {
+  background-color: var(--light-rgb);
+}
+
+[data-nav-layout="horizontal"][data-nav-style="menu-hover"][data-toggled="menu-hover-closed"] {
+  @media (min-width: 992px) {
+    .app-sidebar {
+
+      #sidebar-scroll [overlayscrollbars] {
+        position: inherit;
+      }
+
+      #sidebar-scroll {
+        position: static;
+      }
+    }
+  }
+}
+
+[data-nav-layout="horizontal"] {
+  .os-scrollbar-handle {
+    display: none !important;
+  }
+}
+
+.ng-select.ng-select-focused:not(.ng-select-opened)>.ng-select-container {
+  // border:0px !important;
+  box-shadow: none !important;
+}
+
+//   .ng-select .ng-select-container:hover {
+//     box-shadow:none !important;
+// }
+// .ng-select.ng-select-single .ng-select-container{
+//   border:0px !important;
+
+// }
+.companies-search-input {
+  .ng-select .ng-select-container {
+    border: 0px;
+  }
+
+  .ng-select .ng-select-container:hover {
+    box-shadow: none;
+  }
+}
+
+#grid-search,
+#file-export,
+#responsiveDataTable,
+#datatable-basic {
+  table {
+    border: 1px solid variables.$default-border !important;
+    margin-top: 10px;
+  }
+}
+
+[data-nav-layout="horizontal"][data-nav-style="icon-hover"][data-toggled="icon-hover-closed"] {
+  .slide.has-sub .slide-menu {
+    &.child1 {
+      inset-inline-start: auto !important;
+    }
+  }
+}
+
+[data-nav-layout="horizontal"][data-nav-style="menu-hover"][data-toggled="menu-hover-closed"] {
+  .slide.has-sub .slide-menu {
+    &.child1 {
+      inset-inline-start: auto !important;
+    }
+  }
+}
+
+/* Start:: Create NFT*/
+.create-nft-item {
+  .filepond--root[data-style-panel-layout~="circle"] {
+    border-radius: variables.$default-radius;
+    width: 100%;
+  }
+
+  // @media (min-width: 576px) {
+  //   .single-fileupload {
+  //     height: 15.08rem !important;
+  //     width: 22.25rem !important;
+  //   }
+  // }
+
+  .filepond--drop-label {
+    bottom: 0;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .filepond--drop-label.filepond--drop-label label {
+    padding: 2em;
+  }
+
+  .filepond--drop-label {
+    color: variables.$text-muted !important;
+  }
+
+  .filepond--panel-root {
+    border: 0.125rem dashed variables.$input-border !important;
+  }
+
+  .filepond--root[data-style-panel-layout~="circle"] .filepond--image-preview-wrapper {
+    border-radius: 0.3rem;
+  }
+}
+
+.create-nft-item {
+  .filepond--root[data-style-panel-layout~="circle"] {
+    height: 15.75rem !important;
+    width: 15.25rem !important;
+  }
+
+  .filepond--drop-label label {
+    font-size: 0.75rem;
+  }
+
+  // .filepond--root[data-style-panel-layout~="circle"] .filepond--image-preview-wrapper,
+  // .filepond--file {
+  //   height: 100% !important;
+  //   width: 100% !important;
+  // }
+}
+
+/* End:: Create NFT*/
+
+.record-picker li {
+  border-top: thin solid variables.$default-border !important;
+  border-bottom: 1px solid variables.$default-border !important;
+}
+
+div.record-picker {
+  border: 1px solid variables.$default-border !important;
+}
+
+div.record-picker::-webkit-scrollbar-track {
+  background-color: variables.$light !important;
+}
+
+.record-picker li.selected {
+  background-color: variables.$primary !important;
+  color: #fff !important;
+}
+
+.btn.btn-default.pull-right {
+  color: variables.$text-muted !important;
+}
+
+.dual-list .listbox {
+  margin-inline-start: 10px !important;
+
+  .btn-default {
+    border-color: var(--default-border)
+  }
+
+}
+
+.record-picker li:hover {
+  background-color: rgb(var(--light-rgb)) !important;
+}
+
+.record-picker li.selected:hover {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input,
+.mat-mdc-button:not(:disabled),
+.country-list-button {
+  color: var(--default-text-color) !important;
+}
+
+
+
+.mat-mdc-menu-panel {
+  background-color: variables.$custom-white !important;
+}
+
+.page-header-breadcrumb {
+  .form-control::-webkit-input-placeholder {
+    opacity: 1 !important;
+  }
+}
+
+.numInput.cur-year {
+  margin-inline-start: 1rem !important;
+}
+
+.app-sidebar .os-scrollbar-track {
+  inset-inline-end: -2px;
+}
+
+.ng-option.ng-option-marked {
+  background-color: variables.$primary !important;
+  color: variables.$white !important;
+}
+
+.ng-select.ng-select-opened .ng-select-container,
+.ng-dropdown-panel {
+  z-index: 99 !important;
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon:hover {
+  background-color: variables.$primary !important;
+}
+
+.ngb-dp-weekdays {
+  border-bottom: 1px solid variables.$default-border !important;
+  background-color: variables.$custom-white !important;
+}
+
+.ngb-dp-header {
+  background-color: variables.$custom-white !important;
+}
+
+[dir=rtl] {
+  .cal-week-view .cal-day-column {
+    border-right-color: variables.$default-border !important;
+  }
+}
+
+@media (max-width: 622.99px) {
+  .companies-search-input1 {
+    .ng-select-searchable.form-select {
+      width: 100%;
+      margin-block: 0.5rem;
+    }
+  }
+}
+
+.arrow-image,
+.right-arrow-image,
+.left-arrow-image,
+.empty-arrow-image {
+  height: 20px !important;
+  width: 20px !important;
+  background-size: 20px !important;
+}
+
+.flex-none {
+  flex: none;
+}
+
+@media (max-width: 576px) {
+
+  #rangearea-basic,
+  #rangearea-combo {
+    .apexcharts-toolbar {
+      display: none;
+    }
+  }
+
+  #area-irregular {
+    .apexcharts-menu-icon {
+      display: none;
+    }
+  }
+}
+
+.card.custom-card.card-fullscreen {
+  border-radius: 0;
+}
+
+[dir="rtl"] {
+  .form-select {
+    background-position: left 0.75rem center !important;
+  }
+}
+
+.form-select {
+  padding-top: 0.375rem !important;
+  padding-inline-end: 2.25rem !important;
+  padding-bottom: 0.375rem !important;
+  padding-inline-start: 0.75rem !important;
+}
+
+// [dir=rtl] .noUi-origin {
+//   transform: none !important;
+//   direction: ltr;
+// }
+// .ng-select-searchable {
+//   margin-bottom: 24px;
+// }
+
+@media (max-width: 576px) {
+  .dual-list .button-bar button {
+    width: 100% !important;
+  }
+}
+
+// [dir="rtl"] {
+//   .color-picker.open {
+//     inset-inline-start: 0px !important;
+//   }
+// }
+.switcher-canvas-width {
+
+  .nav-link:focus,
+  .nav-link:hover {
+    color: variables.$default-text-color;
+  }
+}
+
+[data-theme-mode="dark"] {
+  .os-scrollbar .os-scrollbar-handle {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.ngx-slider .ngx-slider-pointer {
+  background-color: variables.$light !important;
+}
+
+.ngx-slider .ngx-slider-pointer:after {
+  background-color: variables.$gray-4 !important;
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-placeholder {
+  top: 8px !important;
+}
+
+.mat-stepper-horizontal-line {
+  border-top-color: variables.$default-border !important;
+}
+
+[data-theme-mode="dark"] {
+  .mat-stepper-horizontal-line {
+    border-top-color: rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+[data-menu-styles="color"],
+[data-menu-styles="gradient"] {
+  .app-sidebar {
+    .os-scrollbar .os-scrollbar-handle {
+      background-color: rgba(201, 203, 235, 0.51) !important;
+    }
+  }
+}
+
+.form-select.ng-select-clearable {
+  background-image: none !important;
+  padding-inline-end: 1rem !important;
+}
+
+
+//styles//
+.page-header-breadcrumb {
+  .breadcrumb {
+    .breadcrumb-item {
+      a {
+        color: variables.$primary !important;
+      }
+
+      &.active {
+        a {
+          color: variables.$default-text-color !important;
+        }
+      }
+    }
+  }
+}
+
+#buy-crypto,
+#sell-crypto {
+  .ng-clear-wrapper {
+    display: none;
+  }
+
+  .ng-select-container {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+}
+
+[dir="rtl"] {
+  .fa-angle-double-right {
+    rotate: 180deg;
+  }
+}
+
+// .flatpickr-input{
+//   border:0px !important;
+// }
+.flatpickr-input.inline {
+  border: 1px solid variables.$default-border !important;
+}
+
+.NgxEditor__Wrapper .NgxEditor {
+  overflow: scroll;
+}
+
+.chat-info {
+  .tab-pane {
+    border: 0px !important;
+  }
+}
+
+#carousel-container[_ngcontent-ng-c3389047099]>.current-figure[_ngcontent-ng-c3389047099]>.nav-right[_ngcontent-ng-c3389047099] {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.25rem;
+  border-radius: 0.35rem;
+}
+
+.product-details-page {
+  #carousel-container[_ngcontent-ng-c3389047099]>.current-figure[_ngcontent-ng-c3389047099]>.nav-left[_ngcontent-ng-c3389047099] {
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 0.25rem;
+    border-radius: 0.35rem;
+  }
+}
+
+.product-details-page {
+  #carousel-container {
+    background-color: variables.$light;
+    padding: 0.5rem;
+    border-radius: 0.35rem;
+  }
+
+  .preview-image {
+    border: 1px solid variables.$default-border !important;
+
+    &.active {
+      border: 2px solid variables.$primary !important;
+    }
+  }
+
+  [_nghost-ng-c1908500470] {
+    padding-inline: 6px;
+  }
+}
+
+.product-details-page {
+  .current-image {
+    max-width: 500px !important;
+    max-height: 100% !important;
+
+    img {
+      max-width: 500px !important;
+      max-height: 100% !important;
+      border-radius: 0.5rem;
+    }
+  }
+
+  .preview-inner-container {
+    padding-inline: 7px;
+  }
+}
+
+.NgxEditor__Wrapper .NgxEditor__MenuBar {
+  border-top: 0px !important;
+  border-left: 0px !important;
+  border-right: 0px !important;
+}
+
+// .todo-handle{
+//   padding: 0px !important;
+// }
+
+div:where(.swal2-container) input:where(.swal2-input),
+div:where(.swal2-container) input:where(.swal2-file),
+div:where(.swal2-container) textarea:where(.swal2-textarea) {
+  border-color: variables.$default-border !important;
+}
+
+.project-overview-tab {
+  .tab-pane {
+    padding: 0px;
+  }
+}
+
+.angular-editor-wrapper {
+  .angular-editor-textarea {
+    border-top: 0px !important;
+  }
+}
+
+.ng-clear-wrapper {
+  display: none;
+}
+
+[dir="rtl"] {
+  .buy-crypto .ng-select.ng-select-single .ng-select-container {
+    border-radius: 0.3rem 0px 0px 0.3rem !important;
+  }
+}
+
+.noUi-target {
+  color: variables.$default-text-color !important;
+}
+
+.mat-mdc-select-placeholder {
+  color: variables.$default-text-color !important;
+}
+
+
+.toast {
+  margin-bottom: 0.25rem;
+}
+
+#accordionFlushExample {
+  .accordion-item {
+    &:first-child {
+      border-top: 0px;
+    }
+  }
+}
+
+#player {
+  width: 100%;
+}
+
+.mat-tree {
+  background-color: variables.$custom-white !important;
+}
+
+.mat-tree-node,
+.mat-nested-tree-node {
+  color: variables.$default-text-color !important;
+}
+
+[dir="rtl"] {
+  .widget-profile {
+    transform: translateX(50%);
+  }
+}
+
+.mat-elevation-z8,
+.mat-mdc-elevation-specific.mat-elevation-z8 {
+  box-shadow: none !important;
+}
+
+.mat-mdc-table .mat-mdc-header-cell {
+  z-index: 99 !important;
+}
+
+[data-menu-styles="dark"] {
+  .landing-body {
+    .app-sidebar .side-menu__item {
+
+      &.active,
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+
+// @media (max-width: 575.98px) {
+//   .app-header .header-profile-dropdown {
+//        width: auto !important;
+//   }
+// }
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  background-color: var(--primary-color) !important;
+  border: 1px solid var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.ng-select .ng-select-container .ng-value-container .ng-input>input {
+  color: var(--default-text-color);
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.left {
+  border-inline-end-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+spk-flatpickr {
+  padding: 0 !important;
+}
+
+app-spk-alerts:last-child .alert {
+  margin-bottom: 0;
+}
+
+code[class*=language-] {
+  max-height: inherit;
+  height: inherit;
+  padding: 0 1em;
+  display: block;
+  overflow: auto;
+}
+
+pre[class*=language-] code {
+  position: relative;
+  z-index: 1;
+  border-left: 10px solid #358ccb;
+  box-shadow: -1px 0 0 0 #358ccb, 0 0 0 1px #dfdfdf;
+  background-color: #fdfdfd;
+  background-image: linear-gradient(transparent 50%, rgba(69, 142, 209, .04) 50%);
+  background-size: 3em 3em;
+  background-origin: content-box;
+  background-attachment: local;
+}
+
+.no-caret.dropdown-toggle::after {
+  display: none;
+}
+
+code[class*=language-],
+pre[class*=language-] {
+  color: #000;
+  background: 0 0;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 1em;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  -moz-tab-size: 4;
+  -o-tab-size: 4;
+  tab-size: 4;
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+.myNestedSwiper {
+  height: 350px;
+  /* Adjust based on your layout */
+}
+
+.authentication-background::before {
+  z-index: -1 !important;
+}
+
+.input-group spk-flatpickr .form-control {
+  border: 0 !important;
+}
+
+
+
+@media (min-width: 992px) {
+  [data-nav-layout=horizontal][data-menu-position=fixed][data-header-position=scrollable] app-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 103;
+  }
+}
+
+.invoice-alert.alert:last-child {
+  margin-bottom: 0 !important;
+}
+
+.bootstrap tag {
+  color: #f9f9f9 !important;
+  background: var(--primary-color) !important;
+  font-size: 11px !important;
+  font-family: variables.$default-font-family !important;
+  font-weight: 500 !important;
+  height: 23px !important;
+  line-height: 20px !important;
+}
+
+.bootstrap.ng2-tag-input {
+  border-bottom: 0px solid #efefef !important;
+}
+
+.tagify-tag {
+  .bootstrap tag {
+    background-color: rgb(var(--light-rgb)) !important;
+    color: var(--tag-text-color) !important;
+    border-color: var(--default-background) !important;
+
+    svg,
+    svg {
+      height: 23px !important;
+    }
+
+    path,
+    path {
+      fill: var(--default-text-color) !important;
+    }
+  }
+}
+
+.toast-container,
+.card-body {
+
+  spk-toast {
+    &:last-child {
+      .toast {
+        margin-bottom: 1.25rem !important;
+      }
+    }
+  }
+}
+
+.kanban-tasks {
+
+  spk-kanbanboard-reusable-card {
+    &:last-child {
+      .card {
+        margin-bottom: 0 !important;
+      }
+    }
+  }
+}
+
+.NgxEditor__Popup--Form {
+  button {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+  }
+}
+
+.NgxEditor__MenuItem--Icon.NgxEditor__MenuItem--Active svg,
+.NgxEditor__Dropdown--Text.NgxEditor__Dropdown--Selected {
+  fill: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+.ng2-tag-input__text-input {
+  background-color: transparent;
+  color: var(--custom-black);
+}
+
+tag:not(:focus):not(.tag--editing):not(:active):not(.readonly):hover {
+  box-shadow: 0 2px 3px 1px var(--primary-color) !important;
+}
+
+.companies-search-input {
+  .ng-select .ng-select-container {
+    border: 0px;
+  }
+
+  .ng-select .ng-select-container:hover {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 622.99px) {
+  .companies-search-input1 {
+    .ng-select-searchable.form-select {
+      width: 100%;
+      margin-block: 0.5rem;
+    }
+  }
+}
+
+.customSelect {
+
+  .ng-select .ng-select-container,
+  .ng-dropdown-panel {
+
+    border-block-end: 1px solid var(--default-border) !important;
+    background-color: var(--form-control-bg) !important;
+    color: var(--default-text-color);
+  }
+}
+
+.faq-tabs {
+  .tab-content .tab-pane {
+    border: 0 !important;
+
+  }
+
+
+  .nav-tabs .nav-link:focus,
+  .nav-tabs .nav-link:hover {
+    border-color: var(--default-border);
+  }
+}
+
+.alert1:last-child {
+  margin-bottom: 0;
+}
+
+[dir=rtl] .apexcharts-canvas {
+  direction: ltr !important;
+}
+
+.marketcap-table {
+
+  .apexcharts-svg,
+  .apexcharts-canvas {
+    width: 100px !important;
+  }
+}
+
+//new styles
+
+
+.os-scrollbar.os-scrollbar-track-interactive .os-scrollbar-track,
+.os-scrollbar.os-scrollbar-handle-interactive .os-scrollbar-handle {
+  opacity: 0.5;
+}
+
+// .ng-select .ng-select-container {
+//   background-color: var(--form-control-bg) !important;
+// }
+
+.ng-placeholder {
+  font-size: 12px;
+}
+
+#leads-discovered .card.custom-card:last-child,
+#leads-qualified .card.custom-card:last-child,
+#contact-initiated .card.custom-card:last-child,
+#needs-identified .card.custom-card:last-child,
+#negotiation .card.custom-card:last-child,
+#deal-finalized .card.custom-card:last-child {
+  margin-block-end: 0.5rem !important;
+}
+
+.custom-dividers {
+  --bs-breadcrumb-divider: '~';
+}
+
+@media (max-width: 320px) {
+  .custom-scrollspy {
+    margin-block-start: 5px;
+  }
+}
+
+@media (max-width: 1416px) {
+  .card-img {
+    width: 100% !important;
+  }
+}
+
+[dir=rtl] .Custom-drop {
+  inset: auto !important;
+  position: absolute !important;
+  top: 0px !important;
+}
+
+[dir=rtl] {
+  .Custom-rightdrop {
+    transform: translate(-50px, 39px) !important;
+  }
+}
+
+.profile-content {
+  .tab-content .tab-pane {
+
+    #ngb-nav-0-panel,
+    #ngb-nav-1-panel,
+    #ngb-nav-2-panel,
+    #ngb-nav-3-panel,
+    #ngb-nav-4-panel {
+      border: 0 !important;
+      padding: 0 !important;
+    }
+  }
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-value-container,
+.ng-select.ng-select-single .ng-select-container .ng-value-container .ng-value {
+  img {
+    width: 1.45rem !important;
+    height: 1.45rem !important;
+    border-radius: 1.45rem !important;
+  }
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
+  img {
+    width: 1.45rem !important;
+    height: 1.45rem !important;
+    border-radius: 1.45rem !important;
+  }
+}
+
+[data-menu-styles=transparent][data-nav-layout=vertical][data-theme-mode=light][data-vertical-style=overlay][data-toggled=icon-overlay-close][data-icon-overlay="open"] {
+  .app-sidebar .main-sidebar-header .header-logo {
+
+    .toggle-logo,
+    .desktop-white,
+    .toggle-white {
+      display: none;
+    }
+
+    .desktop-logo {
+      display: block;
+    }
+  }
+}
+
+//new style-2
+[dir=rtl] {
+  .ngx-colors-overlay .opened {
+    transform: translate(256px, -285px) !important;
+  }
+
+  .form-floating>.form-control-plaintext~label,
+  .form-floating>.form-control:focus~label,
+  .form-floating>.form-control:not(:placeholder-shown)~label,
+  .form-floating>.form-select~label {
+    // color: rgba(var(--bs-body-color-rgb), 0.65);
+    transform: scale(0.85) translateY(-0.5rem) translateX(1.15rem) !important;
+  }
+}
+
+
+.NgxEditor__Dropdown .NgxEditor__Dropdown--Text:after {
+  margin-right: 24px;
+}
+
+.crm-upgrade-card .ti-crown {
+  margin-right: 5px !important;
+}
+
+.analytics-card .ti-crown {
+  margin-right: 5px !important;
+}
+
+
+@media (max-width: 1880px) {
+  .task-menu {
+    inset: 0px auto auto 0px !important;
+  }
+}
+
+.buy-crypto .ng-select-opened {
+  display: block !important;
+  border-color: #ced6e8 transparent !important;
+}
+
+.rgba-text input {
+  color: #000 !important;
+}
+
+@media (min-width: 992px) {
+  [data-nav-layout=vertical][data-nav-style=icon-click] [data-toggled=icon-click-opened].app-sidebar .side-menu__item:last-child {
+    margin: 0px !important;
+  }
+}
+
+@media (min-width: 992px) {
+  [data-nav-layout=vertical][data-nav-style=icon-click] .app-sidebar .side-menu__item:last-child {
+    margin: 0px !important;
+  }
+}
+
+.ng-select.ng-select-opened>.ng-select-container .ng-arrow {
+  border-color: transparent transparent #ced6e8 !important;
+  transform: rotate(180deg) !important;
+}
+
+[dir=rtl] {
+  .example-tree .mat-nested-tree-node div[role=group] {
+    padding-right: 40px;
+    margin-right: 0px !important;
+  }
+
+  .translate-middle-x {
+    transform: translateX(50%) !important;
+  }
+
+  .point-left[_ngcontent-ng-c1981792277]:before {
+    content: "\25b6";
+    padding-right: 1em;
+  }
+}
+
+// @media (min-width: 992px) {
+//   [data-vertical-style=icontext][data-toggled=icon-text-close]:not([data-icon-text=open]) .app-sidebar .side-menu__item {
+//     padding-inline-start: 10px !important;
+//   }
+// }
+
+.profile-card .tab-pane.active {
+  padding: 0px !important;
+  border: 0px !important;
+}
+
+.select-blog {
+  .ng-select .ng-select-container .ng-value-container .ng-placeholder {
+    color: var(--default-text-color) !important;
+    opacity: 0.5 !important;
+  }
+}
+
+.faq-tabs-content {
+  .tab-pane {
+    padding: 0;
+  }
+}
+
+.mail-settings-content.tab-content {
+  .tab-pane {
+    padding: 0;
+  }
+}
+
+#new-visitors .apexcharts-svg,
+#new-visitors .apexcharts-canvas {
+  width: auto !important;
+}
+
+.custom-alert1.alert-success {
+  border-block-start: 0.313rem solid rgb(var(--success-rgb));
+}
+
+.apexcharts-svg,
+.apexcharts-canvas {
+  width: 100% !important;
+}
+
+
+[data-nav-layout=horizontal][data-nav-style=icon-hover] .main-menu-container {
+
+  .slide-left,
+  .slide-right {
+    display: none !important;
+  }
+}
+
+apx-chart {
+  width: 100%;
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .search_drop {
+    top: 35px;
+  }
+}
+
+.g-btn-close svg {
+  width: 70% !important;
+  height: 70% !important;
+}
+
+
+[data-theme-mode=dark] .alert-solid-light .btn-close {
+  color: var(--default-text-color) !important;
+}
+
+
+.record-picker[_ngcontent-ng-c1981792277] li[_ngcontent-ng-c1981792277]:first-child {
+  border-top: none !important;
+}
+
+
+
+@media (min-width: 992px) {
+  [data-nav-layout=horizontal] .app-sidebar .slide.has-sub .slide-menu.child2 {
+    box-shadow: 0 0 .375rem #0000001a;
+  }
+}
+
+.mat-mdc-select-value-text,
+.color-picker input {
+  color: var(--default-text-color) !important;
+}
+
+[dir=rtl] .point-right {
+  display: inline-flex !important;
+  justify-content: center !important;
+}
+
+.ng-select.ng-select-single .ng-select-container .ng-value-container .ng-input {
+  padding-right: 26px !important;
+}
+
+[dir=rtl] .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-input {
+  padding-right: 9px !important;
+  padding-left: 26px !important;
+}
+
+[dir=rtl] .market-cap .dropdown-menu {
+  inset: 0px auto auto 0px !important;
+}
+
+.choices-tab .ng-select.ng-select-single .ng-select-container {
+  width: 8rem;
+}
+
+@media (max-width: 320px) {
+  .toast-container {
+    width: 100%
+  }
+}
+
+.fixed-header-page .mat-mdc-paginator-page-size {
+  margin-top: 10px;
+}
+
+.angular-editor-wrapper .show-placeholder .angular-editor-textarea {
+  font-size: 4px;
+}
+
+
+
+[dir=rtl] .form-floating.floating-info>.form-control:not(:placeholder-shown)~label {
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.3rem) !important;
+}
+
+
+
+[data-menu-styles=transparent][data-nav-layout=vertical][data-menu-styles=transparent][data-nav-style=menu-click][data-toggled=menu-click-closed][data-bg-img=bgimg4] .app-sidebar .main-sidebar-header {
+  background-color: rgba(var(--body-bg-rgb)0.1) !important;
+}
+
+[data-menu-styles=transparent][data-nav-layout=vertical][data-menu-styles=transparent][data-nav-style=menu-hover][data-toggled=menu-hover-closed][data-bg-img=bgimg4] .app-sidebar .main-sidebar-header {
+  background-color: rgba(var(--body-bg-rgb)0.1) !important;
+}
+
+[data-nav-layout=vertical][data-theme-mode=dark][data-vertical-style=detached][data-bg-img=bgimg1] .app-sidebar {
+  border: none;
+}
+
+[data-nav-layout=vertical][data-theme-mode=dark][data-vertical-style=detached][data-bg-img=bgimg2] .app-sidebar {
+  border: none;
+}
+
+[data-nav-layout=vertical][data-theme-mode=dark][data-vertical-style=detached][data-bg-img=bgimg3] .app-sidebar {
+  border: none;
+}
+
+[data-nav-layout=vertical][data-theme-mode=dark][data-vertical-style=detached][data-bg-img=bgimg4] .app-sidebar {
+  border: none;
+}
+
+[data-nav-layout=vertical][data-theme-mode=dark][data-vertical-style=detached][data-bg-img=bgimg5] .app-sidebar {
+  border: none;
+}
+
+@media (min-width: 992px) {
+  [data-nav-layout=horizontal] .main-menu-container .slide-left {
+    inset-inline-start: 1%;
+  }
+}
+
+@media (min-width: 992px) {
+  [data-nav-layout=horizontal] .main-menu-container .slide-right {
+    inset-inline-end: 1%;
+  }
+}
+
+#chartjs-line,
+#chartjs-bar,
+#chartjs-pie,
+#chartjs-doughnut,
+#chartjs-mixed,
+#chartjs-scatter,
+#chartjs-polar,
+#chartjs-radar,
+#chartjs-bubble,
+spk-apex-charts,
+apx-chart {
+  display: block;
+  width: 100%;
+}
+
+.mat-mdc-paginator .mat-mdc-select,
+.mat-mdc-option .mdc-list-item__primary-text,
+.mat-mdc-select-arrow {
+  color: var(--default-text-color) !important;
+}
+
+
+/* New Styles */
+.tab-content.faq-tabs-content {
+  .tab-pane#ngb-nav-0-panel {
+    padding-block-start: 0 !important;
+  }
+}
+
+@media(max-width: 620px) {
+  .input-group.companies-search-input {
+    button {
+      margin-top: 1rem;
+    }
+  }
+}
+
+// [data-menu-styles=transparent][data-nav-layout=vertical][data-theme-mode=dark][data-nav-style=icon-click][data-toggled=icon-click-closed][data-icon-overlay=open] {
+//   .app-sidebar .main-sidebar-header .header-logo {
+//     .desktop-white {
+//       display: none !important;
+//     }
+
+//     .toggle-white {
+//       display: block !important;
+//     }
+//   }
+// }
+
+.apexcharts-tooltip.apexcharts-theme-dark {
+  background: rgb(30, 30, 30) !important;
+
+  .apexcharts-tooltip-series-group {
+    color: rgb(255, 255, 255) !important;
+  }
+}
+
+.btn-close {
+  opacity: 0.5 !important;
+}
+
+.mat-row.mat-mdc-no-data-row.ng-star-inserted {
+  td {
+    padding: 1rem;
+  }
+}
+
+.companies-search-input {
+  [ng-reflect-select-class="form-select form-select-lg rou"] {
+    display: block !important;
+  }
+}
+
+/* New Styles */
+[data-nav-style=icon-hover][data-toggled=icon-hover-closed] {
+  .slide-menu {
+
+    &.child3,
+    &.child2,
+    &.child1 {
+      display: none !important;
+    }
+  }
+}
+
+@media (min-width: 576px) {
+
+  .country-selector,
+  .cart-dropdown,
+  .notifications-dropdown,
+  .message-dropdown,
+  .main-profile-user {
+    .dropdown-menu.show {
+      inset: -3px 0px auto auto !important;
+    }
+  }
+
+  [dir=rtl] {
+
+    .country-selector,
+    .cart-dropdown,
+    .notifications-dropdown,
+    .message-dropdown,
+    .main-profile-user {
+      .dropdown-menu.show {
+        inset: -3px auto auto 0px !important;
+      }
+    }
+  }
+}
+
+.custom-dropup {
+  .dropdown-toggle {
+    &:after {
+      rotate: 180deg !important;
+    }
+  }
+
+  .dropdown-menu {
+    inset: auto auto 0 0 !important;
+    transform: translateY(-44px) !important;
+  }
+}
+
+[dir="rtl"] {
+
+  .shepherd-enabled.shepherd-element {
+    right: auto;
+  }
+}
+
+//new styles-2
+.custom-header-link .header-link-icon {
+  fill: transparent !important;
+}
+
+[dir=rtl] .dropdown-menu {
+  --bs-position: start !important;
+}
+
+.task-list li:last-child {
+  margin-bottom: 1.2rem;
+}
+
+// .header-search-bar {
+//   min-width: 20rem !important;
+//   padding-inline-end: 30px !important;
+//   border: 1px solid var(--default-border) !important;
+// }
+
+@media (min-width: 1400px) {
+  .custom-school-img.dash-img {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1850px) {
+  .custom-school-img.dash-img {
+    display: block !important;
+  }
+}
+
+.custom-stocks tbody tr:last-child td {
+  border-bottom: 0px !important;
+}
+
+.ng-select .ng-arrow-wrapper:hover .ng-arrow {
+  border-top-color: #999 !important;
+}
+
+.swiper-related-jobs {
+  overflow: visible !important;
+}
+
+.custom-candidate-details .tab-pane {
+  border-radius: 0px !important;
+}
+
+[dir=rtl] .custom-details {
+  direction: rtl;
+}
+
+.custom-market-place .tab-pane {
+  padding: 0px !important;
+}
+
+[data-theme-mode=dark] .mail-action-icons .btn-close {
+  border: 1px solid #ccc !important;
+}
+
+[data-theme-mode=dark] .custom-form-advance .iti__dropdown-content {
+  border: 1px solid var(--default-border) !important;
+
+  .iti__divider,
+  .search-container input {
+    border-bottom: 1px solid var(--default-border) !important;
+  }
+}
+
+[dir=rtl] .custom-form-advance [type=tel] {
+  direction: ltr !important;
+}
+
+// .custom-record-picker .record-picker {
+//   border-bottom: 0px !important;
+// }
+
+[dir=rtl] .custom-record-picker .point-left:before {
+  padding-left: 1em;
+}
+
+[dir=rtl] .custom-record-picker .point-right:after {
+  padding-right: 1em;
+}
+
+.custom-check-radio .custom-check1 {
+  margin-bottom: 1rem;
+
+  &:last-child {
+    margin: 0px !important;
+  }
+}
+
+.custom-email .bootstrap svg,
+.custom-email .ng2-tag-input__text-input {
+  height: 23px !important;
+}
+
+tag-input {
+  .ng2-tag-input {
+    padding: 0 !important;
+
+    .ng2-tags-container {
+      align-items: center !important;
+    }
+  }
+}
+
+[data-theme-mode=dark] .custom-form-disable .ng-select.ng-select-disabled .ng-select-container {
+  background-color: transparent !important;
+}
+
+.custom-upload .filepond--root .filepond--drop-label {
+  min-height: 8em !important;
+}
+
+.custom-color-picker .app-color-picker {
+  border: 0px !important;
+}
+
+.custom-labels .mat-mdc-form-field-bottom-align {
+  display: none !important;
+}
+
+[data-theme-mode=dark] .mat-horizontal-stepper-header::before,
+.mat-horizontal-stepper-header::after {
+  border-top-color: #ffffff33 !important;
+}
+
+.card.custom-card .card-header .card-title {
+  font-weight: 500 !important;
+}
+
+[dir=rtl] .custom-select2 .ng-select.ng-select-single .ng-select-container .ng-value-container .ng-input {
+  padding-right: 10px !important;
+}
+
+.custom-card-list .card-body {
+  padding: 0px !important;
+}
+
+.custom-footer-card {
+  .card-header {
+    padding-bottom: 0px !important;
+  }
+
+  .card-body {
+    padding-top: 0.25rem !important;
+  }
+}
+
+.custom-card-border .custom-card {
+  border: 1px solid var(--primary-color) !important;
+}
+
+.custom-list-group .card-header {
+  padding-bottom: 0px !important;
+}
+
+@media (max-width: 326px) {
+  #column-stacked .apexcharts-legend {
+    position: absolute;
+    top: 205px !important;
+  }
+}
+
+[dir=rtl][data-nav-layout=horizontal][data-menu-styles=dark] .app-sidebar .side-menu__item {
+  border-radius: 0px !important;
+}
+
+[data-nav-layout=horizontal][data-page-style=modern][data-theme-mode=dark][data-header-styles=light] .app-sidebar {
+  border-block-end: 1px solid rgba(255, 255, 255, .1) !important;
+}
+
+@media (min-width: 992px) {
+  [data-nav-layout=horizontal][data-theme-mode=dark][data-menu-styles=light] .app-sidebar .slide.has-sub .slide-menu {
+    box-shadow: 0 0 .375rem #0000001a;
+  }
+}
+
+[data-nav-layout=horizontal] .main-sidebar {
+  width: 85% !important;
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 800px) {
+
+  .mat-step-header:hover:not([aria-disabled]),
+  .mat-step-header.cdk-keyboard-focused {
+    background-color: transparent !important;
+  }
+}
+
+[dir=rtl] .landing-page-wrapper .slide.has-sub.open .side-menu__item .side-menu__angle {
+  transform: rotate(180deg);
+}
+
+
+.app-sidebar .slide-menu.child1 .side-menu__item.active,
+.app-sidebar .slide-menu.child2 .side-menu__item.active,
+.app-sidebar .slide-menu.child3 .side-menu__item.active {
+  background-color: transparent !important;
+}
+
+@media (max-width: 350px) {
+  // .create-nft-item .filepond--file {
+  //   height: 7.08rem !important;
+  //   width: 3.25rem !important;
+  // }
+
+  // .create-nft-item .filepond--image-preview {
+  //   height: 10% !important;
+  // }
+}
+
+.custom-form-input .ng-select.ng-select-single .ng-select-container {
+  width: 223px !important;
+}
+
+.custom-form-input1 .ng-select.ng-select-single .ng-select-container {
+  width: 98px !important;
+}
+
+app-footer {
+  margin-top: auto !important;
+}
+
+.custom-order-table .mat-mdc-table {
+  white-space: nowrap !important;
+}
+
+.swiper-pagination {
+  transform: translate(0px, 10px) !important;
+}
+
+[data-theme-mode="light"][data-menu-styles="light"][data-nav-style="icon-click"][data-nav-layout="vertical"],
+[data-theme-mode="dark"][data-menu-styles="light"][data-nav-style="icon-click"][data-nav-layout="vertical"] {
+  .app-sidebar .side-menu__item {
+    &:hover {
+      .iconclick {
+        z-index: 0 !important;
+      }
+    }
+  }
+}
+
+[data-nav-style="icon-click"] .iconclick {
+  display: inline-block;
+  cursor: pointer;
+  /* Ensure cursor indicates it's clickable */
+  z-index: -1 !important;
+  position: relative !important;
+}
+
+[data-vertical-style="doublemenu"] .iconclick {
+  display: inline-block;
+  cursor: pointer;
+  /* Ensure cursor indicates it's clickable */
+  z-index: -1 !important;
+  position: relative !important;
+}
+
+
+// [data-theme-mode="light"][data-menu-styles="light"][data-nav-style="icon-click"][data-nav-layout="vertical"] {
+//   .app-sidebar .side-menu__item {
+//     &:hover {
+//       .iconclick {
+//         z-index: 0 !important;
+//       }
+//     }
+//   }
+// }
+
+
+@media (min-width: 992px) {
+
+  [data-menu-styles=transparent][data-nav-style=menu-click][data-nav-layout=horizontal] .app-sidebar .slide.has-sub .slide-menu,
+  [data-nav-style=menu-click][data-toggled=menu-click-closed] .app-sidebar .slide.has-sub .slide-menu,
+  [data-menu-styles=transparent][data-nav-style=menu-hover][data-nav-layout=horizontal] .app-sidebar .slide.has-sub .slide-menu,
+  [data-nav-style=menu-hover][data-toggled=menu-hover-closed] .app-sidebar .slide.has-sub .slide-menu {
+    background: var(--menu-bg);
+  }
+}
+
+// @media (min-width: 992px) {
+//   [data-vertical-style=doublemenu] .app-sidebar .main-sidebar {
+//     overflow: auto !important;
+//   }
+// }
+
+.main-header-center{
+  .search_drop.list-group{
+    .list-group-item:hover{
+      background-color: var(--primary-color) !important;
+
+      cursor: pointer !important;
+      a{
+        color: white !important;
+      }
+    }
+ }
+}

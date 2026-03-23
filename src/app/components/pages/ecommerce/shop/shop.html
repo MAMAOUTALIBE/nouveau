@@ -1,0 +1,217 @@
+<!-- row -->
+<div class="row row-sm">
+  <div class="col-xl-9 col-lg-8 col-md-12">
+    <div class="row row-sm">
+      @for (item of shopData; track $index) {
+      <div class="col-md-4 col-lg-6 col-xl-4 col-xxl-3  col-sm-6">
+        <spk-shop-card [data]="item">
+
+        </spk-shop-card>
+      </div>
+      }
+      <ul class="pagination product-pagination justify-content-end list-unstyled">
+        <li class="page-item page-prev disabled">
+          <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+        <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+        <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+        <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
+        <li class="page-item page-next">
+          <a class="page-link" href="javascript:void(0);">Next</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-lg-4 col-md-12 mb-3 mb-md-0">
+    <div class="card">
+      <div class="card-body p-2">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search..." aria-label="Search..."
+            aria-describedby="button-addon2">
+          <button class="btn btn-primary" type="button">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">
+          Colors
+        </h3>
+      </div>
+      <div class="card-body py-2">
+        <div class="row gutters-xs">
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="azure" class="colorinput-input" checked="">
+              <span class="colorinput-color bg-azure"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="indigo" class="colorinput-input">
+              <span class="colorinput-color bg-indigo"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="purple" class="colorinput-input">
+              <span class="colorinput-color bg-purple"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="pink" class="colorinput-input">
+              <span class="colorinput-color bg-pink"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="red" class="colorinput-input">
+              <span class="colorinput-color bg-red"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="orange" class="colorinput-input">
+              <span class="colorinput-color bg-orange"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="yellow" class="colorinput-input">
+              <span class="colorinput-color bg-yellow"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="lime" class="colorinput-input">
+              <span class="colorinput-color bg-lime"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="green" class="colorinput-input">
+              <span class="colorinput-color bg-green"></span>
+            </label>
+          </div>
+          <div class="col-auto">
+            <label class="colorinput">
+              <input name="color" type="radio" value="teal" class="colorinput-input">
+              <span class="colorinput-color bg-teal"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="card border-0 rounded-0">
+        <div class="card-header border-bottom pt-3 pb-3 mb-0 fw-bold text-uppercase">Category</div>
+        <div class="card-body pb-0">
+          <div class="form-group">
+            <label class="form-label">Mens</label>
+            <spk-ng-select [id]="'choices-single-default1'" [options]="categories" [bindLabel]="'label'"
+              [bindValue]="'value'" [placeholder]="'--select--'">
+            </spk-ng-select>
+          </div>
+          <div class="form-group mt-2">
+            <label class="form-label">Women</label>
+            <spk-ng-select [id]="'choices-single-default2'" [options]="styleCategories" [bindLabel]="'label'"
+              [bindValue]="'value'" [placeholder]="'--select--'">
+            </spk-ng-select>
+          </div>
+          <div class="form-group mt-2">
+            <label class="form-label">Baby & Kids</label>
+            <spk-ng-select [id]="'choices-single-default3'" [options]="kidsCategories" [bindLabel]="'label'"
+              [bindValue]="'value'" [placeholder]="'--select--'">
+            </spk-ng-select>
+          </div>
+          <div class="form-group mt-2">
+            <label class="form-label">Electronics</label>
+            <spk-ng-select [id]="'choices-single-default4'" [options]="electronicCategories" [bindLabel]="'label'"
+              [bindValue]="'value'" [placeholder]="'--select--'">
+            </spk-ng-select>
+          </div>
+          <div class="form-group mt-2">
+            <label class="form-label">Sport,Books & More </label>
+            <spk-ng-select [id]="'choices-single-default5'" [options]="lifestyleCategories" [bindLabel]="'label'"
+              [bindValue]="'value'" [placeholder]="'--select--'">
+            </spk-ng-select>
+          </div>
+        </div>
+        <div class="card-header border-bottom border-top pt-3 pb-3 mb-0 fw-bold text-uppercase rounded-0">Rating</div>
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+              <label class="form-label">Brand </label>
+              <spk-ng-select [id]="'choices-single-default6'" [options]="retailers" [bindLabel]="'label'"
+                [bindValue]="'id'" [placeholder]="'--select--'" [searchable]="false">
+              </spk-ng-select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type </label>
+              <spk-ng-select [id]="'choices-single-default7'" [options]="sizeOptions" [bindLabel]="'label'"
+                [bindValue]="'value'" [placeholder]="'--select--'" 
+                [additionalProperties]="{ 'data-trigger': '', 'name': 'choices-single-default' }">
+              </spk-ng-select>
+            </div>
+          </form>
+        </div>
+        <div class="card-header border-bottom border-top pt-3 pb-3 mb-0 fw-bold text-uppercase rounded-0">Rating</div>
+        <div class="py-2 px-3">
+          <label class="p-1 mt-2 d-flex align-items-center">
+            <span class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked1" checked="">
+            </span>
+            <span class="ms-2 fs-16 my-auto">
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+            </span>
+          </label>
+          <label class="p-1 mt-2 d-flex align-items-center">
+            <span class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked2" checked="">
+            </span>
+            <span class="ms-2 fs-16 my-auto">
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+            </span>
+          </label>
+          <label class="p-1 mt-2 d-flex align-items-center">
+            <span class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked3" checked="">
+            </span>
+            <span class="ms-2 fs-16 my-auto">
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+            </span>
+          </label>
+          <label class="p-1 mt-2 d-flex align-items-center">
+            <span class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked4">
+            </span>
+            <span class="ms-2 fs-16 my-auto">
+              <i class="ion ion-md-star  text-warning me-1"></i>
+              <i class="ion ion-md-star  text-warning me-1"></i>
+            </span>
+          </label>
+          <label class="p-1 mt-2 d-flex align-items-center">
+            <span class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked5">
+            </span>
+            <span class="ms-2 fs-16 my-auto">
+              <i class="ion ion-md-star  text-warning me-1"></i>
+            </span>
+          </label>
+          <button class="btn btn-primary mt-2 mb-2 pb-2" type="submit">Filter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- row closed -->

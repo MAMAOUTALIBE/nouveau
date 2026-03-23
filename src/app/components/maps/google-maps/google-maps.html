@@ -1,0 +1,88 @@
+<!-- Start::row-1 -->
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Basic Map</div>
+            </div>
+            <div class="card-body">
+                <google-map id="google-map" height="300px" width="100%" [center]="center" [zoom]="zoom"
+                    (mapClick)="moveMap($event)" (mapMousemove)="move($event)" />
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Overlay Map</div>
+            </div>
+            <div class="card-body">
+                <div id="google-map-overlay">
+                    <google-map height="100%" width="100%" [center]="center" [zoom]="zoom">
+                        <map-ground-overlay [url]="imageUrl" [bounds]="imageBounds" />
+                    </google-map>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Layers Map</div>
+            </div>
+            <div class="card-body">
+                <div id="map-layers">
+                    <google-map height="100%" width="100%" [center]="center" [zoom]="zoom">
+                        <map-kml-layer [url]="kmlUrl" />
+                    </google-map>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Map With Markers</div>
+            </div>
+            <div class="card-body">
+                <div id="map-markers">
+                    <google-map height="100%" width="100%" [center]="center" [zoom]="zoom"
+                        (mapClick)="addMarker($event)">
+                        @for (position of markerPositions; track position) {
+                        <map-marker [position]="position" [options]="markerOptions" />
+                        }
+                    </google-map>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Map With Streetview Panaroma</div>
+            </div>
+            <div class="card-body">
+                <div id="streetview-map">
+                    <google-map height="100%" width="100%" [center]="center1" [zoom]="zoom1">
+                        <map-heatmap-layer [data]="heatmapData" [options]="heatmapOptions" />
+                    </google-map>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">Map With Geo Fencing</div>
+            </div>
+            <div class="card-body">
+                <div id="map-geofencing">
+                    <google-map height="100%" width="100%" [center]="center" [zoom]="zoom">
+                        <map-traffic-layer [autoRefresh]="false" />
+                    </google-map>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End::row-1 -->

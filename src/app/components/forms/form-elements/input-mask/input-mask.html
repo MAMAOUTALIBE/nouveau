@@ -1,0 +1,170 @@
+
+<!-- Start:: row-1 -->
+<div class="row">
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Date Format-1
+                </div>
+            </div>
+            <div class="card-body">
+                <input class="form-control date-format-1" [inputMask]="dateInputMask" placeholder="dd-mm-yyyy">
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Date Format-2
+                </div>
+            </div>
+            <div class="card-body">
+                <input class="form-control date-format-1" [inputMask]="dateInputMask1" placeholder="mm-dd-yyyy">
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Date Format-3
+                </div>
+            </div>
+            <div class="card-body">
+            <input class="form-control date-format-2" [inputMask]="dateInputMask2" placeholder="mm-yy">
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- End:: row-1 -->
+  
+  <!-- Start:: row-2 -->
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Number Formatting</div>
+        </div>
+        <div class="card-body">
+          <input class="form-control number-format" mask="000,00,00,00,00,00,00,00,00" placeholder="Number Here">
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Prefix</div>
+        </div>
+        <div class="card-body">
+          <input
+            class="form-control prefix-element"
+            [inputMask]="currencyInputMask"
+            [formControl]="currencyFC"
+            placeholder="$ 0.00"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Phone Number Formatting</div>
+        </div>
+        <div class="card-body">
+          <input
+            class="form-control phone-number"
+            [inputMask]="phoneMask"
+            [formControl]="phoneFC"
+            placeholder="US(+1)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End:: row-2 -->
+  
+  <!-- Start:: row-3 -->
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Formatting Into Blocks</div>
+        </div>
+        <div class="card-body">
+          <input
+            [inputMask]="licenseInputMask"
+            [formControl]="licenseFC"
+            class="form-control formatting-blocks"
+            placeholder="ABCD EFG HIJ KLMN"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Delimiter</div>
+        </div>
+        <div class="card-body">
+          <input
+            class="form-control delimiter"
+            placeholder="56.54.56.66"
+            [inputMask]="ipAddressMask"
+            [formControl]="ipFC"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Delimiters</div>
+        </div>
+        <div class="card-body">
+          <input
+            class="form-control delimiter"
+            placeholder="dd/mm/yy"
+            [inputMask]="dateInputMask"
+            [formControl]="dateFC"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End:: row-3 -->
+  
+  <!-- Start:: row-4 -->
+  <div class="row">
+    
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Time Format-1</div>
+        </div>
+        <div class="card-body">
+          <ngb-timepicker class="form-control time-format-1"
+            [(ngModel)]="time"
+            [seconds]="seconds"
+           />
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-4">
+      <div class="card custom-card">
+        <div class="card-header">
+          <div class="card-title">Time Format-2</div>
+        </div>
+        <div class="card-body">
+          <ngb-timepicker class="form-control time-format-2"
+            [(ngModel)]="time1"
+            [spinners]="spinners"
+           />
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End:: row-4 -->
+  
+  

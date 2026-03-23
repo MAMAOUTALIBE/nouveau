@@ -1,0 +1,32 @@
+<div class="card">
+  <div class="card-body h-100  product-grid6">
+    <div class="pro-img-box product-image">
+      <a [routerLink]="['/pages/ecommerce/product-details']">
+        <img class=" pic-1" [src]=data()?.image alt="product-image">
+        <img class="pic-2" [src]=data()?.image1 alt="product-image-1">
+      </a>
+      <ul class="icons list-unstyled">
+        <li><a [routerLink]="['/pages/ecommerce/wishlist']" class="primary-gradient me-2" data-bs-placement="top"
+            data-bs-toggle="tooltip" ngbTooltip="Add to Wishlist"><i class="fa fa-heart"></i></a></li>
+        <li><a [routerLink]="['/pages/ecommerce/cart']" class="secondary-gradient me-2" data-bs-placement="top"
+            data-bs-toggle="tooltip" ngbTooltip="Add to Cart"><i class="fa fa-shopping-cart"></i></a></li>
+        <li><a [routerLink]="['/pages/ecommerce/product-details']" class="info-gradient" data-bs-placement="top"
+            data-bs-toggle="tooltip" ngbTooltip="Quick View"><i class="fas fa-eye"></i></a></li>
+      </ul>
+    </div>
+    <div class="text-center pt-2">
+      <h3 class="h6 mb-1 mt-4 fw-bold text-uppercase">{{data()?.name}}</h3>
+      <span class="fs-15 ms-auto">
+        <i class="ion ion-md-star text-warning me-1"></i>
+        <i class="ion ion-md-star text-warning me-1"></i>
+        <i class="ion ion-md-star text-warning me-1"></i>
+        <i class="ion ion-md-star-half text-warning me-1"></i>
+        <i class="ion ion-md-star-outline text-warning me-1"></i>
+      </span>
+      <h4 class="h5 mb-0 mt-1 text-center fw-bold  fs-22">${{data()?.offerprice}} <span
+          class="text-secondary fw-normal fs-13 ms-1 prev-price text-decoration-line-through">${{data()?.price1}}</span>
+      </h4>
+
+    </div>
+  </div>
+</div>

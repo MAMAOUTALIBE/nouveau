@@ -1,0 +1,21 @@
+<div class="card user-wideget user-wideget-widget widget-user">
+    <div class="widget-user-header br-te-5 br-ts-5 {{data()?.headerColor}}">
+        <h3 class="widget-user-username">{{data()?.name}}</h3>
+        <h5 class="widget-user-desc">{{data()?.role}}</h5>
+    </div>
+    <div class="widget-user-image">
+        <img [src]="data()?.image" class="rounded-circle" alt="User Avatar">
+    </div>
+    <div class="user-wideget-footer">
+        <div class="row">
+            @for (stat of data()?.stats; track $index) {
+            <div class="col-sm-4" [class]="{'border-end': stat.label !== 'PRODUCTS'}">
+                <div class="description-block">
+                    <h5 class="description-header">{{stat.value}}</h5>
+                    <span class="description-text">{{stat.label}}</span>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

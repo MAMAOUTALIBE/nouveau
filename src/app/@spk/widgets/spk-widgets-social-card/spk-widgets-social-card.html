@@ -1,0 +1,11 @@
+<div class="card">
+  <div class="card-body">
+    <div class="plan-card text-center">
+      <i class="{{ data()?.icon }} text-primary plan-icon"></i>
+      <h6 class="text-dark text-uppercase mt-2">{{ data()?.title }}</h6>
+      <h2 class="mb-2">{{ data()?.value | number}}</h2>
+      <span class="badge {{ data()?.badgeClass }} me-1">{{ data()?.badgeValue }}</span>
+      <span class="text-muted">{{ data()?.subtitle }}</span>
+    </div>
+  </div>
+</div>

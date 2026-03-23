@@ -1,0 +1,123 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+      <app-showcode-card classHeader=" "  [title]="'Live demo'" [prism]="prismCodeData.Livedemo">
+          <a class="btn btn-primary mb-1" (click)="open(content)">
+              Link with href
+          </a> &nbsp;
+          <button class="btn btn-primary mb-1" (click)="open(content)">
+              Button with data-bs-target
+          </button>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card classHeader=""  [title]="'Disable BackDrop'" [prism]="prismCodeData.DisableBackDrop">
+          <button class="btn btn-primary" (click)="openNoBackdrop(content)">No BackDrop </button>
+      </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card classHeader=""  [title]="'Static backdrop'" [prism]="prismCodeData.Staticbackdrop">
+          <button class="btn btn-primary" (click)="openStaticBackdrop(content)">
+              Toggle static offcanvas
+          </button>
+          <ng-template #content let-offcanvas>
+              <div class="offcanvas-header border-bottom border-block-end-dashed ">
+                  <h5 class="offcanvas-title" id="staticBackdropLabel">Notifications</h5>
+
+                  <button type="button" class="btn-close" (click)="offcanvas.close('Close click')"></button>
+              </div>
+
+              <div class="offcanvas-body p-0">
+                  <div>
+
+                      <!-- activity-list.component.html -->
+                      <ul class="list-group list-group-flush mb-0">
+                          @for (activity of activities; track activity.description) {
+                          <li class="list-group-item">
+                              <div class="d-flex align-items-center">
+                                  <div class="me-2">
+                                      <span class="avatar avatar-md avatar-rounded"
+                                          [ngClass]="activity.avatarBg || ''">
+                                          @if (activity.avatar.includes('.jpg')) {
+                                          <img [src]="activity.avatar" alt="">
+                                          } @else {
+                                          {{ activity.avatar }}
+                                          }
+                                      </span>
+                                  </div>
+                                  <div class="flex-fill">
+                                      <p class="fw-semibold mb-0">
+                                          {{ activity.description }}
+                                          <span class="badge bg-light text-muted float-end">{{ activity.date
+                                              }}</span>
+                                      </p>
+                                      <span class="fs-12 text-muted">
+                                          <i class="ri-time-line align-middle me-1 d-inline-block"></i>{{
+                                          activity.timeAgo }}
+                                      </span>
+                                  </div>
+                              </div>
+                          </li>
+                          }
+                      </ul>
+
+                  </div>
+
+
+              </div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+      <app-showcode-card classHeader=""  [title]="'Body scrolling'" [prism]="prismCodeData.Bodyscrolling">
+          <button (click)="EnableBackdrop(content)" class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+              Enable both scrolling &amp; backdrop
+          </button>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-12">
+      <app-showcode-card classHeader=""  [title]="'Placement'" [prism]="prismCodeData.Placement">
+          <button (click)="openTop(content1)" class="btn btn-primary mb-1 me-1" type="button"
+              data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+              Toggle top offcanvas
+          </button>
+          <ng-template #content1 let-offcanvas>
+              <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="offcanvasTopLabel">
+                      Offcanvas top
+                  </h5>
+                  <button (click)="offcanvas.dismiss('Cross click')" type="button" class="btn-close"
+                      data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">...</div>
+          </ng-template>
+          <button (click)="openRight(content)" class="btn btn-primary mb-1 me-1" type="button"
+              data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+              Toggle right offcanvas
+          </button>
+          <button (click)="openBottom(content2)" class="btn btn-primary mb-1" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+              Toggle bottom offcanvas
+          </button>
+          <ng-template #content2 let-offcanvas>
+              <div class="offcanvas-header">
+                  <h5 class="offcanvas-title" id="offcanvasTopLabel">
+                      Offcanvas bottom
+                  </h5>
+                  <button (click)="offcanvas.dismiss('Cross click')" type="button" class="btn-close"
+                      data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">...</div>
+          </ng-template>
+      </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-2 -->
+<!-- End:: row-2 -->

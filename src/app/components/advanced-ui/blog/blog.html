@@ -1,0 +1,224 @@
+<!-- row -->
+<div class="row">
+  <div class="col-xxl-6 col-xl-12 col-lg-12 col-md-12">
+    <div class="card overflow-hidden">
+      <a [routerLink]="['/advanced-ui/blog-details']" class="custom-card card-img-top-1 background-image-blog mb-0">
+      </a>
+      <div class="card-body">
+        <a href="javascript:void(0);" class="mt-4">
+          <h5 class="fw-semibold">Best Place To visit For a Holiday idea of denouncing pleasure?</h5>
+        </a>
+        <p class="mb-0 mt-3">I must explain to you how all this mistaken idea of denouncing pleasure and praising pain
+          was born and I will give you a complete account of the system, and expound the actual teachings of the great
+          explorer of the truth, the master-builder of human happiness. No one rejects, dislikes, or avoids pleasure
+          itself, because it is pleasure.</p>
+      </div>
+      <div class="card-footer">
+        <div class="item7-card-desc d-sm-flex mt-0">
+          <a [routerLink]="['/pages/profile']" class="d-flex"><span class="fe fe-user text-muted me-2 fs-17"></span>
+            <div class="mt-0 mt-0  fw-semibold text-muted">Anna Ogden</div>
+          </a>
+          <div class="d-sm-flex ms-sm-auto">
+            <a href="javascript:void(0);" class="d-flex me-3"><span class="fe fe-calendar text-muted me-2 fs-17"></span>
+              <div class="mt-0 mt-0  fw-semibold text-muted">Jan-18-2020</div>
+            </a>
+            <a class="me-0 d-flex" href="javascript:void(0);"><span
+                class="fe fe-message-square text-muted me-2 fs-17"></span>
+              <div class="mt-0 mt-0  fw-semibold text-muted">12 Comments</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card custom-card card-img-top-1">
+      <a [routerLink]="['/advanced-ui/blog-details']"><img class="card-img-top w-100 w-100"
+          src="./assets/images/photos/11.jpg" alt=""></a>
+      <div class="card-body pb-0">
+        <a [routerLink]="['/advanced-ui/blog-details']">
+          <h4 class="card-title">10 Ways To Immediately Start Selling Products !</h4>
+        </a>
+        <p class="mb-2">Those who do not know how pursues or desires to occur in which toil and pain can procure him
+          some great pleasure. To take a trivial example pain was born and I will give you a complete account of the
+          system, and expound the actual teachings of the great explorer of the truth, the master-buil</p>
+      </div>
+      <div class="item7-card-desc d-flex p-3 align-items-center justify-content-center border-top">
+        <div class="main-img-user online">
+          <a [routerLink]="['/pages/profile']"><img alt="avatar" src="./assets/images/faces/9.jpg"></a>
+        </div>
+        <div class="main-contact-body">
+          <a [routerLink]="['/pages/profile']">
+            <h6>Jiggel mossin</h6>
+          </a>
+        </div>
+        <div class="ms-auto">
+          <a class="me-0 d-flex" href="javascript:void(0);"><span class="phone me-3 fw-semibold text-muted"><span
+                class="fe fe-calendar text-muted me-2 fs-16 d-inline-block"></span>Aug 01,2021</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card">
+      <div class="card-header pb-0">
+        <h3 class="card-title mb-0">Latest Posts</h3>
+      </div>
+      <div class="card-body">
+        @for (item of blogItems; track $index;let last=$last) {
+        <div [class]="`media d-flex ${last ? 'mb-0':'mb-4'} `">
+          <img alt="{{item.title}}" class="main-img-user avatar avatar-lg me-4 br-5" [src]="item.imageSrc">
+          <div class="media-body">
+            <span class="d-block fw-semibold">{{ item.title }}</span>
+            <p class="mb-0 fw-semibold">{{ item.description }}</p>
+            <small class="d-block text-muted">{{ item.timeAgo }}</small>
+          </div>
+        </div>
+        }
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row ">
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card custom-card card-img-top-1">
+      <a [routerLink]="['/advanced-ui/blog-details']"><img class="card-img-top w-100 w-100"
+          src="./assets/images/photos/2.jpg" alt=""></a>
+      <div class="card-body pb-0">
+        <a [routerLink]="['/advanced-ui/blog-details']">
+          <h4 class="card-title">How To Become Better With Building In 1 Month !</h4>
+        </a>
+        <p class="card-text mb-2">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+          mollit anim id est laborum.</p>
+      </div>
+      <div class="item7-card-desc d-flex p-2 align-items-center justify-content-center border-top">
+        <div class="main-img-user online">
+          <a [routerLink]="['/pages/profile']"><img alt="avatar" src="./assets/images/faces/2.jpg"></a>
+        </div>
+        <div class="main-contact-body">
+          <a [routerLink]="['/pages/profile']">
+            <h6>Abigail John</h6>
+          </a>
+        </div>
+        <div class="ms-auto">
+          <a class="me-0 d-flex" href="javascript:void(0);"><span class="phone me-3 fw-semibold text-muted"><span
+                class="fe fe-calendar text-muted me-2 fs-16 d-inline-block"></span>Aug 24,2021</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card custom-card card-img-top-1">
+      <a [routerLink]="['/advanced-ui/blog-details']"><img class="card-img-top w-100 w-100"
+          src="./assets/images/photos/1.jpg" alt=""></a>
+      <div class="card-body pb-0">
+        <a [routerLink]="['/advanced-ui/blog-details']">
+          <h4 class="card-title">10 Ways To Immediately Start Selling Products !</h4>
+        </a>
+        <p class="card-text mb-2">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+          mollit anim id est laborum.</p>
+      </div>
+      <div class="item7-card-desc d-flex p-2 align-items-center justify-content-center border-top">
+        <div class="main-img-user online">
+          <a [routerLink]="['/pages/profile']"><img alt="avatar" src="./assets/images/faces/9.jpg"></a>
+        </div>
+        <div class="main-contact-body">
+          <a [routerLink]="['/pages/profile']">
+            <h6>Jiggel mossin</h6>
+          </a>
+        </div>
+        <div class="ms-auto">
+          <a class="me-0 d-flex" href="javascript:void(0);"><span class="phone me-3 fw-semibold text-muted"><span
+                class="fe fe-calendar text-muted me-2 fs-16 d-inline-block"></span>Aug 01,2021</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card custom-card card-img-top-1">
+      <a [routerLink]="['/advanced-ui/blog-details']"><img class="card-img-top w-100 w-100"
+          src="./assets/images/photos/9.jpg" alt=""></a>
+      <div class="card-body pb-0">
+        <a [routerLink]="['/advanced-ui/blog-details']">
+          <h4 class="card-title">3 Easy Ways To Make Your mobile Faster & Even !</h4>
+        </a>
+        <p class="card-text mb-2">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+          mollit anim id est laborum.</p>
+      </div>
+      <div class="item7-card-desc d-flex p-2 align-items-center justify-content-center border-top">
+        <div class="main-img-user online">
+          <a [routerLink]="['/pages/profile']"><img alt="avatar" src="./assets/images/faces/7.jpg"></a>
+        </div>
+        <div class="main-contact-body">
+          <a [routerLink]="['/pages/profile']">
+            <h6>Raven Chanan</h6>
+          </a>
+        </div>
+        <div class="ms-auto">
+          <a class="me-0 d-flex" href="javascript:void(0);"><span class="phone me-3 fw-semibold text-muted"><span
+                class="fe fe-calendar text-muted me-2 fs-16 d-inline-block"></span>Feb 19,2021</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xxl-3 col-xl-6 col-lg-6  col-sm-6">
+    <div class="card overflow-hidden">
+      <div class="card-header pb-1">
+        <h3 class="card-title mb-2">Blog Authors</h3>
+      </div>
+      <div class="card-body p-0 customers mt-1">
+        <div class="list-group list-lg-group list-group-flush">
+          @for (item of activities; track item.name + item.timeAgo) {
+            <!-- good unique track key -->
+          <div class="list-group-item list-group-item-action">
+            <div class="media mt-0">
+              <a [routerLink]="['/pages/profile']">
+                <img class="avatar avatar-lg rounded-circle me-3 my-auto" [src]="item.avatarSrc" alt="{{item.name}}">
+              </a>
+              <div class="media-body">
+                <div class="d-flex align-items-center">
+                  <div class="mt-0">
+                    <a [routerLink]="['/pages/profile']">
+                      <h5 class="mb-1 fs-13 font-weight-semibold text-dark">
+                        {{ item.name }}
+                      </h5>
+                    </a>
+                    <p class="mb-0 fs-13 text-muted">
+                      User ID: {{ item.userId }}
+                    </p>
+                  </div>
+                  <span class="ms-auto wd-45p fs-12">
+                    <span class="float-end badge bg-{{item.badgeClass}}-transparent">
+                      <span class="op-7 text-{{item.badgeClass}} fw-semibold">
+                        {{ item.timeAgo }}
+                      </span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /row -->
+<ul class="pagination product-pagination ms-auto float-sm-end">
+  <li class="page-item page-prev disabled">
+    <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+  </li>
+  <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+  <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+  <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+  <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
+  <li class="page-item page-next">
+    <a class="page-link" href="javascript:void(0);">Next</a>
+  </li>
+</ul>

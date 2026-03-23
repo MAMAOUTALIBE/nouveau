@@ -1,0 +1,96 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Borders'" [prism]="prismCodeData.Borders">
+
+      @for(data of borderData;track data){
+      <span [class]="data.class"></span>
+
+      }
+
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Remove borders'" [prism]="prismCodeData.Removeborders">
+      @for(data of Removeborders;track data){
+      <span [class]="data.class"></span>
+      }
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Border Widths'" [prism]="prismCodeData.BorderWidths">
+      @for(data of BorderWidths;track data){
+      <span [class]="data.class"></span>
+
+      }
+
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Border colors'" [prism]="prismCodeData.Bordercolors">
+      @for(data of Bordercolors;track data){
+      <span [class]="data.class"></span>
+
+      }
+
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-2 -->
+
+<!-- Start:: row-3 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Border color Styling'" [prism]="prismCodeData.BordercolorStyling">
+      <div class="mb-4">
+        <label for="exampleFormControlInput1" class="form-label">Email
+          address</label>
+        <input type="email" class="form-control border-success" id="exampleFormControlInput1"
+          placeholder="name&#64;example.com">
+      </div>
+      <div class="h4 pb-3 mb-4 text-danger border-bottom border-danger">
+        Below Shows Danger Border
+      </div>
+      <div class="p-3 bg-info bg-opacity-10 border border-info border-start-0 rounded-end mb-1">
+        Customizing borders with background colors
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card [title]="'Border with opacity'" [prism]="prismCodeData.Borderwithopacity">
+      @for(data of Borderwithopacity;track data){
+      <div class="border border-success p-2 mb-2" [ngClass]="'border-opacity-' + data.value">
+        This is {{ data.value }}% opacity success border
+      </div> }
+
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-3 -->
+
+<!-- Start:: row-4 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card [title]="' Border Radius Placements '" [prism]="prismCodeData.BorderRadius">
+      @for (data of BorderRadius; track data) {
+      <img [src]="data.src" class="bd-placeholder-img {{data.class}}" alt="...">
+
+      }
+
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card [title]="' Border Radius Sizes '" [prism]="prismCodeData.Sizes">
+      @for (data of Sizes; track data) {
+      <img [src]="data.src" class="bd-placeholder-img {{data.class}}" alt="...">
+
+      }
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-4 -->

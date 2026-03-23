@@ -1,0 +1,598 @@
+<!-- row -->
+<div class="row row-sm">
+  @for(card of cards ;track $index){
+  <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
+    <spk-widgets-metric-card [data]="card"></spk-widgets-metric-card>
+  </div>
+  }
+
+</div>
+<!-- row closed -->
+
+<!-- row -->
+<div class="row row-sm">
+  @for (metric of metrics; track $index) {
+  <div class="col-xl-3 col-md-6 col-lg-6 col-sm-6">
+    <spk-widgets-social-card [data]="metric"></spk-widgets-social-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row row-sm">
+  @for (card of usercards; track $index) {
+  <div class="col-sm-6 col-lg-6 col-xl-3">
+    <spk-widgets-users-cards [data]="card"> </spk-widgets-users-cards>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<div class="row row-sm">
+  @for (card of bgcards; track $index) {
+  <div class="col-lg-6 col-xl-3 col-md-6 col-12">
+    <spk-widgets-bg-cards [data]="card"> </spk-widgets-bg-cards>
+  </div>
+  }
+
+</div>
+
+<div class="row">
+  @for (card of statcards; track $index) {
+  <div class="col-sm-12 col-lg-6 col-xl-3">
+    <spk-widgets-stat-card [data]="card"></spk-widgets-stat-card>
+  </div>
+  }
+  @for (user of users; track $index) {
+  <div class="col-sm-12 col-xl-4 col-lg-12">
+    <spk-user-wiget-card [data]="user"></spk-user-wiget-card>
+  </div>
+  }
+
+
+</div>
+
+<div class="row row-cards row-deck">
+
+  @for (data of salesprofitCards; track $index) {
+  <div class="col-sm-12 col-lg-6">
+    <div class="card">
+      <div class="card-header pb-0 d-block">
+        <div class="card-title pb-0 mb-2">{{data.title}}</div>
+        <p class="fs-12 tx-gray-500 mb-3">On the other hand, we denounce with right indignation and dislike
+          imagesralized <a href="">Learn more</a></p>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col text-center">
+            <label class="fs-12">Today</label>
+            <p class="fw-bold fs-20">{{data.today}} $</p>
+          </div><!-- col -->
+          <div class="col border-start text-center ">
+            <label class="fs-12">This Week</label>
+            <p class="fw-bold fs-20">{{data.week}}$</p>
+          </div><!-- col -->
+          <div class="col border-start text-center">
+            <label class="fs-12">This Month</label>
+            <p class="fw-bold fs-20">{{data.month}} $</p>
+          </div><!-- col -->
+        </div><!-- row -->
+        <spk-progressbar [class]="'ht-20 mt-3'" [type]="data.progressClass" [showValue]="true" [value]="data.progress"
+          [striped]="true"></spk-progressbar>
+
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<!-- row -->
+<div class="row row-sm">
+  @for (card of analaticcards; track $index) {
+  <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+    <spk-widgets-analytic-card [data]="card"></spk-widgets-analytic-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row row-sm">
+  @for (card of SummaryCard; track $index) {
+  <div class="col-sm-12 col-md-6 col-lg-6 col-xl-3">
+    <spk-widgets-summary-card [data]="card"></spk-widgets-summary-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<!-- row -->
+<div class="row row-sm">
+  @for (card of FinanceCard; track $index) {
+  <div class="col-xl-3 col-lg-6 col-sm-6 col-md-6">
+    <spk-widgets-finance-card [data]="card"> </spk-widgets-finance-card>
+  </div>
+  }
+
+</div>
+<!-- /row -->
+
+<div class="row">
+  <!-- col -->
+  <div class="col-lg-4 col-md-4">
+    <div class="card bg-primary-gradient">
+      <div class="card-body">
+        <ngb-carousel [showNavigationArrows]="hideNavigationArrows"
+          [showNavigationIndicators]="hideNavigationIndicators">
+          <ng-template ngbSlide>
+            <i class="si si-social-facebook fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">12th June</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">20% Off</span>on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Trevor Hart</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="si si-social-google fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">24th July</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">60% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Joseph Vaughan</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="ri-twitter-x-fill fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">9th Aug</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">90% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Alan Hemmings</i>
+            </div>
+          </ng-template>
+        </ngb-carousel>
+      </div>
+    </div>
+  </div>
+  <!-- col -->
+  <div class="col-lg-4 col-md-4">
+    <div class="card bg-danger-gradient">
+      <div class="card-body">
+        <ngb-carousel [showNavigationArrows]="hideNavigationArrows"
+          [showNavigationIndicators]="hideNavigationIndicators">
+          <ng-template ngbSlide>
+            <i class="si si-social-facebook fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">11th June</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">30% Off</span>on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Alan Hemmings</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="si si-social-google fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">21st July</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">70% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Eric Lee</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="ri-twitter-x-fill  fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">12th Aug</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">80% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Eric Lee</i>
+            </div>
+          </ng-template>
+        </ngb-carousel>
+      </div>
+    </div>
+  </div>
+  <!-- col -->
+  <div class="col-lg-4 col-md-4">
+    <div class="card bg-purple-gradient">
+      <div class="card-body">
+        <ngb-carousel [showNavigationArrows]="hideNavigationArrows"
+          [showNavigationIndicators]="hideNavigationIndicators">
+          <ng-template ngbSlide>
+            <i class="si si-social-facebook fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">25th June</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold me-2">30% Off</span>on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Eric Lee</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="si si-social-google fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">6th July</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold">70% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Eric Lee</i>
+            </div>
+          </ng-template>
+          <ng-template ngbSlide>
+            <i class="ri-twitter-x-fill fs-30 text-fixed-white mb-2"></i>
+            <p class="text-fixed-white mt-2">7th Aug</p>
+            <h3 class="text-fixed-white font-light">Now Get <span class="font-bold">80% Off</span> on buy</h3>
+            <div class="text-fixed-white m-t-20">
+              <i>- Eric Lee</i>
+            </div>
+          </ng-template>
+        </ngb-carousel>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end row -->
+<!-- row opened -->
+<div class="row row-sm">
+  <div class="col-xl-4 col-lg-12 col-xl-4">
+    <div class="card">
+      <div class="card-header bg-transparent pd-b-0 pd-t-20 bd-b-0">
+        <div>
+          <h3 class="card-title">Timeline</h3>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="latest-timelines">
+          <ul class="timelines mb-0">
+            @for(item of timelineItems; track $index;let last=$last){
+            <!-- Icon -->
+            <li>
+              <div class="featured_icon {{item.status}}">
+                <i class="fas fa-circle"></i>
+              </div>
+            </li>
+
+            <!-- Content -->
+            <li [class]=" last ?'pb-0': 'mt-0 pb-3'">
+              <div>
+                <small class="text-muted float-end">{{item.date}}</small>
+              </div>
+              <a target="_blank" href="javascript:void(0);" class="fw-bold text-dark">
+                {{item.name}}
+              </a>
+              <p [class]="last ?'text-muted m-0':'text-muted mt-0'">{{item.description}}</p>
+            </li>
+            }
+          </ul>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-12 col-xl-4">
+    <div class="card">
+      <div class="card-body widget-activeprojects">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title">Active Projects</h4>
+        </div>
+        <p class="card-description mb-1">What're people doing right now</p>
+        @for (activity of activities; track $index;let last=$last) {
+        <div [class]="last?'list d-flex align-items-center pt-3':'list d-flex align-items-center border-bottom py-3'">
+          <div class="avatar d-block cover-image"> <img [src]="activity.avatar" class="rounded-circle" alt="img">
+            <span class="avatar-status {{activity.statusColor}}"></span>
+          </div>
+          <div class="wrapper w-100 ms-3">
+            <p class="mb-0"> <b>{{activity.name}}</b> posted in {{activity.section}} </p>
+            <div class="d-sm-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center"> <i class="mdi mdi-clock text-muted me-1 fs-11"></i>
+                <p class="mb-0">{{activity.message}}</p>
+              </div> <small class="text-muted ms-auto">{{activity.time}}</small>
+            </div>
+          </div>
+        </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-12">
+    @for (card of VisitorCard; track $index) {
+
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between ">
+          <div>
+            <h6>{{card.title}}</h6>
+            <h1 class="mt-2 mb-3 display-6 fw-semibold text-dark fs-30">{{card.total}}</h1>
+            <div class="progress progress-style progress-xs">
+              <div class="progress-bar {{card.progressColor}} {{card.progressWidth}}" role="progressbar"></div>
+            </div>
+          </div>
+          <div class="feature d-flex flex-column align-items-start">
+            <div class="d-inline-flex align-items-center  mt-1">
+              <i class="icon icon-user me-2"></i> <b class="me-1">{{card.male}}</b> Male
+            </div>
+            <div class="d-inline-flex align-items-center mt-3">
+              <i class="icon icon-user-female me-2"></i>
+              <b class="me-1">{{card.female}}</b> Female
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    }
+
+  </div>
+</div>
+<!-- row close -->
+
+<!-- row -->
+<div class="row row-sm">
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card">
+      <div class="card-header bg-transparent pd-b-0 pd-t-20 bd-b-0 d-block">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title mg-b-10">Overall Rating</h4>
+        </div>
+        <p class="fs-12 tx-gray-500 mb-0">Opinion of a customer on the product in the form of ratings 5-star rating. <a
+            href="">Learn more</a></p>
+      </div><!-- card-header -->
+      <div class="card-body py-0">
+        <div class="d-flex align-items-baseline">
+          <h1 class="fs-30 me-2">4.8</h1>
+          <p class="fs-11  mg-b-0"><span class="tx-medium tx-success">1.6% <i class="icon ion-md-arrow-up"></i></span>
+          </p>
+        </div>
+        <p class="text-uppercase fw-semibold fs-12 mb-1">Overall product rating by the customers.</p>
+        <spk-reusable-tables [tableClass]="'table table-borderless mt-2   border-0 rating-table'">
+          @for (row of ratings; track $index) { <tr>
+            <td class="text-gray"><small class="me-1">{{row.rank}}</small></td>
+            <td class="text-gray"> <span><i class="{{row.icon}} fs-18 text-warning"></i></span> </td>
+            <td class="w-100">
+              <div class="progress mt-2 ht-5">
+                <div class="progress-bar {{row.progressWidth}} {{row.progressColor}}" role="progressbar"
+                  aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </td>
+            <td><small class="text-gray">{{row.value}}</small></td>
+          </tr>
+          }
+        </spk-reusable-tables>
+
+        <div class="wrapper d-flex justify-content-center image-group pb-3">
+          <img src="./assets/images/faces/1.jpg" alt="profile" class="img-xs rounded-circle">
+          <img src="./assets/images/faces/2.jpg" alt="profile" class="img-xs rounded-circle">
+          <img src="./assets/images/faces/13.jpg" alt="profile" class="img-xs rounded-circle">
+          <img src="./assets/images/faces/14.jpg" alt="profile" class="img-xs rounded-circle">
+          <img src="./assets/images/faces/5.jpg" alt="profile" class="img-xs rounded-circle">
+          <img src="./assets/images/faces/16.jpg" alt="profile" class="img-xs rounded-circle">
+        </div>
+      </div><!-- card-body -->
+    </div>
+  </div>
+  <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+    <div class="card order-list">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title mg-b-10">Order Activity</h4>
+        </div>
+        <p class="fs-12 tx-gray-500 mb-3">Order Activity is ecommerce platforms to track the orders placed on their
+          stores <a href="">Learn more</a></p>
+        <ul class="list list-noborders pb-0 mb-0 ps-0">
+          @for (order of orders; track $index;let last=$last) {
+          <li [class]="`list-item ${last ? 'pb-2' :''}`">
+            <img class="img-sm rounded-circle bg-warning d-flex align-items-center justify-content-center text-white"
+              [src]="order.avatar" alt="Profile Image">
+            <div class="ms-3">
+              <h6 class="mb-1 font-weight-medium">{{order.name}}</h6>
+              <p class="mb-0 text-muted fs-13">{{order.productId}}</p>
+            </div>
+            <div class="ms-auto d-flex">
+              @for (thumb of order.thumbs; track thumb) {
+              <img class="img-sm me-1" [src]="thumb" alt="thumb image">
+              }
+            </div>
+          </li>
+          }
+        </ul>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 col-xl-4 col-md-6 col-sm-12">
+    <div class="card overflow-hidden widget-tasks latest-tasks">
+      <div class="">
+        <div class="d-flex justify-content-between ps-4 pt-4 pe-4">
+          <h4 class="card-title mg-b-10">Latest Task</h4>
+        </div>
+        <div class="">
+          <ul ngbNav #nav="ngbNav" class="nav nav-tabs nav-tabs-line nav-tabs-line-brand nav-tabs-bold border-0"
+            role="tablist">
+            <li [ngbNavItem]="1" class="nav-item">
+              <a ngbNavLink class="nav-link show" data-bs-toggle="tab" role="tab" aria-selected="false">
+                Today
+              </a>
+              <ng-template ngbNavContent>
+                <div class="border-0 fade p-3 show" id="tasktab-1" role="tabpanel">
+                  <div class="">
+                    @for (task of LatestTask.today; track $index;let last=$last) {
+                    <div [class]="last ?'tasks mb-0' :'tasks'">
+                      <div class=" task-line {{task.lineColor}}">
+                        <a href="javascript:void(0);" class="span">
+                          {{task.title}}
+                        </a>
+                        <div class="time">
+                          {{task.time}}
+                        </div>
+                      </div>
+                      <label class="checkbox">
+                        <span class="check-box">
+                          <span class="ckbox"><input class="form-check-input" type="checkbox" value=""
+                              id="flexCheckChecked1" [checked]="task.checked"><span></span></span>
+                        </span>
+                      </label>
+                    </div>
+                    }
+
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="2" class="nav-item">
+              <a ngbNavLink class="nav-link" data-bs-toggle="tab" aria-selected="false">
+                Week
+              </a>
+              <ng-template ngbNavContent>
+                <div id="tasktab-2" class="p-3" role="tabpanel">
+                  <div class="">
+                    @for (task of LatestTask.week; track $index;let last=$last) {
+                    <div [class]="last ?'tasks mb-0' :'tasks'">
+                      <div class="task-line {{task.lineColor}}">
+                        <a href="javascript:void(0);" class="span">{{task.title}} </a>
+                        <div class="time"> {{task.time}} </div>
+                      </div>
+                      <label class="checkbox">
+                        <span class="check-box">
+                          <span class="ckbox">
+                            <input type="checkbox" class="form-check-input ms-2" [checked]="task.checked"> <span></span>
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                    }
+
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="3" class="nav-item">
+              <a ngbNavLink class="nav-link" data-bs-toggle="tab" role="tab" aria-selected="true">
+                Month
+              </a>
+              <ng-template ngbNavContent>
+                <div class="p-3" id="tasktab-3" role="tabpanel">
+                  <div class="">
+                    @for (task of LatestTask.month; track $index;let last=$last) {
+                    <div [class]="last ?'tasks mb-0' :'tasks'">
+                      <div class="task-line {{task.lineColor}}"> <a href="javascript:void(0);" class="span">
+                          {{task.title}} </a>
+                        <div class="time"> {{task.time}} </div>
+                      </div> <label class="checkbox"> <span class="check-box"> <span class="ckbox"> <input
+                              type="checkbox" class="form-check-input ms-2" [checked]="task.checked"> <span></span>
+                          </span> </span> </label>
+                    </div> }
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-body  p-0">
+        <div class="tab-content no-tab-border no-tap-padding" [ngbNavOutlet]="nav">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-6 col-xl-4 col-sm-12">
+    <div class="card">
+      <div class="card-header pb-0">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title">Latest Ratings and Reviews</h4>
+        </div>
+      </div>
+      <p class="fs-12 tx-gray-500 mb-0 ps-3 pe-3 mb-2">A review is an evaluation of a publication, service, or company
+        .<a href="">Learn more</a></p>
+      <div class="rating-scroll overflow-auto">
+        @for (review of reviews; track $index) {
+        <div class="ps-3 pe-3 py-3 border-bottom">
+          <div class="media mt-0">
+            <div class="d-flex me-3"> <a href="javascript:void(0);"> <img
+                  class="media-object avatar rounded-circle w-7 h-7" [src]="review.avatar" alt="Profile Image"> </a>
+            </div>
+            <div class="media-body">
+              <div class="d-flex">
+                <h6 class="mt-0 mb-1 fw-semibold">{{review.name}}</h6> <span class="fs-12 ms-auto gap-1 d-flex"> @for
+                  (star of review.stars; track star) { <i class="{{star}} text-warning"></i> } </span>
+              </div>
+              <div class="d-flex">
+                <p class="fs-12 text-muted mb-0">{{review.comment}}</p> <small
+                  class="ms-auto text-end">{{review.reviewsCount}}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-4">
+    <div class="card">
+      <div class="card-header bg-transparent pd-b-0 pd-t-20 bd-b-0 d-block">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title mg-b-10">Sessions by Countries</h4>
+        </div>
+        <p class="fs-12 tx-gray-500 mb-0">session by country mean that the user is from the stated country or that the
+          session is originating in the stated country. <a href="">Learn more</a></p>
+      </div>
+      <div class="card-body">
+        <ul class="sales-session mb-0">
+          @for (country of countries;track $index;let last=$last) {
+          <li [class]="last?'mb-0 pb-1':''">
+            <div class="d-flex justify-content-between">
+              <h6>{{country.rank}}. {{country.name}}</h6>
+              <p class="fw-semibold mb-2">
+                {{country.amount}}
+                <span class="text-muted font-weight-normal">{{country.percent}}</span>
+              </p>
+            </div>
+            <div class="progress ht-5">
+              <div class="progress-bar {{country.progressWidth}} {{country.progressColor}}" role="progressbar"
+                aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </li>
+          }
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 col-lg-6  col-xl-4 col-sm-12">
+    <div class="card">
+      <div class="card-header d-block">
+        <div class="d-flex justify-content-between">
+          <h4 class="card-title">Browser Usage</h4>
+        </div>
+        <p class="fs-12 tx-gray-500 mb-0">Tells you where your visitors originated from, such as search engines, social
+          networks or website referrals. <a href="">Learn more</a></p>
+      </div><!-- card-header -->
+      <div class="card-body p-0">
+        <div class="browser-stats">
+
+          @for (browser of browsers; track browser.name) {
+          <div class="d-flex align-items-center item border-bottom">
+            <div class="d-flex">
+              <img [src]="browser.icon" alt="img" class="ht-30 wd-30 me-2">
+              <div>
+                <h6>{{browser.name}}</h6>
+                <span class="sub-text">{{browser.company}}</span>
+              </div>
+            </div>
+            <div class="ms-auto my-auto">
+              <div class="d-flex">
+                <span class="me-4 my-auto">{{browser.users}}</span>
+                <span [class]="browser.trendColor">
+                  <i [class]="browser.trendIcon"></i>{{browser.trend}}
+                </span>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+
+      </div>
+    </div><!-- card -->
+  </div>
+</div>
+<!-- /row -->

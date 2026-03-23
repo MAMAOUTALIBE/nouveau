@@ -1,0 +1,396 @@
+<!--ROW-START-->
+<div class="row">
+  <div class="col-xl-6">
+
+    <app-showcode-card title=" Default Buttons" [prism]="prismCodeData.DefaultButtons">
+      <div class="btn-list">
+        @for (item of DefaultButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Rounded Buttons" [prism]="prismCodeData.RoundedButtons">
+      <div class="btn-list">
+        @for (item of RoundedButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="   Light Buttons" [prism]="prismCodeData.LightButtons">
+      <div class="btn-list">
+        @for (item of LightButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Light Rounded Buttons" [prism]="prismCodeData.LightRoundedButtons">
+      <div class="btn-list">
+        @for (item of LightRoundedButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Outline Buttons" [prism]="prismCodeData.OutlineButtons">
+      <div class="btn-list">
+        @for (item of OutlineButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Rounded  Outline Buttons" [prism]="prismCodeData.RoundedOutlineButtons">
+      <div class="btn-list">
+        @for (item of RoundedOutlineButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Gradient Buttons" [prism]="prismCodeData.GradientButtons">
+      <div class="btn-list">
+        @for (item of GradientButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Rounded  Gradient Buttons" [prism]="prismCodeData.RoundedGradientButtons">
+      <div class="btn-list">
+        @for (item of RoundedGradientButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+
+  <div class="col-xl-6">
+
+
+    <app-showcode-card title="Ghost Buttons" [prism]="prismCodeData.GhostButtons">
+      <div class="btn-list">
+        @for (item of GhostButtons; track $index) {
+        <button type="button" [class]="item.buttonclass">{{item.buttonname}}</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Button tags" [prism]="prismCodeData.Buttontags">
+      <div class="btn-list">
+        <a class="btn btn-primary btn-wave" href="javascript:void(0);" role="button">Link</a>
+        <button class="btn btn-secondary btn-wave" type="submit">Button</button>
+        <input class="btn btn-info" type="button" value="Input">
+        <input class="btn btn-warning" type="submit" value="Submit">
+        <input class="btn btn-success" type="reset" value="Reset">
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+
+    <app-showcode-card title=" disabled state with anchor tags" [prism]="prismCodeData.disabledstatewithanchortags">
+
+      <div class="btn-list">
+        <div class="mb-4">
+          <button type="button" class="btn btn-primary" disabled="">Primary
+            button</button>
+          <button type="button" class="btn btn-secondary" disabled="">Button</button>
+          <button type="button" class="btn btn-outline-primary" disabled="">Primary
+            button</button>
+          <button type="button" class="btn btn-outline-secondary" disabled="">Button</button>
+        </div>
+
+        <div>
+          <a class="btn btn-primary disabled" role="button" aria-disabled="true">Primary
+            link</a>
+          <a class="btn btn-secondary disabled" role="button" aria-disabled="true">Link</a>
+        </div>
+      </div>
+
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+
+
+    <app-showcode-card title=" button plugin toggle states" [prism]="prismCodeData.buttonplugintogglestates">
+
+
+      <div class="btn-list">
+        <div class="mb-4">
+          <button type="button" class="btn btn-primary btn-wave" data-bs-toggle="button">Toggle
+            button</button>
+          <button type="button" class="btn btn-secondary active btn-wave" data-bs-toggle="button"
+            aria-pressed="true">Active toggle button</button>
+          <button type="button" class="btn btn-teal btn-wave" disabled data-bs-toggle="button">Disabled
+            toggle
+            button</button>
+        </div>
+        <div>
+          <a href="javascript:void(0);" class="btn btn-primary btn-wave" role="button" data-bs-toggle="button">Toggle
+            link</a>
+          <a href="javascript:void(0);" class="btn btn-secondary active btn-wave" role="button" data-bs-toggle="button"
+            aria-pressed="true">Active toggle link</a>
+          <a class="btn btn-teal disabled btn-wave" aria-disabled="true" role="button" data-bs-toggle="button">Disabled
+            toggle link</a>
+        </div>
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title=" Link functionally caveat" [prism]="prismCodeData.Linkfunctionallycaveat">
+
+
+      <div class="btn-list">
+        <a class="btn btn-primary disabled" tabindex="-1" role="button" aria-disabled="true">Primary
+          link</a>
+        <a class="btn btn-secondary disabled" tabindex="-1" role="button" aria-disabled="true">Link</a>
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Loading Buttons" [prism]="prismCodeData.LoadingButtons">
+      <div class="btn-list d-md-flex flex-wrap">
+        @for (item of LoadingButtons; track $index) {
+
+        <button [class]="item.class">
+          <span class="me-2">Loading</span>
+          <span class="loading"><i class="ri-loader-2-fill fs-16"></i></span>
+        </button>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Icon Buttons" [prism]="prismCodeData.IconButtons">
+      <div class="example">
+        <div class="btn-list d-md-flex d-block">
+          <div class="mb-md-0 mb-2 d-flex">
+            <button class="btn btn-icon btn-primary btn-wave">
+              <i class="ri-bank-fill"></i>
+            </button>
+            <button class="btn btn-icon btn-info btn-wave">
+              <i class="ri-medal-line"></i>
+            </button>
+            <button class="btn btn-icon btn-danger btn-wave">
+              <i class="ri-archive-line"></i>
+            </button>
+            <button class="btn btn-icon btn-warning btn-wave me-5">
+              <i class="ri-calendar-2-line"></i>
+            </button>
+          </div>
+          <div class="mb-md-0 mb-2 d-flex">
+            <button class="btn btn-icon btn-primary-light rounded-pill btn-wave">
+              <i class="ri-home-smile-line"></i>
+            </button>
+            <button class="btn btn-icon btn-secondary-light rounded-pill btn-wave">
+              <i class="ri-delete-bin-line"></i>
+            </button>
+            <button class="btn btn-icon btn-info-light rounded-pill btn-wave">
+              <i class="ri-notification-3-line"></i>
+            </button>
+            <button class="btn btn-icon btn-danger-light rounded-pill btn-wave me-5">
+              <i class="ri-chat-settings-line"></i>
+            </button>
+          </div>
+          <div class="d-flex">
+            <button class="btn btn-icon btn-outline-primary rounded-pill btn-wave">
+              <i class="ri-phone-line"></i>
+            </button>
+            <button class="btn btn-icon btn-outline-teal rounded-pill btn-wave">
+              <i class="ri-customer-service-2-line"></i>
+            </button>
+            <button class="btn btn-icon btn-outline-danger rounded-pill btn-wave">
+              <i class="ri-live-line"></i>
+            </button>
+            <button class="btn btn-icon btn-outline-secondary rounded-pill btn-wave">
+              <i class="ri-save-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </app-showcode-card>
+
+
+
+
+  </div>
+
+  <div class="col-xl-6">
+    <app-showcode-card title="Social Buttons" [prism]="prismCodeData.SocialButtons">
+      <div class="btn-list d-flex">
+        @for (item of SocialButtons; track $index) {
+        <button [class]="item.class">
+          <i [class]="item.iconclass"></i>
+        </button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <div class="row">
+      <div class="col-xl-12">
+
+        <app-showcode-card title="Sizes" [prism]="prismCodeData.Sizes">
+
+          <div class="btn-list">
+            <button type="button" class="btn btn-primary btn-sm btn-wave">Small
+              button</button>
+            <button type="button" class="btn btn-secondary btn-wave">Default
+              button</button>
+            <button type="button" class="btn btn-danger btn-lg btn-wave">Large
+              button</button>
+          </div>
+
+
+
+        </app-showcode-card>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="row">
+      <div class="col-xl-12">
+        <app-showcode-card title="Button Widths" [prism]="prismCodeData.ButtonWidths">
+          <div class="btn-list">
+            <button type="button" class="btn btn-primary btn-w-xs btn-wave">XS</button>
+            <button type="button" class="btn btn-secondary btn-w-sm btn-wave">SM</button>
+            <button type="button" class="btn btn-warning btn-w-md btn-wave">MD</button>
+            <button type="button" class="btn btn-info btn-w-lg btn-wave">LG</button>
+          </div>
+        </app-showcode-card>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="row">
+      <div class="col-xl-12">
+        <app-showcode-card title="Buttons With Different Shadows" [prism]="prismCodeData.ButtonsWithDifferentShadows">
+          <div class="btn-list d-flex">
+
+            <div class="me-5">
+              <button class="btn btn-primary shadow-sm btn-wave">Button</button>
+              <button class="btn btn-primary shadow btn-wave">Button</button>
+              <button class="btn btn-primary shadow-lg btn-wave">Button</button>
+            </div>
+            <div>
+              <button class="btn btn-secondary btn-sm shadow-sm btn-wave">Button</button>
+              <button class="btn btn-info shadow btn-wave">Button</button>
+              <button class="btn btn-lg btn-warning shadow-lg btn-wave">Button</button>
+            </div>
+          </div>
+        </app-showcode-card>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+
+    <app-showcode-card title="Different Colored Buttons With Shadows"
+      [prism]="prismCodeData.DifferentColoredButtonsWithShadows">
+      <div class="btn-list">
+        @for (item of DifferentColoredButtonsWithShadows; track $index) {
+        <button [class]="item.class">Button</button>
+        }
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+
+    <app-showcode-card title="Raised Buttons" [prism]="prismCodeData.RaisedButtons">
+      <div class="btn-list">
+        @for (item of RaisedButtons; track $index) {
+        <button [class]="item.class">Button</button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card [title]="' Label Buttons'" [prism]="prismCodeData.LabelButtons">
+      <div class="btn-list">
+        @for(button of LabelButtons;track $index){
+        <button [class]="button.class">
+          <i class="{{button.icon}}"></i>
+          {{button.text}} </button>
+        }
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-12">
+    <app-showcode-card [title]="' Custom Buttons'" [prism]="prismCodeData.CustomButtons">
+      <div class="btn-list">
+        @for(button of customButtons;track $index){
+        <button [class]="button.class">
+          @if(button.icon){
+          <span class="custom-btn-icons">
+            <i class="{{button.icon}}"></i>
+          </span>
+          }
+          {{button.text}} </button>
+        }
+
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-12">
+    <app-showcode-card [title]="' Block Buttons'" [prism]="prismCodeData.BlockButtons">
+      <div class="btn-list">
+        <div class="d-grid gap-2 mb-4">
+          @for(buttons of Blockbutton;track $index){
+          <ng-container>
+            <button [class]="buttons.color">{{buttons.class}}</button>
+          </ng-container>
+          }
+        </div>
+        <div class="d-grid gap-2 d-md-block">
+          @for(buttons of Blockbutton1;track $index){
+          <ng-container>
+            <button [class]="buttons.color">{{buttons.class}}</button>
+          </ng-container>
+          }
+        </div>
+
+        <div class="d-grid gap-2 col-6 mx-auto">
+          @for(buttons of Blockbutton2;track $index){
+          <ng-container>
+            <button [class]="buttons.color">{{buttons.class}}</button>
+          </ng-container>
+          }
+        </div>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+          @for(buttons of Blockbutton3;track $index){
+          <ng-container>
+            <button [class]="buttons.color">{{buttons.class}}</button>
+          </ng-container>
+          }
+        </div>
+      </div>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!--ROW-END-->

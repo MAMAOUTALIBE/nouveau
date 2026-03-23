@@ -1,0 +1,175 @@
+<!-- row -->
+<div class="row row-sm main-content-mail">
+  <div class="col-lg-4 col-xl-3 col-md-12">
+    <div class="card mg-b-20">
+      <div class="main-content-left main-content-left-mail card-body">
+        <a class="btn btn-primary btn-compose" [routerLink]="['/pages/email/mail-compose']">
+          Compose
+        </a>
+        <div class="main-mail-menu">
+
+
+          <!-- Main Folders -->
+          <nav class="nav main-nav-column mg-b-20">
+            @for (folder of mainFolders; track $index; let first=$first) {
+            <a class="nav-link thumb" [class.active]="first" href="javascript:void(0);">
+              <i [class]="folder.icon"></i>
+              {{ folder.name }}
+              <span>{{ folder.count }}</span>
+            </a>
+            }
+          </nav>
+
+          <!-- Labels section -->
+          <label class="main-content-label main-content-label-sm ms-3">Label</label>
+          <nav class="nav main-nav-column mg-b-20">
+            @for (label of labels; track $index) {
+            <a class="nav-link thumb" href="javascript:void(0);">
+              <i [class]="label.icon"></i>
+              {{ label.name }}
+              <span>{{ label.count }}</span>
+            </a>
+            }
+          </nav>
+
+        </div>
+      </div>
+    </div>
+    <div class="card mt-3">
+      <div class="card-body p-0">
+        <label class="main-content-label p-3">contacts</label>
+        <nav class="nav main-nav-column">
+          @for (contact of contacts; track contact.name) {
+          <div class="main-contact-item px-2">
+            <div class="main-img-user online">
+              <img [alt]="contact.name + ' avatar'" [src]="contact.avatar">
+            </div>
+            <div class="main-contact-body">
+              <h6>{{ contact.name }}</h6>
+              <span class="phone">{{ contact.phone }}</span>
+            </div>
+          </div>
+          }
+
+          @empty {
+          <div class="text-center py-4 text-muted">
+            No contacts available
+          </div>
+          }
+
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8 col-xl-9 col-md-12">
+    <div class="card">
+      <div class="main-content-body main-content-body-mail card-body">
+        <div class="mail-option">
+          <div class="chk-all border-0">
+            <spk-dropdowns [Customclass]="'btn-group custom-drop-end'" [class]="'btn   mini all no-caret'" title="All"
+              [Icon]="true" IconClass="fe fe-chevron-down">
+              <li><a class="dropdown-item" href="javascript:void(0);"> None</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);"> Read</a></li>
+              <li><a class="dropdown-item" href="javascript:void(0);"> Unread</a></li>
+            </spk-dropdowns>
+
+          </div>
+          <div class="btn-group me-2">
+            <a href="javascript:void(0);" class="btn mini tooltips">
+              <i class="fe fe-repeat"></i>
+            </a>
+          </div>
+
+
+          <spk-dropdowns [Customclass]="'btn-group hidden-phone custom-drop-end'" [class]="' btn   mini blue no-caret'"
+            [title]="'More'" [Icon]="true" [IconClass]="'fe fe-chevron-down'" [iconPosition]="'after'">
+
+            <li class="dropdown-item"><i class="fe fe-edit me-2"></i> Mark as Read
+            </li>
+            <li class="dropdown-item"><i class="fe fe-slash me-2"></i> Spam</li>
+            <li class="dropdown-divider"></li>
+            <li class="dropdown-item"> <i class="fe fe-trash me-2"></i> Delete</li>
+
+          </spk-dropdowns>
+
+
+          <ul class="unstyled inbox-pagination float-end">
+            <li><span>1-50 of 234</span></li>
+
+            <li class="mt-1">
+              <a class="btn np-btn lh-1" href="javascript:void(0);"><i
+                  class="fe fe-chevron-right pagination-right"></i></a>
+            </li>
+          </ul>
+        </div><!-- main-mail-list-header -->
+      </div><!-- main-mail-options -->
+      <div class="main-mail-list bd-t-0">
+        @for (mail of emails; track $index) {
+        <div class="main-mail-item" [class.unread]="mail.unread">
+
+          <div class="main-mail-checkbox">
+            <label class="ckbox">
+              <input class="form-check-input" type="checkbox" [id]="'flexCheckChecked' + mail.id">
+              <span></span>
+            </label>
+          </div>
+
+          <div class="main-mail-star" [class.active]="mail.starred">
+            <i class="typcn typcn-star"></i>
+          </div>
+
+          @if (mail.img) {
+          <div class="main-img-user">
+            <img [src]="mail.img" [alt]="mail.from">
+          </div>
+          } @else if (mail.avatar) {
+          <div class="main-avatar bg-gray-800">
+            {{ mail.avatar }}
+          </div>
+          }
+
+          <div class="main-mail-body">
+            <div class="main-mail-from">
+              {{ mail.from }}
+            </div>
+            <div class="main-mail-subject">
+              <strong>{{ mail.subject }}</strong>
+              <span>{{ mail.excerpt }}</span>
+            </div>
+          </div>
+
+          <div class="main-mail-attachment">
+            @if (mail.hasAttachment) {
+            <i class="fe fe-paperclip"></i>
+            }
+          </div>
+
+          <div class="main-mail-date">
+            {{ mail.date }}
+          </div>
+        </div>
+        }
+
+        <div class="main-mail-item border-bottom-0">
+        </div>
+      </div>
+      <div class="mg-lg-b-30"></div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <ul class="pagination product-pagination justify-content-end">
+    <li class="page-item page-prev disabled">
+      <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+    </li>
+    <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+    <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+    <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+    <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
+    <li class="page-item page-next">
+      <a class="page-link" href="javascript:void(0);">Next</a>
+    </li>
+  </ul>
+  <!-- COL-END -->
+</div>
+<!-- /row -->

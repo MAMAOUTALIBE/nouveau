@@ -1,0 +1,32 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Rapports RH</div>
+        <div class="btn-list">
+          <button class="btn btn-primary">Exporter PDF</button>
+          <button class="btn btn-outline-primary">Exporter Excel</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6 col-lg-3" *ngFor="let kpi of kpis">
+            <div class="card shadow-none border text-center p-3">
+              <span class="badge mb-2" [ngClass]="kpi.badge">{{ kpi.label }}</span>
+              <div class="fs-24 fw-semibold">{{ kpi.value }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <h6 class="fw-semibold mb-3">Exports rapides</h6>
+          <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let report of reports">
+              <span>{{ report.name }}</span>
+              <span class="badge bg-primary-transparent">{{ report.format }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

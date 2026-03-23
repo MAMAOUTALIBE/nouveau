@@ -1,0 +1,17 @@
+@for (item of items(); track $index) {
+<label class="p-2 d-flex">
+    <span class="form-check mb-0 ms-2">
+      <input class="form-check-input" type="checkbox" [checked]="item.checked">
+    </span>
+    <span class="mx-3 my-auto">
+      {{ item.label }}
+    </span>
+    @if(item.badgeText){
+        <span class="ms-auto" >
+          <span class="badge fw-semibold px-2 py-1 fs-11 me-2" [ngClass]="'bg-' + item.badgeColor">
+            {{ item.badgeText }}
+          </span>
+        </span>
+    }
+  </label>
+}

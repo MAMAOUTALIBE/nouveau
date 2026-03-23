@@ -1,0 +1,10 @@
+<div class="row" gallerize>
+  @for (img of imageData; track img) {
+    <div  class="col-lg-3 col-md-3 col-sm-6 col-12" >
+      <a  href="javascript:void(0);" class="glightbox card" data-gallery="gallery1">
+        <img  [src]="img.srcUrl"  alt="image" >
+      </a>
+    </div>
+  }
+</div>
+<!--End::row-1 -->

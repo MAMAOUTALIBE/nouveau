@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/dashboards/dashboard-2/dashboard-2.scss"],
+  "sourcesContent": ["::ng-deep{\r\n    .bgcolor{\r\n        border-radius: 0.25rem;\r\n    }\r\n}"],
+  "mappings": ";AACI,UAAA,CAAA;AACI,iBAAA;;",
+  "names": []
+}

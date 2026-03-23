@@ -1,0 +1,145 @@
+
+<!-- row -->
+<div class="row">
+    <div class="col-sm-12 col-md-12">
+        <div class="card custom-card">
+            <div class="card-body pb-0">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" placeholder="Searching....." aria-label="Searching....." aria-describedby="button-addon2">
+                    <button class="btn btn-primary" type="button">Search</button>
+                </div>
+            </div>
+            <div class="card-body ps-0 pe-0 bd-t-0 pt-0">
+                <div class="main-content-body-profile mb-3">
+                    <nav class="nav main-nav-line">
+                        @for (tab of tabs; track $index) {
+                            <a href="javascript:void(0);"
+                              class="nav-link"
+                              [class.active]="selectedTab === tab"
+                              (click)="selectTab(tab)"
+                            >
+                              {{ tab }}
+                            </a>
+                        }
+                    </nav>
+                  </div>
+                <p class="text-muted mb-0 ps-3">About 12,546,90000 results (0.56 Seconds)</p>
+            </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                <div>
+                    <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">Search the new animations</a></h3>
+                </div>
+             </div>
+            <div class="card-body pt-0">
+                <h6 class="fs-13">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in neighborhood</h6>
+                <p class="mb-0 text-muted">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in her neighborhood, she stumbled upon a magical garden filled with talking animals and enchanted plants. Each creature had a unique story to tell, and the garden itself held secrets from a time long forgotten. Lily's discovery not only transformed.</p>
+            </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                    <div>
+                        <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">Free Boostrap admin templates</a></h3>
+                    </div>
+            </div>
+             <div class="card-body pt-0">
+                 <div class="mb-2">
+                    <a href="javascript:void(0);" class="h5 text-dark">Templist – HTML5 Digital Marketplace Template by ...</a>
+                </div>
+                <a href="https://spruko.com/demo/templist/" target="_blank" class="text-primary">https://www.spruko.com/demo/templist/Html/index.html</a>
+                <p class="text-muted mt-2 mb-2">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in her neighborhood, she stumbled upon a magical garden filled with talking animals and enchanted plants. Each creature had a unique story to tell, and the garden itself held secrets from a time long forgotten. Lily's discovery not only transformed.</p>
+                <div>
+                    <a href="javascript:void(0);"><i class="fa fa-star text-warning me-1 fs-16"></i></a>
+                    <a href="javascript:void(0);"><i class="fa fa-star text-warning me-1 fs-16"></i></a>
+                    <a href="javascript:void(0);"><i class="fa fa-star text-warning me-1 fs-16"></i></a>
+                    <a href="javascript:void(0);"><i class="fa fa-star text-warning me-1 fs-16"></i></a>
+                    <a href="javascript:void(0);" class="me-4 d-inline-block"> (48) Reviews</a>
+                    <a href="javascript:void(0);" class="fw-bold">USD-$24</a>
+                </div>
+             </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                <div>
+                    <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">20+ download the free templates</a></h3>
+                </div>
+             </div>
+            <div class="card-body pt-0">
+                <h6 class="fs-13">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur eu fugiat nulla pariatur</h6>
+                <p class="mb-0 text-muted">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in her neighborhood, she stumbled upon a magical garden filled with talking animals and enchanted plants. Each creature had a unique story to tell, and the garden itself held secrets from a time long forgotten. Lily's discovery not only transformed.</p>
+            </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                <div>
+                    <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">Customizable admin templates</a></h3>
+                </div>
+             </div>
+            <div class="card-body pt-0">
+                    <div class="mb-2">
+                        <a href="javascript:void(0);" class="h4 text-dark">User related Images</a>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-sm-6 col-lg-3">
+                                <div class="border  br-5 p-0 text-center m-1">
+                                    <a [routerLink]="['/apps/gallery']"><img src="./assets/images/photos/1.jpg" alt="img" class="mx-auto br-5"></a>
+                                </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                                <div class="border   br-5 p-0 text-center m-1">
+                                    <a [routerLink]="['/apps/gallery']"><img src="./assets/images/photos/3.jpg" alt="img" class="mx-auto  br-5"></a>
+                                </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                                <div class="border br-5 p-0 text-center m-1">
+                                    <a [routerLink]="['/apps/gallery']"><img src="./assets/images/photos/5.jpg" alt="img" class="mx-auto  br-5"></a>
+                                </div>
+                        </div>
+                        <div class="col-sm-6 col-lg-3">
+                                <div class="border br-5 p-0 text-center m-1">
+                                    <a [routerLink]="['/apps/gallery']"><img src="./assets/images/photos/6.jpg" alt="img" class="mx-auto  br-5"></a>
+                                </div>
+                        </div>
+                    </div>
+                    <a href="javascript:void(0);" class="text-primary h6 mb-0">more images for treal template<span class="ms-1"><i class="fa fa-arrow-right"></i></span></a>
+            </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                <div>
+                    <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">HTML Admin templates</a></h3>
+                </div>
+             </div>
+            <div class="card-body  pt-0">
+                <h6 class="fs-13">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur eu fugiat nulla pariatur</h6>
+                <p class="mb-0 text-muted">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in her neighborhood, she stumbled upon a magical garden filled with talking animals and enchanted plants. Each creature had a unique story to tell, and the garden itself held secrets from a time long forgotten. Lily's discovery not only transformed.</p>
+            </div>
+        </div>
+        <div class="card custom-card">
+            <div class="card-header border-bottom-0">
+                <div>
+                    <h3 class="card-title mb-0 text-dark "><a href="javascript:void(0);" class="text-dark">Best free admin templates</a></h3>
+                </div>
+             </div>
+            <div class="card-body  pt-0">
+                <h6 class="fs-13">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur eu fugiat nulla pariatur</h6>
+                <p class="mb-0 text-muted">In a bustling city, there lived a lonely girl named Lily. One day, while exploring an overgrown, abandoned lot in her neighborhood, she stumbled upon a magical garden filled with talking animals and enchanted plants. Each creature had a unique story to tell, and the garden itself held secrets from a time long forgotten. Lily's discovery not only transformed.</p>
+            </div>
+        </div>
+        <div class="text-center search">
+            <ul class="pagination">
+                <li class="page-item page-prev disabled">
+                    <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+                <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                <li class="page-item page-next">
+                    <a class="page-link" href="javascript:void(0);">Next</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- row closed -->

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/workflows/workflows.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const WORKFLOWS_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'definitions',\n    pathMatch: 'full',\n  },\n  {\n    path: 'definitions',\n    loadComponent: () =>\n      import('./pages/workflow-definitions/workflow-definitions').then((m) => m.WorkflowDefinitionsPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Workflows' },\n  },\n  {\n    path: 'instances',\n    loadComponent: () =>\n      import('./pages/workflow-instances/workflow-instances').then((m) => m.WorkflowInstancesPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Instances' },\n  },\n];\n"],
+  "mappings": ";;;AAEO,IAAM,mBAA2B;EACtC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAmD,EAAE,KAAK,CAAC,MAAM,EAAE,uBAAuB;IACnG,MAAM,EAAE,aAAa,YAAY,YAAY,YAAW;;EAE1D;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA+C,EAAE,KAAK,CAAC,MAAM,EAAE,qBAAqB;IAC7F,MAAM,EAAE,aAAa,YAAY,YAAY,YAAW;;;",
+  "names": []
+}

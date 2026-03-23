@@ -1,0 +1,52 @@
+<!-- Start::row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Basic Candlestick Chart</div>
+      </div>
+      <div class="card-body">
+
+        <spk-apexcharts id="candlestick-basic" [chartOptions]="BasicCandlestickChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Candlestick Synced With Brush Chart</div>
+      </div>
+      <div class="card-body">
+
+        <spk-apexcharts id="chart-candlestick" [chartOptions]="CandlestickSyncedChart" />
+
+        <spk-apexcharts id="chart-bar" [chartOptions]="CandlestickBrushChart" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Candlestick With Category X-axis</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="candlestick-categoryx" [chartOptions]="CandlestickWithCateoryXaxis" />
+
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-6">
+    <div class="card custom-card">
+      <div class="card-header">
+        <div class="card-title">Candlestick With Line Chart</div>
+      </div>
+      <div class="card-body">
+        <spk-apexcharts id="candlestick-line" [chartOptions]="CandlestickWithLineChart" />
+
+      </div>
+    </div>
+  </div>
+</div>
+<!--End::row-1 -->

@@ -1,0 +1,73 @@
+<!-- row -->
+<div class="row">
+  <div class="col-lg-12 col-xl-12">
+    <div class="row">
+      <div class="col-6">
+        <div class="fs-18 mb-4">
+          Files
+        </div>
+      </div>
+      <div class="col-6 col-auto">
+        <div class="input-group mb-4">
+          <input type="text" class="form-control" placeholder="Search files" aria-label="Search files"
+            aria-describedby="button-addon2">
+          <button class="btn btn-primary" type="button">Search</button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      @for (item of files; track $index) {
+      <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="card p-0">
+          <div class="d-flex align-items-center justify-content-end  px-3 pt-3">
+            <spk-dropdowns Customclass="float-end ms-auto  " [class]="'option-dots no-caret'" [Icon]="true"
+              [IconClass]="'fe fe-more-vertical'" [Menuclass]="'dropdown-menu'">
+              <li ngbDropdownItem>
+                <a  class="dropdown-item" href="javascript:void(0);"><i class="fe fe-edit me-2"></i>
+                  Edit</a>
+              </li>
+              <li ngbDropdownItem>
+
+                <a  class="dropdown-item" href="javascript:void(0);"><i class="fe fe-share me-2"></i>
+                  Share</a>
+              </li>
+              <li ngbDropdownItem>
+                <a  class="dropdown-item" href="javascript:void(0);"><i class="fe fe-trash me-2"></i>
+                  Delete</a>
+
+              </li>
+
+            </spk-dropdowns>
+
+          </div>
+
+          <div class="card-body pt-0 text-center">
+            <div class="file-manger-icon" [class.class1]="{'file-manger-icon1': item.name === 'Document'}">
+              <a [routerLink]="['/apps/file-details']">
+                <img [src]="item.icon" [alt]="item.name + ' icon'" class="br-7" />
+              </a>
+            </div>
+            <h6 class="mb-1 fw-semibold" [class.class1]="{'mt-1': item.name === 'Document', 'mt-2': item.isImage}">
+              {{ item.name }}
+            </h6>
+            <span class="text-muted">{{ item.size }}</span>
+          </div>
+        </div>
+      </div>
+      }
+
+    </div>
+    <ul class="pagination float-end mb-4">
+      <li class="page-item page-prev disabled">
+        <a class="page-link" href="javascript:void(0);" tabindex="-1">Prev</a>
+      </li>
+      <li class="page-item active"><a class="page-link" href="javascript:void(0);">1</a></li>
+      <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
+      <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+      <li class="page-item page-next">
+        <a class="page-link" href="javascript:void(0);">Next</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<!-- End Row -->

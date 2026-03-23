@@ -1,0 +1,49 @@
+<!-- row -->
+<div class="container">
+  <ul class="notification">
+    @for (notification of notifications; track $index) {
+    <li>
+      <div class="notification-time">
+        <span class="date">{{ notification.date }}</span>
+        <span class="time">{{ notification.time }}</span>
+      </div>
+
+      <div class="notification-icon">
+        <a href="javascript:void(0);"></a>
+      </div>
+
+      <div class="notification-body">
+        <div class="media mt-0">
+          <div class="avatar avatar-md avatar-rounded main-avatar {{ notification.avatarStatus }} me-3 shadow">
+            <a [routerLink]="'/pages/profile'">
+              <img alt="avatar" class="rounded-circle" [src]="notification.avatarSrc">
+            </a>
+          </div>
+
+          <div class="media-body">
+            <div class="d-flex align-items-center">
+              <div class="mt-0">
+                <h5 class="mb-1 fs-15 fw-semibold text-dark">
+                  {{ notification.name }}
+                </h5>
+                <p class="mb-0 fs-13 text-muted" [innerHTML]="notification.message"></p>
+              </div>
+
+              <div class="ms-auto">
+                <span class="float-end badge notification-badge">
+                  <span class="tx-11 fw-semibold">{{ notification.badgeDate }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
+    }
+   
+  </ul>
+  <div class="text-center mb-4">
+    <button class="btn btn-primary">Load more</button>
+  </div>
+</div>
+<!-- row closed -->

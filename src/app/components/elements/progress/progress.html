@@ -1,0 +1,336 @@
+<!-- Start:: row-1 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title=" Basic Progress" [prism]="prismCodeData.BasicProgress">
+      <spk-progressbar [type]="'bg-primary'" [class]="'mb-3'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="25" [type]="'bg-primary'" [class]="'mb-3'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="50" [type]="'bg-primary'" [class]="'mb-3'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="75" [type]="'bg-primary'" [class]="'mb-3'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="100" [type]="'bg-primary'" [class]="'mb-0'" [showValue]="false"></spk-progressbar>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+
+    <app-showcode-card title=" Different Colored Progress" [prism]="prismCodeData.DifferentColoredProgress">
+      <spk-progressbar [value]="20" [class]="'mb-3'" [type]="'secondary'"></spk-progressbar>
+      <spk-progressbar [value]="40" [class]="'mb-3'" [type]="'warning'"></spk-progressbar>
+      <spk-progressbar [value]="60" [class]="'mb-3'" [type]="'info'"></spk-progressbar>
+      <spk-progressbar [value]="80" [class]="'mb-3'" [type]="'success'"></spk-progressbar>
+      <spk-progressbar [value]="100" [class]="'mb-0'" [type]="'danger'"></spk-progressbar>
+
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-1 -->
+
+<!-- Start:: row-2 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title=" Striped Progress" [prism]="prismCodeData.StripedProgress">
+      <spk-progressbar [value]="10" [type]="'primary'" [striped]="true" class="mb-3"></spk-progressbar>
+      <spk-progressbar [value]="20" [type]="'secondary'" [striped]="true" class="mb-3"></spk-progressbar>
+      <spk-progressbar [value]="40" [type]="'success'" [striped]="true" class="mb-3"></spk-progressbar>
+      <spk-progressbar [value]="60" [type]="'info'" [striped]="true" class="mb-3"></spk-progressbar>
+      <spk-progressbar [value]="80" [type]="'warning'" [striped]="true" class="mb-3"></spk-progressbar>
+
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+
+    <app-showcode-card title=" Progress Height" cardbody="border border-dashed m-2 mt-0 rounded-1"
+      [prism]="prismCodeData.ProgressHeight">
+      <spk-progressbar [value]="10" [class]="' progress-xs mb-3'"></spk-progressbar>
+      <spk-progressbar [value]="25" [class]="' progress-sm mb-3'"></spk-progressbar>
+      <spk-progressbar [value]="50" [class]="'mb-3'"></spk-progressbar>
+      <spk-progressbar [value]="75" [class]="' progress-lg mb-3'"></spk-progressbar>
+      <spk-progressbar [value]="100" [class]="' progress-xl mb-0'"></spk-progressbar>
+
+    </app-showcode-card>
+
+
+  </div>
+
+
+</div>
+<!-- End:: row-2 -->
+
+<!-- Start:: row-3 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title="Progress With Labels" [prism]="prismCodeData. ProgressWithLabels">
+      <spk-progressbar [value]="10" [type]="'primary'" [class]="'  mb-3'" [showValue]="true"></spk-progressbar>
+      <spk-progressbar [value]="20" [type]="'secondary'" [class]="' mb-3'" [showValue]="true"></spk-progressbar>
+      <spk-progressbar [value]="40" [type]="'success'" [class]="' mb-3'" [showValue]="true"></spk-progressbar>
+      <spk-progressbar [value]="60" [type]="'info'" [class]="' mb-3'" [showValue]="true"></spk-progressbar>
+      <spk-progressbar [value]="80" [type]="'warning'" [class]="' mb-0'" [showValue]="true"></spk-progressbar>
+
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="  Multiple bars With Sizes" cardbody="border-dashed m-2 mt-0 rounded-1"
+      [prism]="prismCodeData.MultiplebarsWithSizes">
+
+      <div class="progress-stacked progress-xs mb-3">
+        <div class="progress-bar" role="progressbar" style="width: 5%" aria-valuenow="5" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-secondary" role="progressbar" style="width: 10%" aria-valuenow="10"
+          aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar bg-success" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0"
+          aria-valuemax="100"></div>
+      </div>
+      <div class="progress-stacked progress-sm mb-3">
+        <div class="progress-bar bg-warning" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-info" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0"
+          aria-valuemax="100"></div>
+      </div>
+      <div class="progress-stacked mb-3">
+        <div class="progress-bar bg-info" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-success" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+          aria-valuemax="100"></div>
+      </div>
+      <div class="progress-stacked progress-lg mb-3">
+        <div class="progress-bar bg-purple" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-teal" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-orange" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0"
+          aria-valuemax="100"></div>
+      </div>
+      <div class="progress-stacked progress-xl mb-0">
+        <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-danger" role="progressbar" style="width: 30%" aria-valuenow="30" aria-valuemin="0"
+          aria-valuemax="100"></div>
+        <div class="progress-bar bg-warning" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0"
+          aria-valuemax="100"></div>
+      </div>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-3 -->
+
+<!-- Start:: row-4 -->
+<div class="row">
+  <div class="col-xl-6">
+
+    <app-showcode-card title="Animated Stripped Progress" [prism]="prismCodeData.AnimatedStrippedProgress">
+      <spk-progressbar [value]="10" [type]="'primary '" [class]="'mb-3'" [striped]="true"></spk-progressbar>
+      <spk-progressbar [value]="20" [type]="'secondary '" [class]="'mb-3'" [striped]="true"></spk-progressbar>
+      <spk-progressbar [value]="40" [type]="'success '" [class]="'mb-3'" [striped]="true"></spk-progressbar>
+      <spk-progressbar [value]="60" [type]="'info '" [class]="'mb-3'" [striped]="true"></spk-progressbar>
+      <spk-progressbar [value]="80" [type]="'pink '" [class]="'mb-0'" [striped]="true"></spk-progressbar>
+
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Gradient Progress" [prism]="prismCodeData.GradientProgress">
+      <spk-progressbar [value]="10" [class]="' mb-3'" [type]="' bg-primary-gradient'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="20" [class]="' mb-3'" [type]="' bg-secondary-gradient'"  [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="40" [class]="' mb-3'" [type]="' bg-success-gradient'"   [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="60" [class]="' mb-3'" [type]="' bg-info-gradient'"  [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="80" [class]="' mb-0'" [type]="' bg-warning-gradient'"  [showValue]="false"></spk-progressbar>
+
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-4 -->
+
+<!-- Start:: row-5 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Animated Progress" [prism]="prismCodeData.CustomAnimatedProgress">
+      <spk-progressbar [value]="10" [type]="' bg-primary-gradient'" [class]="' mb-3 progress-animate'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="20" [type]="' bg-secondary-gradient'" [class]="' mb-3 progress-animate'" [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="40" [type]="' bg-success-gradient'" [class]="' mb-3 progress-animate'"  [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="60" [type]="' bg-info-gradient'" [class]="' mb-3 progress-animate'"  [showValue]="false"></spk-progressbar>
+      <spk-progressbar [value]="80" [type]="' bg-warning-gradient'" [class]="' mb-0 progress-animate'"  [showValue]="false"></spk-progressbar>
+
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Progress-1" [prism]="prismCodeData.CustomProgress1">
+      <div class="progress progress-sm progress-custom mb-5 progress-animate" role="progressbar" aria-valuenow="50"
+        aria-valuemin="0" aria-valuemax="100">
+        <h6 class="progress-bar-title">Mobiles</h6>
+        <div class="progress-bar" style="width: 50%">
+          <div class="progress-bar-value">50%</div>
+        </div>
+      </div>
+      <div class="progress progress-sm progress-custom mb-5 progress-animate" role="progressbar" aria-valuenow="60"
+        aria-valuemin="0" aria-valuemax="100">
+        <h6 class="progress-bar-title bg-secondary">Watches</h6>
+        <div class="progress-bar bg-secondary" style="width: 60%">
+          <div class="progress-bar-value bg-secondary">60%</div>
+        </div>
+      </div>
+      <div class="progress progress-sm progress-custom progress-animate" role="progressbar" aria-valuenow="70"
+        aria-valuemin="0" aria-valuemax="100">
+        <h6 class="progress-bar-title bg-success">Shirts</h6>
+        <div class="progress-bar bg-success" style="width: 70%">
+          <div class="progress-bar-value bg-success">70%</div>
+        </div>
+      </div>
+    </app-showcode-card>
+  </div>
+</div>
+<!-- End:: row-5 -->
+
+<!-- Start:: row-6 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Progress-2" [prism]="prismCodeData.CustomProgress2">
+      <div class="progress progress-sm mb-4" role="progressbar" aria-valuenow="50" aria-valuemin="0"
+        aria-valuemax="100">
+        <div class="progress-item-1 bg-primary"></div>
+        <div class="progress-item-2"></div>
+        <div class="progress-item-3"></div>
+        <div class="progress-bar" style="width: 50%"></div>
+      </div>
+      <div class="progress progress-sm mb-4" role="progressbar" aria-valuenow="60" aria-valuemin="0"
+        aria-valuemax="100">
+        <div class="progress-item-1 bg-secondary"></div>
+        <div class="progress-item-2 bg-secondary"></div>
+        <div class="progress-item-3"></div>
+        <div class="progress-bar bg-secondary" style="width: 60%"></div>
+      </div>
+      <div class="progress progress-sm mb-4" role="progressbar" aria-valuenow="70" aria-valuemin="0"
+        aria-valuemax="100">
+        <div class="progress-item-1 bg-success"></div>
+        <div class="progress-item-2 bg-success"></div>
+        <div class="progress-item-3"></div>
+        <div class="progress-bar bg-success" style="width: 70%"></div>
+      </div>
+      <div class="progress progress-sm mb-4" role="progressbar" aria-valuenow="80" aria-valuemin="0"
+        aria-valuemax="100">
+        <div class="progress-item-1 bg-info"></div>
+        <div class="progress-item-2 bg-info"></div>
+        <div class="progress-item-3 bg-info"></div>
+        <div class="progress-bar bg-info" style="width: 80%"></div>
+      </div>
+      <div class="progress progress-sm" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-item-1 bg-warning"></div>
+        <div class="progress-item-2 bg-warning"></div>
+        <div class="progress-item-3 bg-warning"></div>
+        <div class="progress-bar bg-warning" style="width: 90%"></div>
+      </div>
+    </app-showcode-card>
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Progress-3" [prism]="prismCodeData.CustomProgress3">
+      <div class="example">
+        <div class="progress progress-lg mb-4 custom-progress-3 progress-animate" role="progressbar" aria-valuenow="50"
+          aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar" style="width: 50%">
+            <div class="progress-bar-value">50%</div>
+          </div>
+        </div>
+        <div class="progress progress-lg mb-4 custom-progress-3 progress-animate" role="progressbar" aria-valuenow="60"
+          aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar bg-secondary" style="width: 60%">
+            <div class="progress-bar-value secondary">60%</div>
+          </div>
+        </div>
+        <div class="progress progress-lg  mb-1 custom-progress-3 progress-animate" role="progressbar" aria-valuenow="70"
+          aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-bar bg-success" style="width: 70%">
+            <div class="progress-bar-value success">70%</div>
+          </div>
+        </div>
+      </div>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-6 -->
+
+<!-- Start:: row-7 -->
+<div class="row">
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Progress-4" [prism]="prismCodeData.CustomProgress4">
+      <div class="progress progress-xl mb-3 progress-animate custom-progress-4" role="progressbar" aria-valuenow="10"
+        aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-primary-gradient" style="width: 10%"></div>
+        <div class="progress-bar-label">10%</div>
+      </div>
+      <div class="progress progress-xl mb-3 progress-animate custom-progress-4 secondary" role="progressbar"
+        aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-secondary-gradient" style="width: 20%"></div>
+        <div class="progress-bar-label">20%</div>
+      </div>
+      <div class="progress progress-xl mb-3 progress-animate custom-progress-4 success" role="progressbar"
+        aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success-gradient" style="width: 40%"></div>
+        <div class="progress-bar-label">40%</div>
+      </div>
+      <div class="progress progress-xl mb-3 progress-animate custom-progress-4 info" role="progressbar"
+        aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-info-gradient" style="width: 60%"></div>
+        <div class="progress-bar-label">60%</div>
+      </div>
+      <div class="progress progress-xl mb-3 progress-animate custom-progress-4 warning" role="progressbar"
+        aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-warning-gradient" style="width: 80%"></div>
+        <div class="progress-bar-label">80%</div>
+      </div>
+      <div class="progress progress-xl progress-animate custom-progress-4 danger" role="progressbar" aria-valuenow="90"
+        aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-danger-gradient" style="width: 90%"></div>
+        <div class="progress-bar-label">90%</div>
+      </div>
+    </app-showcode-card>
+
+  </div>
+  <div class="col-xl-6">
+    <app-showcode-card title="Custom Progress-5" [prism]="prismCodeData.CustomProgress5">
+      <h6 class="fw-medium mb-2">Project Dependencies</h6>
+      <div class="progress-stacked progress-xl mb-5">
+        <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0"
+          aria-valuemax="100">25%</div>
+        <div class="progress-bar bg-secondary" role="progressbar" style="width: 35%" aria-valuenow="35"
+          aria-valuemin="0" aria-valuemax="100">35%</div>
+        <div class="progress-bar bg-danger" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0"
+          aria-valuemax="100">40%</div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-xl-5">
+          <div class="border p-3">
+            <p class="fs-12 fw-medium mb-0 text-muted">Html<span class="float-end fs-10 fw-normal">25%</span></p>
+            <div class="progress progress-xs mb-4 progress-animate" role="progressbar" aria-valuenow="25"
+              aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-primary" style="width: 25%">
+              </div>
+            </div>
+            <p class="fs-12 fw-medium mb-0 text-muted">Css<span class="float-end fs-10 fw-normal">35%</span>
+            </p>
+            <div class="progress progress-xs mb-4 progress-animate" role="progressbar" aria-valuenow="35"
+              aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-secondary" style="width: 35%">
+              </div>
+            </div>
+            <p class="fs-12 fw-medium mb-0 text-muted">Js<span class="float-end fs-10 fw-normal">40%</span>
+            </p>
+            <div class="progress progress-xs mb-0 progress-animate" role="progressbar" aria-valuenow="40"
+              aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-bar bg-danger" style="width: 40%">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-showcode-card>
+
+  </div>
+</div>
+<!-- End:: row-7 -->
