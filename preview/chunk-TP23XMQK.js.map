@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/discipline/discipline.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const DISCIPLINE_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'dossiers',\n    pathMatch: 'full',\n  },\n  {\n    path: 'dossiers',\n    loadComponent: () =>\n      import('./pages/discipline-cases/discipline-cases').then((m) => m.DisciplineCasesPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Discipline' },\n  },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,oBAA4B;EACvC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA2C,EAAE,KAAK,CAAC,MAAM,EAAE,mBAAmB;IACvF,MAAM,EAAE,aAAa,YAAY,YAAY,aAAY;;;",
-  "names": []
-}

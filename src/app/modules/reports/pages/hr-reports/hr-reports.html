@@ -4,28 +4,166 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Rapports RH</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Exporter PDF</button>
-          <button class="btn btn-outline-primary">Exporter Excel</button>
+          <button class="btn btn-primary" [disabled]="isLoading || !snapshot" (click)="exportPdf()">Exporter PDF</button>
+          <button class="btn btn-outline-primary" [disabled]="isLoading || !snapshot" (click)="exportExcel()">
+            Exporter Excel
+          </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="row g-3">
-          <div class="col-sm-6 col-lg-3" *ngFor="let kpi of kpis">
-            <div class="card shadow-none border text-center p-3">
-              <span class="badge mb-2" [ngClass]="kpi.badge">{{ kpi.label }}</span>
-              <div class="fs-24 fw-semibold">{{ kpi.value }}</div>
-            </div>
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-lg-3 col-md-6">
+            <label class="form-label fw-semibold">Periode</label>
+            <select class="form-select" [(ngModel)]="selectedPeriodDays" (change)="reload()">
+              <option *ngFor="let option of periodOptions" [ngValue]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <label class="form-label fw-semibold">Direction</label>
+            <select class="form-select" [(ngModel)]="selectedDirection" (change)="reload()">
+              <option *ngFor="let option of directionOptions" [value]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="col-lg-2 col-md-6">
+            <button class="btn btn-outline-primary w-100" [disabled]="isLoading" (click)="reload()">Actualiser</button>
           </div>
         </div>
-        <div class="mt-4">
-          <h6 class="fw-semibold mb-3">Exports rapides</h6>
-          <ul class="list-group">
-            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let report of reports">
-              <span>{{ report.name }}</span>
-              <span class="badge bg-primary-transparent">{{ report.format }}</span>
-            </li>
-          </ul>
+
+        <div *ngIf="isLoading" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div class="mt-2 text-muted">Calcul des indicateurs...</div>
         </div>
+
+        <ng-container *ngIf="!isLoading && snapshot as data">
+          <div class="row g-3">
+            <div class="col-sm-6 col-lg-4" *ngFor="let kpi of data.kpis">
+              <div class="card shadow-none border text-center p-3 h-100">
+                <span class="badge mb-2" [ngClass]="kpi.badge">{{ kpi.label }}</span>
+                <div class="fs-24 fw-semibold">{{ kpi.value }}{{ kpi.unit || '' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4 g-4">
+            <div class="col-xl-6">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Effectifs par direction</h6>
+                <div *ngFor="let item of data.directionDistribution" class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>{{ item.label }}</span>
+                    <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+                  </div>
+                  <div class="progress mt-2" style="height: 8px">
+                    <div class="progress-bar bg-primary" [style.width.%]="asNumber(item.sharePercent)"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Absences par type (periode)</h6>
+                <div *ngFor="let item of data.leaveByType" class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <span>{{ item.label }}</span>
+                    <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+                  </div>
+                  <div class="progress mt-2" style="height: 8px">
+                    <div class="progress-bar bg-warning" [style.width.%]="asNumber(item.sharePercent)"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4 g-4">
+            <div class="col-xl-6">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Tendance absences (6 mois)</h6>
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th>Mois</th>
+                      <th class="text-end">Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let point of data.leaveTrend">
+                      <td>{{ point.label }}</td>
+                      <td class="text-end">{{ point.value }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-xl-6">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Tendance workflows finalises (6 mois)</h6>
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th>Mois</th>
+                      <th class="text-end">Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let point of data.workflowThroughputTrend">
+                      <td>{{ point.label }}</td>
+                      <td class="text-end">{{ point.value }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4 g-4">
+            <div class="col-xl-7">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Top risques workflow</h6>
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Workflow</th>
+                      <th>SLA</th>
+                      <th class="text-end">Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let risk of data.riskItems">
+                      <td>{{ risk.instanceId }}</td>
+                      <td>{{ risk.definition }}</td>
+                      <td>{{ risk.slaState }}</td>
+                      <td class="text-end fw-semibold">{{ risk.score }}</td>
+                    </tr>
+                    <tr *ngIf="!data.riskItems.length">
+                      <td colspan="4" class="text-center text-muted">Aucun risque majeur detecte</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-xl-5">
+              <div class="border rounded p-3 mb-4">
+                <h6 class="fw-semibold mb-3">Insights automatiques</h6>
+                <ul class="list-group">
+                  <li class="list-group-item py-2" *ngFor="let insight of data.insights">{{ insight }}</li>
+                </ul>
+              </div>
+              <div class="border rounded p-3">
+                <h6 class="fw-semibold mb-3">Exports rapides</h6>
+                <div class="d-grid gap-2">
+                  <button
+                    *ngFor="let report of quickExports"
+                    class="btn btn-outline-primary text-start"
+                    (click)="exportQuick(report.id)">
+                    {{ report.name }} <span class="badge bg-primary-transparent float-end">{{ report.format }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>

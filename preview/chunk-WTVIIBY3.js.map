@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/performance/performance.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const PERFORMANCE_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'campagnes',\n    pathMatch: 'full',\n  },\n  {\n    path: 'campagnes',\n    loadComponent: () =>\n      import('./pages/perf-campaigns/perf-campaigns').then((m) => m.PerfCampaignsPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Évaluation' },\n  },\n  {\n    path: 'resultats',\n    loadComponent: () =>\n      import('./pages/perf-results/perf-results').then((m) => m.PerfResultsPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Résultats' },\n  },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,qBAA6B;EACxC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAuC,EAAE,KAAK,CAAC,MAAM,EAAE,iBAAiB;IACjF,MAAM,EAAE,aAAa,YAAY,YAAY,gBAAY;;EAE3D;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAmC,EAAE,KAAK,CAAC,MAAM,EAAE,eAAe;IAC3E,MAAM,EAAE,aAAa,YAAY,YAAY,eAAW;;;",
-  "names": []
-}

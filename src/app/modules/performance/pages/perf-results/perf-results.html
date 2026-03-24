@@ -4,11 +4,61 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Résultats d'évaluation</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Publier</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Publier' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveResult()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Direction</label>
+                <input type="text" class="form-control" formControlName="direction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('direction') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="En revue">En revue</option>
+                  <option value="Valide">Valide</option>
+                  <option value="Publie">Publie</option>
+                  <option value="Brouillon">Brouillon</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Score auto-evaluation</label>
+                <input type="number" class="form-control" formControlName="selfScore" min="0" max="100" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('selfScore') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Score manager</label>
+                <input type="number" class="form-control" formControlName="managerScore" min="0" max="100" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('managerScore') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Score final (optionnel)</label>
+                <input type="number" class="form-control" formControlName="finalScore" min="0" max="100" />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le resultat' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

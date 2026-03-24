@@ -4,11 +4,43 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Rôles</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Créer un rôle</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Creer un role' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveRole()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Nom technique</label>
+                <input type="text" class="form-control" formControlName="name" placeholder="role_personnalise" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('name') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Description</label>
+                <input type="text" class="form-control" formControlName="description" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('description') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Permissions</label>
+                <input type="number" class="form-control" formControlName="permissions" min="1" max="200" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('permissions') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le role' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

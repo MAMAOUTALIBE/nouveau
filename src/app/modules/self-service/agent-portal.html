@@ -1,0 +1,110 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Portail agent</div>
+        <div class="btn-list">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle demande' }}
+          </button>
+          <a routerLink="/documents" class="btn btn-outline-primary">Mes documents</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveRequest()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type</label>
+                <select class="form-select" formControlName="type">
+                  <option value="Conge annuel">Conge annuel</option>
+                  <option value="Maladie">Maladie</option>
+                  <option value="Mission">Mission</option>
+                  <option value="Conge maternite">Conge maternite</option>
+                  <option value="Conge sans solde">Conge sans solde</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date debut</label>
+                <input type="date" class="form-control" formControlName="startDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('startDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date fin</label>
+                <input type="date" class="form-control" formControlName="endDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('endDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="En attente">En attente</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Approuve">Approuve</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la demande' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4" *ngFor="let item of quick">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="fw-semibold mb-1">{{ item.label }}</div>
+              <div class="text-muted fs-12 mb-2">{{ item.desc }}</div>
+              <button type="button" class="btn btn-sm btn-primary-light">{{ item.cta }}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Type</th>
+                <th>Debut</th>
+                <th>Fin</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoadingRequests">
+                <td colspan="5" class="text-center text-muted">Chargement...</td>
+              </tr>
+              <tr *ngIf="!isLoadingRequests && !recentRequests.length">
+                <td colspan="5" class="text-center text-muted">Aucune demande disponible</td>
+              </tr>
+              <tr *ngFor="let request of recentRequests">
+                <td>{{ request.reference }}</td>
+                <td>{{ request.type }}</td>
+                <td>{{ request.startDate }}</td>
+                <td>{{ request.endDate }}</td>
+                <td>
+                  <span class="badge bg-primary-transparent">{{ request.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

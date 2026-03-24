@@ -30,7 +30,12 @@
         <li class="slide" #activeMenuItems [ngClass]="{ 'slide__category': menuItem.headTitle, 'slide has-sub': menuItem.title, 'open': menuItem.active, 'active': menuItem.selected }">
           <!-- head title  -->
           @if(menuItem.headTitle){
-          <span class="category-name">{{ menuItem.headTitle }}</span>
+          <span class="category-name category-name-with-icon">
+            @if (menuItem.headIcon) {
+            <span class="category-name-icon" [appSvgReplace]="menuItem.headIcon"></span>
+            }
+            <span>{{ menuItem.headTitle }}</span>
+          </span>
           }
           <!-- has-Link -->
           @if (menuItem.type === 'link') {
@@ -96,12 +101,18 @@
               <a class="side-menu__item" [routerLink]="!childrenItem.type ? null : [childrenItem.path] "
                 routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
                 (click)="setNavActive($event, childrenItem.path ?? '')">
+                @if (childrenItem.icon) {
+                <span class="iconclick lh-1" [appSvgReplace]="childrenItem.icon"></span>
+                }
                 {{childrenItem.title}}
               </a>
               }
               <!-- empty -->
               @if (childrenItem.type === 'empty' ) {
               <a class="side-menu__item " href="javascript:;" (click)="setNavActive($event, childrenItem.path ?? '')">
+                @if (childrenItem.icon) {
+                <span class="iconclick lh-1" [appSvgReplace]="childrenItem.icon"></span>
+                }
                 {{childrenItem.title }}
               </a>
               }
@@ -110,6 +121,9 @@
               <a class="side-menu__item " [ngClass]="{'active': childrenItem.selected}"
                 [routerLink]="childrenItem.type ? null : [childrenItem.path]"
                 (click)="toggleNavActive($event, childrenItem)">
+                @if (childrenItem.icon) {
+                <span class="iconclick lh-1" [appSvgReplace]="childrenItem.icon"></span>
+                }
                 <span class="">{{childrenItem.title}}</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
               </a>
@@ -140,11 +154,17 @@
                   <a class="side-menu__item" routerLinkActive="active"
                     [routerLink]="!childrenSubItem.type ?  null : [childrenSubItem.path]"
                     [routerLinkActiveOptions]="{exact : true}">
+                    @if (childrenSubItem.icon) {
+                    <span class="iconclick lh-1" [appSvgReplace]="childrenSubItem.icon"></span>
+                    }
                     {{childrenSubItem.title}}
                   </a>
                   }
                   @if (childrenSubItem.type === 'empty') {
                   <a class="side-menu__item" href="javascript:;">
+                    @if (childrenSubItem.icon) {
+                    <span class="iconclick lh-1" [appSvgReplace]="childrenSubItem.icon"></span>
+                    }
                     {{childrenSubItem.title}}
                   </a>
                   }
@@ -153,6 +173,9 @@
                   <a class="side-menu__item " [ngClass]="{'active': childrenSubItem.active}"
                     [routerLink]="childrenSubItem.type ? null : [childrenSubItem.path]" routerLinkActive="active"
                     (click)="toggleNavActive($event, childrenSubItem)">
+                    @if (childrenSubItem.icon) {
+                    <span class="iconclick lh-1" [appSvgReplace]="childrenSubItem.icon"></span>
+                    }
                     <span class="">{{childrenSubItem.title}}</span>
                     <i class="fe fe-chevron-right side-menu__angle"></i>
                   </a>

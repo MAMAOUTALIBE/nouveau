@@ -2,14 +2,721 @@
   <div class="col-xl-12">
     <div class="card custom-card">
       <div class="card-header justify-content-between">
-        <div class="card-title">Instances de workflow</div>
+        <div class="card-title">Pilotage des instances workflow</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Relancer</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle instance' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            (click)="launchEmergencyPlan()"
+            [disabled]="isApplyingEmergencyPlan || isLoading || !priorityQueue.length"
+          >
+            {{ isApplyingEmergencyPlan ? 'Execution...' : "Plan d'urgence (Top 3)" }}
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="loadInstances()" [disabled]="isLoading">
+            {{ isLoading ? 'Chargement...' : 'Rafraichir' }}
+          </button>
         </div>
       </div>
       <div class="card-body">
-        <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="card border shadow-none mb-3" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form class="row g-3" (ngSubmit)="saveNewInstance()">
+              <div class="col-md-3">
+                <label class="form-label">ID (optionnel)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="createInstanceId"
+                  name="createInstanceId"
+                  placeholder="WFI-2026-010"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Workflow</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="createInstanceDefinition"
+                  name="createInstanceDefinition"
+                  (ngModelChange)="onCreateDefinitionChange()"
+                  required
+                >
+                  <option value="" disabled>Selectionner un workflow</option>
+                  @for (definition of workflowDefinitions; track definition.code) {
+                  <option [value]="definition.code">{{ definition.name }} ({{ definition.code }})</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Demandeur</label>
+                <input type="text" class="form-control" [(ngModel)]="createInstanceRequester" name="createInstanceRequester" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Owner</label>
+                <input type="text" class="form-control" [(ngModel)]="createInstanceOwner" name="createInstanceOwner" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Priorite</label>
+                <select class="form-select" [(ngModel)]="createInstancePriority" name="createInstancePriority">
+                  <option value="Basse">Basse</option>
+                  <option value="Normale">Normale</option>
+                  <option value="Haute">Haute</option>
+                  <option value="Critique">Critique</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Statut</label>
+                <select class="form-select" [(ngModel)]="createInstanceStatus" name="createInstanceStatus">
+                  <option value="EN_ATTENTE">EN_ATTENTE</option>
+                  <option value="EN_COURS">EN_COURS</option>
+                  <option value="ESCALADE">ESCALADE</option>
+                  <option value="APPROUVE">APPROUVE</option>
+                  <option value="REJETE">REJETE</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Echeance</label>
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  [(ngModel)]="createInstanceDueOn"
+                  name="createInstanceDueOn"
+                  required
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Etapes totales</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="12"
+                  class="form-control"
+                  [(ngModel)]="createInstanceStepsTotal"
+                  name="createInstanceStepsTotal"
+                />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Etapes completees</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="12"
+                  class="form-control"
+                  [(ngModel)]="createInstanceStepsCompleted"
+                  name="createInstanceStepsCompleted"
+                />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="isCreatingInstance">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="isCreatingInstance">
+                  {{ isCreatingInstance ? 'Enregistrement...' : 'Enregistrer l instance' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="automation-panel mb-3">
+          <div class="automation-controls">
+            <div>
+              <h6 class="mb-1">Auto-escalade SLA</h6>
+              <p class="mb-0 text-muted fs-11">
+                Supervision continue des echeances critiques avec actions automatiques et journal temps reel.
+              </p>
+            </div>
+            <div class="automation-actions">
+              <div class="form-check form-switch m-0">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  role="switch"
+                  id="workflowAutomationToggle"
+                  [(ngModel)]="automationEnabled"
+                  (change)="toggleAutomation()"
+                />
+                <label class="form-check-label fs-12" for="workflowAutomationToggle">
+                  {{ automationEnabled ? 'Actif' : 'Inactif' }}
+                </label>
+              </div>
+              <select
+                class="form-select form-select-sm automation-interval"
+                [(ngModel)]="automationIntervalSeconds"
+                (change)="onAutomationIntervalChange()"
+                [disabled]="!automationEnabled"
+              >
+                <option [ngValue]="30">30s</option>
+                <option [ngValue]="45">45s</option>
+                <option [ngValue]="60">60s</option>
+                <option [ngValue]="120">120s</option>
+              </select>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                (click)="runAutomationCycle()"
+                [disabled]="isRunningAutomationCycle || isLoading"
+              >
+                {{ isRunningAutomationCycle ? 'Execution...' : 'Cycle manuel' }}
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="clearAutomationEvents()" [disabled]="!automationEvents.length">
+                Vider journal
+              </button>
+            </div>
+          </div>
+
+          <div class="automation-stats">
+            <div class="automation-stat-card">
+              <span class="automation-stat-label">Cycles</span>
+              <span class="automation-stat-value">{{ automationStatus?.totalCycles ?? 0 }}</span>
+            </div>
+            <div class="automation-stat-card">
+              <span class="automation-stat-label">Escalades auto</span>
+              <span class="automation-stat-value">{{ automationStatus?.escalationsExecuted ?? 0 }}</span>
+            </div>
+            <div class="automation-stat-card">
+              <span class="automation-stat-label">Notifs externes</span>
+              <span class="automation-stat-value">{{ automationStatus?.notificationsSent ?? 0 }}</span>
+            </div>
+            <div class="automation-stat-card wide">
+              <span class="automation-stat-label">Dernier cycle</span>
+              <span class="automation-stat-value date">
+                {{
+                  automationLastRunLabel() ? (automationLastRunLabel() | date: 'dd/MM/yyyy HH:mm:ss') : 'Jamais execute'
+                }}
+              </span>
+            </div>
+          </div>
+
+          <div class="channel-config">
+            <div class="channel-grid">
+              <div class="channel-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="fw-semibold">Email</div>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="emailChannelEnabled" />
+                  </div>
+                </div>
+                <label class="fs-11 text-muted">Destinataires (separes par virgule)</label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  [(ngModel)]="emailRecipients"
+                  [disabled]="!emailChannelEnabled"
+                  placeholder="drh@gouv.gn, ops.rh@gouv.gn"
+                />
+              </div>
+
+              <div class="channel-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="fw-semibold">Teams</div>
+                  <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="teamsChannelEnabled" />
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <label class="fs-11 text-muted">Webhook</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    [(ngModel)]="teamsWebhookUrl"
+                    [disabled]="!teamsChannelEnabled"
+                    placeholder="https://teams.example/webhook/rh-ops"
+                  />
+                </div>
+                <div>
+                  <label class="fs-11 text-muted">Canal</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    [(ngModel)]="teamsChannelName"
+                    [disabled]="!teamsChannelEnabled"
+                    placeholder="RH-OPS"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="channel-actions">
+              <button class="btn btn-sm btn-outline-success" (click)="saveNotificationChannels()" [disabled]="isSavingChannels">
+                {{ isSavingChannels ? 'Enregistrement...' : 'Enregistrer canaux' }}
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="refreshAutomationData()">
+                Sync backend
+              </button>
+            </div>
+          </div>
+
+          <div class="matrix-config">
+            <div class="matrix-header">
+              <h6 class="mb-0">Matrice de priorisation (configurable)</h6>
+              <small class="text-muted">Seuils score pour escalade N1/N2/COMEX + poids de calcul</small>
+            </div>
+
+            <div class="matrix-grid">
+              <div class="matrix-card">
+                <div class="fw-semibold mb-2">Seuils</div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Notify</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixThresholdNotify" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">N1</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixThresholdN1" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">N2</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixThresholdN2" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">COMEX</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixThresholdComex" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="matrix-card">
+                <div class="fw-semibold mb-2">Ponderations</div>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Priorite critique</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightPriorityCritique" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Priorite haute</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightPriorityHaute" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">SLA depasse</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightSlaBreached" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">SLA warning</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightSlaWarning" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Retard</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightOverdueHours" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Anciennete</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightAgingHours" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Niveau escalade</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightEscalationLevel" />
+                  </div>
+                  <div class="col-6">
+                    <label class="fs-11 text-muted">Etapes restantes</label>
+                    <input type="number" class="form-control form-control-sm" [(ngModel)]="matrixWeightRemainingSteps" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="matrix-card">
+                <div class="fw-semibold mb-2">Responsables escalade</div>
+                <div class="mb-2">
+                  <label class="fs-11 text-muted">N1</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="matrixOwnerN1" />
+                </div>
+                <div class="mb-2">
+                  <label class="fs-11 text-muted">N2</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="matrixOwnerN2" />
+                </div>
+                <div>
+                  <label class="fs-11 text-muted">COMEX</label>
+                  <input type="text" class="form-control form-control-sm" [(ngModel)]="matrixOwnerComex" />
+                </div>
+              </div>
+            </div>
+
+            <div class="matrix-actions">
+              <button class="btn btn-sm btn-outline-danger" (click)="saveEscalationMatrix()" [disabled]="isSavingMatrix">
+                {{ isSavingMatrix ? 'Enregistrement...' : 'Enregistrer matrice' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="simulation-config">
+            <div class="simulation-header">
+              <h6 class="mb-0">Simulation predictive (what-if)</h6>
+              <small class="text-muted">Projection SLA, score et escalade sans impacter les dossiers</small>
+            </div>
+
+            <div class="simulation-controls">
+              <div class="simulation-control">
+                <label class="fs-11 text-muted">Horizon (heures)</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simulationHorizonHours" min="1" max="168" />
+              </div>
+              <div class="simulation-control">
+                <label class="fs-11 text-muted">Batch max</label>
+                <input type="number" class="form-control form-control-sm" [(ngModel)]="simulationBatchLimit" min="1" max="10" />
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="simulationDraftPolicy" [(ngModel)]="simulationUseDraftPolicy" />
+                <label class="form-check-label fs-12" for="simulationDraftPolicy">Utiliser matrice non sauvegardee</label>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" (click)="runPredictiveSimulation()" [disabled]="isRunningSimulation">
+                {{ isRunningSimulation ? 'Simulation...' : 'Lancer simulation' }}
+              </button>
+              <button
+                class="btn btn-sm btn-outline-danger"
+                (click)="applySimulationBatch()"
+                [disabled]="isApplyingSimulationBatch || !simulationResult"
+              >
+                {{ isApplyingSimulationBatch ? 'Execution...' : 'Appliquer batch escalade' }}
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="exportSimulationCsv()" [disabled]="!simulationResult">
+                Export CSV
+              </button>
+            </div>
+
+            @if (simulationResult) {
+            <div class="simulation-stats">
+              <div class="simulation-stat-card">
+                <span class="simulation-stat-label">Projection</span>
+                <span class="simulation-stat-value">+{{ simulationResult.horizonHours }}h</span>
+              </div>
+              <div class="simulation-stat-card">
+                <span class="simulation-stat-label">Escalades prevues</span>
+                <span class="simulation-stat-value">{{ simulationResult.summary.escalationsPlanned }}</span>
+              </div>
+              <div class="simulation-stat-card">
+                <span class="simulation-stat-label">Notifs prevues</span>
+                <span class="simulation-stat-value">{{ simulationResult.summary.notificationsPlanned }}</span>
+              </div>
+              <div class="simulation-stat-card">
+                <span class="simulation-stat-label">Critiques</span>
+                <span class="simulation-stat-value">{{ simulationResult.summary.criticalItems }}</span>
+              </div>
+              <div class="simulation-stat-card">
+                <span class="simulation-stat-label">Cibles N1/N2/COMEX</span>
+                <span class="simulation-stat-value">
+                  {{ simulationResult.summary.targetN1 }}/{{ simulationResult.summary.targetN2 }}/{{ simulationResult.summary.targetComex }}
+                </span>
+              </div>
+              <div class="simulation-stat-card wide">
+                <span class="simulation-stat-label">Generation</span>
+                <span class="simulation-stat-value fs-11">
+                  {{ simulationResult.generatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </span>
+              </div>
+            </div>
+
+            @if (simulationResult.items.length) {
+            <div class="simulation-table-wrap">
+              <table class="table table-sm table-bordered align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Instance</th>
+                    <th>Statut projete</th>
+                    <th>Escalade cible</th>
+                    <th>Score actuel</th>
+                    <th>Score projete</th>
+                    <th>Delta</th>
+                    <th>Echeance</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of simulationResult.items; track trackBySimulationInstanceId($index, item)) {
+                  <tr>
+                    <td>
+                      <div class="fw-semibold">{{ item.instanceId }}</div>
+                      <div class="text-muted fs-11">{{ item.definition }}</div>
+                    </td>
+                    <td>
+                      <span class="badge rounded-pill" [class]="simulationStatusClass(item.projectedStatus)">
+                        {{ item.projectedStatus }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge rounded-pill" [class]="escalationLevelClass(item.projectedEscalationLevel)">
+                        {{ escalationLevelLabel(item.projectedEscalationLevel) }}
+                      </span>
+                    </td>
+                    <td>{{ item.scoreNow }}</td>
+                    <td>{{ item.scoreProjected }}</td>
+                    <td [class]="simulationDeltaClass(item.scoreDelta)">{{ item.scoreDelta }}</td>
+                    <td>{{ simulationDueLabel(item.dueInHours) }}</td>
+                    <td>
+                      <span
+                        class="badge rounded-pill"
+                        [class]="item.shouldEscalate ? 'bg-danger-transparent text-danger' : 'bg-secondary-transparent text-secondary'"
+                      >
+                        {{ item.shouldEscalate ? 'Escalade' : 'Suivi' }}
+                      </span>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            }
+            }
+          </div>
+
+          @if (automationEvents.length) {
+          <div class="automation-feed">
+            @for (event of automationEvents; track event.id) {
+            <div class="automation-event">
+              <span class="badge rounded-pill" [class]="automationLevelClass(event.level)">
+                {{ automationLevelLabel(event.level) }}
+              </span>
+              <div class="automation-event-body">
+                <div class="fw-semibold">{{ event.title }}</div>
+                <div class="text-muted fs-11">
+                  {{ event.date | date: 'dd/MM/yyyy HH:mm:ss' }} - {{ event.message }}
+                  @if (event.instanceId) {
+                  <span class="fw-semibold"> ({{ event.instanceId }})</span>
+                  }
+                  @if (event.channel) {
+                  <span class="fw-semibold"> - {{ event.channel }}</span>
+                  }
+                  @if (event.trigger) {
+                  <span class="text-muted"> - source: {{ event.trigger }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          }
+        </div>
+
+        <div class="workflow-summary-grid mb-3">
+          <div class="workflow-summary-card">
+            <span class="summary-label">Total</span>
+            <span class="summary-value">{{ summary.total }}</span>
+          </div>
+          <div class="workflow-summary-card">
+            <span class="summary-label">En cours</span>
+            <span class="summary-value">{{ summary.inProgress }}</span>
+          </div>
+          <div class="workflow-summary-card">
+            <span class="summary-label">Approuves</span>
+            <span class="summary-value">{{ summary.approved }}</span>
+          </div>
+          <div class="workflow-summary-card warning">
+            <span class="summary-label">SLA proche</span>
+            <span class="summary-value">{{ summary.warning }}</span>
+          </div>
+          <div class="workflow-summary-card danger">
+            <span class="summary-label">SLA depasse</span>
+            <span class="summary-value">{{ summary.breached }}</span>
+          </div>
+          <div class="workflow-summary-card danger soft">
+            <span class="summary-label">Risque critique</span>
+            <span class="summary-value">{{ summary.criticalRisk }}</span>
+          </div>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-6">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Recherche: ID, workflow, demandeur, owner..."
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onFilterChange()"
+            />
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+              <option value="ALL">Tous les statuts</option>
+              <option value="EN_ATTENTE">En attente</option>
+              <option value="EN_COURS">En cours</option>
+              <option value="ESCALADE">Escalade</option>
+              <option value="EN_RETARD">En retard</option>
+              <option value="APPROUVE">Approuve</option>
+              <option value="REJETE">Rejete</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select class="form-select" [(ngModel)]="urgencyFilter" (change)="onFilterChange()">
+              <option value="ALL">Toutes urgences</option>
+              <option value="CRITIQUE">Urgence critique</option>
+              <option value="ELEVEE">Urgence elevee</option>
+              <option value="NORMALE">Urgence normale</option>
+            </select>
+          </div>
+        </div>
+
+        @if (priorityQueue.length) {
+        <div class="smart-queue mb-3">
+          <div class="smart-queue-header">
+            <h6 class="mb-0">File intelligente prioritaire</h6>
+            <small class="text-muted">Top {{ priorityQueue.length }} dossiers a traiter en premier</small>
+          </div>
+          <div class="smart-queue-list">
+            @for (instance of priorityQueue; track trackByInstanceId($index, instance)) {
+            <div class="smart-queue-item">
+              <div class="queue-main">
+                <div class="fw-semibold">{{ instance.id }} - {{ instance.definition }}</div>
+                <div class="text-muted fs-11">
+                  {{ instance.requester }} - Echeance {{ instance.dueOn | date: 'dd/MM HH:mm' }} -
+                  {{ recommendationReasons(instance).join(' | ') }}
+                </div>
+              </div>
+              <div class="queue-badges">
+                <span class="badge rounded-pill" [class]="riskScoreClass(riskScore(instance))">
+                  Score {{ riskScore(instance) }}
+                </span>
+                <span class="badge rounded-pill" [class]="urgencyClass(instanceUrgency(instance))">
+                  {{ urgencyLabel(instanceUrgency(instance)) }}
+                </span>
+                <span class="badge rounded-pill" [class]="recommendationClass(instance)">
+                  {{ recommendationLabel(instance) }}
+                </span>
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="applyRecommendation(instance)"
+                  [disabled]="!hasRecommendation(instance)"
+                >
+                  Appliquer reco
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
+
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Workflow</th>
+                <th>Demandeur</th>
+                <th>Owner</th>
+                <th>Escalade</th>
+                <th>Priorite</th>
+                <th>Echeance</th>
+                <th>SLA</th>
+                <th>Score risque</th>
+                <th>Urgence</th>
+                <th>Reco</th>
+                <th>Etape</th>
+                <th>Statut</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (instance of filteredInstances; track trackByInstanceId($index, instance)) {
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ instance.id }}</div>
+                  <div class="text-muted fs-11">Maj: {{ instance.lastUpdateOn | date: 'dd/MM/yyyy HH:mm' }}</div>
+                </td>
+                <td>
+                  <div class="fw-semibold">{{ instance.definition }}</div>
+                  <div class="text-muted fs-11">{{ instance.createdOn | date: 'dd/MM/yyyy HH:mm' }}</div>
+                </td>
+                <td>{{ instance.requester }}</td>
+                <td>{{ instance.owner }}</td>
+                <td>
+                  <span class="badge rounded-pill" [class]="escalationLevelClass(instance.escalationLevel)">
+                    {{ escalationLevelLabel(instance.escalationLevel) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="priorityClass(instance.priority)">{{ instance.priority }}</span>
+                </td>
+                <td>{{ instance.dueOn | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                  <span class="badge rounded-pill" [class]="slaClass(instance.slaState)">{{ slaLabel(instance.slaState) }}</span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="riskScoreClass(riskScore(instance))">
+                    {{ riskScore(instance) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="urgencyClass(instanceUrgency(instance))">
+                    {{ urgencyLabel(instanceUrgency(instance)) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="recommendationClass(instance)">
+                    {{ recommendationLabel(instance) }}
+                  </span>
+                  @if (hasRecommendation(instance)) {
+                  <div class="fs-11 text-muted mt-1">Action conseillee</div>
+                  }
+                </td>
+                <td>
+                  <div>{{ instance.currentStep }}</div>
+                  <div class="text-muted fs-11">{{ instance.stepsCompleted }}/{{ instance.stepsTotal }} etapes</div>
+                </td>
+                <td>
+                  <span class="badge rounded-pill" [class]="statusClass(instance.status)">{{ statusLabel(instance.status) }}</span>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm">
+                    <button
+                      class="btn btn-success-light"
+                      (click)="performAction(instance, 'APPROUVER')"
+                      [disabled]="!canApprove(instance)"
+                    >
+                      Approuver
+                    </button>
+                    <button
+                      class="btn btn-danger-light"
+                      (click)="performAction(instance, 'REJETER')"
+                      [disabled]="!canReject(instance)"
+                    >
+                      Rejeter
+                    </button>
+                    <button
+                      class="btn btn-warning-light"
+                      (click)="performAction(instance, 'ESCALADER')"
+                      [disabled]="!canEscalate(instance)"
+                    >
+                      Escalader
+                    </button>
+                    <button
+                      class="btn btn-primary-light"
+                      (click)="applyRecommendation(instance)"
+                      [disabled]="!hasRecommendation(instance)"
+                    >
+                      Reco
+                    </button>
+                  </div>
+                  <button class="btn btn-link btn-sm mt-1" (click)="toggleTimeline(instance.id)">
+                    {{ expandedInstanceId === instance.id ? 'Masquer timeline' : 'Voir timeline' }}
+                  </button>
+                </td>
+              </tr>
+              @if (expandedInstanceId === instance.id) {
+              <tr>
+                <td colspan="14">
+                  <div class="timeline-block">
+                    @for (event of instance.timeline; track event.date + event.action + event.actor) {
+                    <div class="timeline-entry">
+                      <div class="timeline-date">{{ event.date | date: 'dd/MM/yyyy HH:mm' }}</div>
+                      <div class="timeline-content">
+                        <strong>{{ event.action }}</strong> par {{ event.actor }}
+                        @if (event.note) {
+                        <span class="text-muted"> - {{ event.note }}</span>
+                        }
+                      </div>
+                    </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+              }
+              } @empty {
+              <tr>
+                <td colspan="14" class="text-center text-muted py-4">Aucune instance selon les filtres.</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

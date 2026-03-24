@@ -4,11 +4,60 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Postes budgétaires</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Créer un poste</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Creer un poste' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="savePosition()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Code (optionnel)</label>
+                <input type="text" class="form-control" formControlName="code" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Structure</label>
+                <input type="text" class="form-control" formControlName="structure" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('structure') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Intitule</label>
+                <input type="text" class="form-control" formControlName="title" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Grade</label>
+                <input type="text" class="form-control" formControlName="grade" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('grade') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Ouvert">Ouvert</option>
+                  <option value="Occupe">Occupe</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Titulaire (optionnel)</label>
+                <input type="text" class="form-control" formControlName="holder" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('holder') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le poste' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

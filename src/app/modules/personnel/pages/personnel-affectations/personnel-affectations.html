@@ -1,0 +1,73 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Affectations</div>
+        <div class="btn-list">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle affectation' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !items.length"
+            (click)="exportItems()">
+            Exporter
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveAffectation()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date effective</label>
+                <input type="date" class="form-control" formControlName="effectiveDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('effectiveDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Structure source</label>
+                <input type="text" class="form-control" formControlName="fromUnit" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('fromUnit') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Structure cible</label>
+                <input type="text" class="form-control" formControlName="toUnit" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('toUnit') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Planifiee">Planifiee</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Effective">Effective</option>
+                  <option value="Annulee">Annulee</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer l affectation' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <gridjs-angular [config]="gridConfig"></gridjs-angular>
+      </div>
+    </div>
+  </div>
+</div>

@@ -10,6 +10,9 @@ export const API_ENDPOINTS = {
   personnel: {
     agents: '/personnel/agents',
     agentDetail: (id: string) => `/personnel/agents/${id}`,
+    upload: '/personnel/uploads',
+    dossiers: '/personnel/dossiers',
+    affectations: '/personnel/affectations',
   },
   leave: {
     requests: '/leave/requests',
@@ -46,6 +49,14 @@ export const API_ENDPOINTS = {
   workflows: {
     definitions: '/workflows/definitions',
     instances: '/workflows/instances',
+    instanceAction: (id: string) => `/workflows/instances/${id}/actions`,
+    automationStatus: '/workflows/automation/status',
+    automationChannels: '/workflows/automation/channels',
+    automationPolicy: '/workflows/automation/policy',
+    automationSimulate: '/workflows/automation/simulate',
+    automationRunCycle: '/workflows/automation/run-cycle',
+    automationEvents: '/workflows/automation/events',
+    automationEventsClear: '/workflows/automation/events/clear',
   },
   admin: {
     users: '/admin/users',

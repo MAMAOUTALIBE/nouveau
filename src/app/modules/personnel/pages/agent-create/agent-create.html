@@ -4,35 +4,61 @@
   </div>
   <div class="card-body">
     <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <h6 class="fw-semibold mb-2">Photo d identité</h6>
+        </div>
+        <div class="col-md-3">
+          <img [src]="photoPreview" alt="photo agent" class="img-fluid rounded border" />
+          <div class="fs-11 text-muted mt-1" *ngIf="selectedPhotoFileName">{{ selectedPhotoFileName }}</div>
+        </div>
+        <div class="col-md-9">
+          <label class="form-label">Téléverser la photo (PNG/JPG/WebP, max 10 MB)</label>
+          <input type="file" class="form-control" accept="image/*" (change)="onPhotoSelected($event)" />
+          <div class="fs-11 text-muted mt-1">
+            Obligatoire pour la création finale, optionnelle en brouillon.
+          </div>
+        </div>
+      </div>
+
       <div class="row g-3">
+        <div class="col-12 mt-2">
+          <h6 class="fw-semibold mb-2">Informations principales</h6>
+        </div>
         <div class="col-md-4">
           <label class="form-label">Matricule</label>
-          <input type="text" class="form-control" formControlName="matricule" />
+          <input type="text" class="form-control" formControlName="matricule" placeholder="PRM-0001" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('matricule') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-8">
           <label class="form-label">Nom complet *</label>
           <input type="text" class="form-control" formControlName="fullName" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('fullName') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">Direction *</label>
           <input type="text" class="form-control" formControlName="direction" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('direction') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">Unite</label>
           <input type="text" class="form-control" formControlName="unit" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('unit') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">Poste *</label>
           <input type="text" class="form-control" formControlName="position" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">Manager *</label>
           <input type="text" class="form-control" formControlName="manager" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('manager') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-4">
@@ -42,23 +68,301 @@
             <option value="En absence">En absence</option>
             <option value="Inactif">Inactif</option>
           </select>
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('status') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-4">
           <label class="form-label">Email</label>
           <input type="email" class="form-control" formControlName="email" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('email') as error">{{ error }}</div>
         </div>
 
         <div class="col-md-4">
           <label class="form-label">Telephone</label>
-          <input type="text" class="form-control" formControlName="phone" />
+          <input type="text" class="form-control" formControlName="phone" placeholder="+224 612 00 00 00" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('phone') as error">{{ error }}</div>
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="fw-semibold mb-2">Identité</h6>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Type de pièce</label>
+          <select class="form-select" formControlName="identityType">
+            <option value="CNI">CNI</option>
+            <option value="Passeport">Passeport</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">N° pièce d identité</label>
+          <input type="text" class="form-control" formControlName="identityNumber" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Nationalité</label>
+          <input type="text" class="form-control" formControlName="nationality" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Date de naissance</label>
+          <input type="date" class="form-control" formControlName="birthDate" />
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label">Lieu de naissance</label>
+          <input type="text" class="form-control" formControlName="birthPlace" />
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="fw-semibold mb-2">Administratif</h6>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Date de recrutement</label>
+          <input type="date" class="form-control" formControlName="hireDate" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Type de contrat</label>
+          <select class="form-select" formControlName="contractType">
+            <option value="Fonctionnaire">Fonctionnaire</option>
+            <option value="Contractuel">Contractuel</option>
+            <option value="Stagiaire">Stagiaire</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Contact urgence (nom)</label>
+          <input type="text" class="form-control" formControlName="emergencyContactName" />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Téléphone urgence</label>
+          <input type="text" class="form-control" formControlName="emergencyContactPhone" />
+          <div class="text-danger fs-11 mt-1" *ngIf="fieldError('emergencyContactPhone') as error">{{ error }}</div>
+        </div>
+
+        <div class="col-md-8">
+          <label class="form-label">Adresse</label>
+          <input type="text" class="form-control" formControlName="address" />
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="fw-semibold mb-2">Diplômes</h6>
+        </div>
+
+        <div class="col-12" formArrayName="educations">
+          <div class="card border shadow-none mb-3" *ngFor="let education of educations.controls; let index = index" [formGroupName]="index">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Diplôme</label>
+                  <input type="text" class="form-control" formControlName="degree" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Spécialité</label>
+                  <input type="text" class="form-control" formControlName="field" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Établissement</label>
+                  <input type="text" class="form-control" formControlName="institution" />
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Année</label>
+                  <input type="text" class="form-control" formControlName="graduationYear" />
+                </div>
+              </div>
+              <div class="d-flex justify-content-end mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeEducation(index)" [disabled]="educations.length <= 1">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="addEducation()">
+            Ajouter un diplôme
+          </button>
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="fw-semibold mb-2">Pièces obligatoires</h6>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Pièce d identité (référence)</label>
+          <input type="text" class="form-control" formControlName="identityDocumentRef" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut pièce d identité</label>
+          <select class="form-select" formControlName="identityDocumentStatus">
+            <option value="Valide">Valide</option>
+            <option value="En revue">En revue</option>
+            <option value="Expiré">Expiré</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fichier pièce d identité</label>
+          <input
+            type="file"
+            class="form-control"
+            accept=".pdf,.png,.jpg,.jpeg,.webp"
+            (change)="onRequiredDocumentFileSelected('identityDocumentRef', $event)"
+          />
+          <div class="fs-11 text-muted mt-1">{{ form.get('identityDocumentFileName')?.value || 'Aucun fichier' }}</div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">CV (référence)</label>
+          <input type="text" class="form-control" formControlName="cvDocumentRef" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut CV</label>
+          <select class="form-select" formControlName="cvDocumentStatus">
+            <option value="Valide">Valide</option>
+            <option value="En revue">En revue</option>
+            <option value="Expiré">Expiré</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fichier CV</label>
+          <input
+            type="file"
+            class="form-control"
+            accept=".pdf,.png,.jpg,.jpeg,.webp"
+            (change)="onRequiredDocumentFileSelected('cvDocumentRef', $event)"
+          />
+          <div class="fs-11 text-muted mt-1">{{ form.get('cvDocumentFileName')?.value || 'Aucun fichier' }}</div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Diplôme principal (référence)</label>
+          <input type="text" class="form-control" formControlName="diplomaDocumentRef" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut diplôme</label>
+          <select class="form-select" formControlName="diplomaDocumentStatus">
+            <option value="Valide">Valide</option>
+            <option value="En revue">En revue</option>
+            <option value="Expiré">Expiré</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fichier diplôme</label>
+          <input
+            type="file"
+            class="form-control"
+            accept=".pdf,.png,.jpg,.jpeg,.webp"
+            (change)="onRequiredDocumentFileSelected('diplomaDocumentRef', $event)"
+          />
+          <div class="fs-11 text-muted mt-1">{{ form.get('diplomaDocumentFileName')?.value || 'Aucun fichier' }}</div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Acte/Arrêté de nomination (référence)</label>
+          <input type="text" class="form-control" formControlName="appointmentDocumentRef" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut acte/arrêté</label>
+          <select class="form-select" formControlName="appointmentDocumentStatus">
+            <option value="Valide">Valide</option>
+            <option value="En revue">En revue</option>
+            <option value="Expiré">Expiré</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fichier acte/arrêté</label>
+          <input
+            type="file"
+            class="form-control"
+            accept=".pdf,.png,.jpg,.jpeg,.webp"
+            (change)="onRequiredDocumentFileSelected('appointmentDocumentRef', $event)"
+          />
+          <div class="fs-11 text-muted mt-1">{{ form.get('appointmentDocumentFileName')?.value || 'Aucun fichier' }}</div>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Contrat (référence)</label>
+          <input type="text" class="form-control" formControlName="contractDocumentRef" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut contrat</label>
+          <select class="form-select" formControlName="contractDocumentStatus">
+            <option value="Valide">Valide</option>
+            <option value="En revue">En revue</option>
+            <option value="Expiré">Expiré</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Fichier contrat</label>
+          <input
+            type="file"
+            class="form-control"
+            accept=".pdf,.png,.jpg,.jpeg,.webp"
+            (change)="onRequiredDocumentFileSelected('contractDocumentRef', $event)"
+          />
+          <div class="fs-11 text-muted mt-1">{{ form.get('contractDocumentFileName')?.value || 'Aucun fichier' }}</div>
+        </div>
+
+        <div class="col-12 mt-4">
+          <h6 class="fw-semibold mb-2">Pièces additionnelles</h6>
+        </div>
+
+        <div class="col-12" formArrayName="additionalDocuments">
+          <div class="card border shadow-none mb-3" *ngFor="let doc of additionalDocuments.controls; let index = index" [formGroupName]="index">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Type</label>
+                  <input type="text" class="form-control" formControlName="type" />
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Référence</label>
+                  <input type="text" class="form-control" formControlName="reference" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Nom fichier</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp"
+                    (change)="onAdditionalDocumentFileSelected(index, $event)"
+                  />
+                  <div class="fs-11 text-muted mt-1">{{ doc.get('fileName')?.value || 'Aucun fichier' }}</div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label">Statut</label>
+                  <select class="form-select" formControlName="status">
+                    <option value="Valide">Valide</option>
+                    <option value="En revue">En revue</option>
+                    <option value="Expiré">Expiré</option>
+                  </select>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeAdditionalDocument(index)">
+                  Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="addAdditionalDocument()">
+            Ajouter une pièce
+          </button>
         </div>
       </div>
 
       <div class="d-flex gap-2 justify-content-end mt-4">
+        <div class="me-auto text-muted fs-12 align-self-center" *ngIf="uploadingFiles > 0">
+          Téléversement en cours ({{ uploadingFiles }})
+        </div>
         <a routerLink="/personnel/agents" class="btn btn-light">Annuler</a>
-        <button type="submit" class="btn btn-primary" [disabled]="submitting">
-          {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+        <button type="button" class="btn btn-outline-primary" (click)="saveDraft()" [disabled]="submitting || uploadingFiles > 0">
+          {{ submitting ? 'Enregistrement...' : 'Enregistrer brouillon' }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="submitting || uploadingFiles > 0">
+          {{ submitting ? 'Enregistrement...' : 'Créer agent' }}
         </button>
       </div>
     </form>

@@ -5,8 +5,49 @@
         <div class="card-title">Filtres rapides</div>
       </div>
       <div class="card-body d-grid gap-2">
-        <button class="btn btn-primary">Planifier une absence</button>
-        <button class="btn btn-outline-primary">Exporter</button>
+        <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          {{ showCreateForm ? 'Fermer le formulaire' : 'Planifier une absence' }}
+        </button>
+        <button type="button" class="btn btn-outline-primary">Exporter</button>
+
+        <div class="card border shadow-none mt-2 mb-0" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveEvent()" class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Titre</label>
+                <input type="text" class="form-control" formControlName="title" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Date debut</label>
+                <input type="date" class="form-control" formControlName="start" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('start') as error">{{ error }}</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Date fin (optionnel)</label>
+                <input type="date" class="form-control" formControlName="end" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Couleur</label>
+                <select class="form-select" formControlName="className">
+                  <option value="bg-primary-transparent">Primaire</option>
+                  <option value="bg-warning-transparent">Alerte</option>
+                  <option value="bg-success-transparent">Succes</option>
+                  <option value="bg-info-transparent">Info</option>
+                  <option value="bg-danger-transparent">Danger</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light btn-sm" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 

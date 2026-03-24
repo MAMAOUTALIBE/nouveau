@@ -4,11 +4,56 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Catalogue de formation</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Ajouter une formation</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Ajouter une formation' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveCourse()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Code (optionnel)</label>
+                <input type="text" class="form-control" formControlName="code" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Intitule</label>
+                <input type="text" class="form-control" formControlName="title" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Duree</label>
+                <input type="text" class="form-control" formControlName="duration" placeholder="3 jours" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('duration') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Modalite</label>
+                <select class="form-select" formControlName="modality">
+                  <option value="Presentiel">Presentiel</option>
+                  <option value="Distanciel">Distanciel</option>
+                  <option value="Hybride">Hybride</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Domaine</label>
+                <input type="text" class="form-control" formControlName="domain" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('domain') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la formation' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

@@ -39,12 +39,16 @@ describe('AuthService', () => {
       accessToken: 'access-token',
       refreshToken: 'refresh-token',
       username: 'user@gouv.local',
+      expiresIn: 1800,
+      refreshExpiresIn: 86400,
     });
 
     await expect(loginPromise).resolves.toEqual({ token: 'access-token' });
     expect(localStorage.getItem('rh_token')).toBe('access-token');
     expect(localStorage.getItem('rh_refresh_token')).toBe('refresh-token');
     expect(localStorage.getItem('rh_username')).toBe('user@gouv.local');
+    expect(Number(localStorage.getItem('rh_token_expires_at'))).toBeGreaterThan(Date.now());
+    expect(Number(localStorage.getItem('rh_refresh_token_expires_at'))).toBeGreaterThan(Date.now());
     expect(service.showLoader).toBe(false);
   });
 
@@ -81,6 +85,7 @@ describe('AuthService', () => {
     await expect(refreshPromise).resolves.toBe('new-access-token');
     expect(localStorage.getItem('rh_token')).toBe('new-access-token');
     expect(localStorage.getItem('rh_refresh_token')).toBe('new-refresh-token');
+    expect(Number(localStorage.getItem('rh_token_expires_at'))).toBeGreaterThan(Date.now());
   });
 
   it('rejects refresh when no refresh token is available', async () => {
@@ -91,12 +96,35 @@ describe('AuthService', () => {
     localStorage.setItem('rh_token', 'token');
     localStorage.setItem('rh_refresh_token', 'refresh');
     localStorage.setItem('rh_username', 'user');
+    localStorage.setItem('rh_token_expires_at', String(Date.now() + 10000));
+    localStorage.setItem('rh_refresh_token_expires_at', String(Date.now() + 20000));
 
     service.logout();
 
     expect(localStorage.getItem('rh_token')).toBeNull();
     expect(localStorage.getItem('rh_refresh_token')).toBeNull();
     expect(localStorage.getItem('rh_username')).toBeNull();
+    expect(localStorage.getItem('rh_token_expires_at')).toBeNull();
+    expect(localStorage.getItem('rh_refresh_token_expires_at')).toBeNull();
     expect(router.navigate).toHaveBeenCalledWith(['/auth/login']);
+  });
+
+  it('returns false and clears session when access token is expired', () => {
+    localStorage.setItem('rh_token', 'expired-token');
+    localStorage.setItem('rh_refresh_token', 'refresh-token');
+    localStorage.setItem('rh_username', 'user@gouv.local');
+    localStorage.setItem('rh_token_expires_at', String(Date.now() - 10_000));
+
+    expect(service.isAuthenticated()).toBe(false);
+    expect(localStorage.getItem('rh_token')).toBeNull();
+    expect(localStorage.getItem('rh_refresh_token')).toBeNull();
+    expect(localStorage.getItem('rh_username')).toBeNull();
+  });
+
+  it('returns true when token exists and is not expired', () => {
+    localStorage.setItem('rh_token', 'valid-token');
+    localStorage.setItem('rh_token_expires_at', String(Date.now() + 60_000));
+
+    expect(service.isAuthenticated()).toBe(true);
   });
 });

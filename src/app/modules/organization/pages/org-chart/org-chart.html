@@ -4,11 +4,55 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Organigramme</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Ajouter une unité</button>
+          <button class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Ajouter une unite' }}
+          </button>
           <button class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveUnit()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Nom de l unite</label>
+                <input type="text" class="form-control" formControlName="name" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('name') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Unite parente</label>
+                <select class="form-select" formControlName="parentId">
+                  <option value="">Aucune (racine)</option>
+                  <option *ngFor="let unit of units" [value]="unit.id">{{ unit.name }} ({{ unit.id }})</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Effectif initial</label>
+                <input type="number" class="form-control" formControlName="staffCount" min="0" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('staffCount') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Responsable</label>
+                <input type="text" class="form-control" formControlName="head" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('head') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Titre du responsable</label>
+                <input type="text" class="form-control" formControlName="headTitle" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('headTitle') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer l unite' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-lg-4" *ngFor="let node of roots">
             <div class="card border shadow-none mb-3">

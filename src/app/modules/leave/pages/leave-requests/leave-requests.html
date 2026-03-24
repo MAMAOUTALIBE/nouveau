@@ -4,11 +4,97 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Demandes d'absence</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Nouvelle demande</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle demande' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !currentRequests.length"
+            (click)="exportRequests()">
+            Exporter
+          </button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveRequest()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type</label>
+                <select class="form-select" formControlName="type">
+                  <option value="Conge annuel">Conge annuel</option>
+                  <option value="Maladie">Maladie</option>
+                  <option value="Mission">Mission</option>
+                  <option value="Conge maternite">Conge maternite</option>
+                  <option value="Conge sans solde">Conge sans solde</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date debut</label>
+                <input type="date" class="form-control" formControlName="startDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('startDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date fin</label>
+                <input type="date" class="form-control" formControlName="endDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('endDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="En attente">En attente</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Approuve">Approuve</option>
+                  <option value="Rejete">Rejete</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la demande' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-xl-3">
+            <select class="form-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+              <option *ngFor="let option of statusOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+          <div class="col-xl-3">
+            <select class="form-select" [(ngModel)]="selectedType" (change)="onFilterChange()">
+              <option *ngFor="let option of typeOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+          <div class="col-xl-6">
+            <input
+              type="text"
+              class="form-control"
+              [value]="searchTerm"
+              placeholder="Recherche reference, agent, type..."
+              (input)="onSearchInput(($any($event.target)).value)" />
+          </div>
+        </div>
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

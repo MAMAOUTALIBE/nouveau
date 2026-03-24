@@ -4,11 +4,61 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Parcours d'intégration</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Planifier une arrivée</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Planifier une arrivee' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveOnboarding()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Poste</label>
+                <input type="text" class="form-control" formControlName="position" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date de debut</label>
+                <input type="date" class="form-control" formControlName="startDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('startDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Checklist (une etape par ligne, ou separee par ; ou ,)</label>
+                <textarea
+                  rows="3"
+                  class="form-control"
+                  formControlName="checklistText"
+                  placeholder="Contrat signe&#10;Badge cree&#10;Compte SI active"
+                ></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('checklistText') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Planifie">Planifie</option>
+                  <option value="En cours">En cours</option>
+                  <option value="Termine">Termine</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le parcours' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="row g-3">
           <div class="col-xl-6" *ngFor="let item of items">
             <div class="card shadow-none border mb-0">
@@ -24,10 +74,16 @@
                   <li *ngFor="let step of item.checklist" class="d-flex align-items-center mb-2">
                     <i class="ri-check-line text-success me-2"></i> {{ step }}
                   </li>
+                  <li *ngIf="!item.checklist.length" class="text-muted fs-12">
+                    Aucune etape definie
+                  </li>
                 </ul>
               </div>
               <div class="card-footer">
-                <span class="badge" [ngClass]="item.status === 'Validé' ? 'bg-success-transparent' : 'bg-warning-transparent'">
+                <span
+                  class="badge"
+                  [ngClass]="item.status === 'Validé' || item.status === 'Valide' || item.status === 'Termine' ? 'bg-success-transparent' : 'bg-warning-transparent'"
+                >
                   {{ item.status }}
                 </span>
               </div>

@@ -21,6 +21,15 @@ import { DashboardService } from '../../services/dashboard.service';
 export class HrDashboardPage implements OnInit {
   private dashboardService = inject(DashboardService);
 
+  readonly pendingColumns = [
+    { header: 'Référence' },
+    { header: 'Agent' },
+    { header: 'Type' },
+    { header: 'Structure' },
+    { header: 'Soumis le' },
+    { header: 'Statut' },
+  ];
+
   kpis = [
     { title: 'Effectif total', value: '1 284', lastWeek: 'M-1', trendIcon: 'up', trendClass: 'text-success', trendValue: '+2.1%', cardClass: 'bg-primary-gradient', iconClass: 'users' },
     { title: 'Agents actifs', value: '1 173', lastWeek: 'Aujourd’hui', trendIcon: 'up', trendClass: 'text-success', trendValue: '+1.4%', cardClass: 'bg-success-gradient', iconClass: 'user-check' },
@@ -53,16 +62,22 @@ export class HrDashboardPage implements OnInit {
 
   ngOnInit(): void {
     this.dashboardService.getSummary().subscribe((summary) => {
-      this.kpis = [
-        { ...this.kpis[0], value: summary.headcount.toLocaleString('fr-FR') },
-        { ...this.kpis[1], value: summary.active.toLocaleString('fr-FR') },
-        { ...this.kpis[2], value: String(summary.absences) },
-        { ...this.kpis[3], value: String(summary.vacancies) },
-      ];
+      // Keep async updates outside the initial check cycle to avoid NG0100 on first paint.
+      setTimeout(() => {
+        this.kpis = [
+          { ...this.kpis[0], value: summary.headcount.toLocaleString('fr-FR') },
+          { ...this.kpis[1], value: summary.active.toLocaleString('fr-FR') },
+          { ...this.kpis[2], value: String(summary.absences) },
+          { ...this.kpis[3], value: String(summary.vacancies) },
+        ];
+      });
     });
 
     this.dashboardService.getPendingRequests().subscribe((requests) => {
-      this.pendingRequests = requests.map((request) => ({ ...request, checked: false }));
+      // Keep async updates outside the initial check cycle to avoid NG0100 on first paint.
+      setTimeout(() => {
+        this.pendingRequests = requests.map((request) => ({ ...request, checked: false }));
+      });
     });
   }
 

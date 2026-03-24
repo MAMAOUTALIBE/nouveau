@@ -1,4 +1,15 @@
-import { Component, ElementRef, inject, Renderer2, TemplateRef } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+  Renderer2,
+  TemplateRef,
+} from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { SwitcherService } from '../../../shared/services/switcher.service';
 import { NgbModal, NgbOffcanvas } from '@ng-bootstrap/ng-bootstrap';
 import { Menu, NavService } from '../../services/nav.service';
@@ -6,6 +17,7 @@ import { Switcher } from '../switcher/switcher';
 import { AppStateService } from '../../services/app-state.service';
 import { RightSidebar } from '../right-sidebar/right-sidebar';
 import { AuthService } from '../../services/auth.service';
+import { Subject, filter, takeUntil } from 'rxjs';
 
 interface Item {
   id: number;
@@ -14,23 +26,47 @@ interface Item {
   title: string;
   // Add other properties as needed
 }
+
+type CommandType = 'navigation' | 'action' | 'recent';
+
+interface CommandItem {
+  id: string;
+  title: string;
+  description: string;
+  type: CommandType;
+  path?: string;
+  keywords: string[];
+  action?: () => void;
+}
 @Component({
   selector: 'app-header',
   templateUrl: './header.html',
   styleUrls: ['./header.scss'],
   standalone: false,
 })
-export class Header {
+export class Header implements OnInit, OnDestroy {
   elementRef = inject(ElementRef);
   SwitcherService = inject(SwitcherService);
   renderer = inject(Renderer2);
   NavServices = inject(NavService);
   authService = inject(AuthService);
   private appStateService = inject(AppStateService);
+  private router = inject(Router);
+  private destroy$ = new Subject<void>();
+  private readonly recentRoutesStorageKey = 'rh_recent_routes';
+  private readonly maxRecentRoutes = 8;
+  private commandItems: CommandItem[] = [];
+
+  @ViewChild('commandPaletteInput') commandPaletteInput?: ElementRef<HTMLInputElement>;
 
   private modalService = inject(NgbModal);
 
   cartItemCount: number = 5;
+  commandPaletteOpen = false;
+  commandQuery = '';
+  commandResults: CommandItem[] = [];
+  activeCommandIndex = 0;
+  readonly commandHint = this.isMacPlatform() ? 'Cmd+K' : 'Ctrl+K';
 
   constructor() { }
 
@@ -270,10 +306,66 @@ export class Header {
     });
   }
 
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardShortcuts(event: KeyboardEvent): void {
+    const key = event.key.toLowerCase();
+    const usesCommandPaletteShortcut = (event.ctrlKey || event.metaKey) && key === 'k';
+
+    if (usesCommandPaletteShortcut) {
+      event.preventDefault();
+      if (this.commandPaletteOpen) {
+        this.closeCommandPalette();
+      } else {
+        this.openCommandPalette();
+      }
+      return;
+    }
+
+    if (!this.commandPaletteOpen) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeCommandPalette();
+      return;
+    }
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.moveActiveCommand(1);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.moveActiveCommand(-1);
+      return;
+    }
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const activeCommand = this.commandResults[this.activeCommandIndex];
+      if (activeCommand) {
+        this.executeCommand(activeCommand);
+      }
+    }
+  }
+
   ngOnInit(): void {
-    this.NavServices.items.subscribe((menuItems) => {
+    this.NavServices.items.pipe(takeUntil(this.destroy$)).subscribe((menuItems) => {
       this.items = menuItems;
+      this.buildCommandIndex(menuItems);
+      if (this.commandPaletteOpen) {
+        this.updateCommandResults();
+      }
     });
+    this.router.events
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((event) => this.trackRecentRoute(event.urlAfterRedirects));
     // To clear and close the search field by clicking on body
     document.querySelector('.main-content')?.addEventListener('click', () => {
       this.clearSearch();
@@ -281,11 +373,304 @@ export class Header {
     this.text = '';
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   //search
-  public menuItems!: Menu[];
-  public items!: Menu[];
-  public text!: string;
+  public menuItems: Menu[] = [];
+  public items: Menu[] = [];
+  public text = '';
   public SearchResultEmpty: boolean = false;
+
+  openCommandPalette(): void {
+    if (this.commandPaletteOpen) {
+      return;
+    }
+
+    this.commandPaletteOpen = true;
+    this.commandQuery = '';
+    this.updateCommandResults();
+    setTimeout(() => this.commandPaletteInput?.nativeElement.focus(), 0);
+  }
+
+  closeCommandPalette(): void {
+    this.commandPaletteOpen = false;
+    this.commandQuery = '';
+    this.commandResults = [];
+    this.activeCommandIndex = 0;
+  }
+
+  updateCommandResults(): void {
+    const normalizedQuery = this.normalize(this.commandQuery);
+    const recentCommands = this.getRecentCommands();
+
+    if (!normalizedQuery) {
+      const actionCommands = this.commandItems.filter((command) => command.type === 'action');
+      const navigationCommands = this.commandItems
+        .filter((command) => command.type === 'navigation')
+        .slice(0, 8);
+      this.commandResults = this.mergeCommandGroups([
+        recentCommands,
+        actionCommands,
+        navigationCommands,
+      ]).slice(0, 12);
+      this.activeCommandIndex = 0;
+      return;
+    }
+
+    const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+    const rankedCommands = this.commandItems
+      .map((command) => ({
+        command,
+        score: this.scoreCommand(command, normalizedQuery, tokens),
+      }))
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score || left.command.title.localeCompare(right.command.title))
+      .map((item) => item.command);
+
+    const filteredRecentCommands = recentCommands.filter((command) => {
+      const searchable = `${this.normalize(command.title)} ${this.normalize(command.description)} ${command.keywords
+        .map((keyword) => this.normalize(keyword))
+        .join(' ')}`;
+      return tokens.every((token) => searchable.includes(token));
+    });
+
+    this.commandResults = this.mergeCommandGroups([filteredRecentCommands, rankedCommands]).slice(0, 12);
+    this.activeCommandIndex = 0;
+  }
+
+  executeCommand(command: CommandItem): void {
+    if (command.action) {
+      command.action();
+    } else if (command.path) {
+      void this.router.navigateByUrl(command.path);
+    }
+    this.closeCommandPalette();
+  }
+
+  formatCommandType(type: CommandType): string {
+    if (type === 'action') return 'Action';
+    if (type === 'recent') return 'Recent';
+    return 'Page';
+  }
+
+  private moveActiveCommand(direction: number): void {
+    if (!this.commandResults.length) {
+      return;
+    }
+
+    const nextIndex =
+      (this.activeCommandIndex + direction + this.commandResults.length) % this.commandResults.length;
+    this.activeCommandIndex = nextIndex;
+  }
+
+  private buildCommandIndex(menuItems: Menu[]): void {
+    const navigationCommands = this.collectNavigationCommands(menuItems);
+    const actionCommands = this.getActionCommands();
+    this.commandItems = this.mergeCommandGroups([actionCommands, navigationCommands]);
+  }
+
+  private collectNavigationCommands(items: Menu[], parents: string[] = []): CommandItem[] {
+    const commands: CommandItem[] = [];
+
+    items.forEach((item) => {
+      const nextParents = item.title ? [...parents, item.title] : parents;
+
+      if (item.type === 'link' && item.path && item.title) {
+        commands.push({
+          id: `nav:${item.path}`,
+          title: item.title,
+          description: parents.length ? parents.join(' > ') : 'Navigation principale',
+          type: 'navigation',
+          path: item.path,
+          keywords: [...nextParents, item.path],
+        });
+      }
+
+      if (Array.isArray(item.children) && item.children.length) {
+        commands.push(...this.collectNavigationCommands(item.children, nextParents));
+      }
+
+      if (Array.isArray(item.children2) && item.children2.length) {
+        commands.push(...this.collectNavigationCommands(item.children2, nextParents));
+      }
+    });
+
+    return commands;
+  }
+
+  private getActionCommands(): CommandItem[] {
+    return [
+      {
+        id: 'action:toggle-theme',
+        title: 'Basculer le theme',
+        description: 'Passer entre mode clair et mode sombre',
+        type: 'action',
+        keywords: ['theme', 'dark', 'light', 'apparence'],
+        action: () => {
+          const nextTheme = this.currentThemeMode() === 'dark' ? 'light' : 'dark';
+          this.updateTheme(nextTheme);
+        },
+      },
+      {
+        id: 'action:open-notifications',
+        title: 'Ouvrir le centre de notifications',
+        description: 'Afficher le panneau lateral des notifications',
+        type: 'action',
+        keywords: ['notifications', 'alerte', 'centre'],
+        action: () => this.openNotifications(),
+      },
+      {
+        id: 'action:logout',
+        title: 'Se deconnecter',
+        description: 'Terminer la session utilisateur en cours',
+        type: 'action',
+        keywords: ['logout', 'session', 'deconnexion'],
+        action: () => this.logout(),
+      },
+    ];
+  }
+
+  private scoreCommand(command: CommandItem, normalizedQuery: string, tokens: string[]): number {
+    const title = this.normalize(command.title);
+    const description = this.normalize(command.description);
+    const keywordText = command.keywords.map((keyword) => this.normalize(keyword)).join(' ');
+    const searchable = `${title} ${description} ${keywordText}`;
+
+    if (!tokens.every((token) => searchable.includes(token))) {
+      return 0;
+    }
+
+    let score = 100;
+
+    if (title.startsWith(normalizedQuery)) {
+      score += 130;
+    } else if (title.includes(normalizedQuery)) {
+      score += 80;
+    }
+
+    if (description.includes(normalizedQuery)) {
+      score += 25;
+    }
+
+    if (command.type === 'action') {
+      score += 15;
+    }
+
+    if (command.type === 'recent') {
+      score += 10;
+    }
+
+    const firstToken = tokens[0] ?? normalizedQuery;
+    const tokenIndex = title.indexOf(firstToken);
+    if (tokenIndex >= 0) {
+      score += Math.max(0, 20 - tokenIndex);
+    }
+
+    return score;
+  }
+
+  private trackRecentRoute(url: string): void {
+    const normalizedUrl = this.normalizeUrl(url);
+    if (!normalizedUrl || normalizedUrl.startsWith('/auth')) {
+      return;
+    }
+
+    const existing = this.readRecentRoutes();
+    const updated = [normalizedUrl, ...existing.filter((route) => route !== normalizedUrl)].slice(
+      0,
+      this.maxRecentRoutes
+    );
+
+    try {
+      localStorage.setItem(this.recentRoutesStorageKey, JSON.stringify(updated));
+    } catch {
+      // Ignore localStorage failures on private mode / quota.
+    }
+  }
+
+  private getRecentCommands(): CommandItem[] {
+    const recentRoutes = this.readRecentRoutes();
+    if (!recentRoutes.length) {
+      return [];
+    }
+
+    const navigationByPath = new Map(
+      this.commandItems
+        .filter((command) => command.type === 'navigation' && command.path)
+        .map((command) => [command.path as string, command])
+    );
+
+    return recentRoutes.map((route) => {
+      const existing = navigationByPath.get(route);
+      if (existing) {
+        return {
+          ...existing,
+          id: `recent:${route}`,
+          type: 'recent',
+          description: `Recemment visite - ${existing.description}`,
+        };
+      }
+
+      return {
+        id: `recent:${route}`,
+        title: route,
+        description: 'Recemment visite',
+        type: 'recent',
+        path: route,
+        keywords: [route, 'recent'],
+      };
+    });
+  }
+
+  private readRecentRoutes(): string[] {
+    try {
+      const raw = localStorage.getItem(this.recentRoutesStorageKey);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((entry): entry is string => typeof entry === 'string' && entry.startsWith('/'))
+        .slice(0, this.maxRecentRoutes);
+    } catch {
+      return [];
+    }
+  }
+
+  private normalizeUrl(url: string): string {
+    const [withoutQuery] = url.split('?');
+    const [withoutHash] = withoutQuery.split('#');
+    return withoutHash || '/';
+  }
+
+  private mergeCommandGroups(groups: CommandItem[][]): CommandItem[] {
+    const uniqueById = new Map<string, CommandItem>();
+    groups.flat().forEach((command) => {
+      if (!uniqueById.has(command.id)) {
+        uniqueById.set(command.id, command);
+      }
+    });
+    return Array.from(uniqueById.values());
+  }
+
+  private currentThemeMode(): string {
+    const htmlTheme = document.querySelector('html')?.getAttribute('data-theme-mode');
+    return (htmlTheme || 'light').toLowerCase();
+  }
+
+  private normalize(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  private isMacPlatform(): boolean {
+    return typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
+  }
 
   Search(searchText: any) {
     if (!searchText) return this.menuItems = [];

@@ -4,11 +4,60 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Utilisateurs</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Créer</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Creer' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveUser()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Email / Username</label>
+                <input type="email" class="form-control" formControlName="username" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('username') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Nom complet</label>
+                <input type="text" class="form-control" formControlName="fullName" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('fullName') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Role</label>
+                <select class="form-select" formControlName="role">
+                  <option value="super_admin">super_admin</option>
+                  <option value="hr_manager">hr_manager</option>
+                  <option value="manager">manager</option>
+                  <option value="agent">agent</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Actif">Actif</option>
+                  <option value="Inactif">Inactif</option>
+                  <option value="Bloque">Bloque</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Direction</label>
+                <input type="text" class="form-control" formControlName="direction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('direction') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer l utilisateur' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

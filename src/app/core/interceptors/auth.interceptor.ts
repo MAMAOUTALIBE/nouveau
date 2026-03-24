@@ -15,14 +15,23 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && token && !isAuthRequest) {
+      if (error.status === 401 && !isAuthRequest) {
+        if (!token) {
+          toastr.warning('Authentification requise. Veuillez vous reconnecter.', 'Primature RH', {
+            timeOut: 4000,
+            positionClass: 'toast-top-right',
+          });
+          authService.logout();
+          return throwError(() => error);
+        }
+
         return from(authService.refreshToken()).pipe(
           switchMap((newToken) => {
             const retryReq = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
             return next(retryReq);
           }),
           catchError((err) => {
-            toastr.error('Session expirée. Veuillez vous reconnecter.', 'Primature RH', {
+            toastr.error('Session expiree. Veuillez vous reconnecter.', 'Primature RH', {
               timeOut: 4000,
               positionClass: 'toast-top-right',
             });

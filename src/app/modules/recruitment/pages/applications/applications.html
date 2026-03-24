@@ -4,11 +4,63 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Candidatures</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Nouvelle candidature</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle candidature' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveApplication()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Candidat</label>
+                <input type="text" class="form-control" formControlName="candidate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Poste</label>
+                <input type="text" class="form-control" formControlName="position" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Campagne</label>
+                <input type="text" class="form-control" formControlName="campaign" placeholder="CMP-PAIE-Q2" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('campaign') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Nouveau">Nouveau</option>
+                  <option value="Shortlist">Shortlist</option>
+                  <option value="Entretien">Entretien</option>
+                  <option value="Accepte">Accepte</option>
+                  <option value="Rejete">Rejete</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Recu le</label>
+                <input type="date" class="form-control" formControlName="receivedOn" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('receivedOn') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la candidature' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

@@ -11,6 +11,5 @@ export const routes: Routes = [
     { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
     { path: '', component: ContentLayout, canActivate: [authGuard], children: content },
     { path: '', component: AuthenticationLayout, children: authen },
-
-
+    { path: '**', redirectTo: 'not-found' },
 ];

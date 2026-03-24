@@ -5,23 +5,81 @@
         <div class="card-title">Liste des agents</div>
         <div class="btn-list">
           <a routerLink="/personnel/agents/nouveau" class="btn btn-primary">Nouvel agent</a>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !currentAgents.length"
+            (click)="exportAgents()">
+            Exporter
+          </button>
         </div>
       </div>
       <div class="card-body">
         <div class="row g-3 mb-3">
           <div class="col-xl-4">
-            <spk-ng-select [options]="directions" [placeholder]="'Direction'" />
+            <spk-ng-select
+              [options]="directions"
+              [bindLabel]="'label'"
+              [bindValue]="'value'"
+              [defaultValue]="selectedDirection"
+              [placeholder]="'Direction'"
+              (selectedChange)="onDirectionSelected($event)" />
           </div>
           <div class="col-xl-4">
-            <spk-ng-select [options]="statuses" [placeholder]="'Statut'" />
+            <spk-ng-select
+              [options]="statuses"
+              [bindLabel]="'label'"
+              [bindValue]="'value'"
+              [defaultValue]="selectedStatus"
+              [placeholder]="'Statut'"
+              (selectedChange)="onStatusSelected($event)" />
           </div>
           <div class="col-xl-4">
-            <input type="text" class="form-control" placeholder="Recherche matricule, nom, poste..." />
+            <input
+              type="text"
+              class="form-control"
+              [value]="searchTerm"
+              placeholder="Recherche matricule, nom, poste..."
+              (input)="onSearchInput(($any($event.target)).value)" />
           </div>
         </div>
-        <div id="agents-grid">
-          <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+              <tr>
+                <th>Matricule</th>
+                <th>Nom complet</th>
+                <th>Direction</th>
+                <th>Poste</th>
+                <th>Statut</th>
+                <th>Manager</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (!currentAgents.length) {
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Aucun agent trouvé</td>
+                </tr>
+              } @else {
+                @for (agent of currentAgents; track agent.id) {
+                  <tr>
+                    <td>{{ agent.matricule }}</td>
+                    <td>{{ agent.fullName }}</td>
+                    <td>{{ agent.direction }}</td>
+                    <td>{{ agent.position }}</td>
+                    <td>{{ agent.status }}</td>
+                    <td>{{ agent.manager }}</td>
+                    <td class="text-end">
+                      <a [routerLink]="['/personnel/agents', agent.id]" class="btn btn-sm btn-primary-light">
+                        Ouvrir
+                      </a>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

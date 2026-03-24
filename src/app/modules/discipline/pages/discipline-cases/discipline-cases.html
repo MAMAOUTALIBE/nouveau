@@ -4,11 +4,61 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Dossiers disciplinaires</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Nouveau dossier</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau dossier' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveCase()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Agent</label>
+                <input type="text" class="form-control" formControlName="agent" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date ouverture</label>
+                <input type="date" class="form-control" formControlName="openedOn" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('openedOn') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Motif / Infraction</label>
+                <input type="text" class="form-control" formControlName="infraction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('infraction') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Ouvert">Ouvert</option>
+                  <option value="Instruction">Instruction</option>
+                  <option value="Cloture">Cloture</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Sanction</label>
+                <input type="text" class="form-control" formControlName="sanction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('sanction') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le dossier' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

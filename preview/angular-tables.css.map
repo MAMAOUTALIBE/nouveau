@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/tables/angular-tables/angular-tables.scss"],
-  "sourcesContent": ["table {\r\n    width: 100%;\r\n  }\r\n  \r\n  .example-container {\r\n    height: 400px;\r\n    overflow: auto;\r\n  }\r\n  "],
-  "mappings": ";AAAA;AACI,SAAA;;AAGF,CAAA;AACE,UAAA;AACA,YAAA;;",
-  "names": []
-}

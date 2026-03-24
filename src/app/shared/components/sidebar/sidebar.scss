@@ -1,0 +1,25 @@
+:host ::ng-deep .app-sidebar .slide-menu.child1 .side-menu__item::before,
+:host ::ng-deep .app-sidebar .slide-menu.child2 .side-menu__item::before,
+:host ::ng-deep .app-sidebar .slide-menu.child3 .side-menu__item::before {
+  content: none !important;
+  display: none !important;
+}
+
+:host ::ng-deep .app-sidebar .category-name.category-name-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+:host ::ng-deep .app-sidebar .category-name-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host ::ng-deep .app-sidebar .category-name-icon .category-head-icon {
+  width: 0.78rem;
+  height: 0.78rem;
+  fill: currentColor;
+  color: inherit;
+}

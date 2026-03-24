@@ -22,13 +22,13 @@ export const PERSONNEL_ROUTES: Routes = [
   {
     path: 'dossiers',
     loadComponent: () =>
-      import('../shared/feature-placeholder/feature-placeholder').then((m) => m.FeaturePlaceholder),
+      import('./pages/personnel-dossiers/personnel-dossiers').then((m) => m.PersonnelDossiersPage),
     data: { parentTitle: 'Personnel', childTitle: 'Dossiers administratifs' },
   },
   {
     path: 'affectations',
     loadComponent: () =>
-      import('../shared/feature-placeholder/feature-placeholder').then((m) => m.FeaturePlaceholder),
+      import('./pages/personnel-affectations/personnel-affectations').then((m) => m.PersonnelAffectationsPage),
     data: { parentTitle: 'Personnel', childTitle: 'Affectations' },
   },
   { path: '', pathMatch: 'full', redirectTo: 'agents' },

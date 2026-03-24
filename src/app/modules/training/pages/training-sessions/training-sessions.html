@@ -4,11 +4,72 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Sessions de formation</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Créer une session</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Creer une session' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveSession()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Code (optionnel)</label>
+                <input type="text" class="form-control" formControlName="code" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Intitule</label>
+                <input type="text" class="form-control" formControlName="title" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Lieu</label>
+                <input type="text" class="form-control" formControlName="location" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('location') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Date debut</label>
+                <input type="date" class="form-control" formControlName="startDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('startDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Date fin</label>
+                <input type="date" class="form-control" formControlName="endDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('endDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Places</label>
+                <input type="number" class="form-control" formControlName="seats" min="1" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('seats') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Inscrits</label>
+                <input type="number" class="form-control" formControlName="enrolled" min="0" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('enrolled') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Ouverte">Ouverte</option>
+                  <option value="Complete">Complete</option>
+                  <option value="Planifiee">Planifiee</option>
+                  <option value="Annulee">Annulee</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la session' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

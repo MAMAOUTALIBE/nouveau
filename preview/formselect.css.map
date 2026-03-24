@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/forms/form-elements/formselect/formselect.scss"],
-  "sourcesContent": ["::ng-deep{\r\n    .dark{\r\n      .list-area {\r\n              background-color: rgb(var(--dark-bg)) !important;\r\n          }\r\n      \r\n          .ng-dropdown-panel {\r\n              border-color: (var(--tw-border-opacity));\r\n          }\r\n    }\r\n    .pilled-selcect{\r\n      border-radius: 50px !important;\r\n    }\r\n  }"],
-  "mappings": ";AAEM,UAAA,CAAA,KAAA,CAAA;AACQ,oBAAA,IAAA,IAAA;;AAGJ,UAAA,CAJJ,KAII,CAAA;AACI,gBAAA,IAAA;;AAGV,UAAA,CAAA;AACE,iBAAA;;",
-  "names": []
-}

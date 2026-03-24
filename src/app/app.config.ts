@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, RouterOutlet } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
@@ -21,11 +21,12 @@ import { provideSweetAlert2 } from '@sweetalert2/ngx-sweetalert2';
 import { QuillModule } from 'ngx-quill'
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { requestContextInterceptor } from './core/interceptors/request-context.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZonelessChangeDetection(),
+    provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
+    provideHttpClient(withInterceptors([requestContextInterceptor, errorInterceptor, authInterceptor])),
     provideCharts(withDefaultRegisterables()),
     RouterOutlet,
     ColorPickerDirective,

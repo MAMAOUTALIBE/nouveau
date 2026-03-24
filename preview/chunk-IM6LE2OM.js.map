@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/leave/leave.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const LEAVE_ROUTES: Routes = [\n  {\n    path: 'demandes',\n    loadComponent: () =>\n      import('./pages/leave-requests/leave-requests').then((m) => m.LeaveRequestsPage),\n    data: { parentTitle: 'Absences', childTitle: 'Demandes' },\n  },\n  {\n    path: 'calendrier',\n    loadComponent: () =>\n      import('./pages/leave-calendar/leave-calendar').then((m) => m.LeaveCalendarPage),\n    data: { parentTitle: 'Absences', childTitle: 'Calendrier' },\n  },\n  {\n    path: 'soldes',\n    loadComponent: () =>\n      import('./pages/leave-balances/leave-balances').then((m) => m.LeaveBalancesPage),\n    data: { parentTitle: 'Absences', childTitle: 'Soldes' },\n  },\n  { path: '', pathMatch: 'full', redirectTo: 'demandes' },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,eAAuB;EAClC;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAuC,EAAE,KAAK,CAAC,MAAM,EAAE,iBAAiB;IACjF,MAAM,EAAE,aAAa,YAAY,YAAY,WAAU;;EAEzD;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAuC,EAAE,KAAK,CAAC,MAAM,EAAE,iBAAiB;IACjF,MAAM,EAAE,aAAa,YAAY,YAAY,aAAY;;EAE3D;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAuC,EAAE,KAAK,CAAC,MAAM,EAAE,iBAAiB;IACjF,MAAM,EAAE,aAAa,YAAY,YAAY,SAAQ;;EAEvD,EAAE,MAAM,IAAI,WAAW,QAAQ,YAAY,WAAU;;",
-  "names": []
-}

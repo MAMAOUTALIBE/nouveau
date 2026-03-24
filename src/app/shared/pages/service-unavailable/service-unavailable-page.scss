@@ -1,0 +1,158 @@
+.service-unavailable-wrap {
+  min-height: calc(100vh - 120px);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.service-unavailable-card {
+  width: min(100%, 700px);
+  background: linear-gradient(135deg, #ffffff 0%, #fff9f1 100%);
+  border: 1px solid #eedfcb;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 14px 32px rgba(82, 56, 19, 0.12);
+}
+
+.status {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b86a07;
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #40260a;
+}
+
+.description {
+  margin: 0;
+  color: #6b4a24;
+  max-width: 62ch;
+}
+
+.description.muted {
+  margin-top: 10px;
+  color: #8d724f;
+}
+
+code {
+  color: #523a19;
+  background: #f8eddc;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.retry-controls {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.auto-status {
+  font-size: 0.92rem;
+  color: #5e421d;
+}
+
+.auto-countdown {
+  font-size: 0.9rem;
+  color: #7a5523;
+}
+
+.actions .btn[disabled] {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.retry-note {
+  min-height: 22px;
+  margin: 14px 0 0;
+  font-size: 0.95rem;
+  color: #9a4f12;
+}
+
+.attempt-history {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed #dfc69f;
+}
+
+.attempt-history h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #5a3711;
+}
+
+.attempt-history ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.attempt-history li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ecd9bb;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff8ed;
+}
+
+.history-time,
+.history-source,
+.history-result {
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.history-time {
+  color: #5a401d;
+  background: #f3e6d3;
+}
+
+.history-source {
+  color: #4d3311;
+  background: #efdfc8;
+}
+
+.history-result {
+  color: #5f4622;
+  background: #ebdec9;
+}
+
+.history-result.success {
+  color: #165b2f;
+  background: #dff7e9;
+}
+
+.history-result.failure {
+  color: #8a2a13;
+  background: #ffe6dd;
+}
+
+.history-details {
+  flex: 1;
+  min-width: 180px;
+  color: #634421;
+  font-size: 0.88rem;
+}

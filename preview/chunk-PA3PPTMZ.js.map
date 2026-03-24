@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/documents/documents.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const DOCUMENTS_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'bibliotheque',\n    pathMatch: 'full',\n  },\n  {\n    path: 'bibliotheque',\n    loadComponent: () =>\n      import('./pages/document-library/document-library').then((m) => m.DocumentLibraryPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Documents' },\n  },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,mBAA2B;EACtC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA2C,EAAE,KAAK,CAAC,MAAM,EAAE,mBAAmB;IACvF,MAAM,EAAE,aAAa,YAAY,YAAY,YAAW;;;",
-  "names": []
-}

@@ -43,14 +43,7 @@
           <spk-reusable-tables
             [tableClass]="'table text-nowrap'"
             [showCheckbox]="true"
-            [columns]="[
-              { header: 'Référence' },
-              { header: 'Agent' },
-              { header: 'Type' },
-              { header: 'Structure' },
-              { header: 'Soumis le' },
-              { header: 'Statut' }
-            ]"
+            [columns]="pendingColumns"
             [data]="pendingRequests"
             (toggleSelectAll)="toggleAllRows($event)"
           >

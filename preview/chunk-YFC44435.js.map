@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/organization/organization.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const ORGANIZATION_ROUTES: Routes = [\n  {\n    path: 'organigramme',\n    loadComponent: () =>\n      import('./pages/org-chart/org-chart').then((m) => m.OrgChartPage),\n    data: { parentTitle: 'Organisation', childTitle: 'Organigramme' },\n  },\n  {\n    path: 'postes-budgetaires',\n    loadComponent: () =>\n      import('./pages/budgeted-positions/budgeted-positions').then((m) => m.BudgetedPositionsPage),\n    data: { parentTitle: 'Organisation', childTitle: 'Postes budgétaires' },\n  },\n  {\n    path: 'postes-vacants',\n    loadComponent: () =>\n      import('./pages/vacant-positions/vacant-positions').then((m) => m.VacantPositionsPage),\n    data: { parentTitle: 'Organisation', childTitle: 'Postes vacants' },\n  },\n  { path: '', pathMatch: 'full', redirectTo: 'organigramme' },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,sBAA8B;EACzC;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA6B,EAAE,KAAK,CAAC,MAAM,EAAE,YAAY;IAClE,MAAM,EAAE,aAAa,gBAAgB,YAAY,eAAc;;EAEjE;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA+C,EAAE,KAAK,CAAC,MAAM,EAAE,qBAAqB;IAC7F,MAAM,EAAE,aAAa,gBAAgB,YAAY,wBAAoB;;EAEvE;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA2C,EAAE,KAAK,CAAC,MAAM,EAAE,mBAAmB;IACvF,MAAM,EAAE,aAAa,gBAAgB,YAAY,iBAAgB;;EAEnE,EAAE,MAAM,IAAI,WAAW,QAAQ,YAAY,eAAc;;",
-  "names": []
-}

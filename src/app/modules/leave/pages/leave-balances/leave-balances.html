@@ -4,11 +4,43 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Soldes de congés</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Mettre à jour les droits</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Mettre a jour les droits' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveBalance()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Type de conge</label>
+                <input type="text" class="form-control" formControlName="type" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('type') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Jours alloues</label>
+                <input type="number" class="form-control" formControlName="allocated" min="0" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('allocated') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Jours consommes</label>
+                <input type="number" class="form-control" formControlName="consumed" min="0" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('consumed') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer les droits' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="table-responsive">
           <table class="table text-nowrap">
             <thead>

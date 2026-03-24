@@ -52,4 +52,43 @@ describe('ApiClientService', () => {
     req.flush({ ok: true });
     await expect(requestPromise).resolves.toEqual({ ok: true });
   });
+
+  it('retries transient 503 on get() and succeeds on next attempt', async () => {
+    const requestPromise = firstValueFrom(
+      service.get<{ ok: boolean }>(
+        '/retry-503',
+        undefined,
+        { retry: { maxAttempts: 2, baseDelayMs: 0 } }
+      )
+    );
+
+    const firstReq = httpMock.expectOne(`${environment.api.baseUrl}/retry-503`);
+    firstReq.flush({ message: 'Service indisponible' }, { status: 503, statusText: 'Service Unavailable' });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const secondReq = httpMock.expectOne(`${environment.api.baseUrl}/retry-503`);
+    secondReq.flush({ ok: true });
+
+    await expect(requestPromise).resolves.toEqual({ ok: true });
+  });
+
+  it('does not retry on non-transient get() errors', async () => {
+    const requestPromise = firstValueFrom(
+      service.get('/no-retry-400', undefined, { retry: { maxAttempts: 3, baseDelayMs: 0 } })
+    );
+    const req = httpMock.expectOne(`${environment.api.baseUrl}/no-retry-400`);
+    req.flush({ message: 'Bad request' }, { status: 400, statusText: 'Bad Request' });
+
+    await expect(requestPromise).rejects.toHaveProperty('status', 400);
+    httpMock.expectNone(`${environment.api.baseUrl}/no-retry-400`);
+  });
+
+  it('does not retry post() by default', async () => {
+    const requestPromise = firstValueFrom(service.post('/post-no-retry', { sample: true }));
+    const req = httpMock.expectOne(`${environment.api.baseUrl}/post-no-retry`);
+    req.flush({ message: 'Service indisponible' }, { status: 503, statusText: 'Service Unavailable' });
+
+    await expect(requestPromise).rejects.toHaveProperty('status', 503);
+    httpMock.expectNone(`${environment.api.baseUrl}/post-no-retry`);
+  });
 });

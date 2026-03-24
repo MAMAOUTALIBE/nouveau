@@ -1,0 +1,107 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Portail manager</div>
+        <div class="btn-list">
+          <button type="button" class="btn btn-primary" (click)="toggleActionForm()">
+            {{ showActionForm ? 'Fermer le formulaire' : 'Valider' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !pendingInstances.length"
+            (click)="exportTeam()">
+            Exports equipe
+          </button>
+          <button type="button" class="btn btn-light" [disabled]="isLoading" (click)="refresh()">
+            {{ isLoading ? 'Chargement...' : 'Rafraichir' }}
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showActionForm">
+          <div class="card-body">
+            <form class="row g-3" (ngSubmit)="submitAction()">
+              <div class="col-md-5">
+                <label class="form-label">Instance workflow</label>
+                <select class="form-select" [(ngModel)]="selectedInstanceId" name="selectedInstanceId" required>
+                  <option value="" disabled>Selectionner une instance</option>
+                  <option *ngFor="let instance of pendingInstances" [value]="instance.id">
+                    {{ instance.id }} - {{ instance.requester }} ({{ instance.status }})
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Action</label>
+                <select class="form-select" [(ngModel)]="selectedAction" name="selectedAction">
+                  <option value="APPROUVER">Approuver</option>
+                  <option value="REJETER">Rejeter</option>
+                  <option value="ESCALADER">Escalader</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Note (optionnel)</label>
+                <input type="text" class="form-control" [(ngModel)]="actionNote" name="actionNote" />
+              </div>
+
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelAction()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Traitement...' : 'Enregistrer l action' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-4" *ngFor="let item of quick">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="fw-semibold mb-1">{{ item.label }}</div>
+              <div class="text-muted fs-12 mb-2">{{ item.desc }}</div>
+              <button type="button" class="btn btn-sm btn-primary-light">{{ item.cta }}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Demandeur</th>
+                <th>Workflow</th>
+                <th>Etape</th>
+                <th>Echeance</th>
+                <th>Owner</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="7" class="text-center text-muted">Chargement...</td>
+              </tr>
+              <tr *ngIf="!isLoading && !pendingInstances.length">
+                <td colspan="7" class="text-center text-muted">Aucune instance a traiter</td>
+              </tr>
+              <tr *ngFor="let instance of pendingInstances">
+                <td>{{ instance.id }}</td>
+                <td>{{ instance.requester }}</td>
+                <td>{{ instance.definition }}</td>
+                <td>{{ instance.currentStep }}</td>
+                <td>{{ instance.dueOn | date: 'yyyy-MM-dd HH:mm' }}</td>
+                <td>{{ instance.owner }}</td>
+                <td>
+                  <span class="badge" [ngClass]="statusBadgeClass(instance.status)">{{ instance.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

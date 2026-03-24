@@ -11,6 +11,9 @@
             <span class="me-3 d-inline-block"><i class="far fa-address-card me-2"></i>{{ agent.position }}</span>
             <span class="d-inline-block"><i class="far fa-building me-2"></i>{{ agent.unit }}</span>
           </p>
+          <p class="text-muted ms-md-4 mb-2">
+            <i class="fa fa-sitemap me-2"></i>{{ agent.direction || '—' }}
+          </p>
           <p class="text-muted ms-md-4 mb-2"><i class="fa fa-envelope me-2"></i>{{ agent.email }}</p>
           <p class="text-muted ms-md-4 mb-0"><i class="fa fa-phone me-2"></i>{{ agent.phone }}</p>
         </div>
@@ -26,7 +29,49 @@
                   <div class="col-md-4"><strong>Matricule</strong><div>{{ agent.matricule }}</div></div>
                   <div class="col-md-4"><strong>Fonction</strong><div>{{ agent.position }}</div></div>
                   <div class="col-md-4"><strong>Structure</strong><div>{{ agent.unit }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Statut</strong><div>{{ agent.status || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Manager</strong><div>{{ agent.manager || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Type pièce</strong><div>{{ agent.identity.identityType || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>N° pièce</strong><div>{{ agent.identity.identityNumber || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Date naissance</strong><div>{{ agent.identity.birthDate || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Lieu naissance</strong><div>{{ agent.identity.birthPlace || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Nationalité</strong><div>{{ agent.identity.nationality || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Date recrutement</strong><div>{{ agent.administrative.hireDate || '—' }}</div></div>
+                  <div class="col-md-4 mt-3"><strong>Contrat</strong><div>{{ agent.administrative.contractType || '—' }}</div></div>
+                  <div class="col-md-6 mt-3"><strong>Adresse</strong><div>{{ agent.administrative.address || '—' }}</div></div>
+                  <div class="col-md-3 mt-3"><strong>Urgence</strong><div>{{ agent.administrative.emergencyContactName || '—' }}</div></div>
+                  <div class="col-md-3 mt-3"><strong>Tél urgence</strong><div>{{ agent.administrative.emergencyContactPhone || '—' }}</div></div>
                 </div>
+              </div>
+            </ng-template>
+          </ng-container>
+
+          <ng-container ngbNavItem>
+            <a ngbNavLink class="mb-2 mt-2">Diplômes</a>
+            <ng-template ngbNavContent>
+              <div class="p-4 table-responsive">
+                <spk-reusable-tables
+                  [tableClass]="'table text-nowrap'"
+                  [columns]="[
+                    { header: 'Diplôme' },
+                    { header: 'Spécialité' },
+                    { header: 'Établissement' },
+                    { header: 'Année' }
+                  ]"
+                  [data]="educations"
+                >
+                  @for (edu of educations; track edu.degree + '-' + edu.graduationYear) {
+                    <tr>
+                      <td>{{ edu.degree }}</td>
+                      <td>{{ edu.field || '—' }}</td>
+                      <td>{{ edu.institution || '—' }}</td>
+                      <td>{{ edu.graduationYear || '—' }}</td>
+                    </tr>
+                  }
+                </spk-reusable-tables>
+                @if (!educations.length) {
+                  <div class="text-muted fs-12 mt-2">Aucun diplôme renseigné.</div>
+                }
               </div>
             </ng-template>
           </ng-container>
@@ -55,7 +100,10 @@
                   [columns]="[
                     { header: 'Type' },
                     { header: 'Référence' },
-                    { header: 'Statut' }
+                    { header: 'Statut' },
+                    { header: 'Obligatoire' },
+                    { header: 'Fichier' },
+                    { header: 'Action' }
                   ]"
                   [data]="documents"
                 >
@@ -64,6 +112,25 @@
                       <td>{{ doc.type }}</td>
                       <td>{{ doc.reference }}</td>
                       <td><span class="badge bg-success-transparent text-success">{{ doc.status }}</span></td>
+                      <td>
+                        <span class="badge" [ngClass]="doc.required ? 'bg-info-transparent text-info' : 'bg-light text-muted'">
+                          {{ doc.required ? 'Oui' : 'Non' }}
+                        </span>
+                      </td>
+                      <td>{{ doc.fileName || '—' }}</td>
+                      <td>
+                        @if (doc.fileDataUrl) {
+                          <a
+                            class="btn btn-sm btn-outline-primary"
+                            [href]="doc.fileDataUrl"
+                            [attr.download]="doc.fileName || (doc.reference + '.pdf')"
+                          >
+                            Télécharger
+                          </a>
+                        } @else {
+                          <span class="text-muted fs-12">Non disponible</span>
+                        }
+                      </td>
                     </tr>
                   }
                 </spk-reusable-tables>

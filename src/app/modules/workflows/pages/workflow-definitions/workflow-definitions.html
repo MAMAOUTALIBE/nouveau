@@ -4,11 +4,67 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Workflows</div>
         <div class="btn-list">
-          <button class="btn btn-primary">Nouveau workflow</button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau workflow' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveDefinition()" class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Code (optionnel)</label>
+                <input type="text" class="form-control" formControlName="code" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control" formControlName="name" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('name') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Usage</label>
+                <input type="text" class="form-control" formControlName="usedFor" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('usedFor') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Actif">Actif</option>
+                  <option value="Inactif">Inactif</option>
+                  <option value="Archive">Archive</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Etapes</label>
+                <input type="number" class="form-control" formControlName="steps" min="1" max="12" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('steps') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">SLA cible (heures)</label>
+                <input type="number" class="form-control" formControlName="slaTargetHours" min="1" max="720" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('slaTargetHours') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check form-switch mb-2">
+                  <input class="form-check-input" type="checkbox" role="switch" formControlName="autoEscalation" />
+                  <label class="form-check-label">Escalade automatique</label>
+                </div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le workflow' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

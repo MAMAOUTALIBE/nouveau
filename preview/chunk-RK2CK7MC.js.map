@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/reports/reports.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const REPORTS_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'rh',\n    pathMatch: 'full',\n  },\n  {\n    path: 'rh',\n    loadComponent: () =>\n      import('./pages/hr-reports/hr-reports').then((m) => m.HrReportsPage),\n    data: { parentTitle: 'Pilotage', childTitle: 'Rapports' },\n  },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,iBAAyB;EACpC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAA+B,EAAE,KAAK,CAAC,MAAM,EAAE,aAAa;IACrE,MAAM,EAAE,aAAa,YAAY,YAAY,WAAU;;;",
-  "names": []
-}

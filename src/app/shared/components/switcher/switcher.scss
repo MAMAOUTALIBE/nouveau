@@ -1,0 +1,26 @@
+:host .menu-image .bgimage-input {
+  background-color: transparent !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+:host .menu-image .bgimage-input.bg-img1 {
+  background-image: url('/assets/images/menu-bg-images/bg-img1.jpg?v=20260324-1') !important;
+}
+
+:host .menu-image .bgimage-input.bg-img2 {
+  background-image: url('/assets/images/menu-bg-images/bg-img2.jpg?v=20260324-2') !important;
+}
+
+:host .menu-image .bgimage-input.bg-img3 {
+  background-image: url('/assets/images/menu-bg-images/bg-img3.jpg?v=20260324-3') !important;
+}
+
+:host .menu-image .bgimage-input.bg-img4 {
+  background-image: url('/assets/images/menu-bg-images/bg-img4.jpg?v=20260324-4') !important;
+}
+
+:host .menu-image .bgimage-input.bg-img5 {
+  background-image: url('/assets/images/menu-bg-images/bg-img5.jpg?v=20260324-5') !important;
+}

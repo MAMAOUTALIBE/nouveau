@@ -1,0 +1,50 @@
+<section class="service-unavailable-wrap">
+  <article class="service-unavailable-card">
+    <p class="status">Erreur 503</p>
+    <h1>Service temporairement indisponible</h1>
+    <p class="description">
+      Le backend ne repond pas actuellement. Les appels critiques ont ete retentes automatiquement, mais le service
+      reste indisponible.
+    </p>
+    <p class="description muted">
+      Cible de reprise: <code>{{ returnUrl }}</code>
+    </p>
+    <p class="description muted">
+      Derniere tentative: <code>{{ lastAttemptAtLabel }}</code>
+    </p>
+    <div class="retry-controls">
+      <span class="auto-status">
+        Auto-retry: {{ autoRetryEnabled ? 'active (10s)' : 'desactive' }}
+      </span>
+      <span class="auto-countdown" aria-live="polite">
+        Prochaine tentative auto dans: {{ autoRetryEnabled ? autoRetryCountdownSeconds + 's' : 'n/a' }}
+      </span>
+      <button class="btn btn-sm btn-outline-dark" type="button" (click)="toggleAutoRetry()">
+        {{ autoRetryEnabled ? 'Desactiver auto-retry' : 'Activer auto-retry' }}
+      </button>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" type="button" (click)="retryNow()" [disabled]="isRetrying">
+        {{ isRetrying ? 'Verification en cours...' : 'Reessayer maintenant' }}
+      </button>
+      <a class="btn btn-outline-primary" [routerLink]="returnUrl">Retourner a la page precedente</a>
+      <a class="btn btn-outline-secondary" routerLink="/dashboard">Revenir au tableau de bord</a>
+      <a class="btn btn-outline-secondary" routerLink="/auth/login">Reconnexion</a>
+    </div>
+    <p class="retry-note">{{ statusMessage }}</p>
+
+    <section class="attempt-history" *ngIf="attemptHistory.length > 0">
+      <h2>Dernieres tentatives</h2>
+      <ul>
+        <li *ngFor="let attempt of attemptHistory">
+          <span class="history-time">{{ attempt.atLabel }}</span>
+          <span class="history-source">{{ attempt.source }}</span>
+          <span class="history-result" [class.success]="attempt.result === 'SUCCES'" [class.failure]="attempt.result === 'ECHEC'">
+            {{ attempt.result }}
+          </span>
+          <span class="history-details">{{ attempt.details }}</span>
+        </li>
+      </ul>
+    </section>
+  </article>
+</section>

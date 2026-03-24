@@ -66,6 +66,13 @@
         <!-- End::header-link -->
       </div>
 
+      <div class="header-element d-md-block d-none ms-2">
+        <button type="button" class="header-link cmdk-trigger" (click)="openCommandPalette()">
+          <i class="bi bi-command me-1"></i>
+          {{ commandHint }}
+        </button>
+      </div>
+
     </div>
     <!-- End::header-content-left -->
 
@@ -423,6 +430,40 @@
   <!-- End::main-header-container -->
 </header>
 <!-- /app-header -->
+
+@if (commandPaletteOpen) {
+<div class="cmdk-overlay" (click)="closeCommandPalette()">
+  <section class="cmdk-panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <div class="cmdk-input-row">
+      <i class="bi bi-search cmdk-input-icon"></i>
+      <input #commandPaletteInput type="text" class="cmdk-input" placeholder="Rechercher une page ou une action..."
+        [(ngModel)]="commandQuery" [ngModelOptions]="{ standalone: true }" (ngModelChange)="updateCommandResults()">
+      <span class="cmdk-shortcut">{{ commandHint }}</span>
+    </div>
+
+    @if (commandResults.length > 0) {
+    <ul class="cmdk-results">
+      @for (command of commandResults; track command.id; let i = $index) {
+      <li class="cmdk-item" [class.active]="i === activeCommandIndex" (mouseenter)="activeCommandIndex = i"
+        (click)="executeCommand(command)">
+        <div class="cmdk-item-body">
+          <p class="cmdk-item-title">{{ command.title }}</p>
+          <p class="cmdk-item-description">{{ command.description }}</p>
+        </div>
+        <span class="cmdk-item-type" [class.recent]="command.type === 'recent'">
+          {{ formatCommandType(command.type) }}
+        </span>
+      </li>
+      }
+    </ul>
+    } @else {
+    <div class="cmdk-empty-state">
+      Aucun resultat pour "{{ commandQuery }}"
+    </div>
+    }
+  </section>
+</div>
+}
 
 
 <ng-template #content let-modal>

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/admin/admin.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const ADMIN_ROUTES: Routes = [\n  {\n    path: '',\n    redirectTo: 'utilisateurs',\n    pathMatch: 'full',\n  },\n  {\n    path: 'utilisateurs',\n    loadComponent: () =>\n      import('./pages/admin-users/admin-users').then((m) => m.AdminUsersPage),\n    data: { parentTitle: 'Administration', childTitle: 'Utilisateurs' },\n  },\n  {\n    path: 'roles',\n    loadComponent: () =>\n      import('./pages/admin-roles/admin-roles').then((m) => m.AdminRolesPage),\n    data: { parentTitle: 'Administration', childTitle: 'Rôles' },\n  },\n  {\n    path: 'audit',\n    loadComponent: () =>\n      import('./pages/admin-audit/admin-audit').then((m) => m.AdminAuditPage),\n    data: { parentTitle: 'Administration', childTitle: 'Audit' },\n  },\n];\n"],
-  "mappings": ";;;AAEO,IAAM,eAAuB;EAClC;IACE,MAAM;IACN,YAAY;IACZ,WAAW;;EAEb;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiC,EAAE,KAAK,CAAC,MAAM,EAAE,cAAc;IACxE,MAAM,EAAE,aAAa,kBAAkB,YAAY,eAAc;;EAEnE;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiC,EAAE,KAAK,CAAC,MAAM,EAAE,cAAc;IACxE,MAAM,EAAE,aAAa,kBAAkB,YAAY,WAAO;;EAE5D;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiC,EAAE,KAAK,CAAC,MAAM,EAAE,cAAc;IACxE,MAAM,EAAE,aAAa,kBAAkB,YAAY,QAAO;;;",
-  "names": []
-}
