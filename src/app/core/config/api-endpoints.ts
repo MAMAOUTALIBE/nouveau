@@ -45,6 +45,23 @@ export const API_ENDPOINTS = {
   },
   documents: {
     library: '/documents/library',
+    item: (reference: string) => `/documents/library/${encodeURIComponent(reference)}`,
+    sign: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/sign`,
+    assign: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/assign`,
+    audit: '/documents/audit-logs',
+    analytics: '/documents/analytics',
+    overdue: '/documents/overdue',
+    archiveRun: '/documents/archive-run',
+    purgeArchives: '/documents/purge-archives',
+    inbox: '/documents/inbox',
+    inboxRead: (reference: string) => `/documents/inbox/${encodeURIComponent(reference)}/read`,
+    inboxAcknowledge: (reference: string) => `/documents/inbox/${encodeURIComponent(reference)}/acknowledge`,
+  },
+  notifications: {
+    inbox: '/notifications/inbox',
+    read: (id: string) => `/notifications/inbox/${encodeURIComponent(id)}/read`,
+    jobs: '/notifications/delivery-jobs',
+    process: '/notifications/process',
   },
   workflows: {
     definitions: '/workflows/definitions',

@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const pathModule = require('path');
+const { createHash } = require('crypto');
 const { URL } = require('url');
 
 const PORT = Number(process.env.MOCK_API_PORT || 8080);
@@ -35,34 +36,124 @@ if (!fs.existsSync(PERSONNEL_UPLOAD_DIR)) {
   fs.mkdirSync(PERSONNEL_UPLOAD_DIR, { recursive: true });
 }
 
+const APP_SCOPES = {
+  SELF: 'SELF',
+  TEAM: 'TEAM',
+  UNIT: 'UNIT',
+  DIRECTION: 'DIRECTION',
+  GLOBAL: 'GLOBAL',
+};
+
+const SCOPE_ALIASES = {
+  self: APP_SCOPES.SELF,
+  own: APP_SCOPES.SELF,
+  team: APP_SCOPES.TEAM,
+  unit: APP_SCOPES.UNIT,
+  direction: APP_SCOPES.DIRECTION,
+  global: APP_SCOPES.GLOBAL,
+};
+
+const APP_PERMISSIONS = {
+  dashboardView: 'dashboard:view',
+  dashboardManage: 'dashboard:manage',
+  personnelView: 'personnel:view',
+  personnelManage: 'personnel:manage',
+  organizationView: 'organization:view',
+  organizationManage: 'organization:manage',
+  recruitmentView: 'recruitment:view',
+  recruitmentManage: 'recruitment:manage',
+  careersView: 'careers:view',
+  careersManage: 'careers:manage',
+  leaveView: 'leave:view',
+  leaveManage: 'leave:manage',
+  leaveApproveL1: 'leave:approve:l1',
+  leaveApproveL2: 'leave:approve:l2',
+  performanceView: 'performance:view',
+  performanceManage: 'performance:manage',
+  trainingView: 'training:view',
+  trainingManage: 'training:manage',
+  disciplineView: 'discipline:view',
+  disciplineManage: 'discipline:manage',
+  documentsView: 'documents:view',
+  documentsManage: 'documents:manage',
+  documentsViewSensitive: 'documents:view:sensitive',
+  workflowsView: 'workflows:view',
+  workflowsManage: 'workflows:manage',
+  reportsView: 'reports:view',
+  reportsExport: 'reports:export',
+  portalAgent: 'portal:agent',
+  portalManager: 'portal:manager',
+  adminView: 'admin:view',
+  adminUsersManage: 'admin:users:manage',
+  adminRolesManage: 'admin:roles:manage',
+  adminAuditView: 'admin:audit:view',
+};
+
 const ROLE_PERMISSIONS = {
   super_admin: ['*'],
   hr_manager: [
-    'dashboard:view',
-    'personnel:view',
-    'organization:view',
-    'recruitment:view',
-    'careers:view',
-    'leave:view',
-    'performance:view',
-    'training:view',
-    'discipline:view',
-    'documents:view',
-    'workflows:view',
-    'reports:view',
-    'portal:agent',
-    'portal:manager',
+    APP_PERMISSIONS.dashboardView,
+    APP_PERMISSIONS.dashboardManage,
+    APP_PERMISSIONS.personnelView,
+    APP_PERMISSIONS.personnelManage,
+    APP_PERMISSIONS.organizationView,
+    APP_PERMISSIONS.organizationManage,
+    APP_PERMISSIONS.recruitmentView,
+    APP_PERMISSIONS.recruitmentManage,
+    APP_PERMISSIONS.careersView,
+    APP_PERMISSIONS.careersManage,
+    APP_PERMISSIONS.leaveView,
+    APP_PERMISSIONS.leaveManage,
+    APP_PERMISSIONS.leaveApproveL1,
+    APP_PERMISSIONS.leaveApproveL2,
+    APP_PERMISSIONS.performanceView,
+    APP_PERMISSIONS.performanceManage,
+    APP_PERMISSIONS.trainingView,
+    APP_PERMISSIONS.trainingManage,
+    APP_PERMISSIONS.disciplineView,
+    APP_PERMISSIONS.disciplineManage,
+    APP_PERMISSIONS.documentsView,
+    APP_PERMISSIONS.documentsManage,
+    APP_PERMISSIONS.documentsViewSensitive,
+    APP_PERMISSIONS.workflowsView,
+    APP_PERMISSIONS.workflowsManage,
+    APP_PERMISSIONS.reportsView,
+    APP_PERMISSIONS.reportsExport,
+    APP_PERMISSIONS.portalAgent,
+    APP_PERMISSIONS.portalManager,
   ],
   manager: [
-    'dashboard:view',
-    'leave:view',
-    'performance:view',
-    'training:view',
-    'documents:view',
-    'reports:view',
-    'portal:manager',
+    APP_PERMISSIONS.dashboardView,
+    APP_PERMISSIONS.leaveView,
+    APP_PERMISSIONS.leaveManage,
+    APP_PERMISSIONS.leaveApproveL1,
+    APP_PERMISSIONS.performanceView,
+    APP_PERMISSIONS.performanceManage,
+    APP_PERMISSIONS.trainingView,
+    APP_PERMISSIONS.trainingManage,
+    APP_PERMISSIONS.documentsView,
+    APP_PERMISSIONS.documentsManage,
+    APP_PERMISSIONS.reportsView,
+    APP_PERMISSIONS.reportsExport,
+    APP_PERMISSIONS.portalManager,
   ],
-  agent: ['dashboard:view', 'leave:view', 'training:view', 'documents:view', 'portal:agent'],
+  agent: [
+    APP_PERMISSIONS.dashboardView,
+    APP_PERMISSIONS.leaveView,
+    APP_PERMISSIONS.leaveManage,
+    APP_PERMISSIONS.trainingView,
+    APP_PERMISSIONS.trainingManage,
+    APP_PERMISSIONS.documentsView,
+    APP_PERMISSIONS.documentsManage,
+    APP_PERMISSIONS.portalAgent,
+  ],
+};
+
+const ROLE_SCOPES = {
+  super_admin: [APP_SCOPES.GLOBAL],
+  hr_manager: [APP_SCOPES.GLOBAL],
+  manager: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION],
+  agent: [APP_SCOPES.SELF],
 };
 
 const users = [
@@ -71,24 +162,54 @@ const users = [
     password: 'sprukoadmin',
     fullName: 'Admin RH',
     roles: ['super_admin'],
+    scopes: [APP_SCOPES.GLOBAL],
+    direction: 'Cabinet',
+    unit: 'Administration',
   },
   {
     username: 'manager.rh@gouv.gn',
     password: 'manager123',
     fullName: 'Manager RH',
     roles: ['hr_manager'],
+    scopes: [APP_SCOPES.GLOBAL],
+    direction: 'Direction RH',
+    unit: 'Pilotage RH',
   },
   {
     username: 'chef.service@gouv.gn',
     password: 'chef123',
     fullName: 'Chef Service',
     roles: ['manager'],
+    scopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION],
+    direction: 'Direction RH',
+    unit: 'Gestion administrative',
   },
   {
     username: 'agent.rh@gouv.gn',
     password: 'agent123',
     fullName: 'Agent RH',
     roles: ['agent'],
+    scopes: [APP_SCOPES.SELF],
+    direction: 'Direction RH',
+    unit: 'Gestion administrative',
+  },
+  {
+    username: 'aminata.diallo@gouv.gn',
+    password: 'agent123',
+    fullName: 'Aminata Diallo',
+    roles: ['agent'],
+    scopes: [APP_SCOPES.SELF],
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+  },
+  {
+    username: 'mamadou.camara@gouv.gn',
+    password: 'agent123',
+    fullName: 'Mamadou Camara',
+    roles: ['agent'],
+    scopes: [APP_SCOPES.SELF],
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
   },
 ];
 
@@ -599,35 +720,140 @@ const disciplineCases = [
 const documentsLibrary = [
   {
     reference: 'DOC-2026-001',
-    title: 'Procedure recrutement',
-    type: 'Procedure',
+    title: 'Ordre de mission - Audit RH Kindia',
+    type: 'Ordre de mission',
     owner: 'Direction RH',
     updatedAt: '2026-03-10T09:20:00.000Z',
-    status: 'Publie',
+    status: 'Valide',
+    employeeName: 'Aminata Diallo',
+    employeeId: 'PRM-0001',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    issuedAt: '2026-03-10',
+    startDate: '2026-03-14',
+    endDate: '2026-03-17',
+    approver: 'Directeur RH',
+    missionDestination: 'Kindia',
+    missionPurpose: 'Audit des procedures RH',
+    absenceReason: '',
+    notes: 'Transport et hebergement pris en charge par le service RH.',
+    signedAt: '2026-03-10T10:05:00.000Z',
+    signedBy: 'manager.rh@gouv.gn',
+    stampLabel: 'CACHET RH PRIMATURE',
+    signatureHash: 'd76ef4072624f5a8e6eb2484e13a0f8ad4abaf9659e8788ec6fd9291e4dcb2cd',
+    verificationCode: 'VRF-2026-6F1A2C74',
   },
   {
     reference: 'DOC-2026-002',
-    title: 'Guide evaluation annuelle',
-    type: 'Guide',
-    owner: 'Cellule Performance',
+    title: 'Certificat d absence - Kadiatou Sylla',
+    type: 'Certificat d absence',
+    owner: 'Direction RH',
     updatedAt: '2026-03-14T12:00:00.000Z',
-    status: 'Brouillon',
+    status: 'Publie',
+    employeeName: 'Kadiatou Sylla',
+    employeeId: 'PRM-0018',
+    direction: 'Direction RH',
+    unit: 'Gestion administrative',
+    issuedAt: '2026-03-14',
+    startDate: '2026-03-13',
+    endDate: '2026-03-13',
+    approver: 'Chef service RH',
+    missionDestination: '',
+    missionPurpose: '',
+    absenceReason: 'Consultation medicale',
+    notes: 'Justificatif medical fourni.',
+    signedAt: '2026-03-14T13:12:00.000Z',
+    signedBy: 'chef.service@gouv.gn',
+    stampLabel: 'CACHET RH PRIMATURE',
+    signatureHash: 'ce776f6e4c24864ca68086fb6283635ff38102fe3d8f2575f2a6a0dbf6b0c8cf',
+    verificationCode: 'VRF-2026-89D1AAE3',
   },
   {
     reference: 'DOC-2026-003',
-    title: 'Modele fiche de poste',
-    type: 'Template',
+    title: 'Attestation de travail - Ibrahima Keita',
+    type: 'Attestation de travail',
     owner: 'Direction RH',
     updatedAt: '2026-03-18T15:30:00.000Z',
     status: 'Publie',
+    employeeName: 'Ibrahima Keita',
+    employeeId: 'PRM-0023',
+    direction: 'Direction RH',
+    unit: 'Paie',
+    issuedAt: '2026-03-18',
+    startDate: '',
+    endDate: '',
+    approver: 'Directeur RH',
+    missionDestination: '',
+    missionPurpose: '',
+    absenceReason: '',
+    notes: 'Attestation emise pour demarche bancaire.',
+    signedAt: '2026-03-18T16:10:00.000Z',
+    signedBy: 'manager.rh@gouv.gn',
+    stampLabel: 'CACHET RH PRIMATURE',
+    signatureHash: '6a08ef85ed39ed2f9f96ebfdf9655f5453da991ad14560e72b8f3ca648b65d56',
+    verificationCode: 'VRF-2026-BC33E9F0',
   },
 ];
+
+const documentDispatches = [];
+const documentAuditLogs = [];
+
+const DOCUMENT_STATUS_FLOW = Object.freeze({
+  Brouillon: ['En validation', 'Archive'],
+  'En validation': ['Brouillon', 'Valide', 'Archive'],
+  Valide: ['En validation', 'Publie', 'Archive'],
+  Publie: ['Archive'],
+  Archive: [],
+});
+
+const DOCUMENT_STATUS_MAP = Object.freeze({
+  brouillon: 'Brouillon',
+  'en validation': 'En validation',
+  envalidation: 'En validation',
+  en_validation: 'En validation',
+  valide: 'Valide',
+  validee: 'Valide',
+  'validé': 'Valide',
+  publie: 'Publie',
+  publiee: 'Publie',
+  'publié': 'Publie',
+  archive: 'Archive',
+  archivee: 'Archive',
+  'archivé': 'Archive',
+  'archivée': 'Archive',
+});
+
+const DOCUMENT_AUDIT_ACTIONS = Object.freeze({
+  CREATED: 'DOCUMENT_CREATED',
+  UPDATED: 'DOCUMENT_UPDATED',
+  STATUS_CHANGED: 'DOCUMENT_STATUS_CHANGED',
+  SIGNED: 'DOCUMENT_SIGNED',
+  ASSIGNED: 'DOCUMENT_ASSIGNED',
+  READ: 'DOCUMENT_READ',
+  ACKNOWLEDGED: 'DOCUMENT_ACKNOWLEDGED',
+});
+
+const DOCUMENT_AUDIT_LIMIT = 1200;
+let documentAuditSequence = 1;
+
+const notificationDeliveryJobs = [];
+const notificationInboxItems = [];
+const NOTIFICATION_DELIVERY_LIMIT = 1600;
+const NOTIFICATION_INBOX_LIMIT = 2400;
+const NOTIFICATION_MAX_ATTEMPTS = 3;
+const NOTIFICATION_RETRY_DELAYS_MS = [0, 5000, 30000];
+let notificationSequence = 1;
+
+const DOCUMENT_ARCHIVE_DEFAULT_DAYS = 30;
+const DOCUMENT_PURGE_DEFAULT_RETENTION_DAYS = 120;
 
 const adminUsers = [
   { username: 'spruko@admin.com', fullName: 'Admin RH', role: 'super_admin', direction: 'Cabinet', status: 'Actif' },
   { username: 'manager.rh@gouv.gn', fullName: 'Manager RH', role: 'hr_manager', direction: 'Direction RH', status: 'Actif' },
   { username: 'chef.service@gouv.gn', fullName: 'Chef Service', role: 'manager', direction: 'Direction RH', status: 'Actif' },
   { username: 'agent.rh@gouv.gn', fullName: 'Agent RH', role: 'agent', direction: 'Direction RH', status: 'Actif' },
+  { username: 'aminata.diallo@gouv.gn', fullName: 'Aminata Diallo', role: 'agent', direction: 'Direction RH', status: 'Actif' },
+  { username: 'mamadou.camara@gouv.gn', fullName: 'Mamadou Camara', role: 'agent', direction: 'Direction RH', status: 'Actif' },
 ];
 
 const adminRoles = [
@@ -829,6 +1055,21 @@ function normalizeRoles(roles) {
   return normalized.length ? uniqueStrings(normalized) : ['hr_manager'];
 }
 
+function normalizeScopes(scopes) {
+  const normalized = toStringArray(scopes).map((scope) => scope.toLowerCase());
+  const resolved = normalized.map((scope) => SCOPE_ALIASES[scope]).filter(Boolean);
+  if (!resolved.length) {
+    return [];
+  }
+
+  const unique = uniqueStrings(resolved);
+  if (unique.includes(APP_SCOPES.GLOBAL)) {
+    return [APP_SCOPES.GLOBAL];
+  }
+
+  return unique;
+}
+
 function resolvePermissions(roles, explicitPermissions) {
   const normalizedRoles = normalizeRoles(roles);
   const normalizedPermissions = toStringArray(explicitPermissions);
@@ -844,17 +1085,70 @@ function resolvePermissions(roles, explicitPermissions) {
   return uniqueStrings([...rolePermissions, ...normalizedPermissions]);
 }
 
+function resolveScopes(roles, explicitScopes) {
+  const normalizedRoles = normalizeRoles(roles);
+  const roleScopes = normalizedRoles.flatMap((role) => ROLE_SCOPES[role] || []);
+  const merged = [...roleScopes, ...normalizeScopes(explicitScopes)];
+  const unique = uniqueStrings(merged);
+
+  if (unique.includes(APP_SCOPES.GLOBAL)) {
+    return [APP_SCOPES.GLOBAL];
+  }
+
+  return unique;
+}
+
+function buildScopeAssignments(source, scopes) {
+  const assignments = [];
+  const username = String(source?.username || '').trim();
+  const fullName = String(source?.fullName || '').trim();
+  const direction = String(source?.direction || '').trim();
+  const unit = String(source?.unit || '').trim();
+
+  if (scopes.includes(APP_SCOPES.GLOBAL)) {
+    assignments.push({ scope: APP_SCOPES.GLOBAL });
+    return assignments;
+  }
+
+  if (scopes.includes(APP_SCOPES.SELF) && username) {
+    assignments.push({ scope: APP_SCOPES.SELF, username });
+  }
+
+  if (scopes.includes(APP_SCOPES.TEAM)) {
+    assignments.push({
+      scope: APP_SCOPES.TEAM,
+      manager: fullName || username,
+      direction,
+      unit,
+    });
+  }
+
+  if (scopes.includes(APP_SCOPES.UNIT) && unit) {
+    assignments.push({ scope: APP_SCOPES.UNIT, unit, direction });
+  }
+
+  if (scopes.includes(APP_SCOPES.DIRECTION) && direction) {
+    assignments.push({ scope: APP_SCOPES.DIRECTION, direction });
+  }
+
+  return assignments;
+}
+
 function makePrincipal(source) {
   const username = String(source?.username || '').trim();
   const fullName = String(source?.fullName || '').trim() || username;
   const roles = normalizeRoles(source?.roles);
   const permissions = resolvePermissions(roles, source?.permissions);
+  const scopes = resolveScopes(roles, source?.scopes);
+  const scopeAssignments = buildScopeAssignments(source, scopes);
 
   return {
     username,
     fullName,
     roles,
     permissions,
+    scopes,
+    scopeAssignments,
   };
 }
 
@@ -869,9 +1163,12 @@ function buildAuthResponse(sessionResult) {
     username: principal.username,
     roles: principal.roles,
     permissions: principal.permissions,
+    scopes: principal.scopes,
     access: {
       roles: principal.roles,
       permissions: principal.permissions,
+      scopes: principal.scopes,
+      scopeAssignments: principal.scopeAssignments,
     },
     user: {
       username: principal.username,
@@ -879,6 +1176,8 @@ function buildAuthResponse(sessionResult) {
       fullName: principal.fullName,
       roles: principal.roles,
       permissions: principal.permissions,
+      scopes: principal.scopes,
+      scopeAssignments: principal.scopeAssignments,
     },
   };
 }
@@ -980,8 +1279,64 @@ function hasAnyRole(session, requiredRoles = []) {
   return requiredRoles.some((role) => userRoles.includes(String(role || '').toLowerCase()));
 }
 
-function ensureRoles(res, session, requiredRoles = []) {
-  if (hasAnyRole(session, requiredRoles)) {
+function hasAnyPermission(session, requiredPermissions = []) {
+  if (!requiredPermissions.length) {
+    return true;
+  }
+
+  const permissions = toStringArray(session.permissions);
+  if (permissions.includes('*')) {
+    return true;
+  }
+
+  return requiredPermissions.some((permission) => permissions.includes(String(permission || '').trim()));
+}
+
+function hasAllPermissions(session, requiredPermissions = []) {
+  if (!requiredPermissions.length) {
+    return true;
+  }
+
+  const permissions = toStringArray(session.permissions);
+  if (permissions.includes('*')) {
+    return true;
+  }
+
+  return requiredPermissions.every((permission) => permissions.includes(String(permission || '').trim()));
+}
+
+function hasAnyScope(session, requiredScopes = []) {
+  if (!requiredScopes.length) {
+    return true;
+  }
+
+  const userScopes = normalizeScopes(session.scopes);
+  if (userScopes.includes(APP_SCOPES.GLOBAL)) {
+    return true;
+  }
+
+  const expectedScopes = toStringArray(requiredScopes)
+    .map((scope) => SCOPE_ALIASES[String(scope || '').toLowerCase()])
+    .filter((scope) => !!scope);
+  if (!expectedScopes.length) {
+    return true;
+  }
+
+  return expectedScopes.some((scope) => userScopes.includes(scope));
+}
+
+function ensureAccess(res, session, requirements = {}) {
+  const requiredRoles = toStringArray(requirements.requiredRoles);
+  const requiredAnyPermissions = toStringArray(requirements.requiredAnyPermissions);
+  const requiredAllPermissions = toStringArray(requirements.requiredAllPermissions);
+  const requiredAnyScopes = toStringArray(requirements.requiredAnyScopes);
+
+  if (
+    hasAnyRole(session, requiredRoles) &&
+    hasAnyPermission(session, requiredAnyPermissions) &&
+    hasAllPermissions(session, requiredAllPermissions) &&
+    hasAnyScope(session, requiredAnyScopes)
+  ) {
     return true;
   }
 
@@ -990,9 +1345,187 @@ function ensureRoles(res, session, requiredRoles = []) {
     403,
     'AUTH_FORBIDDEN',
     'Acces refuse',
-    { requiredRoles, actualRoles: normalizeRoles(session.roles) }
+    {
+      requiredRoles,
+      requiredAnyPermissions,
+      requiredAllPermissions,
+      requiredAnyScopes,
+      actualRoles: normalizeRoles(session.roles),
+      actualPermissions: toStringArray(session.permissions),
+      actualScopes: normalizeScopes(session.scopes),
+    }
   );
   return false;
+}
+
+function resolveRouteAccessRequirements(method, path) {
+  const isRead = method === 'GET' || method === 'HEAD';
+
+  if (path.startsWith('/api/v1/dashboard/')) {
+    return { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView] };
+  }
+
+  if (path.startsWith('/api/v1/personnel/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.personnelManage],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/leave/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.leaveView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.leaveManage],
+      requiredAnyScopes: [APP_SCOPES.SELF, APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/organization/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.organizationView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.organizationManage],
+      requiredAnyScopes: [APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/recruitment/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.recruitmentView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.recruitmentManage],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/careers/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.careersView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.careersManage],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/performance/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.performanceView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.performanceManage],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/training/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.trainingView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.trainingManage],
+      requiredAnyScopes: [APP_SCOPES.SELF, APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/discipline/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.disciplineView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.disciplineManage],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/documents/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.documentsView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.documentsManage],
+      requiredAnyScopes: [APP_SCOPES.SELF, APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/notifications/')) {
+    if (isRead) {
+      return {
+        requiredAnyPermissions: [APP_PERMISSIONS.documentsView, APP_PERMISSIONS.portalAgent, APP_PERMISSIONS.portalManager],
+        requiredAnyScopes: [APP_SCOPES.SELF, APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+      };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.documentsManage, APP_PERMISSIONS.portalAgent, APP_PERMISSIONS.portalManager],
+      requiredAnyScopes: [APP_SCOPES.SELF, APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/workflows/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.workflowsView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.workflowsManage],
+      requiredAnyScopes: [APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/reports/')) {
+    if (isRead) {
+      return { requiredAnyPermissions: [APP_PERMISSIONS.reportsView] };
+    }
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.reportsExport],
+      requiredAnyScopes: [APP_SCOPES.TEAM, APP_SCOPES.UNIT, APP_SCOPES.DIRECTION, APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/admin/users')) {
+    if (isRead) {
+      return {
+        requiredAnyPermissions: [APP_PERMISSIONS.adminView, APP_PERMISSIONS.adminUsersManage],
+        requiredAnyScopes: [APP_SCOPES.GLOBAL],
+      };
+    }
+    return {
+      requiredAllPermissions: [APP_PERMISSIONS.adminUsersManage],
+      requiredAnyScopes: [APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/admin/roles')) {
+    if (isRead) {
+      return {
+        requiredAnyPermissions: [APP_PERMISSIONS.adminView, APP_PERMISSIONS.adminRolesManage],
+        requiredAnyScopes: [APP_SCOPES.GLOBAL],
+      };
+    }
+    return {
+      requiredAllPermissions: [APP_PERMISSIONS.adminRolesManage],
+      requiredAnyScopes: [APP_SCOPES.GLOBAL],
+    };
+  }
+
+  if (path.startsWith('/api/v1/admin/audit-logs')) {
+    return {
+      requiredAnyPermissions: [APP_PERMISSIONS.adminAuditView],
+      requiredAnyScopes: [APP_SCOPES.GLOBAL],
+    };
+  }
+
+  return null;
+}
+
+function ensureRoles(res, session, requiredRoles = []) {
+  return ensureAccess(res, session, { requiredRoles });
 }
 
 function sendJson(res, statusCode, data) {
@@ -2245,7 +2778,13 @@ function validateDisciplineCaseCreatePayload(body) {
 }
 
 function findLibraryDocument(reference) {
-  return documentsLibrary.find((item) => item.reference === reference);
+  const expected = String(reference || '').trim().toUpperCase();
+  return documentsLibrary.find((item) => String(item.reference || '').trim().toUpperCase() === expected);
+}
+
+function findLibraryDocumentIndex(reference) {
+  const expected = String(reference || '').trim().toUpperCase();
+  return documentsLibrary.findIndex((item) => String(item.reference || '').trim().toUpperCase() === expected);
 }
 
 function buildLibraryDocumentReference() {
@@ -2260,30 +2799,130 @@ function buildLibraryDocumentReference() {
   return `DOC-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
 }
 
-function normalizeDocumentStatus(value) {
-  const normalized = normalizeText(value);
-  if (normalized === 'publie' || normalized === 'publié') return 'Publie';
-  if (normalized === 'archive' || normalized === 'archivé' || normalized === 'archivee' || normalized === 'archivée') {
-    return 'Archive';
-  }
-  return 'Brouillon';
+function resolveDocumentStatusAlias(value) {
+  const normalized = normalizeText(value).replace(/\s+/g, ' ');
+  return DOCUMENT_STATUS_MAP[normalized] || null;
 }
 
-function validateLibraryDocumentCreatePayload(body) {
+function resolveDocumentStatusFallback(fallback = 'Brouillon') {
+  const raw = String(fallback ?? '').trim();
+  if (!raw) {
+    return 'Brouillon';
+  }
+  return resolveDocumentStatusAlias(raw) || raw;
+}
+
+function resolveDocumentStatusInput(value, fallback = 'Brouillon') {
+  const fallbackStatus = resolveDocumentStatusFallback(fallback);
+  const raw = String(value ?? '').trim();
+  if (!raw) {
+    return {
+      value: fallbackStatus,
+      provided: false,
+      valid: true,
+    };
+  }
+
+  const mapped = resolveDocumentStatusAlias(raw);
+  if (!mapped) {
+    return {
+      value: fallbackStatus,
+      provided: true,
+      valid: false,
+    };
+  }
+
+  return {
+    value: mapped,
+    provided: true,
+    valid: true,
+  };
+}
+
+function normalizeDocumentStatus(value, fallback = 'Brouillon') {
+  const resolution = resolveDocumentStatusInput(value, fallback);
+  return resolution.valid ? resolution.value : resolveDocumentStatusFallback(fallback);
+}
+
+function getAllowedDocumentTransitions(fromStatus) {
+  const normalized = normalizeDocumentStatus(fromStatus, 'Brouillon');
+  return [...(DOCUMENT_STATUS_FLOW[normalized] || [])];
+}
+
+function isValidDocumentStatusTransition(fromStatus, toStatus) {
+  const from = normalizeDocumentStatus(fromStatus, 'Brouillon');
+  const to = normalizeDocumentStatus(toStatus, 'Brouillon');
+  if (from === to) {
+    return true;
+  }
+
+  const allowed = DOCUMENT_STATUS_FLOW[from] || [];
+  return allowed.includes(to);
+}
+
+function normalizeLibraryDocumentDateOnly(value) {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return '';
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw) && !Number.isNaN(Date.parse(raw))) {
+    return raw;
+  }
+  const parsed = Date.parse(raw);
+  if (Number.isNaN(parsed)) {
+    return '';
+  }
+  return new Date(parsed).toISOString().slice(0, 10);
+}
+
+function validateLibraryDocumentPayload(body, currentDocument) {
   const errors = [];
 
-  const reference = String(body.reference || body.docRef || body.doc_ref || '').trim().toUpperCase();
-  const title = String(body.title || body.name || '').trim();
-  const type = String(body.type || body.category || '').trim();
-  const owner = String(body.owner || body.ownerName || body.owner_name || '').trim();
-  const updatedAtRaw = String(body.updatedAt || body.updated_at || '').trim();
-  const status = normalizeDocumentStatus(body.status || 'Brouillon');
+  const reference = currentDocument
+    ? String(currentDocument.reference || '').trim().toUpperCase()
+    : String(body.reference || body.docRef || body.doc_ref || '').trim().toUpperCase();
+  const title = String(body.title ?? body.name ?? currentDocument?.title ?? '').trim();
+  const type = String(body.type ?? body.category ?? currentDocument?.type ?? '').trim();
+  const owner = String(body.owner ?? body.ownerName ?? body.owner_name ?? currentDocument?.owner ?? '').trim();
+  const updatedAtRaw = String(body.updatedAt ?? body.updated_at ?? currentDocument?.updatedAt ?? '').trim();
+  const statusFallback = currentDocument ? normalizeDocumentStatus(currentDocument.status, 'Brouillon') : 'Brouillon';
+  const statusResolution = resolveDocumentStatusInput(body.status, statusFallback);
+  const status = statusResolution.value;
   const updatedAt = updatedAtRaw || new Date().toISOString();
+  const updatedAtIso = Number.isNaN(Date.parse(updatedAt)) ? new Date().toISOString() : new Date(updatedAt).toISOString();
+
+  const employeeName = String(body.employeeName ?? body.employee_name ?? body.agent ?? currentDocument?.employeeName ?? '').trim();
+  const employeeId = String(body.employeeId ?? body.employee_id ?? body.matricule ?? currentDocument?.employeeId ?? '').trim();
+  const direction = String(body.direction ?? currentDocument?.direction ?? '').trim();
+  const unit = String(body.unit ?? currentDocument?.unit ?? '').trim();
+  const issuedAtRaw = String(
+    body.issuedAt ?? body.issued_at ?? body.issueDate ?? body.issue_date ?? currentDocument?.issuedAt ?? updatedAtIso.slice(0, 10)
+  ).trim();
+  const startDateRaw = String(body.startDate ?? body.start_date ?? currentDocument?.startDate ?? '').trim();
+  const endDateRaw = String(body.endDate ?? body.end_date ?? currentDocument?.endDate ?? '').trim();
+  const approver = String(body.approver ?? body.validator ?? currentDocument?.approver ?? '').trim();
+  const missionDestination = String(
+    body.missionDestination ?? body.mission_destination ?? body.destination ?? currentDocument?.missionDestination ?? ''
+  ).trim();
+  const missionPurpose = String(
+    body.missionPurpose ?? body.mission_purpose ?? body.purpose ?? currentDocument?.missionPurpose ?? ''
+  ).trim();
+  const absenceReason = String(
+    body.absenceReason ?? body.absence_reason ?? body.reason ?? currentDocument?.absenceReason ?? ''
+  ).trim();
+  const notes = String(body.notes ?? currentDocument?.notes ?? '').trim();
+
+  const issuedAt = normalizeLibraryDocumentDateOnly(issuedAtRaw);
+  const startDate = normalizeLibraryDocumentDateOnly(startDateRaw);
+  const endDate = normalizeLibraryDocumentDateOnly(endDateRaw);
+  const normalizedType = normalizeText(type);
+  const requiresMission = normalizedType.includes('mission');
+  const requiresAbsence = normalizedType.includes('absence');
 
   if (reference && !/^[A-Z0-9-]{3,40}$/.test(reference)) {
     errors.push('Reference document invalide');
   }
-  if (reference && findLibraryDocument(reference)) {
+  if (!currentDocument && reference && findLibraryDocument(reference)) {
     errors.push('Reference document deja existante');
   }
   if (title.length < 2) {
@@ -2295,8 +2934,55 @@ function validateLibraryDocumentCreatePayload(body) {
   if (owner.length < 2) {
     errors.push('Proprietaire document requis');
   }
+  if (statusResolution.provided && !statusResolution.valid) {
+    errors.push('Statut document invalide');
+  }
+  if (currentDocument) {
+    const previousStatus = normalizeDocumentStatus(currentDocument.status, 'Brouillon');
+    if (!isValidDocumentStatusTransition(previousStatus, status)) {
+      const allowed = getAllowedDocumentTransitions(previousStatus);
+      errors.push(
+        `Transition statut invalide: ${previousStatus} -> ${status}. Autorise: ${
+          allowed.length ? allowed.join(', ') : 'Aucune'
+        }`
+      );
+    }
+  }
   if (Number.isNaN(Date.parse(updatedAt))) {
     errors.push('Date mise a jour document invalide');
+  }
+  if (employeeName.length < 2) {
+    errors.push('Nom employe ou agent requis');
+  }
+  if (direction.length < 2) {
+    errors.push('Direction de rattachement requise');
+  }
+  if (!issuedAt) {
+    errors.push('Date emission document invalide');
+  }
+  if (startDateRaw && !startDate) {
+    errors.push('Date debut document invalide');
+  }
+  if (endDateRaw && !endDate) {
+    errors.push('Date fin document invalide');
+  }
+  if (startDate && endDate && Date.parse(endDate) < Date.parse(startDate)) {
+    errors.push('Date fin document doit etre superieure ou egale a date debut');
+  }
+  if (requiresMission && missionDestination.length < 2) {
+    errors.push('Destination mission requise');
+  }
+  if (requiresMission && missionPurpose.length < 2) {
+    errors.push('Objet mission requis');
+  }
+  if (requiresAbsence && absenceReason.length < 2) {
+    errors.push('Motif absence requis');
+  }
+  if (approver.length > 120) {
+    errors.push('Nom approbateur trop long');
+  }
+  if (notes.length > 600) {
+    errors.push('Observations document trop longues');
   }
 
   return {
@@ -2306,8 +2992,937 @@ function validateLibraryDocumentCreatePayload(body) {
       title,
       type,
       owner,
-      updatedAt: Number.isNaN(Date.parse(updatedAt)) ? new Date().toISOString() : new Date(updatedAt).toISOString(),
+      updatedAt: updatedAtIso,
       status,
+      employeeName,
+      employeeId,
+      direction,
+      unit,
+      issuedAt,
+      startDate,
+      endDate,
+      approver,
+      missionDestination,
+      missionPurpose,
+      absenceReason,
+      notes,
+    },
+  };
+}
+
+function validateLibraryDocumentCreatePayload(body) {
+  return validateLibraryDocumentPayload(body, null);
+}
+
+function validateLibraryDocumentUpdatePayload(body, currentDocument) {
+  return validateLibraryDocumentPayload(body, currentDocument);
+}
+
+function findDocumentDispatch(reference) {
+  const expected = String(reference || '').trim().toUpperCase();
+  return documentDispatches.find((item) => String(item.reference || '').trim().toUpperCase() === expected);
+}
+
+function findDocumentDispatchIndex(reference) {
+  const expected = String(reference || '').trim().toUpperCase();
+  return documentDispatches.findIndex((item) => String(item.reference || '').trim().toUpperCase() === expected);
+}
+
+function normalizeDocumentDeliveryStatus(value) {
+  const normalized = normalizeText(value);
+  if (
+    normalized === 'accuse reception' ||
+    normalized === 'accuse_reception' ||
+    normalized === 'accusereception' ||
+    normalized === 'acknowledged'
+  ) {
+    return 'Accuse reception';
+  }
+  if (normalized === 'lu' || normalized === 'read') {
+    return 'Lu';
+  }
+  return 'Assigne';
+}
+
+function isDocumentReadyForDispatch(document) {
+  const normalizedStatus = normalizeText(document?.status || '');
+  return normalizedStatus === 'valide' || normalizedStatus === 'validé' || normalizedStatus === 'publie' || normalizedStatus === 'publié';
+}
+
+function findAgentByEmployeeId(employeeId) {
+  const expected = normalizeText(employeeId);
+  if (!expected) {
+    return null;
+  }
+
+  return agents.find((item) => {
+    return normalizeText(item.matricule) === expected || normalizeText(item.id) === expected;
+  }) || null;
+}
+
+function findPortalUserByUsername(username) {
+  const expected = normalizeText(username);
+  if (!expected) {
+    return null;
+  }
+  return users.find((item) => normalizeText(item.username) === expected) || null;
+}
+
+function toDispatchedDocument(document) {
+  const dispatch = findDocumentDispatch(document.reference);
+  if (!dispatch) {
+    return {
+      ...document,
+      assignedEmployeeId: '',
+      assignedEmployeeName: '',
+      recipientUsername: '',
+      assignmentNote: '',
+      deliveryStatus: 'Non assigne',
+      assignedAt: '',
+      assignedBy: '',
+      assignmentDueAt: '',
+      reminderAt: '',
+      reminderSentAt: '',
+      readAt: '',
+      acknowledgedAt: '',
+      acknowledgedBy: '',
+      signedAt: String(document.signedAt || '').trim(),
+      signedBy: String(document.signedBy || '').trim(),
+      stampLabel: String(document.stampLabel || '').trim(),
+      signatureHash: String(document.signatureHash || '').trim(),
+      verificationCode: String(document.verificationCode || '').trim(),
+    };
+  }
+
+  return {
+    ...document,
+    assignedEmployeeId: dispatch.employeeId || '',
+    assignedEmployeeName: dispatch.employeeName || '',
+    recipientUsername: dispatch.recipientUsername || '',
+    assignmentNote: dispatch.note || '',
+    deliveryStatus: normalizeDocumentDeliveryStatus(dispatch.deliveryStatus),
+    assignedAt: dispatch.assignedAt || '',
+    assignedBy: dispatch.assignedBy || '',
+    assignmentDueAt: dispatch.assignmentDueAt || '',
+    reminderAt: dispatch.reminderAt || '',
+    reminderSentAt: dispatch.reminderSentAt || '',
+    readAt: dispatch.readAt || '',
+    acknowledgedAt: dispatch.acknowledgedAt || '',
+    acknowledgedBy: dispatch.acknowledgedBy || '',
+    signedAt: String(document.signedAt || '').trim(),
+    signedBy: String(document.signedBy || '').trim(),
+    stampLabel: String(document.stampLabel || '').trim(),
+    signatureHash: String(document.signatureHash || '').trim(),
+    verificationCode: String(document.verificationCode || '').trim(),
+  };
+}
+
+function validateDocumentAssignPayload(body, document) {
+  const errors = [];
+
+  const employeeId = String(
+    body.employeeId ||
+      body.employee_id ||
+      body.matricule ||
+      body.assignedEmployeeId ||
+      body.assigned_employee_id ||
+      ''
+  ).trim();
+  const employeeNameInput = String(
+    body.employeeName ||
+      body.employee_name ||
+      body.assignedEmployeeName ||
+      body.assigned_employee_name ||
+      ''
+  ).trim();
+  const recipientUsernameInput = String(
+    body.recipientUsername ||
+      body.recipient_username ||
+      body.recipient ||
+      ''
+  ).trim().toLowerCase();
+  const note = String(body.note || body.assignmentNote || body.assignment_note || '').trim();
+  const forceReassign = Boolean(body.forceReassign || body.force_reassign || body.override);
+  const assignmentDueAtInput = String(
+    body.assignmentDueAt ||
+      body.assignment_due_at ||
+      body.dueAt ||
+      body.due_at ||
+      ''
+  ).trim();
+  const reminderAtInput = String(
+    body.reminderAt ||
+      body.reminder_at ||
+      ''
+  ).trim();
+
+  const agent = findAgentByEmployeeId(employeeId);
+  const employeeName = employeeNameInput || (agent ? String(agent.fullName || '').trim() : String(document.employeeName || '').trim());
+  const recipientUsername = recipientUsernameInput || (agent ? String(agent.email || '').trim().toLowerCase() : '');
+  const portalUser = findPortalUserByUsername(recipientUsername);
+  const existingDispatch = findDocumentDispatch(document.reference);
+  const now = Date.now();
+  const dueAtParsed = assignmentDueAtInput ? Date.parse(assignmentDueAtInput) : now + 72 * 60 * 60 * 1000;
+  const reminderParsed = reminderAtInput ? Date.parse(reminderAtInput) : dueAtParsed - 24 * 60 * 60 * 1000;
+  const assignmentDueAt = Number.isNaN(dueAtParsed) ? '' : new Date(dueAtParsed).toISOString();
+  const reminderAt = Number.isNaN(reminderParsed) ? '' : new Date(reminderParsed).toISOString();
+
+  if (!isDocumentReadyForDispatch(document)) {
+    errors.push('Le document doit etre valide ou publie avant assignation');
+  }
+  if (!isDocumentSigned(document)) {
+    errors.push('Le document doit etre signe et cachete avant assignation');
+  }
+  if (employeeId.length < 2) {
+    errors.push('Matricule employe requis');
+  }
+  if (employeeName.length < 2) {
+    errors.push('Nom employe requis');
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientUsername)) {
+    errors.push('Username portail employe invalide');
+  }
+  if (!portalUser) {
+    errors.push('Compte portail employe introuvable');
+  }
+  if (note.length > 400) {
+    errors.push('Note assignation trop longue');
+  }
+  if (assignmentDueAtInput && !assignmentDueAt) {
+    errors.push('Date limite assignation invalide');
+  }
+  if (reminderAtInput && !reminderAt) {
+    errors.push('Date relance invalide');
+  }
+  if (assignmentDueAt && Date.parse(assignmentDueAt) <= now + 60 * 60 * 1000) {
+    errors.push('Date limite assignation doit etre superieure a maintenant + 1h');
+  }
+  if (assignmentDueAt && reminderAt && Date.parse(reminderAt) >= Date.parse(assignmentDueAt)) {
+    errors.push('Date relance doit etre anterieure a la date limite');
+  }
+
+  if (existingDispatch) {
+    const currentDeliveryStatus = normalizeDocumentDeliveryStatus(existingDispatch.deliveryStatus || 'Assigne');
+    const currentRecipient = String(existingDispatch.recipientUsername || '').trim().toLowerCase();
+    if (currentDeliveryStatus !== 'Accuse reception') {
+      if (!forceReassign && currentRecipient === recipientUsername) {
+        errors.push('Document deja assigne a cet employe et en attente de reception');
+      }
+      if (!forceReassign && currentRecipient && currentRecipient !== recipientUsername) {
+        errors.push(`Document deja assigne a ${currentRecipient}. Active la reassignation forcee pour le remplacer`);
+      }
+    }
+  }
+
+  return {
+    errors,
+    payload: {
+      employeeId,
+      employeeName,
+      recipientUsername,
+      note,
+      forceReassign,
+      assignmentDueAt,
+      reminderAt,
+    },
+  };
+}
+
+function validateDocumentAcknowledgePayload(body) {
+  const note = String(body.note || body.assignmentNote || body.assignment_note || '').trim();
+  const errors = [];
+  if (note.length > 400) {
+    errors.push('Note accuse reception trop longue');
+  }
+  return {
+    errors,
+    payload: {
+      note,
+    },
+  };
+}
+
+function normalizeAuditMetadata(metadata) {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+    return {};
+  }
+
+  const entries = Object.entries(metadata)
+    .filter(([key]) => String(key || '').trim().length > 0)
+    .map(([key, value]) => [String(key || '').trim(), String(value ?? '').trim()]);
+  return Object.fromEntries(entries);
+}
+
+function addDocumentAuditLog(entry) {
+  const reference = String(entry?.reference || '').trim().toUpperCase();
+  if (!reference) {
+    return null;
+  }
+
+  const actor = String(entry?.actor || 'system').trim().toLowerCase() || 'system';
+  const action = String(entry?.action || DOCUMENT_AUDIT_ACTIONS.UPDATED).trim().toUpperCase();
+  const happenedAt = new Date().toISOString();
+  const statusBeforeRaw = String(entry?.statusBefore || '').trim();
+  const statusAfterRaw = String(entry?.statusAfter || '').trim();
+  const statusBefore = statusBeforeRaw ? resolveDocumentStatusFallback(statusBeforeRaw) : '';
+  const statusAfter = statusAfterRaw ? resolveDocumentStatusFallback(statusAfterRaw) : '';
+  const detail = String(entry?.detail || '').trim();
+  const metadata = normalizeAuditMetadata(entry?.metadata);
+
+  const created = {
+    id: `DOC-AUD-${String(documentAuditSequence++).padStart(6, '0')}`,
+    reference,
+    action,
+    actor,
+    happenedAt,
+    statusBefore,
+    statusAfter,
+    detail,
+    metadata,
+  };
+  documentAuditLogs.unshift(created);
+  if (documentAuditLogs.length > DOCUMENT_AUDIT_LIMIT) {
+    documentAuditLogs.length = DOCUMENT_AUDIT_LIMIT;
+  }
+  return created;
+}
+
+function isDocumentSigned(document) {
+  return !!(
+    document &&
+    String(document.signedAt || '').trim() &&
+    String(document.signedBy || '').trim() &&
+    String(document.signatureHash || '').trim() &&
+    String(document.verificationCode || '').trim()
+  );
+}
+
+function computeDocumentSignatureHash(document, signedBy, signedAt) {
+  const seed = [
+    String(document?.reference || '').trim().toUpperCase(),
+    String(document?.title || '').trim(),
+    String(document?.type || '').trim(),
+    String(document?.employeeId || '').trim(),
+    String(document?.employeeName || '').trim(),
+    String(signedBy || '').trim().toLowerCase(),
+    String(signedAt || '').trim(),
+  ].join('|');
+  return createHash('sha256').update(seed).digest('hex');
+}
+
+function buildDocumentVerificationCode(reference, signedAt) {
+  const parsed = Date.parse(String(signedAt || '').trim());
+  const year = Number.isNaN(parsed) ? new Date().getFullYear() : new Date(parsed).getFullYear();
+  const seed = createHash('sha1')
+    .update(`${String(reference || '').trim().toUpperCase()}|${String(signedAt || '').trim()}`)
+    .digest('hex')
+    .slice(0, 8)
+    .toUpperCase();
+  return `VRF-${year}-${seed}`;
+}
+
+function validateDocumentSignPayload(body, document) {
+  const errors = [];
+
+  const signatoryName = String(
+    body.signatoryName ||
+      body.signatory_name ||
+      body.signedBy ||
+      body.signed_by ||
+      ''
+  ).trim();
+  const stampLabel = String(body.stampLabel || body.stamp_label || 'CACHET RH PRIMATURE').trim();
+
+  if (!isDocumentReadyForDispatch(document)) {
+    errors.push('Le document doit etre valide ou publie avant signature');
+  }
+  if (signatoryName.length > 120) {
+    errors.push('Nom signataire trop long');
+  }
+  if (stampLabel.length < 2 || stampLabel.length > 80) {
+    errors.push('Libelle cachet invalide');
+  }
+
+  return {
+    errors,
+    payload: {
+      signatoryName,
+      stampLabel,
+    },
+  };
+}
+
+function buildNotificationId(prefix) {
+  return `${prefix}-${String(notificationSequence++).padStart(7, '0')}`;
+}
+
+function trimNotificationCollections() {
+  if (notificationDeliveryJobs.length > NOTIFICATION_DELIVERY_LIMIT) {
+    notificationDeliveryJobs.length = NOTIFICATION_DELIVERY_LIMIT;
+  }
+  if (notificationInboxItems.length > NOTIFICATION_INBOX_LIMIT) {
+    notificationInboxItems.length = NOTIFICATION_INBOX_LIMIT;
+  }
+}
+
+function buildNotificationInboxFromJob(job, createdAt) {
+  return {
+    id: buildNotificationId('NTF'),
+    deliveryId: String(job.id || ''),
+    recipientUsername: String(job.recipientUsername || '').trim().toLowerCase(),
+    title: String(job.title || '').trim(),
+    message: String(job.message || '').trim(),
+    category: String(job.category || 'Document').trim(),
+    reference: String(job.reference || '').trim().toUpperCase(),
+    metadata: normalizeAuditMetadata(job.metadata),
+    createdAt,
+    readAt: '',
+    isRead: false,
+  };
+}
+
+function queueNotificationDelivery(payload) {
+  const recipientUsername = String(payload?.recipientUsername || '').trim().toLowerCase();
+  if (!recipientUsername) {
+    return null;
+  }
+
+  const nowIso = new Date().toISOString();
+  const job = {
+    id: buildNotificationId('NTF-JOB'),
+    recipientUsername,
+    title: String(payload?.title || '').trim() || 'Notification document',
+    message: String(payload?.message || '').trim(),
+    category: String(payload?.category || 'Document').trim(),
+    reference: String(payload?.reference || '').trim().toUpperCase(),
+    metadata: normalizeAuditMetadata(payload?.metadata),
+    createdAt: nowIso,
+    updatedAt: nowIso,
+    sentAt: '',
+    failedAt: '',
+    status: 'PENDING',
+    attempts: 0,
+    maxAttempts: NOTIFICATION_MAX_ATTEMPTS,
+    lastError: '',
+    nextAttemptAt: nowIso,
+  };
+
+  notificationDeliveryJobs.unshift(job);
+  trimNotificationCollections();
+  return job;
+}
+
+function processNotificationDeliveries(referenceTime = Date.now()) {
+  for (const job of notificationDeliveryJobs) {
+    const currentStatus = String(job.status || '');
+    if (currentStatus === 'SENT' || currentStatus === 'FAILED') {
+      continue;
+    }
+
+    const nextAttemptTimestamp = Date.parse(String(job.nextAttemptAt || ''));
+    if (!Number.isFinite(nextAttemptTimestamp) || nextAttemptTimestamp > referenceTime) {
+      continue;
+    }
+
+    job.attempts = Number(job.attempts || 0) + 1;
+    job.updatedAt = new Date(referenceTime).toISOString();
+    const recipient = findPortalUserByUsername(job.recipientUsername);
+    if (recipient) {
+      const sentAt = new Date(referenceTime).toISOString();
+      job.status = 'SENT';
+      job.sentAt = sentAt;
+      job.lastError = '';
+      notificationInboxItems.unshift(buildNotificationInboxFromJob(job, sentAt));
+      trimNotificationCollections();
+      continue;
+    }
+
+    job.lastError = 'Destinataire notification introuvable';
+    if (job.attempts >= Number(job.maxAttempts || NOTIFICATION_MAX_ATTEMPTS)) {
+      job.status = 'FAILED';
+      job.failedAt = new Date(referenceTime).toISOString();
+      continue;
+    }
+
+    const retryIndex = Math.max(0, Math.min(NOTIFICATION_RETRY_DELAYS_MS.length - 1, job.attempts));
+    const retryDelayMs = NOTIFICATION_RETRY_DELAYS_MS[retryIndex];
+    job.status = 'RETRY';
+    job.nextAttemptAt = new Date(referenceTime + retryDelayMs).toISOString();
+  }
+}
+
+function queueDocumentNotification(payload) {
+  const job = queueNotificationDelivery(payload);
+  processNotificationDeliveries();
+  return job;
+}
+
+function processDocumentDispatchReminders(referenceTime = Date.now()) {
+  const nowIso = new Date(referenceTime).toISOString();
+  for (const dispatch of documentDispatches) {
+    const deliveryStatus = normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne');
+    if (deliveryStatus === 'Accuse reception') {
+      continue;
+    }
+
+    if (String(dispatch.reminderSentAt || '').trim()) {
+      continue;
+    }
+
+    const reminderTimestamp = Date.parse(String(dispatch.reminderAt || '').trim());
+    if (!Number.isFinite(reminderTimestamp) || reminderTimestamp > referenceTime) {
+      continue;
+    }
+
+    const reference = String(dispatch.reference || '').trim().toUpperCase();
+    if (!reference) {
+      continue;
+    }
+
+    const recipientUsername = String(dispatch.recipientUsername || '').trim().toLowerCase();
+    if (recipientUsername) {
+      queueDocumentNotification({
+        recipientUsername,
+        title: `Rappel document: ${reference}`,
+        message: `Le document ${reference} est en attente de votre lecture ou accuse de reception.`,
+        category: 'Document',
+        reference,
+        metadata: {
+          action: 'REMINDER',
+        },
+      });
+    }
+
+    const managerUsername = String(dispatch.assignedBy || '').trim().toLowerCase();
+    if (managerUsername && managerUsername !== recipientUsername) {
+      queueDocumentNotification({
+        recipientUsername: managerUsername,
+        title: `Relance automatique: ${reference}`,
+        message: `Le document ${reference} n est pas encore accuse reception par ${recipientUsername || 'le destinataire'}.`,
+        category: 'Document',
+        reference,
+        metadata: {
+          action: 'REMINDER_MANAGER',
+          recipientUsername,
+        },
+      });
+    }
+
+    dispatch.reminderSentAt = nowIso;
+  }
+}
+
+function parseBooleanFlag(value, fallback = false) {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  const normalized = normalizeText(value);
+  if (!normalized) {
+    return fallback;
+  }
+  if (['true', '1', 'yes', 'oui', 'on'].includes(normalized)) {
+    return true;
+  }
+  if (['false', '0', 'no', 'non', 'off'].includes(normalized)) {
+    return false;
+  }
+  return fallback;
+}
+
+function toDateTimestamp(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  return Number.isNaN(parsed) ? NaN : parsed;
+}
+
+function hoursBetween(fromTimestamp, toTimestamp) {
+  if (!Number.isFinite(fromTimestamp) || !Number.isFinite(toTimestamp)) {
+    return null;
+  }
+  return Math.round(((toTimestamp - fromTimestamp) / (60 * 60 * 1000)) * 100) / 100;
+}
+
+function listDocumentOverdueItems(referenceTime = Date.now()) {
+  const items = [];
+
+  for (const dispatch of documentDispatches) {
+    const deliveryStatus = normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne');
+    if (deliveryStatus === 'Accuse reception') {
+      continue;
+    }
+
+    const dueTimestamp = toDateTimestamp(dispatch.assignmentDueAt);
+    if (!Number.isFinite(dueTimestamp) || dueTimestamp > referenceTime) {
+      continue;
+    }
+
+    const reference = String(dispatch.reference || '').trim().toUpperCase();
+    const document = findLibraryDocument(reference);
+    if (!document) {
+      continue;
+    }
+
+    const overdueHours = Math.max(0, Math.round(((referenceTime - dueTimestamp) / (60 * 60 * 1000)) * 100) / 100);
+    items.push({
+      reference,
+      title: String(document.title || '').trim(),
+      type: String(document.type || '').trim(),
+      status: normalizeDocumentStatus(document.status, 'Brouillon'),
+      deliveryStatus,
+      recipientUsername: String(dispatch.recipientUsername || '').trim().toLowerCase(),
+      assignedEmployeeName: String(dispatch.employeeName || document.employeeName || '').trim(),
+      assignedAt: String(dispatch.assignedAt || '').trim(),
+      assignmentDueAt: String(dispatch.assignmentDueAt || '').trim(),
+      reminderAt: String(dispatch.reminderAt || '').trim(),
+      signedBy: String(document.signedBy || '').trim(),
+      verificationCode: String(document.verificationCode || '').trim(),
+      overdueHours,
+      overdueDays: Math.round((overdueHours / 24) * 100) / 100,
+    });
+  }
+
+  items.sort((left, right) => right.overdueHours - left.overdueHours);
+  return items;
+}
+
+function computeDocumentAnalytics(referenceTime = Date.now()) {
+  const docs = documentsLibrary.map((item) => toDispatchedDocument(item));
+  const totalDocuments = docs.length;
+  const signedDocuments = docs.filter((item) => isDocumentSigned(item)).length;
+  const assignedDocuments = docs.filter((item) => String(item.assignedAt || '').trim()).length;
+  const readDocuments = docs.filter((item) => normalizeDocumentDeliveryStatus(item.deliveryStatus) === 'Lu').length;
+  const acknowledgedDocuments = docs.filter((item) => normalizeDocumentDeliveryStatus(item.deliveryStatus) === 'Accuse reception').length;
+  const pendingAcknowledgements = Math.max(0, assignedDocuments - acknowledgedDocuments);
+
+  const overdueItems = listDocumentOverdueItems(referenceTime);
+  const overdueDocuments = overdueItems.length;
+
+  const statusBuckets = new Map();
+  const typeBuckets = new Map();
+  for (const item of docs) {
+    const statusKey = normalizeDocumentStatus(item.status, 'Brouillon');
+    statusBuckets.set(statusKey, (statusBuckets.get(statusKey) || 0) + 1);
+    const typeKey = String(item.type || 'Autre').trim() || 'Autre';
+    typeBuckets.set(typeKey, (typeBuckets.get(typeKey) || 0) + 1);
+  }
+
+  const statusBreakdown = Array.from(statusBuckets.entries()).map(([label, count]) => ({ label, count }));
+  statusBreakdown.sort((left, right) => right.count - left.count);
+
+  const typeBreakdown = Array.from(typeBuckets.entries()).map(([label, count]) => ({ label, count }));
+  typeBreakdown.sort((left, right) => right.count - left.count);
+
+  const ackLatencies = [];
+  const readLatencies = [];
+  let dueInNext48h = 0;
+  for (const dispatch of documentDispatches) {
+    const assignedTimestamp = toDateTimestamp(dispatch.assignedAt);
+    const readTimestamp = toDateTimestamp(dispatch.readAt);
+    const ackTimestamp = toDateTimestamp(dispatch.acknowledgedAt);
+    const dueTimestamp = toDateTimestamp(dispatch.assignmentDueAt);
+
+    if (Number.isFinite(assignedTimestamp) && Number.isFinite(readTimestamp)) {
+      const readDelay = hoursBetween(assignedTimestamp, readTimestamp);
+      if (readDelay !== null && readDelay >= 0) {
+        readLatencies.push(readDelay);
+      }
+    }
+
+    if (Number.isFinite(assignedTimestamp) && Number.isFinite(ackTimestamp)) {
+      const ackDelay = hoursBetween(assignedTimestamp, ackTimestamp);
+      if (ackDelay !== null && ackDelay >= 0) {
+        ackLatencies.push(ackDelay);
+      }
+    }
+
+    if (
+      Number.isFinite(dueTimestamp) &&
+      dueTimestamp >= referenceTime &&
+      dueTimestamp <= referenceTime + 48 * 60 * 60 * 1000 &&
+      normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne') !== 'Accuse reception'
+    ) {
+      dueInNext48h += 1;
+    }
+  }
+
+  const averageAckHours = ackLatencies.length
+    ? Math.round((ackLatencies.reduce((sum, value) => sum + value, 0) / ackLatencies.length) * 100) / 100
+    : 0;
+  const averageReadHours = readLatencies.length
+    ? Math.round((readLatencies.reduce((sum, value) => sum + value, 0) / readLatencies.length) * 100) / 100
+    : 0;
+
+  const notificationJobsTotal = notificationDeliveryJobs.length;
+  const notificationJobsSent = notificationDeliveryJobs.filter((job) => String(job.status || '') === 'SENT').length;
+  const notificationJobsRetry = notificationDeliveryJobs.filter((job) => String(job.status || '') === 'RETRY').length;
+  const notificationJobsFailed = notificationDeliveryJobs.filter((job) => String(job.status || '') === 'FAILED').length;
+  const unreadNotifications = notificationInboxItems.filter((item) => !item.isRead).length;
+
+  const acknowledgementRate = assignedDocuments > 0 ? Math.round((acknowledgedDocuments / assignedDocuments) * 10000) / 100 : 0;
+  const signatureRate = totalDocuments > 0 ? Math.round((signedDocuments / totalDocuments) * 10000) / 100 : 0;
+
+  return {
+    generatedAt: new Date(referenceTime).toISOString(),
+    totals: {
+      totalDocuments,
+      signedDocuments,
+      assignedDocuments,
+      readDocuments,
+      acknowledgedDocuments,
+      pendingAcknowledgements,
+      overdueDocuments,
+      dueInNext48h,
+    },
+    rates: {
+      acknowledgementRate,
+      signatureRate,
+    },
+    sla: {
+      averageAckHours,
+      averageReadHours,
+    },
+    notifications: {
+      unreadNotifications,
+      notificationJobsTotal,
+      notificationJobsSent,
+      notificationJobsRetry,
+      notificationJobsFailed,
+    },
+    statusBreakdown,
+    typeBreakdown: typeBreakdown.slice(0, 8),
+    overduePreview: overdueItems.slice(0, 20),
+  };
+}
+
+function removeByReferenceInPlace(items, getReference, references) {
+  if (!Array.isArray(items) || !(references instanceof Set) || references.size === 0) {
+    return 0;
+  }
+
+  let removed = 0;
+  for (let index = items.length - 1; index >= 0; index -= 1) {
+    const currentReference = String(getReference(items[index]) || '').trim().toUpperCase();
+    if (!currentReference || !references.has(currentReference)) {
+      continue;
+    }
+    items.splice(index, 1);
+    removed += 1;
+  }
+  return removed;
+}
+
+function validateDocumentArchiveCyclePayload(body) {
+  const rawOlderThanDays = Number(body.olderThanDays ?? body.older_than_days ?? DOCUMENT_ARCHIVE_DEFAULT_DAYS);
+  const olderThanDays = toSafeInteger(rawOlderThanDays, DOCUMENT_ARCHIVE_DEFAULT_DAYS, 1, 3650);
+  const dryRun = parseBooleanFlag(body.dryRun ?? body.dry_run, true);
+  const onlyAcknowledged = parseBooleanFlag(body.onlyAcknowledged ?? body.only_acknowledged, true);
+  const includeUnassigned = parseBooleanFlag(body.includeUnassigned ?? body.include_unassigned, false);
+
+  return {
+    errors: [],
+    payload: {
+      olderThanDays,
+      dryRun,
+      onlyAcknowledged,
+      includeUnassigned,
+    },
+  };
+}
+
+function runDocumentArchiveCycle(body, actorUsername) {
+  const validation = validateDocumentArchiveCyclePayload(body || {});
+  if (validation.errors.length > 0) {
+    return {
+      errors: validation.errors,
+      result: null,
+    };
+  }
+
+  const payload = validation.payload;
+  const referenceTime = Date.now();
+  const thresholdTimestamp = referenceTime - payload.olderThanDays * 24 * 60 * 60 * 1000;
+  const nowIso = new Date(referenceTime).toISOString();
+  const candidates = [];
+  let archivedCount = 0;
+
+  for (const document of documentsLibrary) {
+    const currentStatus = normalizeDocumentStatus(document.status, 'Brouillon');
+    if (currentStatus !== 'Publie') {
+      continue;
+    }
+
+    const dispatch = findDocumentDispatch(document.reference);
+    const dispatchStatus = dispatch ? normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne') : 'Non assigne';
+    if (payload.onlyAcknowledged && dispatchStatus !== 'Accuse reception') {
+      continue;
+    }
+    if (!payload.includeUnassigned && !dispatch) {
+      continue;
+    }
+
+    const sourceTimestamp = dispatch?.acknowledgedAt || document.signedAt || document.updatedAt || document.issuedAt;
+    const parsedTimestamp = toDateTimestamp(sourceTimestamp);
+    if (!Number.isFinite(parsedTimestamp) || parsedTimestamp > thresholdTimestamp) {
+      continue;
+    }
+
+    const ageDays = Math.round(((referenceTime - parsedTimestamp) / (24 * 60 * 60 * 1000)) * 100) / 100;
+    candidates.push({
+      reference: String(document.reference || '').trim().toUpperCase(),
+      title: String(document.title || '').trim(),
+      status: currentStatus,
+      deliveryStatus: dispatchStatus,
+      ageDays,
+      eligibleFrom: new Date(parsedTimestamp).toISOString(),
+    });
+
+    if (payload.dryRun) {
+      continue;
+    }
+
+    if (!isValidDocumentStatusTransition(currentStatus, 'Archive')) {
+      continue;
+    }
+
+    document.status = 'Archive';
+    document.updatedAt = nowIso;
+    archivedCount += 1;
+
+    addDocumentAuditLog({
+      reference: document.reference,
+      action: DOCUMENT_AUDIT_ACTIONS.STATUS_CHANGED,
+      actor: actorUsername,
+      statusBefore: currentStatus,
+      statusAfter: 'Archive',
+      detail: `Archivage automatique (seuil ${payload.olderThanDays} jours)`,
+    });
+  }
+
+  return {
+    errors: [],
+    result: {
+      generatedAt: new Date(referenceTime).toISOString(),
+      dryRun: payload.dryRun,
+      criteria: {
+        olderThanDays: payload.olderThanDays,
+        onlyAcknowledged: payload.onlyAcknowledged,
+        includeUnassigned: payload.includeUnassigned,
+      },
+      candidatesCount: candidates.length,
+      archivedCount,
+      candidates: candidates.slice(0, 100),
+    },
+  };
+}
+
+function validateDocumentPurgePayload(body) {
+  const rawRetentionDays = Number(body.retentionDays ?? body.retention_days ?? DOCUMENT_PURGE_DEFAULT_RETENTION_DAYS);
+  const retentionDays = toSafeInteger(rawRetentionDays, DOCUMENT_PURGE_DEFAULT_RETENTION_DAYS, 30, 3650);
+  const dryRun = parseBooleanFlag(body.dryRun ?? body.dry_run, true);
+  const includeNotifications = parseBooleanFlag(body.includeNotifications ?? body.include_notifications, true);
+
+  return {
+    errors: [],
+    payload: {
+      retentionDays,
+      dryRun,
+      includeNotifications,
+    },
+  };
+}
+
+function runDocumentArchivePurge(body, actorUsername) {
+  const validation = validateDocumentPurgePayload(body || {});
+  if (validation.errors.length > 0) {
+    return {
+      errors: validation.errors,
+      result: null,
+    };
+  }
+
+  const payload = validation.payload;
+  const referenceTime = Date.now();
+  const cutoffTimestamp = referenceTime - payload.retentionDays * 24 * 60 * 60 * 1000;
+  const referencesToPurge = new Set();
+
+  for (const document of documentsLibrary) {
+    const status = normalizeDocumentStatus(document.status, 'Brouillon');
+    if (status !== 'Archive') {
+      continue;
+    }
+    const updatedTimestamp = toDateTimestamp(document.updatedAt || document.issuedAt);
+    if (!Number.isFinite(updatedTimestamp) || updatedTimestamp > cutoffTimestamp) {
+      continue;
+    }
+    const reference = String(document.reference || '').trim().toUpperCase();
+    if (reference) {
+      referencesToPurge.add(reference);
+    }
+  }
+
+  const candidateReferences = Array.from(referencesToPurge.values()).sort();
+  if (payload.dryRun) {
+    return {
+      errors: [],
+      result: {
+        generatedAt: new Date(referenceTime).toISOString(),
+        dryRun: true,
+        criteria: {
+          retentionDays: payload.retentionDays,
+          includeNotifications: payload.includeNotifications,
+        },
+        candidatesCount: candidateReferences.length,
+        purged: {
+          documents: 0,
+          dispatches: 0,
+          auditLogs: 0,
+          notificationsInbox: 0,
+          notificationsJobs: 0,
+        },
+        references: candidateReferences.slice(0, 200),
+      },
+    };
+  }
+
+  const purgedDocuments = removeByReferenceInPlace(documentsLibrary, (item) => item.reference, referencesToPurge);
+  const purgedDispatches = removeByReferenceInPlace(documentDispatches, (item) => item.reference, referencesToPurge);
+  const purgedAuditLogs = removeByReferenceInPlace(documentAuditLogs, (item) => item.reference, referencesToPurge);
+  let purgedNotificationsInbox = 0;
+  let purgedNotificationsJobs = 0;
+
+  if (payload.includeNotifications) {
+    purgedNotificationsInbox = removeByReferenceInPlace(notificationInboxItems, (item) => item.reference, referencesToPurge);
+    purgedNotificationsJobs = removeByReferenceInPlace(notificationDeliveryJobs, (item) => item.reference, referencesToPurge);
+  }
+
+  const nowIso = new Date(referenceTime).toISOString();
+  adminAuditLogs.unshift({
+    date: nowIso,
+    user: actorUsername,
+    action: 'DOCUMENT_PURGE',
+    target: `${purgedDocuments} documents`,
+  });
+  if (adminAuditLogs.length > 500) {
+    adminAuditLogs.length = 500;
+  }
+
+  return {
+    errors: [],
+    result: {
+      generatedAt: nowIso,
+      dryRun: false,
+      criteria: {
+        retentionDays: payload.retentionDays,
+        includeNotifications: payload.includeNotifications,
+      },
+      candidatesCount: candidateReferences.length,
+      purged: {
+        documents: purgedDocuments,
+        dispatches: purgedDispatches,
+        auditLogs: purgedAuditLogs,
+        notificationsInbox: purgedNotificationsInbox,
+        notificationsJobs: purgedNotificationsJobs,
+      },
+      references: candidateReferences.slice(0, 200),
     },
   };
 }
@@ -2803,6 +4418,20 @@ function normalizeAgentEducationsPayload(rawEducations) {
     .filter((item) => item.degree || item.field || item.institution || item.graduationYear);
 }
 
+function normalizeAgentCareerEventsPayload(rawEvents) {
+  if (!Array.isArray(rawEvents)) {
+    return [];
+  }
+
+  return rawEvents
+    .map((item) => ({
+      title: String(item?.title || item?.label || '').trim(),
+      description: String(item?.description || item?.detail || '').trim(),
+      date: String(item?.date || item?.eventDate || item?.event_date || '').trim(),
+    }))
+    .filter((item) => item.title || item.description || item.date);
+}
+
 function normalizeAgentIdentityPayload(rawIdentity) {
   const identity = rawIdentity && typeof rawIdentity === 'object' ? rawIdentity : {};
   return {
@@ -2928,6 +4557,106 @@ function validateAgentCreatePayload(body) {
       educations,
       documents,
       isDraft,
+    },
+  };
+}
+
+function validateAgentUpdatePayload(body, currentAgent) {
+  const errors = [];
+  const safeBody = body && typeof body === 'object' ? body : {};
+  const has = (key) => Object.prototype.hasOwnProperty.call(safeBody, key);
+  const hasPhoto = has('photoUrl') || has('photo_url');
+
+  const fullName = has('fullName') ? String(safeBody.fullName || '').trim() : String(currentAgent.fullName || '').trim();
+  const direction = has('direction') ? String(safeBody.direction || '').trim() : String(currentAgent.direction || '').trim();
+  const unit = has('unit') ? String(safeBody.unit || '').trim() : String(currentAgent.unit || '').trim();
+  const position = has('position') ? String(safeBody.position || '').trim() : String(currentAgent.position || '').trim();
+  const status = has('status') ? String(safeBody.status || '').trim() : String(currentAgent.status || '').trim();
+  const manager = has('manager') ? String(safeBody.manager || '').trim() : String(currentAgent.manager || '').trim();
+  const email = has('email') ? String(safeBody.email || '').trim() : String(currentAgent.email || '').trim();
+  const phone = has('phone') ? String(safeBody.phone || '').trim() : String(currentAgent.phone || '').trim();
+  const matricule = has('matricule')
+    ? String(safeBody.matricule || '').trim()
+    : String(currentAgent.matricule || '').trim();
+  const photoUrl = hasPhoto
+    ? String(safeBody.photoUrl || safeBody.photo_url || '').trim()
+    : String(currentAgent.photoUrl || '').trim();
+
+  const identity = has('identity')
+    ? normalizeAgentIdentityPayload({ ...(currentAgent.identity || {}), ...(safeBody.identity || {}) })
+    : normalizeAgentIdentityPayload(currentAgent.identity);
+
+  const administrative = has('administrative')
+    ? normalizeAgentAdministrativePayload({
+        ...(currentAgent.administrative || {}),
+        ...(safeBody.administrative || {}),
+      })
+    : normalizeAgentAdministrativePayload(currentAgent.administrative);
+
+  const educations = has('educations')
+    ? normalizeAgentEducationsPayload(safeBody.educations)
+    : normalizeAgentEducationsPayload(currentAgent.educations);
+
+  const documents = has('documents')
+    ? normalizeAgentDocumentsPayload(safeBody.documents)
+    : normalizeAgentDocumentsPayload(currentAgent.documents);
+
+  const careerEvents = has('careerEvents') || has('career_events')
+    ? normalizeAgentCareerEventsPayload(safeBody.careerEvents || safeBody.career_events)
+    : normalizeAgentCareerEventsPayload(currentAgent.careerEvents);
+
+  if (has('fullName') && fullName.length < 3) {
+    errors.push('Nom complet requis (3 caracteres minimum)');
+  }
+  if (has('direction') && !direction) {
+    errors.push('Direction invalide');
+  }
+  if (has('position') && !position) {
+    errors.push('Poste invalide');
+  }
+  if (has('status') && !status) {
+    errors.push('Statut invalide');
+  }
+  if (has('manager') && !manager) {
+    errors.push('Manager invalide');
+  }
+  if (has('email') && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.push('Email invalide');
+  }
+  if (has('phone') && phone && !/^[+\d\s().-]{7,20}$/.test(phone)) {
+    errors.push('Telephone invalide');
+  }
+  if (hasPhoto && !photoUrl) {
+    errors.push("Photo d'identite invalide");
+  }
+  if (
+    has('matricule') &&
+    matricule &&
+    agents.some(
+      (agent) => agent.id !== currentAgent.id && normalizeText(agent.matricule) === normalizeText(matricule)
+    )
+  ) {
+    errors.push('Matricule deja existant');
+  }
+
+  return {
+    errors,
+    payload: {
+      matricule,
+      fullName,
+      direction,
+      unit,
+      position,
+      status,
+      manager,
+      email,
+      phone,
+      photoUrl,
+      identity,
+      administrative,
+      educations,
+      careerEvents,
+      documents,
     },
   };
 }
@@ -3756,6 +5485,12 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const currentUser = authContext.session;
+    processDocumentDispatchReminders();
+    processNotificationDeliveries();
+    const accessRequirements = resolveRouteAccessRequirements(method, path);
+    if (accessRequirements && !ensureAccess(res, currentUser, accessRequirements)) {
+      return;
+    }
 
     if (method === 'POST' && path === '/api/v1/personnel/uploads') {
       if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
@@ -3929,6 +5664,47 @@ const server = http.createServer(async (req, res) => {
       };
       agents.push(created);
       sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'PUT' && path.startsWith('/api/v1/personnel/agents/')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const id = path.split('/').pop();
+      const agent = findAgent(id);
+      if (!agent) {
+        sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateAgentUpdatePayload(body || {}, agent);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees agent invalides', validation.errors);
+        return;
+      }
+
+      Object.assign(agent, {
+        matricule: validation.payload.matricule || agent.id,
+        fullName: validation.payload.fullName,
+        direction: validation.payload.direction,
+        unit: validation.payload.unit || validation.payload.direction,
+        position: validation.payload.position,
+        status: validation.payload.status || 'Actif',
+        manager: validation.payload.manager,
+        email: validation.payload.email,
+        phone: validation.payload.phone,
+        photoUrl: validation.payload.photoUrl || './assets/images/faces/profile.jpg',
+        identity: validation.payload.identity,
+        administrative: validation.payload.administrative,
+        educations: validation.payload.educations,
+        careerEvents: validation.payload.careerEvents,
+        documents: validation.payload.documents,
+      });
+
+      sendJson(res, 200, agent);
       return;
     }
 
@@ -4802,13 +6578,377 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (method === 'GET' && path === '/api/v1/notifications/inbox') {
+      const username = String(currentUser.username || '').trim().toLowerCase();
+      let items = notificationInboxItems.filter((item) => String(item.recipientUsername || '').trim().toLowerCase() === username);
+      const unreadOnly = normalizeText(url.searchParams.get('unreadOnly'));
+      if (unreadOnly === 'true' || unreadOnly === '1' || unreadOnly === 'yes') {
+        items = items.filter((item) => !item.isRead);
+      }
+
+      items = applyStringFilter(items, url, 'category', 'category');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['title', 'message', 'category', 'reference', 'createdAt'],
+        defaultSortBy: 'createdAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/notifications/inbox/') && path.endsWith('/read')) {
+      const segments = path.split('/');
+      let rawNotificationId = '';
+      try {
+        rawNotificationId = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'NOTIFICATION_ID_INVALID', 'Identifiant notification invalide');
+        return;
+      }
+
+      const normalizedId = String(rawNotificationId || '').trim();
+      const username = String(currentUser.username || '').trim().toLowerCase();
+      const index = notificationInboxItems.findIndex((item) => String(item.id || '').trim() === normalizedId);
+      if (index < 0) {
+        sendApiError(res, 404, 'NOTIFICATION_NOT_FOUND', 'Notification introuvable');
+        return;
+      }
+
+      const currentNotification = notificationInboxItems[index];
+      if (String(currentNotification.recipientUsername || '').trim().toLowerCase() !== username) {
+        sendApiError(res, 403, 'NOTIFICATION_FORBIDDEN', 'Notification non attribuee a cet utilisateur');
+        return;
+      }
+
+      if (!currentNotification.isRead) {
+        currentNotification.isRead = true;
+        currentNotification.readAt = new Date().toISOString();
+      }
+      sendJson(res, 200, currentNotification);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/notifications/delivery-jobs') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      let items = [...notificationDeliveryJobs];
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyStringFilter(items, url, 'recipientUsername', 'recipientUsername');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'recipientUsername', 'title', 'message', 'category', 'reference', 'status', 'lastError'],
+        defaultSortBy: 'createdAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/notifications/process') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      processNotificationDeliveries();
+      sendJson(res, 200, { processedAt: new Date().toISOString(), jobs: notificationDeliveryJobs.length });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/documents/audit-logs') {
+      let items = [...documentAuditLogs];
+      items = applyStringFilter(items, url, 'reference', 'reference');
+      items = applyStringFilter(items, url, 'action', 'action');
+      items = applyStringFilter(items, url, 'actor', 'actor');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['reference', 'action', 'actor', 'detail', 'statusBefore', 'statusAfter', 'happenedAt'],
+        defaultSortBy: 'happenedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/documents/analytics') {
+      const report = computeDocumentAnalytics();
+      sendJson(res, 200, report);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/documents/overdue') {
+      let items = listDocumentOverdueItems();
+      items = applyStringFilter(items, url, 'recipientUsername', 'recipientUsername');
+      items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'title',
+          'type',
+          'status',
+          'deliveryStatus',
+          'recipientUsername',
+          'assignedEmployeeName',
+          'verificationCode',
+        ],
+        defaultSortBy: 'overdueHours',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/documents/archive-run') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const actorUsername = String(currentUser.username || '').trim().toLowerCase();
+      const outcome = runDocumentArchiveCycle(body || {}, actorUsername);
+      if (outcome.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees archivage invalides', outcome.errors);
+        return;
+      }
+
+      sendJson(res, 200, outcome.result);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/documents/purge-archives') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const actorUsername = String(currentUser.username || '').trim().toLowerCase();
+      const outcome = runDocumentArchivePurge(body || {}, actorUsername);
+      if (outcome.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees purge invalides', outcome.errors);
+        return;
+      }
+
+      sendJson(res, 200, outcome.result);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/documents/inbox') {
+      const username = String(currentUser.username || '').trim().toLowerCase();
+      let items = documentDispatches
+        .filter((dispatch) => String(dispatch.recipientUsername || '').trim().toLowerCase() === username)
+        .map((dispatch) => findLibraryDocument(dispatch.reference))
+        .filter((item) => !!item)
+        .map((item) => toDispatchedDocument(item));
+
+      items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'title',
+          'type',
+          'employeeName',
+          'employeeId',
+          'assignedEmployeeName',
+          'assignedEmployeeId',
+          'recipientUsername',
+          'deliveryStatus',
+          'assignedAt',
+          'assignedBy',
+          'assignmentDueAt',
+          'reminderAt',
+          'signedBy',
+          'verificationCode',
+        ],
+        defaultSortBy: 'assignedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/documents/inbox/') && path.endsWith('/read')) {
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const dispatchIndex = findDocumentDispatchIndex(rawReference);
+      if (dispatchIndex < 0) {
+        sendApiError(res, 404, 'DOCUMENT_DISPATCH_NOT_FOUND', 'Document assigne introuvable');
+        return;
+      }
+
+      const dispatch = documentDispatches[dispatchIndex];
+      const expectedRecipient = String(dispatch.recipientUsername || '').trim().toLowerCase();
+      const currentUsername = String(currentUser.username || '').trim().toLowerCase();
+      if (!expectedRecipient || expectedRecipient !== currentUsername) {
+        sendApiError(res, 403, 'DOCUMENT_DISPATCH_FORBIDDEN', 'Document non attribue a cet employe');
+        return;
+      }
+
+      const currentDocument = findLibraryDocument(rawReference);
+      if (!currentDocument) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const nowIso = new Date().toISOString();
+      const previousDeliveryStatus = normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne');
+      if (normalizeText(dispatch.deliveryStatus || '') === 'assigne') {
+        dispatch.deliveryStatus = 'Lu';
+        dispatch.readAt = nowIso;
+        addDocumentAuditLog({
+          reference: currentDocument.reference,
+          action: DOCUMENT_AUDIT_ACTIONS.READ,
+          actor: currentUsername,
+          statusBefore: previousDeliveryStatus,
+          statusAfter: 'Lu',
+          detail: 'Document marque comme lu par le destinataire',
+          metadata: {
+            recipientUsername: expectedRecipient,
+          },
+        });
+
+        const managerUsername = String(dispatch.assignedBy || '').trim().toLowerCase();
+        if (managerUsername && managerUsername !== currentUsername) {
+          queueDocumentNotification({
+            recipientUsername: managerUsername,
+            title: `Document lu: ${currentDocument.reference}`,
+            message: `${expectedRecipient} a marque le document ${currentDocument.reference} comme lu.`,
+            category: 'Document',
+            reference: currentDocument.reference,
+            metadata: {
+              action: 'READ',
+              recipientUsername: expectedRecipient,
+            },
+          });
+        }
+      }
+
+      sendJson(res, 200, toDispatchedDocument(currentDocument));
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/documents/inbox/') && path.endsWith('/acknowledge')) {
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const dispatchIndex = findDocumentDispatchIndex(rawReference);
+      if (dispatchIndex < 0) {
+        sendApiError(res, 404, 'DOCUMENT_DISPATCH_NOT_FOUND', 'Document assigne introuvable');
+        return;
+      }
+
+      const dispatch = documentDispatches[dispatchIndex];
+      const expectedRecipient = String(dispatch.recipientUsername || '').trim().toLowerCase();
+      const currentUsername = String(currentUser.username || '').trim().toLowerCase();
+      if (!expectedRecipient || expectedRecipient !== currentUsername) {
+        sendApiError(res, 403, 'DOCUMENT_DISPATCH_FORBIDDEN', 'Document non attribue a cet employe');
+        return;
+      }
+
+      const currentDocument = findLibraryDocument(rawReference);
+      if (!currentDocument) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateDocumentAcknowledgePayload(body || {});
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees accuse reception invalides', validation.errors);
+        return;
+      }
+
+      const nowIso = new Date().toISOString();
+      const previousDeliveryStatus = normalizeDocumentDeliveryStatus(dispatch.deliveryStatus || 'Assigne');
+      dispatch.deliveryStatus = 'Accuse reception';
+      if (!dispatch.readAt) {
+        dispatch.readAt = nowIso;
+      }
+      dispatch.acknowledgedAt = nowIso;
+      dispatch.acknowledgedBy = currentUsername;
+      if (validation.payload.note) {
+        dispatch.note = validation.payload.note;
+      }
+
+      addDocumentAuditLog({
+        reference: currentDocument.reference,
+        action: DOCUMENT_AUDIT_ACTIONS.ACKNOWLEDGED,
+        actor: currentUsername,
+        statusBefore: previousDeliveryStatus,
+        statusAfter: 'Accuse reception',
+        detail: 'Accuse de reception confirme par le destinataire',
+        metadata: {
+          recipientUsername: expectedRecipient,
+        },
+      });
+
+      const managerUsername = String(dispatch.assignedBy || '').trim().toLowerCase();
+      if (managerUsername && managerUsername !== currentUsername) {
+        queueDocumentNotification({
+          recipientUsername: managerUsername,
+          title: `Accuse reception: ${currentDocument.reference}`,
+          message: `${expectedRecipient} a confirme la reception du document ${currentDocument.reference}.`,
+          category: 'Document',
+          reference: currentDocument.reference,
+          metadata: {
+            action: 'ACKNOWLEDGE',
+            recipientUsername: expectedRecipient,
+          },
+        });
+      }
+
+      sendJson(res, 200, toDispatchedDocument(currentDocument));
+      return;
+    }
+
     if (method === 'GET' && path === '/api/v1/documents/library') {
-      let items = [...documentsLibrary];
+      let items = documentsLibrary.map((item) => toDispatchedDocument(item));
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'type', 'type');
       items = applyStringFilter(items, url, 'owner', 'owner');
+      items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['reference', 'title', 'type', 'owner', 'status'],
+        searchFields: [
+          'reference',
+          'title',
+          'type',
+          'owner',
+          'status',
+          'employeeName',
+          'employeeId',
+          'direction',
+          'unit',
+          'issuedAt',
+          'startDate',
+          'endDate',
+          'approver',
+          'missionDestination',
+          'missionPurpose',
+          'absenceReason',
+          'notes',
+          'assignedEmployeeName',
+          'assignedEmployeeId',
+          'recipientUsername',
+          'deliveryStatus',
+          'assignedAt',
+          'assignedBy',
+          'assignmentDueAt',
+          'reminderAt',
+          'signedAt',
+          'signedBy',
+          'stampLabel',
+          'verificationCode',
+        ],
         defaultSortBy: 'updatedAt',
         defaultSortOrder: 'desc',
       });
@@ -4835,9 +6975,304 @@ const server = http.createServer(async (req, res) => {
         owner: validation.payload.owner,
         updatedAt: validation.payload.updatedAt,
         status: validation.payload.status,
+        employeeName: validation.payload.employeeName,
+        employeeId: validation.payload.employeeId,
+        direction: validation.payload.direction,
+        unit: validation.payload.unit,
+        issuedAt: validation.payload.issuedAt,
+        startDate: validation.payload.startDate,
+        endDate: validation.payload.endDate,
+        approver: validation.payload.approver,
+        missionDestination: validation.payload.missionDestination,
+        missionPurpose: validation.payload.missionPurpose,
+        absenceReason: validation.payload.absenceReason,
+        notes: validation.payload.notes,
+        signedAt: '',
+        signedBy: '',
+        stampLabel: '',
+        signatureHash: '',
+        verificationCode: '',
       };
       documentsLibrary.push(created);
-      sendJson(res, 201, created);
+      addDocumentAuditLog({
+        reference: created.reference,
+        action: DOCUMENT_AUDIT_ACTIONS.CREATED,
+        actor: String(currentUser.username || '').trim().toLowerCase(),
+        statusAfter: created.status,
+        detail: `Document cree (${created.type})`,
+        metadata: {
+          owner: created.owner,
+          employeeId: created.employeeId || '',
+        },
+      });
+      sendJson(res, 201, toDispatchedDocument(created));
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/documents/library/') && path.endsWith('/sign')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const documentIndex = findLibraryDocumentIndex(rawReference);
+      if (documentIndex === -1) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const currentDocument = documentsLibrary[documentIndex];
+      const body = await readJsonBody(req);
+      const validation = validateDocumentSignPayload(body || {}, currentDocument);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees signature invalides', validation.errors);
+        return;
+      }
+
+      const actorUsername = String(currentUser.username || '').trim().toLowerCase();
+      const nowIso = new Date().toISOString();
+      const signatory = validation.payload.signatoryName || actorUsername;
+      currentDocument.signedAt = nowIso;
+      currentDocument.signedBy = signatory;
+      currentDocument.stampLabel = validation.payload.stampLabel;
+      currentDocument.signatureHash = computeDocumentSignatureHash(currentDocument, signatory, nowIso);
+      currentDocument.verificationCode = buildDocumentVerificationCode(currentDocument.reference, nowIso);
+      currentDocument.updatedAt = nowIso;
+
+      addDocumentAuditLog({
+        reference: currentDocument.reference,
+        action: DOCUMENT_AUDIT_ACTIONS.SIGNED,
+        actor: actorUsername,
+        statusBefore: currentDocument.status,
+        statusAfter: currentDocument.status,
+        detail: 'Document signe et cachete',
+        metadata: {
+          signedBy: currentDocument.signedBy,
+          verificationCode: currentDocument.verificationCode,
+        },
+      });
+
+      const currentDispatch = findDocumentDispatch(currentDocument.reference);
+      if (currentDispatch && currentDispatch.recipientUsername) {
+        queueDocumentNotification({
+          recipientUsername: String(currentDispatch.recipientUsername || '').trim().toLowerCase(),
+          title: `Document signe: ${currentDocument.reference}`,
+          message: `Le document ${currentDocument.reference} a ete signe et cachete. Vous pouvez le consulter dans votre espace agent.`,
+          category: 'Document',
+          reference: currentDocument.reference,
+          metadata: {
+            action: 'SIGN',
+            signedBy: currentDocument.signedBy,
+          },
+        });
+      }
+
+      sendJson(res, 200, toDispatchedDocument(currentDocument));
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/documents/library/') && path.endsWith('/assign')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const documentIndex = findLibraryDocumentIndex(rawReference);
+      if (documentIndex === -1) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const currentDocument = documentsLibrary[documentIndex];
+      const body = await readJsonBody(req);
+      const validation = validateDocumentAssignPayload(body || {}, currentDocument);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees assignation invalides', validation.errors);
+        return;
+      }
+
+      const nowIso = new Date().toISOString();
+      const actorUsername = String(currentUser.username || '').trim().toLowerCase();
+      const previousStatus = normalizeDocumentStatus(currentDocument.status, 'Brouillon');
+      const existingDispatchIndex = findDocumentDispatchIndex(currentDocument.reference);
+      const previousDispatch = existingDispatchIndex >= 0 ? documentDispatches[existingDispatchIndex] : null;
+      const previousDeliveryStatus = previousDispatch
+        ? normalizeDocumentDeliveryStatus(previousDispatch.deliveryStatus || 'Assigne')
+        : 'Non assigne';
+      const previousRecipientUsername = String(previousDispatch?.recipientUsername || '').trim().toLowerCase();
+      const dispatch = {
+        reference: currentDocument.reference,
+        employeeId: validation.payload.employeeId,
+        employeeName: validation.payload.employeeName,
+        recipientUsername: validation.payload.recipientUsername,
+        note: validation.payload.note,
+        deliveryStatus: 'Assigne',
+        assignedAt: nowIso,
+        assignedBy: actorUsername,
+        assignmentDueAt: validation.payload.assignmentDueAt,
+        reminderAt: validation.payload.reminderAt,
+        reminderSentAt: '',
+        readAt: '',
+        acknowledgedAt: '',
+        acknowledgedBy: '',
+      };
+
+      if (existingDispatchIndex >= 0) {
+        documentDispatches[existingDispatchIndex] = dispatch;
+      } else {
+        documentDispatches.push(dispatch);
+      }
+
+      if (previousStatus === 'Valide' && isValidDocumentStatusTransition(previousStatus, 'Publie')) {
+        currentDocument.status = 'Publie';
+      }
+      currentDocument.updatedAt = nowIso;
+
+      if (currentDocument.status !== previousStatus) {
+        addDocumentAuditLog({
+          reference: currentDocument.reference,
+          action: DOCUMENT_AUDIT_ACTIONS.STATUS_CHANGED,
+          actor: actorUsername,
+          statusBefore: previousStatus,
+          statusAfter: currentDocument.status,
+          detail: `Transition automatique ${previousStatus} -> ${currentDocument.status} lors de l assignation`,
+        });
+      }
+
+      addDocumentAuditLog({
+        reference: currentDocument.reference,
+        action: DOCUMENT_AUDIT_ACTIONS.ASSIGNED,
+        actor: actorUsername,
+        statusBefore: previousDeliveryStatus,
+        statusAfter: 'Assigne',
+        detail: 'Document assigne a un employe',
+        metadata: {
+          employeeId: validation.payload.employeeId,
+          employeeName: validation.payload.employeeName,
+          recipientUsername: validation.payload.recipientUsername,
+          forceReassign: validation.payload.forceReassign ? 'true' : 'false',
+          assignmentDueAt: validation.payload.assignmentDueAt,
+          reminderAt: validation.payload.reminderAt,
+        },
+      });
+
+      if (
+        validation.payload.forceReassign &&
+        previousRecipientUsername &&
+        previousRecipientUsername !== validation.payload.recipientUsername
+      ) {
+        queueDocumentNotification({
+          recipientUsername: previousRecipientUsername,
+          title: `Reaffectation document: ${currentDocument.reference}`,
+          message: `Le document ${currentDocument.reference} a ete reaffecte a un autre employe.`,
+          category: 'Document',
+          reference: currentDocument.reference,
+          metadata: {
+            action: 'REASSIGN',
+          },
+        });
+      }
+
+      queueDocumentNotification({
+        recipientUsername: validation.payload.recipientUsername,
+        title: `Nouveau document assigne: ${currentDocument.reference}`,
+        message: `Le document ${currentDocument.reference} vous a ete assigne. Date limite: ${validation.payload.assignmentDueAt || 'non definie'}.`,
+        category: 'Document',
+        reference: currentDocument.reference,
+        metadata: {
+          action: 'ASSIGN',
+          assignedBy: actorUsername,
+          assignmentDueAt: validation.payload.assignmentDueAt,
+        },
+      });
+
+      sendJson(res, 200, toDispatchedDocument(currentDocument));
+      return;
+    }
+
+    if (
+      method === 'PUT' &&
+      path.startsWith('/api/v1/documents/library/') &&
+      !path.endsWith('/assign')
+    ) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 1] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+      const index = findLibraryDocumentIndex(rawReference);
+      if (index === -1) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const currentDocument = documentsLibrary[index];
+      const validation = validateLibraryDocumentUpdatePayload(body || {}, currentDocument);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees document invalides', validation.errors);
+        return;
+      }
+
+      const actorUsername = String(currentUser.username || '').trim().toLowerCase();
+      const previousStatus = normalizeDocumentStatus(currentDocument.status, 'Brouillon');
+      Object.assign(currentDocument, {
+        title: validation.payload.title,
+        type: validation.payload.type,
+        owner: validation.payload.owner,
+        updatedAt: validation.payload.updatedAt,
+        status: validation.payload.status,
+        employeeName: validation.payload.employeeName,
+        employeeId: validation.payload.employeeId,
+        direction: validation.payload.direction,
+        unit: validation.payload.unit,
+        issuedAt: validation.payload.issuedAt,
+        startDate: validation.payload.startDate,
+        endDate: validation.payload.endDate,
+        approver: validation.payload.approver,
+        missionDestination: validation.payload.missionDestination,
+        missionPurpose: validation.payload.missionPurpose,
+        absenceReason: validation.payload.absenceReason,
+        notes: validation.payload.notes,
+      });
+
+      const nextStatus = normalizeDocumentStatus(currentDocument.status, 'Brouillon');
+      const isStatusTransition = previousStatus !== nextStatus;
+      addDocumentAuditLog({
+        reference: currentDocument.reference,
+        action: isStatusTransition ? DOCUMENT_AUDIT_ACTIONS.STATUS_CHANGED : DOCUMENT_AUDIT_ACTIONS.UPDATED,
+        actor: actorUsername,
+        statusBefore: previousStatus,
+        statusAfter: nextStatus,
+        detail: isStatusTransition
+          ? `Transition manuelle ${previousStatus} -> ${nextStatus}`
+          : 'Mise a jour des metadonnees du document',
+      });
+
+      sendJson(res, 200, toDispatchedDocument(currentDocument));
       return;
     }
 

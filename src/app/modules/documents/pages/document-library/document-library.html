@@ -2,64 +2,456 @@
   <div class="col-xl-12">
     <div class="card custom-card">
       <div class="card-header justify-content-between">
-        <div class="card-title">Bibliothèque documentaire RH</div>
+        <div class="card-title">Documents RH editables (missions, absences, attestations)</div>
         <div class="btn-list">
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
-            {{ showCreateForm ? 'Fermer le formulaire' : 'Deposer' }}
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau document' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
         </div>
       </div>
       <div class="card-body">
-        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-xl-8 col-lg-7">
+            <label class="form-label">Charger un document existant pour edition</label>
+            <select
+              class="form-select"
+              [value]="selectedReference"
+              (change)="onSelectedReferenceChange(($any($event.target)).value)">
+              <option value="">Selectionner une reference...</option>
+              <option *ngFor="let item of items" [value]="item.reference">
+                {{ item.reference }} - {{ item.title }}
+              </option>
+            </select>
+          </div>
+          <div class="col-xl-4 col-lg-5 d-grid">
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-outline-primary" (click)="startEditSelected()" [disabled]="!selectedReference">
+                Editer ce document
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-dark"
+                (click)="exportSelectedPdf()"
+                [disabled]="!selectedReference">
+                Exporter PDF selection
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Pilotage SLA et archivage</h6>
+            <span class="badge text-bg-light">
+              {{ analytics.generatedAt | date:'yyyy-MM-dd HH:mm' }}
+            </span>
+          </div>
           <div class="card-body">
-            <form [formGroup]="form" (ngSubmit)="saveDocument()" class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">Reference (optionnel)</label>
-                <input type="text" class="form-control" formControlName="reference" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+            <div class="row g-3 mb-3">
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Total docs</div>
+                  <div class="fw-semibold">{{ analytics.totals.totalDocuments }}</div>
+                </div>
+              </div>
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Signes</div>
+                  <div class="fw-semibold">{{ analytics.totals.signedDocuments }}</div>
+                </div>
+              </div>
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Assignes</div>
+                  <div class="fw-semibold">{{ analytics.totals.assignedDocuments }}</div>
+                </div>
+              </div>
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Accuses</div>
+                  <div class="fw-semibold">{{ analytics.totals.acknowledgedDocuments }}</div>
+                </div>
+              </div>
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Retards</div>
+                  <div class="fw-semibold text-danger">{{ analytics.totals.overdueDocuments }}</div>
+                </div>
+              </div>
+              <div class="col-xl-2 col-md-4 col-6">
+                <div class="border rounded p-2">
+                  <div class="fs-11 text-muted">Taux accuse</div>
+                  <div class="fw-semibold">{{ analytics.rates.acknowledgementRate }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="runArchiveSimulation()" [disabled]="maintenanceRunning">
+                Simulation archivage 30j
+              </button>
+              <button type="button" class="btn btn-sm btn-primary" (click)="executeArchiveRun()" [disabled]="maintenanceRunning">
+                Lancer archivage 30j
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-warning" (click)="runPurgeSimulation()" [disabled]="maintenanceRunning">
+                Simulation purge 120j
+              </button>
+              <button type="button" class="btn btn-sm btn-warning" (click)="executeArchivePurge()" [disabled]="maintenanceRunning">
+                Purger archives 120j
+              </button>
+            </div>
+
+            <div class="fs-12 text-muted mb-1" *ngIf="lastArchiveRun">
+              Archivage: {{ lastArchiveRun.candidatesCount }} eligibles, {{ lastArchiveRun.archivedCount }} archives
+              <span class="badge text-bg-light ms-2">{{ lastArchiveRun.dryRun ? 'Simulation' : 'Execution' }}</span>
+            </div>
+            <div class="fs-12 text-muted mb-3" *ngIf="lastPurgeRun">
+              Purge: {{ lastPurgeRun.candidatesCount }} candidats, {{ lastPurgeRun.purged.documents }} documents supprimes
+              <span class="badge text-bg-light ms-2">{{ lastPurgeRun.dryRun ? 'Simulation' : 'Execution' }}</span>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Destinataire</th>
+                    <th>Statut</th>
+                    <th>Echeance</th>
+                    <th>Retard (h)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="analyticsLoading">
+                    <td colspan="5" class="text-center text-muted">Calcul des indicateurs...</td>
+                  </tr>
+                  <tr *ngIf="!analyticsLoading && !overdueItems.length">
+                    <td colspan="5" class="text-center text-muted">Aucun retard detecte</td>
+                  </tr>
+                  <tr *ngFor="let row of overdueItems | slice:0:8">
+                    <td>{{ row.reference }}</td>
+                    <td>{{ row.recipientUsername || row.assignedEmployeeName || '-' }}</td>
+                    <td>{{ row.deliveryStatus }}</td>
+                    <td>{{ row.assignmentDueAt ? (row.assignmentDueAt | date:'yyyy-MM-dd HH:mm') : '-' }}</td>
+                    <td class="text-danger fw-semibold">{{ row.overdueHours }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="selectedItem as item">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Assignation directe apres signature/cachet</h6>
+            <div class="d-flex gap-2">
+              <span class="badge text-bg-secondary" *ngIf="isDocumentSigned(item)">Signe / Cachete</span>
+              <span class="badge text-bg-warning" *ngIf="!isDocumentSigned(item)">Non signe</span>
+              <span class="badge text-bg-info">Transmission: {{ deliveryStatusLabel(item) }}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning mb-3" *ngIf="!canSignDocument(item)">
+              Ce document doit etre en statut <strong>Valide</strong> ou <strong>Publie</strong> avant assignation.
+            </div>
+            <div class="alert alert-warning mb-3" *ngIf="canSignDocument(item) && !isDocumentSigned(item)">
+              Le document doit etre <strong>signe et cachete</strong> avant assignation. Utilise le bouton <strong>Signer et cacheter</strong>.
+            </div>
+            <form [formGroup]="assignForm" (ngSubmit)="assignSelectedDocument()" class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">Matricule employe</label>
+                <input type="text" class="form-control" formControlName="employeeId" />
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('employeeId') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Titre</label>
-                <input type="text" class="form-control" formControlName="title" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+                <label class="form-label">Nom employe</label>
+                <input type="text" class="form-control" formControlName="employeeName" />
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('employeeName') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Compte portail employe (email/login)</label>
+                <input type="email" class="form-control" formControlName="recipientUsername" />
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('recipientUsername') as error">{{ error }}</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Note de transmission (optionnel)</label>
+                <textarea rows="2" class="form-control" formControlName="note"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('note') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Type</label>
-                <input type="text" class="form-control" formControlName="type" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('type') as error">{{ error }}</div>
+                <label class="form-label">Date limite reception</label>
+                <input type="date" class="form-control" formControlName="assignmentDueAt" />
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('assignmentDueAt') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Proprietaire</label>
-                <input type="text" class="form-control" formControlName="owner" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('owner') as error">{{ error }}</div>
+                <label class="form-label">Date relance automatique</label>
+                <input type="date" class="form-control" formControlName="reminderAt" />
+                <div class="text-danger fs-11 mt-1" *ngIf="assignFieldError('reminderAt') as error">{{ error }}</div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Mise a jour</label>
-                <input type="date" class="form-control" formControlName="updatedAt" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('updatedAt') as error">{{ error }}</div>
+              <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check mt-4">
+                  <input class="form-check-input" type="checkbox" formControlName="forceReassign" id="forceReassignCheck" />
+                  <label class="form-check-label" for="forceReassignCheck">
+                    Forcer reassignation si deja assigne
+                  </label>
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Statut</label>
-                <select class="form-select" formControlName="status">
-                  <option value="Brouillon">Brouillon</option>
-                  <option value="Publie">Publie</option>
-                  <option value="Archive">Archive</option>
-                </select>
-              </div>
-              <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
-                  Annuler
-                </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le document' }}
+              <div class="col-12 d-flex justify-content-between align-items-center">
+                <div class="fs-12 text-muted">
+                  Derniere assignation:
+                  <strong>{{ item.assignedAt ? (item.assignedAt | date:'yyyy-MM-dd HH:mm') : 'Aucune' }}</strong>
+                  <span *ngIf="item.recipientUsername"> - {{ item.recipientUsername }}</span>
+                  <span *ngIf="item.assignmentDueAt"> | Echeance: {{ item.assignmentDueAt | date:'yyyy-MM-dd HH:mm' }}</span>
+                </div>
+                <button type="submit" class="btn btn-success" [disabled]="assigning || !canAssignDocument(item)">
+                  {{ assigning ? 'Assignation...' : 'Assigner a l employe' }}
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="card border shadow-none mb-4" *ngIf="selectedItem as item">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Workflow securise du document</h6>
+            <div class="d-flex gap-2">
+              <span class="badge text-bg-primary">Statut actuel: {{ item.status }}</span>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-success"
+                (click)="signSelectedDocument()"
+                [disabled]="signing || !canSignDocument(item)">
+                {{ signing ? 'Signature...' : 'Signer et cacheter' }}
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="mb-3 fs-12 text-muted">
+              Signature:
+              <strong>{{ item.signedAt ? (item.signedAt | date:'yyyy-MM-dd HH:mm') : 'Non signee' }}</strong>
+              <span *ngIf="item.signedBy"> - {{ item.signedBy }}</span>
+              <span *ngIf="item.verificationCode"> | Code: {{ item.verificationCode }}</span>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                *ngFor="let nextStatus of allowedStatusTransitions(item)"
+                (click)="transitionSelectedDocument(nextStatus)"
+                [disabled]="!canTransitionToStatus(item, nextStatus)">
+                {{ transitioning ? 'Transition...' : ('Passer a ' + nextStatus) }}
+              </button>
+              <span class="text-muted fs-12" *ngIf="!allowedStatusTransitions(item).length">
+                Aucune transition possible depuis ce statut.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="selectedReference">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Trace d audit document</h6>
+            <span class="badge text-bg-light">Reference: {{ selectedReference }}</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Acteur</th>
+                    <th>Avant</th>
+                    <th>Apres</th>
+                    <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="auditLoading">
+                    <td colspan="6" class="text-center text-muted">Chargement de la trace...</td>
+                  </tr>
+                  <tr *ngIf="!auditLoading && !auditItems.length">
+                    <td colspan="6" class="text-center text-muted">Aucune trace disponible</td>
+                  </tr>
+                  <tr *ngFor="let log of auditItems">
+                    <td>{{ log.happenedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td>{{ auditActionLabel(log.action) }}</td>
+                    <td>{{ log.actor || '-' }}</td>
+                    <td>{{ log.statusBefore || '-' }}</td>
+                    <td>{{ log.statusAfter || '-' }}</td>
+                    <td>{{ log.detail || '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">{{ isEditMode ? 'Edition document RH' : 'Creation document RH' }}</h6>
+            <span class="badge text-bg-primary" *ngIf="isEditMode">Reference: {{ editingReference }}</span>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="saveDocument()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" [readonly]="isEditMode" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type de document</label>
+                <select class="form-select" formControlName="type">
+                  <option *ngFor="let option of documentTypeOptions" [value]="option">{{ option }}</option>
+                </select>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('type') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option *ngFor="let option of statusOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label">Titre</label>
+                <input type="text" class="form-control" formControlName="title" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Service proprietaire</label>
+                <input type="text" class="form-control" formControlName="owner" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('owner') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-12"><hr class="my-2" /></div>
+              <div class="col-md-6">
+                <label class="form-label">Nom employe / agent</label>
+                <input type="text" class="form-control" formControlName="employeeName" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('employeeName') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Matricule</label>
+                <input type="text" class="form-control" formControlName="employeeId" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('employeeId') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Direction</label>
+                <input type="text" class="form-control" formControlName="direction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('direction') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Unite</label>
+                <input type="text" class="form-control" formControlName="unit" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('unit') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date emission</label>
+                <input type="date" class="form-control" formControlName="issuedAt" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('issuedAt') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date mise a jour</label>
+                <input type="date" class="form-control" formControlName="updatedAt" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('updatedAt') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">Date debut (si applicable)</label>
+                <input type="date" class="form-control" formControlName="startDate" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date fin (si applicable)</label>
+                <input type="date" class="form-control" formControlName="endDate" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Approbateur / signataire</label>
+                <input type="text" class="form-control" formControlName="approver" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('approver') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Destination mission</label>
+                <input type="text" class="form-control" formControlName="missionDestination" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('missionDestination') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Objet mission</label>
+                <input type="text" class="form-control" formControlName="missionPurpose" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('missionPurpose') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label">Motif absence</label>
+                <input type="text" class="form-control" formControlName="absenceReason" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('absenceReason') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Observations</label>
+                <textarea rows="3" class="form-control" formControlName="notes"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('notes') as error">{{ error }}</div>
+              </div>
+
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                  {{ submitting ? 'Enregistrement...' : (isEditMode ? 'Mettre a jour le document' : 'Enregistrer le document') }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-responsive mt-4" *ngIf="items.length">
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Titre</th>
+                <th>Type</th>
+                <th>Agent</th>
+                <th>Statut</th>
+                <th>Signature</th>
+                <th>Transmission</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of items | slice:0:8">
+                <td>{{ item.reference }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.employeeName || item.owner }}</td>
+                <td>{{ item.status }}</td>
+                <td>
+                  <span class="badge bg-success-transparent" *ngIf="isDocumentSigned(item)">Signe</span>
+                  <span class="badge bg-danger-transparent" *ngIf="!isDocumentSigned(item)">Non signe</span>
+                </td>
+                <td>{{ deliveryStatusLabel(item) }}</td>
+                <td>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="startEdit(item)">
+                      Modifier
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-dark" (click)="exportPdf(item)">
+                      PDF
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-success"
+                      (click)="onSelectedReferenceChange(item.reference)"
+                      [disabled]="!canAssignDocument(item)">
+                      Assigner
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
