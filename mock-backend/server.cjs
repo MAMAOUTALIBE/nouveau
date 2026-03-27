@@ -1740,6 +1740,13 @@ function normalizePath(pathname) {
   return pathname.replace(/\/+$/, '') || '/';
 }
 
+function normalizeRouteMatchPath(pathname) {
+  const raw = String(pathname || '')
+    .replace(/[\u0000-\u001f\u007f]/g, '')
+    .trim();
+  return normalizePath(raw).toLowerCase();
+}
+
 function normalizeText(value) {
   return String(value || '')
     .normalize('NFD')
@@ -5358,6 +5365,7 @@ const server = http.createServer(async (req, res) => {
   const method = req.method || 'GET';
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
   const path = normalizePath(url.pathname);
+  const routePath = normalizeRouteMatchPath(url.pathname);
   const incomingRequestId = Array.isArray(req.headers['x-correlation-id'])
     ? req.headers['x-correlation-id'][0]
     : req.headers['x-correlation-id'];
@@ -6654,7 +6662,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (method === 'GET' && path === '/api/v1/documents/audit-logs') {
+    if (method === 'GET' && routePath === '/api/v1/documents/audit-logs') {
       let items = [...documentAuditLogs];
       items = applyStringFilter(items, url, 'reference', 'reference');
       items = applyStringFilter(items, url, 'action', 'action');
@@ -6668,13 +6676,13 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (method === 'GET' && path === '/api/v1/documents/analytics') {
+    if (method === 'GET' && routePath === '/api/v1/documents/analytics') {
       const report = computeDocumentAnalytics();
       sendJson(res, 200, report);
       return;
     }
 
-    if (method === 'GET' && path === '/api/v1/documents/overdue') {
+    if (method === 'GET' && routePath === '/api/v1/documents/overdue') {
       let items = listDocumentOverdueItems();
       items = applyStringFilter(items, url, 'recipientUsername', 'recipientUsername');
       items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
@@ -6696,7 +6704,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (method === 'POST' && path === '/api/v1/documents/archive-run') {
+    if (method === 'POST' && routePath === '/api/v1/documents/archive-run') {
       if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
         return;
       }
@@ -6713,7 +6721,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (method === 'POST' && path === '/api/v1/documents/purge-archives') {
+    if (method === 'POST' && routePath === '/api/v1/documents/purge-archives') {
       if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
         return;
       }
