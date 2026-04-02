@@ -7,10 +7,69 @@
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Ajouter une formation' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !items.length"
+            (click)="exportCatalog()">
+            Exporter
+          </button>
+          <button type="button" class="btn btn-light" [disabled]="isLoading || submitting" (click)="refresh()">
+            {{ isLoading ? 'Chargement...' : 'Rafraichir' }}
+          </button>
         </div>
       </div>
       <div class="card-body">
+        <form class="row g-3 mb-4" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+          <div class="col-lg-4">
+            <label class="form-label">Recherche</label>
+            <input type="text" class="form-control" formControlName="q" placeholder="Code, intitule, domaine..." />
+          </div>
+          <div class="col-lg-4">
+            <label class="form-label">Modalite</label>
+            <select class="form-select" formControlName="modality">
+              <option *ngFor="let modality of modalityOptions" [value]="modality">
+                {{ modality || 'Toutes les modalites' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-label">Domaine</label>
+            <input type="text" class="form-control" formControlName="domain" placeholder="Filtrer par domaine" />
+          </div>
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-light" [disabled]="isLoading" (click)="resetFilters()">Reset</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">Filtrer</button>
+          </div>
+        </form>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Total</div>
+              <div class="fs-20 fw-semibold">{{ totalCourses }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Presentiel</div>
+              <div class="fs-20 fw-semibold text-primary">{{ classroomCourses }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Distanciel</div>
+              <div class="fs-20 fw-semibold text-success">{{ remoteCourses }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Hybride</div>
+              <div class="fs-20 fw-semibold text-warning">{{ hybridCourses }}</div>
+            </div>
+          </div>
+        </div>
+
         <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveCourse()" class="row g-3">
@@ -54,6 +113,7 @@
           </div>
         </div>
 
+        <div class="text-muted text-center py-3" *ngIf="isLoading">Chargement du catalogue...</div>
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

@@ -28,7 +28,7 @@
         {{ isRetrying ? 'Verification en cours...' : 'Reessayer maintenant' }}
       </button>
       <a class="btn btn-outline-primary" [routerLink]="returnUrl">Retourner a la page precedente</a>
-      <a class="btn btn-outline-secondary" routerLink="/dashboard">Revenir au tableau de bord</a>
+      <a class="btn btn-outline-secondary" [routerLink]="homePath">Retour a l accueil</a>
       <a class="btn btn-outline-secondary" routerLink="/auth/login">Reconnexion</a>
     </div>
     <p class="retry-note">{{ statusMessage }}</p>

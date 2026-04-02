@@ -4,10 +4,12 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Candidatures</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageRecruitment()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle candidature' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary" (click)="exportApplications()">
+            Exporter
+          </button>
         </div>
       </div>
       <div class="card-body">
@@ -25,6 +27,21 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidate') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
+                <label class="form-label">Email candidat</label>
+                <input type="email" class="form-control" formControlName="candidateEmail" placeholder="prenom.nom@email.com" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidateEmail') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Telephone candidat</label>
+                <input type="text" class="form-control" formControlName="candidatePhone" placeholder="+224..." />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidatePhone') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Identite (CNI/Passeport)</label>
+                <input type="text" class="form-control" formControlName="identityNumber" placeholder="CNI-GN-XXXX" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('identityNumber') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
                 <label class="form-label">Poste</label>
                 <input type="text" class="form-control" formControlName="position" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
@@ -35,13 +52,16 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('campaign') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
+                <label class="form-label">Source</label>
+                <select class="form-select" formControlName="source">
+                  <option *ngFor="let source of sourceOptions" [value]="source">{{ source }}</option>
+                </select>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('source') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
                 <label class="form-label">Statut</label>
                 <select class="form-select" formControlName="status">
-                  <option value="Nouveau">Nouveau</option>
-                  <option value="Shortlist">Shortlist</option>
-                  <option value="Entretien">Entretien</option>
-                  <option value="Accepte">Accepte</option>
-                  <option value="Rejete">Rejete</option>
+                  <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
                 </select>
               </div>
               <div class="col-md-4">
@@ -49,19 +69,1155 @@
                 <input type="date" class="form-control" formControlName="receivedOn" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('receivedOn') as error">{{ error }}</div>
               </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="allowDuplicateCandidate" formControlName="allowDuplicate" />
+                  <label class="form-check-label" for="allowDuplicateCandidate">
+                    Autoriser creation meme si un doublon potentiel est detecte
+                  </label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Pieces jointes candidat</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  multiple
+                  accept=".pdf,.png,.jpg,.jpeg,.webp"
+                  (change)="onCreateAttachmentsSelected($event)"
+                />
+                <div class="text-muted fs-11 mt-1">
+                  Formats acceptes: PDF, PNG, JPG, JPEG, WEBP (15 Mo max / fichier).
+                </div>
+                <div class="text-info fs-12 mt-1" *ngIf="uploadingAttachments > 0">
+                  Televersement en cours ({{ uploadingAttachments }})...
+                </div>
+                <ul class="list-group list-group-flush border rounded mt-2" *ngIf="createAttachments.length > 0">
+                  <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let attachment of createAttachments; let i = index">
+                    <div class="pe-2">
+                      <div class="fw-semibold">{{ attachment.fileName }}</div>
+                      <div class="text-muted fs-11">
+                        {{ attachment.mimeType }} - {{ attachment.size | number: '1.0-0' }} octets
+                      </div>
+                    </div>
+                    <div class="btn-list">
+                      <a
+                        class="btn btn-sm btn-outline-info"
+                        [attr.href]="previewAttachmentHref(attachment)"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Voir
+                      </a>
+                      <a
+                        class="btn btn-sm btn-outline-primary"
+                        [attr.href]="downloadAttachmentHref(attachment)"
+                        [attr.download]="attachment.fileName || 'piece-jointe'"
+                      >
+                        Telecharger
+                      </a>
+                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCreateAttachment(i)">
+                        Retirer
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
               <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submittingCreate">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Enregistrement...' : 'Enregistrer la candidature' }}
+                <button type="submit" class="btn btn-primary" [disabled]="!canManageRecruitment() || submittingCreate || uploadingAttachments > 0">
+                  {{ submittingCreate ? 'Enregistrement...' : (uploadingAttachments > 0 ? 'Attente pieces jointes...' : 'Enregistrer la candidature') }}
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Planification et evaluation entretiens</h6>
+              <div class="text-muted fs-12">Reservation, replanification historisee et consolidation multi-interviewers</div>
+            </div>
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              (click)="openInterviewCreateForm()"
+              [disabled]="!canManageRecruitment()"
+            >
+              Planifier entretien
+            </button>
+          </div>
+          <div class="card-body">
+            <form class="row g-3 mb-3" [formGroup]="interviewForm" *ngIf="showInterviewCreateForm" (ngSubmit)="saveInterview()">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Reference candidature</label>
+                <input type="text" class="form-control" formControlName="applicationReference" placeholder="APP-2026-001" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Debut</label>
+                <input type="datetime-local" class="form-control" formControlName="slotStart" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Fin</label>
+                <input type="datetime-local" class="form-control" formControlName="slotEnd" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Localisation</label>
+                <input type="text" class="form-control" formControlName="location" placeholder="Salle RH-01" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Panel interviewers (separes par , ou ;)</label>
+                <input type="text" class="form-control" formControlName="interviewersText" placeholder="rh.manager, tech.lead" />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light btn-sm" (click)="cancelInterviewCreate()" [disabled]="submittingInterview">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canManageRecruitment() || submittingInterview">
+                  {{ submittingInterview ? 'Enregistrement...' : 'Enregistrer creneau' }}
+                </button>
+              </div>
+            </form>
+
+            <form
+              class="row g-3 mb-3"
+              [formGroup]="interviewRescheduleForm"
+              *ngIf="selectedInterviewIdForReschedule"
+              (ngSubmit)="saveInterviewReschedule()"
+            >
+              <div class="col-12">
+                <div class="alert alert-light border mb-0">
+                  Replanification entretien <span class="fw-semibold">{{ selectedInterviewIdForReschedule }}</span>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Nouveau debut</label>
+                <input type="datetime-local" class="form-control" formControlName="slotStart" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Nouvelle fin</label>
+                <input type="datetime-local" class="form-control" formControlName="slotEnd" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Localisation</label>
+                <input type="text" class="form-control" formControlName="location" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Raison</label>
+                <input type="text" class="form-control" formControlName="reason" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Panel interviewers</label>
+                <input type="text" class="form-control" formControlName="interviewersText" />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light btn-sm" (click)="cancelInterviewReschedule()" [disabled]="submittingInterviewReschedule">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-warning btn-sm" [disabled]="!canManageRecruitment() || submittingInterviewReschedule">
+                  {{ submittingInterviewReschedule ? 'Traitement...' : 'Confirmer replanification' }}
+                </button>
+              </div>
+            </form>
+
+            <form
+              class="row g-3 mb-3"
+              [formGroup]="interviewEvaluationForm"
+              *ngIf="selectedInterviewIdForEvaluation"
+              (ngSubmit)="saveInterviewEvaluation()"
+            >
+              <div class="col-12">
+                <div class="alert alert-light border mb-0">
+                  Evaluation collaborative entretien <span class="fw-semibold">{{ selectedInterviewIdForEvaluation }}</span>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Interviewer</label>
+                <input type="text" class="form-control" formControlName="interviewer" />
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Technique</label>
+                <input type="number" class="form-control" min="0" max="100" formControlName="technicalScore" />
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Communication</label>
+                <input type="number" class="form-control" min="0" max="100" formControlName="communicationScore" />
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Culture fit</label>
+                <input type="number" class="form-control" min="0" max="100" formControlName="cultureFitScore" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Recommendation</label>
+                <select class="form-select" formControlName="recommendation">
+                  <option value="Go">Go</option>
+                  <option value="No-Go">No-Go</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Commentaire</label>
+                <textarea rows="2" class="form-control" formControlName="comment"></textarea>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light btn-sm" (click)="cancelInterviewEvaluation()" [disabled]="submittingInterviewEvaluation">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="!canManageRecruitment() || submittingInterviewEvaluation">
+                  {{ submittingInterviewEvaluation ? 'Enregistrement...' : 'Enregistrer evaluation' }}
+                </button>
+              </div>
+            </form>
+
+            <div class="table-responsive" *ngIf="interviews.length > 0; else emptyInterviewState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Entretien</th>
+                    <th>Reference</th>
+                    <th>Candidat</th>
+                    <th>Creneau</th>
+                    <th>Panel</th>
+                    <th>Statut</th>
+                    <th>Consolidation</th>
+                    <th>Evaluations</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let interview of interviews | slice:0:20">
+                    <td class="fw-semibold">{{ interview.id }}</td>
+                    <td>{{ interview.applicationReference }}</td>
+                    <td>{{ interview.candidate || '-' }}</td>
+                    <td class="text-nowrap">
+                      {{ interview.slotStart | date: 'dd/MM/yyyy HH:mm' }}<br />
+                      <span class="text-muted fs-11">-> {{ interview.slotEnd | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    </td>
+                    <td class="fs-12">{{ interview.interviewers.join(' | ') }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="interviewStatusBadgeClass(interview.status)">
+                        {{ interview.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="fw-semibold">{{ interview.consolidation.overallScore | number: '1.0-1' }} / 100</div>
+                      <span class="badge" [ngClass]="interviewRecommendationBadgeClass(interview.consolidation.recommendation)">
+                        {{ interview.consolidation.recommendation }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="fw-semibold">{{ interview.evaluations.length }}</div>
+                      <div class="text-muted fs-11">
+                        {{ interview.evaluations[0]?.interviewer || '-' }}
+                      </div>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-list justify-content-end">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-warning"
+                          (click)="openInterviewReschedule(interview)"
+                          [disabled]="!canManageRecruitment()"
+                        >
+                          Replanifier
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-success"
+                          (click)="openInterviewEvaluation(interview)"
+                          [disabled]="!canManageRecruitment()"
+                        >
+                          Evaluer
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyInterviewState>
+              <div class="alert alert-light border mb-0">Aucun entretien planifie.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Statut</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="selectedStatus"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                >
+                  <option *ngFor="let status of filterStatusOptions" [value]="status">
+                    {{ status === 'all' ? 'Tous' : status }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Campagne</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="selectedCampaign"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                >
+                  <option value="all">Toutes</option>
+                  <option *ngFor="let campaignCode of campaignOptions" [value]="campaignCode">{{ campaignCode }}</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Source</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="selectedSource"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                >
+                  <option *ngFor="let source of filterSourceOptions" [value]="source">
+                    {{ source === 'all' ? 'Toutes' : source }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Poste</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="positionFilter"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                />
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Periode du</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="receivedFrom"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                />
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Au</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="receivedTo"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="onFilterChange()"
+                />
+              </div>
+              <div class="col-xl-2 col-md-4">
+                <label class="form-label">Recherche</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [ngModel]="searchTerm"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="onSearchInput($event)"
+                  placeholder="Ref, candidat, poste, source..."
+                />
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button type="button" class="btn btn-light btn-sm" (click)="resetFilters()">Reinitialiser</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="sourceStats.length > 0">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="fw-semibold mb-0">Stats simples par source</h6>
+              <span class="text-muted fs-12">Total candidatures: {{ items.length }}</span>
+            </div>
+            <div class="row g-3">
+              <div class="col-xl-2 col-md-4 col-sm-6" *ngFor="let stat of sourceStats">
+                <div class="border rounded p-3 h-100">
+                  <div class="fw-semibold">{{ stat.source }}</div>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <span class="fs-20 fw-bold lh-1">{{ stat.count }}</span>
+                    <span class="text-muted fs-12">{{ stat.ratio | number: '1.0-1' }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Scoring automatique candidat</h6>
+              <div class="text-muted fs-12">Regles ponderees + classement des candidatures</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ applicationScores.length }} score(s)</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Score moyen</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ scoreSummary.average | number: '1.0-1' }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Meilleur score</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ scoreSummary.topScore | number: '1.0-1' }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Profils >= 65</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ scoreSummary.eligible }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6" *ngIf="scoringPolicy">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Derniere maj regles</div>
+                  <div class="fw-semibold mt-1">{{ scoringPolicy.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+                  <div class="text-muted fs-11">{{ scoringPolicy.updatedBy }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive mb-3" *ngIf="scoringCriteriaDraft.length > 0">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Critere</th>
+                    <th style="width: 180px">Ponderation (%)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let criterion of scoringCriteriaDraft; let i = index">
+                    <td>{{ criterion.label }}</td>
+                    <td>
+                      <input
+                        type="number"
+                        class="form-control form-control-sm"
+                        min="1"
+                        max="100"
+                        [value]="criterion.weight"
+                        (change)="onScoringWeightChange(i, $any($event.target).value)"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                (click)="saveScoringPolicy()"
+                [disabled]="!canManageRecruitment() || scoringCriteriaDraft.length === 0"
+              >
+                Enregistrer regles scoring
+              </button>
+            </div>
+
+            <div class="table-responsive" *ngIf="applicationScores.length > 0; else emptyScoresState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Rang</th>
+                    <th>Reference</th>
+                    <th>Candidat</th>
+                    <th>Poste</th>
+                    <th>Score</th>
+                    <th>Justification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let score of applicationScores | slice:0:12">
+                    <td>#{{ score.rank }}</td>
+                    <td class="fw-semibold">{{ score.reference }}</td>
+                    <td>{{ score.candidate }}</td>
+                    <td>{{ score.position }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="scoreBadgeClass(score.totalScore)">{{ score.totalScore | number: '1.0-1' }}</span>
+                    </td>
+                    <td class="fs-12">
+                      {{
+                        (score.details[0]?.criterionLabel || '') +
+                        (score.details[0] ? ': ' + score.details[0].rawScore + '%' : '')
+                      }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyScoresState>
+              <div class="alert alert-light border mb-0">Aucun score disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Shortlist assistee (Top N)</h6>
+              <div class="text-muted fs-12">Validation manuelle obligatoire avant envoi</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <label class="form-label mb-0 fs-12 text-muted">Top N</label>
+              <input
+                type="number"
+                class="form-control form-control-sm"
+                style="width: 90px"
+                min="1"
+                max="30"
+                [ngModel]="shortlistTopN"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="setShortlistTopN($event)"
+              />
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive" *ngIf="shortlistSuggestions.length > 0; else emptyShortlistState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Rang</th>
+                    <th>Reference</th>
+                    <th>Candidat</th>
+                    <th>Score</th>
+                    <th>Justification</th>
+                    <th>Validation</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of shortlistSuggestions">
+                    <td>#{{ item.rank }}</td>
+                    <td class="fw-semibold">{{ item.reference }}</td>
+                    <td>{{ item.candidate }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="scoreBadgeClass(item.totalScore)">{{ item.totalScore | number: '1.0-1' }}</span>
+                    </td>
+                    <td class="fs-12">{{ item.justification }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="shortlistStatusBadgeClass(item.validationStatus)">
+                        {{ item.validationStatus }}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-list justify-content-end">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-success"
+                          (click)="validateShortlistSuggestion(item, 'VALIDATED')"
+                          [disabled]="!canManageRecruitment() || shortlistSavingReferences.has(item.reference)"
+                        >
+                          Valider
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="validateShortlistSuggestion(item, 'REJECTED')"
+                          [disabled]="!canManageRecruitment() || shortlistSavingReferences.has(item.reference)"
+                        >
+                          Rejeter
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyShortlistState>
+              <div class="alert alert-light border mb-0">Aucune suggestion shortlist disponible.</div>
+            </ng-template>
+            <div class="d-flex justify-content-end mt-3">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="dispatchShortlist()"
+                [disabled]="!canManageRecruitment() || !canDispatchShortlist()"
+              >
+                Envoyer shortlist
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Dedoublonnage avance candidatures</h6>
+              <div class="text-muted fs-12">Detection email / telephone / identite + liaison/fusion</div>
+            </div>
+            <span class="badge bg-warning-transparent text-warning">{{ duplicateCases.length }} cas</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive mb-3" *ngIf="duplicateCases.length > 0; else emptyDuplicateState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Valeur</th>
+                    <th>References</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let caseItem of duplicateCases | slice:0:10">
+                    <td>{{ caseItem.matchLabel }}</td>
+                    <td class="fw-semibold">{{ caseItem.matchValue }}</td>
+                    <td>
+                      <span *ngFor="let app of caseItem.applications; let last = last">
+                        {{ app.reference }}<span *ngIf="!last">, </span>
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-list justify-content-end">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="processDuplicateCase(caseItem, 'link')"
+                          [disabled]="!canManageRecruitment() || duplicateProcessingCaseId === caseItem.id"
+                        >
+                          Lier
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="processDuplicateCase(caseItem, 'merge')"
+                          [disabled]="!canManageRecruitment() || duplicateProcessingCaseId === caseItem.id"
+                        >
+                          Fusionner
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyDuplicateState>
+              <div class="alert alert-light border mb-0">Aucun doublon detecte.</div>
+            </ng-template>
+
+            <div class="table-responsive" *ngIf="duplicateLinks.length > 0">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Primaire</th>
+                    <th>Secondaire</th>
+                    <th>Mode</th>
+                    <th>Acteur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let link of duplicateLinks | slice:0:8">
+                    <td>{{ link.linkedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="fw-semibold">{{ link.primaryReference }}</td>
+                    <td>{{ link.secondaryReference }}</td>
+                    <td>{{ link.mode }}</td>
+                    <td>{{ link.linkedBy }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Banque de questions entretien</h6>
+              <div class="text-muted fs-12">Templates par poste, versionning minimal, import/export CSV/JSON</div>
+            </div>
+            <div class="btn-list">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('json')">Export JSON</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('csv')">Export CSV</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-4">
+                <label class="form-label">Poste template</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="questionTemplatePosition"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder="Ex: Gestionnaire Paie"
+                />
+              </div>
+              <div class="col-xl-8">
+                <label class="form-label">Questions (1 ligne = 1 question)</label>
+                <textarea
+                  rows="4"
+                  class="form-control"
+                  [(ngModel)]="questionTemplateQuestions"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder="Question 1..."
+                ></textarea>
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  (click)="createQuestionTemplate()"
+                  [disabled]="!canManageRecruitment() || questionBankBusy"
+                >
+                  Creer template
+                </button>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3">
+                <label class="form-label">Format import</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="questionTemplateImportFormat"
+                  [ngModelOptions]="{ standalone: true }"
+                >
+                  <option value="json">JSON</option>
+                  <option value="csv">CSV</option>
+                </select>
+              </div>
+              <div class="col-xl-9">
+                <label class="form-label">Contenu import</label>
+                <textarea
+                  rows="3"
+                  class="form-control"
+                  [(ngModel)]="questionTemplateImportContent"
+                  [ngModelOptions]="{ standalone: true }"
+                  placeholder='CSV: position;question1 | question2... ou JSON selon API'
+                ></textarea>
+              </div>
+              <div class="col-12 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="importQuestionBank()"
+                  [disabled]="!canManageRecruitment() || questionBankBusy"
+                >
+                  Importer
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="questionTemplates.length > 0; else emptyQuestionBankState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Poste</th>
+                    <th>Version</th>
+                    <th>Questions</th>
+                    <th>Cree par</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let template of questionTemplates | slice:0:20">
+                    <td class="fw-semibold">{{ template.position }}</td>
+                    <td>v{{ template.version }}</td>
+                    <td class="fs-12">{{ template.questions.join(' | ') }}</td>
+                    <td>{{ template.createdBy }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyQuestionBankState>
+              <div class="alert alert-light border mb-0">Aucun template de questions disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Notifications automatiques recrutement</h6>
+              <div class="text-muted fs-12">Relances entretiens, validations et alertes SLA</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ notifications.length }} notification(s)</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Relances entretien</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ notificationSummary.interviewReminders }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Relances validation</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ notificationSummary.validationReminders }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Alertes SLA</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ notificationSummary.slaAlerts }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Critiques</div>
+                  <div class="fs-4 fw-semibold mt-1 text-danger">{{ notificationSummary.critical }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="notifications.length > 0; else emptyNotificationsState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Envoye le</th>
+                    <th>Type</th>
+                    <th>Reference</th>
+                    <th>Destinataire</th>
+                    <th>Message</th>
+                    <th>Gravite</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of notifications | slice:0:10">
+                    <td class="text-nowrap">{{ item.sentAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="notificationTypeBadgeClass(item.type)">
+                        {{ item.type }}
+                      </span>
+                    </td>
+                    <td class="fw-semibold">{{ item.reference || '-' }}</td>
+                    <td>{{ item.recipient }}</td>
+                    <td>
+                      <div>{{ item.message }}</div>
+                      <div class="text-muted fs-11">{{ item.trigger }}</div>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="notificationSeverityBadgeClass(item.severity)">
+                        {{ item.severity }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="notificationStatusBadgeClass(item.status)">
+                        {{ item.status }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyNotificationsState>
+              <div class="alert alert-light border mb-0">Aucune notification automatique disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="canManageRecruitment()">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="fw-semibold mb-1">Journal d'audit recrutement</h6>
+              <div class="text-muted fs-12">Trace des actions critiques du module</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ auditLogs.length }} evenement(s)</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Candidatures creees</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ auditSummary.createdApplications }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Maj statuts</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ auditSummary.statusUpdates }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Integrations creees</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ auditSummary.onboardingCreates }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Campagnes creees</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ auditSummary.campaignCreates }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="auditLogs.length > 0; else emptyAuditState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Action</th>
+                    <th>Entite</th>
+                    <th>Reference</th>
+                    <th>Acteur</th>
+                    <th>Detail</th>
+                    <th>Resultat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let log of auditLogs | slice:0:12">
+                    <td class="text-nowrap">{{ log.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ auditActionLabel(log.action) }}</td>
+                    <td>{{ log.entityType }}</td>
+                    <td class="fw-semibold">{{ log.entityId || '-' }}</td>
+                    <td>{{ log.actor }}</td>
+                    <td>{{ log.detail }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="auditOutcomeBadgeClass(log.outcome)">
+                        {{ log.outcome }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyAuditState>
+              <div class="alert alert-light border mb-0">Aucune trace d'audit disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="table-responsive" *ngIf="items.length > 0; else emptyState">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Candidat</th>
+                <th>Poste</th>
+                <th>Campagne</th>
+                <th>Source</th>
+                <th>Statut</th>
+                <th>Recu le</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let item of items; trackBy: trackByReference">
+                <tr>
+                  <td class="fw-semibold">{{ item.reference }}</td>
+                  <td>{{ item.candidate }}</td>
+                  <td>{{ item.position }}</td>
+                  <td>{{ item.campaign }}</td>
+                  <td>{{ item.source }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="statusBadgeClass(item.status)">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td>{{ item.receivedOn }}</td>
+                  <td class="text-end">
+                    <div class="d-inline-flex flex-wrap gap-2 justify-content-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-primary"
+                        (click)="advance(item)"
+                        [disabled]="!canManageRecruitment() || !canAdvance(item) || isUpdating(item.reference)"
+                      >
+                        {{ statusActionLabel(item) }}
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="reject(item)"
+                        [disabled]="!canManageRecruitment() || !canReject(item) || isUpdating(item.reference)"
+                      >
+                        Rejeter
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-warning"
+                        (click)="openInterviewCreateForm(item.reference)"
+                        [disabled]="!canManageRecruitment() || (item.status !== 'Preselection' && item.status !== 'Entretien')"
+                      >
+                        Planifier entretien
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="launchOnboarding(item)"
+                        [disabled]="!canManageRecruitment() || !canLaunchOnboarding(item)"
+                      >
+                        Lancer integration
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info"
+                        (click)="openDetails(item)"
+                      >
+                        Detail
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-light"
+                        (click)="toggleHistory(item.reference)"
+                      >
+                        {{ isHistoryExpanded(item.reference) ? 'Masquer historique' : 'Voir historique' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="isHistoryExpanded(item.reference)">
+                  <td colspan="8" class="bg-light">
+                    <div *ngIf="historyOf(item) as history">
+                      <div class="fw-semibold mb-2">Historique de statut</div>
+                      <div class="text-muted fs-12" *ngIf="history.length === 0">
+                        Aucun historique disponible.
+                      </div>
+                      <ul class="list-group list-group-flush" *ngIf="history.length > 0">
+                        <li class="list-group-item px-0 bg-light" *ngFor="let entry of history">
+                          <div class="d-flex flex-wrap justify-content-between gap-2">
+                            <div>
+                              <span class="fw-semibold">
+                                {{ entry.fromStatus || 'Initial' }} -> {{ entry.toStatus }}
+                              </span>
+                              <span class="text-muted ms-2">par {{ entry.changedBy }}</span>
+                            </div>
+                            <div class="text-muted">{{ entry.changedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+                          </div>
+                          <div class="text-muted fs-12 mt-1" *ngIf="entry.note">{{ entry.note }}</div>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #emptyState>
+          <div class="alert alert-light border mb-0">Aucune candidature disponible.</div>
+        </ng-template>
+
+        <div class="card border shadow-none mt-4" *ngIf="selectedApplication as selected">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <div class="card-title mb-1">Detail candidature {{ selected.reference }}</div>
+              <div class="text-muted fs-12">{{ selected.candidate }} - {{ selected.position }}</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-light" (click)="closeDetails()">Fermer</button>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-md-3"><strong>Campagne:</strong> {{ selected.campaign }}</div>
+              <div class="col-md-3"><strong>Source:</strong> {{ selected.source }}</div>
+              <div class="col-md-3"><strong>Recu le:</strong> {{ selected.receivedOn }}</div>
+              <div class="col-md-3">
+                <strong>Statut:</strong>
+                <span class="badge ms-1" [ngClass]="statusBadgeClass(selected.status)">{{ selected.status }}</span>
+              </div>
+              <div class="col-md-4"><strong>Email:</strong> {{ selected.candidateEmail || '-' }}</div>
+              <div class="col-md-4"><strong>Telephone:</strong> {{ selected.candidatePhone || '-' }}</div>
+              <div class="col-md-4"><strong>Identite:</strong> {{ selected.identityNumber || '-' }}</div>
+            </div>
+
+            <div class="mb-3">
+              <h6 class="fw-semibold mb-2">Pieces jointes candidat</h6>
+              <ul class="list-group list-group-flush border rounded">
+                <li class="list-group-item" *ngFor="let attachment of attachmentsOf(selected)">
+                  <div class="d-flex justify-content-between align-items-center gap-2">
+                    <div>
+                      <div class="fw-semibold">{{ attachment.fileName }}</div>
+                      <div class="text-muted fs-12">
+                        {{ attachment.mimeType }} - {{ attachment.size | number: '1.0-0' }} octets
+                        <span class="ms-2">{{ attachment.uploadedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                      </div>
+                    </div>
+                    <div class="btn-list">
+                      <a
+                        class="btn btn-sm btn-outline-info"
+                        [attr.href]="previewAttachmentHref(attachment)"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        Voir
+                      </a>
+                      <a
+                        class="btn btn-sm btn-outline-primary"
+                        [attr.href]="downloadAttachmentHref(attachment)"
+                        [attr.download]="attachment.fileName || 'piece-jointe'"
+                      >
+                        Telecharger
+                      </a>
+                    </div>
+                  </div>
+                </li>
+                <li class="list-group-item text-muted fs-12" *ngIf="attachmentsOf(selected).length === 0">
+                  Aucune piece jointe.
+                </li>
+              </ul>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-xl-6">
+                <h6 class="fw-semibold mb-2">Timeline</h6>
+                <ul class="list-group list-group-flush border rounded">
+                  <li class="list-group-item" *ngFor="let entry of historyOf(selected)">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ entry.fromStatus || 'Initial' }} -> {{ entry.toStatus }}</span>
+                      <span class="text-muted fs-12">{{ entry.changedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="text-muted fs-12 mt-1">Par {{ entry.changedBy }}</div>
+                    <div class="text-muted fs-12 mt-1" *ngIf="entry.note">{{ entry.note }}</div>
+                  </li>
+                  <li class="list-group-item text-muted fs-12" *ngIf="historyOf(selected).length === 0">
+                    Aucun evenement de timeline.
+                  </li>
+                </ul>
+              </div>
+
+              <div class="col-xl-6">
+                <h6 class="fw-semibold mb-2">Commentaires RH</h6>
+                <div class="mb-3">
+                  <textarea
+                    rows="3"
+                    class="form-control"
+                    [(ngModel)]="commentDraft"
+                    [ngModelOptions]="{ standalone: true }"
+                    placeholder="Ajouter un commentaire RH..."
+                    [readonly]="!canManageRecruitment()"
+                  ></textarea>
+                  <div class="d-flex justify-content-end mt-2">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      (click)="addComment()"
+                      [disabled]="!canManageRecruitment() || !canSubmitComment()"
+                    >
+                      {{ submittingComment ? 'Enregistrement...' : 'Ajouter commentaire' }}
+                    </button>
+                  </div>
+                </div>
+                <ul class="list-group list-group-flush border rounded">
+                  <li class="list-group-item" *ngFor="let comment of commentsOf(selected)">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ comment.author }}</span>
+                      <span class="text-muted fs-12">{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    </div>
+                    <div class="mt-1">{{ comment.message }}</div>
+                  </li>
+                  <li class="list-group-item text-muted fs-12" *ngIf="commentsOf(selected).length === 0">
+                    Aucun commentaire RH.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -23,3 +23,17 @@
   fill: currentColor;
   color: inherit;
 }
+
+:host ::ng-deep .app-sidebar .main-sidebar-header .header-logo .brand-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+:host ::ng-deep .app-sidebar .main-sidebar-header .header-logo .desktop-white.brand-wordmark {
+  color: #fff;
+}

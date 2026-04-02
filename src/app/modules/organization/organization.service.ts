@@ -24,6 +24,15 @@ export interface CreateOrgUnitPayload {
   staffCount?: number;
 }
 
+export interface UpdateOrgUnitPayload {
+  id: string;
+  name: string;
+  parentId?: string;
+  head?: string;
+  headTitle?: string;
+  staffCount?: number;
+}
+
 export interface CreateBudgetedPositionPayload {
   code?: string;
   structure: string;
@@ -176,6 +185,33 @@ export class OrganizationService {
         catchError((error) => {
           if (this.shouldUseLocalFallback(error)) {
             return of(this.appendLocalOrgUnit(normalizedPayload));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateOrgUnit(payload: UpdateOrgUnitPayload): Observable<OrgUnit> {
+    const id = String(payload.id || '').trim();
+    const normalizedPayload = this.normalizeCreatePayload(payload);
+
+    return this.apiClient
+      .put<OrgUnitDto, CreateOrgUnitPayload>(
+        API_ENDPOINTS.organization.unit(id),
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeOrgUnit(dto, id)),
+        map((unit) => {
+          if (unit.id && unit.name) {
+            return unit;
+          }
+          return this.upsertLocalOrgUnit(id, normalizedPayload);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.upsertLocalOrgUnit(id, normalizedPayload));
           }
           return throwError(() => error);
         })
@@ -429,6 +465,32 @@ export class OrganizationService {
     current.push(created);
     this.writeLocalOrgUnits(current);
     return created;
+  }
+
+  private upsertLocalOrgUnit(id: string, payload: CreateOrgUnitPayload): OrgUnit {
+    const nextId = String(id || '').trim();
+    const current = this.readLocalOrgUnits();
+    const existingIndex = current.findIndex((item) => item.id === nextId);
+    const existing = existingIndex >= 0 ? current[existingIndex] : undefined;
+    const normalizedPayload = this.normalizeCreatePayload(payload);
+
+    const updated: OrgUnit = {
+      id: nextId || existing?.id || this.generateLocalOrgUnitId(normalizedPayload.name, current),
+      name: normalizedPayload.name || existing?.name || 'Unite',
+      parentId: normalizedPayload.parentId,
+      head: normalizedPayload.head,
+      headTitle: normalizedPayload.headTitle,
+      staffCount: this.toNonNegativeInt(normalizedPayload.staffCount, existing?.staffCount || 0),
+    };
+
+    if (existingIndex >= 0) {
+      current[existingIndex] = updated;
+    } else {
+      current.push(updated);
+    }
+
+    this.writeLocalOrgUnits(current);
+    return updated;
   }
 
   private generateLocalOrgUnitId(name: string, existing: OrgUnit[]): string {

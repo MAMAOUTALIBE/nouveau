@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { permissionActivateGuard } from '../../core/guards/permission.guard';
-import { APP_PERMISSIONS } from '../../core/security/access-control.service';
+import { APP_PERMISSIONS, APP_SCOPES } from '../../core/security/access-control.service';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -17,6 +17,7 @@ export const ADMIN_ROUTES: Routes = [
       parentTitle: 'Administration',
       childTitle: 'Utilisateurs',
       requiredAllPermissions: [APP_PERMISSIONS.adminUsersManage],
+      requiredAnyScopes: [APP_SCOPES.global],
     },
   },
   {
@@ -28,6 +29,7 @@ export const ADMIN_ROUTES: Routes = [
       parentTitle: 'Administration',
       childTitle: 'Rôles',
       requiredAllPermissions: [APP_PERMISSIONS.adminRolesManage],
+      requiredAnyScopes: [APP_SCOPES.global],
     },
   },
   {
@@ -39,6 +41,7 @@ export const ADMIN_ROUTES: Routes = [
       parentTitle: 'Administration',
       childTitle: 'Audit',
       requiredAnyPermissions: [APP_PERMISSIONS.adminAuditView],
+      requiredAnyScopes: [APP_SCOPES.global],
     },
   },
 ];

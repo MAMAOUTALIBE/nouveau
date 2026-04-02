@@ -12,7 +12,7 @@ import { writeLastHealthyRoute } from './core/recovery/route-recovery';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('Nowa');
+  protected readonly title = signal('RH-ADMIN');
   constructor(private appState: AppStateService, private router: Router) {
     this.appState.updateState();
     this.router.events

@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22.12.0
+          node-version: 20.19.5
           cache: npm
 
       - name: Install dependencies
@@ -27,3 +27,6 @@ jobs:
 
       - name: Unit tests
         run: npm run test:unit -- --reporter=dot
+
+      - name: Production build
+        run: npm run build

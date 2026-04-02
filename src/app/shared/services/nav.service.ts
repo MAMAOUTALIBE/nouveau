@@ -2,7 +2,7 @@ import { Injectable, OnDestroy, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, Subject, fromEvent } from 'rxjs';
 import { debounceTime, filter, takeUntil } from 'rxjs/operators';
-import { APP_PERMISSIONS, AccessControlService } from '../../core/security/access-control.service';
+import { APP_PERMISSIONS, APP_SCOPES, AccessControlService } from '../../core/security/access-control.service';
 
 const menuIcon = (pathData: string): string =>
   `<svg xmlns="http://www.w3.org/2000/svg" class="side-menu__icon" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none" /><path d="${pathData}" /></svg>`;
@@ -97,6 +97,8 @@ export interface Menu {
   requiredAnyPermissions?: string[];
   requiredAllPermissions?: string[];
   requiredRoles?: string[];
+  requiredAnyScopes?: string[];
+  requiredAllScopes?: string[];
 }
 
 @Injectable({
@@ -135,10 +137,14 @@ export class NavService implements OnDestroy {
     {
       title: 'Tableau de bord',
       icon: MENU_ICONS.dashboard,
-      path: '/dashboard',
-      type: 'link',
+      type: 'sub',
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.dashboardView],
+      children: [
+        { path: '/dashboard', title: 'Vue generale', icon: MENU_ICONS.dashboard, type: 'link', dirchange: false },
+        { path: '/dashboard/operations', title: 'Vue operationnelle', icon: MENU_ICONS.workflows, type: 'link', dirchange: false },
+        { path: '/dashboard/pilotage', title: 'Vue pilotage', icon: MENU_ICONS.rapports, type: 'link', dirchange: false },
+      ],
     },
     {
       title: 'Personnel',
@@ -219,6 +225,7 @@ export class NavService implements OnDestroy {
       children: [
         { path: '/formation/sessions', title: 'Sessions', icon: MENU_ICONS.formationSessions, type: 'link', dirchange: false },
         { path: '/formation/catalogue', title: 'Catalogue', icon: MENU_ICONS.formationCatalogue, type: 'link', dirchange: false },
+        { path: '/formation/demandes', title: 'Demandes', icon: MENU_ICONS.demandes, type: 'link', dirchange: false },
       ],
     },
     {
@@ -256,11 +263,12 @@ export class NavService implements OnDestroy {
     { headTitle: 'Portails', headIcon: SECTION_ICONS.portails },
     {
       path: '/portail-agent',
-      title: 'Portail agent',
+      title: 'Portail employe',
       icon: MENU_ICONS.portailAgent,
       type: 'link',
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.portalAgent],
+      requiredAnyScopes: [APP_SCOPES.self, APP_SCOPES.global],
     },
     {
       path: '/portail-manager',
@@ -269,6 +277,7 @@ export class NavService implements OnDestroy {
       type: 'link',
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.portalManager],
+      requiredAnyScopes: [APP_SCOPES.team, APP_SCOPES.unit, APP_SCOPES.direction, APP_SCOPES.global],
     },
     { headTitle: 'Administration' },
     {
@@ -278,6 +287,20 @@ export class NavService implements OnDestroy {
       type: 'link',
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.adminView],
+      requiredAnyScopes: [APP_SCOPES.global],
+    },
+  ];
+
+  private readonly employeeMenuItems: Menu[] = [
+    { headTitle: 'Mon espace', headIcon: SECTION_ICONS.portails },
+    {
+      path: '/portail-agent',
+      title: 'Portail employe',
+      icon: MENU_ICONS.portailAgent,
+      type: 'link',
+      dirchange: false,
+      requiredAnyPermissions: [APP_PERMISSIONS.portalAgent],
+      requiredAnyScopes: [APP_SCOPES.self, APP_SCOPES.global],
     },
   ];
 
@@ -329,8 +352,22 @@ export class NavService implements OnDestroy {
   }
 
   private refreshMenuItems(): void {
-    const filtered = this.filterMenuItems(this.baseMenuItems);
+    const filtered = this.filterMenuItems(this.getMenuSource());
     this.items.next(this.removeOrphanHeadings(filtered));
+  }
+
+  getDefaultPath(): string {
+    const filtered = this.removeOrphanHeadings(this.filterMenuItems(this.getMenuSource()));
+    return this.findFirstNavigablePath(filtered) || '/acces-refuse';
+  }
+
+  private getMenuSource(): Menu[] {
+    return this.isEmployeeSpaceOnly() ? this.employeeMenuItems : this.baseMenuItems;
+  }
+
+  private isEmployeeSpaceOnly(): boolean {
+    const access = this.accessControl.snapshot();
+    return access.roles.length === 1 && access.roles[0] === 'agent';
   }
 
   private filterMenuItems(items: Menu[]): Menu[] {
@@ -392,6 +429,32 @@ export class NavService implements OnDestroy {
       requiredAnyPermissions: item.requiredAnyPermissions,
       requiredAllPermissions: item.requiredAllPermissions,
       requiredRoles: item.requiredRoles,
+      requiredAnyScopes: item.requiredAnyScopes,
+      requiredAllScopes: item.requiredAllScopes,
     });
+  }
+
+  private findFirstNavigablePath(items: Menu[]): string | null {
+    for (const item of items) {
+      if (item.headTitle) {
+        continue;
+      }
+
+      if (item.type === 'link' && item.path) {
+        return item.path;
+      }
+
+      const childPath = this.findFirstNavigablePath(item.children || []);
+      if (childPath) {
+        return childPath;
+      }
+
+      const childPathLevel2 = this.findFirstNavigablePath(item.children2 || []);
+      if (childPathLevel2) {
+        return childPathLevel2;
+      }
+    }
+
+    return null;
   }
 }

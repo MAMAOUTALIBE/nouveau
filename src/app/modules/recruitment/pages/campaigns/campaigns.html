@@ -4,10 +4,10 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Campagnes de recrutement</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageRecruitment()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Lancer une campagne' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary" (click)="exportCampaigns()">Exporter</button>
         </div>
       </div>
       <div class="card-body">
@@ -44,6 +44,26 @@
                 <input type="date" class="form-control" formControlName="endDate" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('endDate') as error">{{ error }}</div>
               </div>
+              <div class="col-md-6">
+                <label class="form-label">Besoin - Poste cible</label>
+                <input type="text" class="form-control" formControlName="needPosition" placeholder="Gestionnaire Paie" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needPosition') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Besoin - Quota</label>
+                <input type="number" class="form-control" formControlName="needQuota" min="1" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needQuota') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Besoin - Delai</label>
+                <input type="date" class="form-control" formControlName="needDeadline" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needDeadline') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Besoin - Owner</label>
+                <input type="text" class="form-control" formControlName="needOwner" placeholder="responsable.rh" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needOwner') as error">{{ error }}</div>
+              </div>
               <div class="col-md-3">
                 <label class="form-label">Statut</label>
                 <select class="form-select" formControlName="status">
@@ -57,12 +77,669 @@
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                <button type="submit" class="btn btn-primary" [disabled]="!canManageRecruitment() || submitting">
                   {{ submitting ? 'Enregistrement...' : 'Enregistrer la campagne' }}
                 </button>
               </div>
             </form>
           </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex flex-wrap justify-content-between gap-3">
+            <div>
+              <h6 class="card-title mb-1">Funnel Campagne</h6>
+              <div class="text-muted fs-12">
+                Volumes par etape et taux de conversion - {{ funnelScopeLabel() }}
+              </div>
+            </div>
+            <div style="min-width: 260px;">
+              <label class="form-label mb-1">Vue</label>
+              <select
+                class="form-select form-select-sm"
+                [value]="selectedFunnelCampaign"
+                (change)="onFunnelCampaignChange($any($event.target).value)"
+              >
+                <option value="all">Global (toutes campagnes)</option>
+                <option *ngFor="let code of funnelCampaignOptions" [value]="code">{{ code }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-light border mb-0" *ngIf="funnelScopeTotal === 0">
+              Aucune candidature disponible pour cette vue.
+            </div>
+
+            <ng-container *ngIf="funnelScopeTotal > 0">
+              <div class="row g-3">
+                <div class="col-xl-2 col-md-4 col-sm-6" *ngFor="let item of funnelVolumes">
+                  <div class="border rounded p-3 h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                      <span class="badge" [ngClass]="item.badgeClass">{{ item.status }}</span>
+                      <span class="text-muted fs-11">{{ item.ratio | number: '1.0-1' }}%</span>
+                    </div>
+                    <div class="fs-3 fw-semibold mt-2">{{ item.count }}</div>
+                    <div class="progress progress-xs mt-2">
+                      <div class="progress-bar" [ngClass]="item.barClass" [style.width.%]="item.ratio"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 mt-1">
+                <div class="col-xl-4 col-md-6" *ngFor="let step of funnelConversions">
+                  <div class="border rounded p-3 h-100">
+                    <div class="text-muted fs-11 text-uppercase">{{ step.from }} -> {{ step.to }}</div>
+                    <div class="fs-4 fw-semibold mt-1">{{ step.rate | number: '1.0-1' }}%</div>
+                    <div class="fs-12 text-muted mt-1">
+                      {{ step.countTo }} conversion(s) sur {{ step.countFrom }} candidature(s)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-1">KPI Operationnels Campagne</h6>
+            <div class="text-muted fs-12">
+              Delai moyen de traitement, volume hebdomadaire et taux rejet/retenu - {{ funnelScopeLabel() }}
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-xl-4 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Delai moyen de traitement</div>
+                  <div class="fs-3 fw-semibold mt-1">{{ operationalKpis.averageProcessingDays | number: '1.1-1' }} j</div>
+                  <div class="text-muted fs-12 mt-1">
+                    Calcule sur {{ operationalKpis.processedCount }} candidature(s) finalisee(s)
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Taux retenu</div>
+                  <div class="fs-3 fw-semibold mt-1 text-success">{{ operationalKpis.retainedRate | number: '1.0-1' }}%</div>
+                  <div class="text-muted fs-12 mt-1">{{ operationalKpis.retainedCount }} candidature(s) retenue(s)</div>
+                </div>
+              </div>
+              <div class="col-xl-4 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Taux rejete</div>
+                  <div class="fs-3 fw-semibold mt-1 text-danger">{{ operationalKpis.rejectedRate | number: '1.0-1' }}%</div>
+                  <div class="text-muted fs-12 mt-1">{{ operationalKpis.rejectedCount }} candidature(s) rejetee(s)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h6 class="fw-semibold mb-2">Volume hebdomadaire (8 dernieres semaines)</h6>
+              <div class="alert alert-light border mb-0" *ngIf="weeklyVolumes.length === 0">
+                Aucune donnee hebdomadaire disponible.
+              </div>
+              <div class="row g-2" *ngIf="weeklyVolumes.length > 0">
+                <div class="col-12" *ngFor="let week of weeklyVolumes">
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="text-muted fs-12" style="width: 90px;">{{ week.label }}</div>
+                    <div class="progress flex-grow-1 progress-sm">
+                      <div class="progress-bar bg-primary" [style.width.%]="week.width"></div>
+                    </div>
+                    <div class="fw-semibold fs-12" style="width: 28px; text-align: right;">{{ week.count }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Prevision de charge recruteurs</h6>
+              <div class="text-muted fs-12">Vue hebdomadaire et mensuelle avec alertes surcharge / sous-charge</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ workloadGeneratedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive" *ngIf="workloadForecast.length > 0; else emptyWorkloadState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Recruteur</th>
+                    <th>Cible / semaine</th>
+                    <th>Semaine en cours</th>
+                    <th>2 prochaines semaines</th>
+                    <th>Estimation mensuelle</th>
+                    <th>Alerte</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of workloadForecast">
+                    <td class="fw-semibold">{{ row.recruiter }}</td>
+                    <td>{{ row.targetPerWeek }}</td>
+                    <td>{{ row.currentWeekLoad }}</td>
+                    <td>{{ row.upcomingTwoWeeksLoad }}</td>
+                    <td>{{ row.monthlyLoadEstimate }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="workloadAlertBadgeClass(row.alert)">
+                        {{ row.alert }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyWorkloadState>
+              <div class="alert alert-light border mb-0">Aucune donnee de charge disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-1">Budget campagne et cout par embauche</h6>
+            <div class="text-muted fs-12">Saisie budget/depenses, cout candidature/embauche, variance budget</div>
+          </div>
+          <div class="card-body">
+            <form class="row g-3 mb-3" [formGroup]="budgetForm" (ngSubmit)="saveCampaignBudget()">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Campagne</label>
+                <select class="form-select" formControlName="campaignCode">
+                  <option value="">Selectionner...</option>
+                  <option *ngFor="let campaign of items" [value]="campaign.code">{{ campaign.code }}</option>
+                </select>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Budget</label>
+                <input type="number" class="form-control" min="0" formControlName="budgetAmount" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Depenses</label>
+                <input type="number" class="form-control" min="0" formControlName="expensesAmount" />
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Devise</label>
+                <input type="text" class="form-control" formControlName="currency" />
+              </div>
+              <div class="col-xl-1 col-md-12 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100" [disabled]="!canManageRecruitment() || budgetSubmitting">
+                  {{ budgetSubmitting ? '...' : 'OK' }}
+                </button>
+              </div>
+            </form>
+
+            <div class="table-responsive" *ngIf="campaignBudgetItems.length > 0; else emptyBudgetState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Campagne</th>
+                    <th>Budget</th>
+                    <th>Depenses</th>
+                    <th>Variance</th>
+                    <th>Cout / candidature</th>
+                    <th>Cout / embauche</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of campaignBudgetItems">
+                    <td class="fw-semibold">{{ row.campaignCode }}</td>
+                    <td>{{ row.budgetAmount | number: '1.0-0' }} {{ row.currency }}</td>
+                    <td>{{ row.expensesAmount | number: '1.0-0' }} {{ row.currency }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="budgetVarianceBadgeClass(row.variance)">
+                        {{ row.variance | number: '1.0-0' }}
+                      </span>
+                    </td>
+                    <td>{{ row.costPerApplication | number: '1.0-0' }}</td>
+                    <td>{{ row.costPerHire | number: '1.0-0' }}</td>
+                    <td class="text-end">
+                      <button type="button" class="btn btn-sm btn-outline-primary" (click)="pickBudgetCampaign(row.campaignCode)">
+                        Modifier
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyBudgetState>
+              <div class="alert alert-light border mb-0">Aucune donnee budget disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Control Tower recrutement</h6>
+              <div class="text-muted fs-12">Vue unifiee campagnes/candidatures/integration + drill-down fiche detail</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="refreshControlTower()">Rafraichir</button>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Campagne</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="controlTowerCampaign"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="refreshControlTower()"
+                />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Statut candidature</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="controlTowerStatus"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="refreshControlTower()"
+                />
+              </div>
+              <div class="col-xl-4 col-md-8">
+                <label class="form-label">Recherche</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="controlTowerSearch"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="refreshControlTower()"
+                  placeholder="Ref, candidat, poste..."
+                />
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Candidatures</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ controlTower.summary.totalApplications }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Entretiens planifies</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ controlTower.summary.interviewsPlanned }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Onboarding actifs</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ controlTower.summary.onboardingActive }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Retenus</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ controlTower.summary.retained }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive" *ngIf="controlTower.items.length > 0; else emptyControlTowerState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Candidat</th>
+                    <th>Campagne</th>
+                    <th>Statut candidature</th>
+                    <th>Statut entretien</th>
+                    <th>Statut onboarding</th>
+                    <th>Progression onboarding</th>
+                    <th class="text-end">Drill-down</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of controlTower.items | slice:0:25">
+                    <td class="fw-semibold">{{ item.reference }}</td>
+                    <td>{{ item.candidate }}</td>
+                    <td>{{ item.campaign }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.interviewStatus }}</td>
+                    <td>{{ item.onboardingStatus }}</td>
+                    <td>{{ item.onboardingProgress | number: '1.0-0' }}%</td>
+                    <td class="text-end">
+                      <button type="button" class="btn btn-sm btn-outline-info" (click)="openControlTowerApplication(item)">
+                        Ouvrir fiche
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyControlTowerState>
+              <div class="alert alert-light border mb-0">Aucune donnee control tower.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Tableau de bord direction</h6>
+              <div class="text-muted fs-12">KPI executifs, comparaison campagnes, export CSV/PDF</div>
+            </div>
+            <div class="btn-list">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportExecutiveDashboard('csv')" [disabled]="executiveExporting">
+                Export CSV
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportExecutiveDashboard('pdf')" [disabled]="executiveExporting">
+                Export PDF
+              </button>
+            </div>
+          </div>
+          <div class="card-body" *ngIf="executiveDashboard as dashboard; else emptyExecutiveState">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Total candidatures</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ dashboard.kpis.totalApplications }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Retenus</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ dashboard.kpis.retained }}</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Conversion entretien -> retenu</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ dashboard.kpis.conversionInterviewToRetained | number: '1.0-1' }}%</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Time-to-hire moyen</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ dashboard.kpis.averageTimeToHireDays | number: '1.0-1' }} j</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Campagne</th>
+                    <th>Total</th>
+                    <th>Retenus</th>
+                    <th>Rejetes</th>
+                    <th>Conversion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of dashboard.byCampaign">
+                    <td class="fw-semibold">{{ row.campaignCode }}</td>
+                    <td>{{ row.total }}</td>
+                    <td>{{ row.retained }}</td>
+                    <td>{{ row.rejected }}</td>
+                    <td>{{ row.conversion | number: '1.0-1' }}%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <ng-template #emptyExecutiveState>
+            <div class="card-body">
+              <div class="alert alert-light border mb-0">Tableau de bord direction indisponible.</div>
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Moteur de regles no-code</h6>
+              <div class="text-muted fs-12">Regles evenement -> action, simulation avant activation, journal executions</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="simulateRule()" [disabled]="!canManageRecruitment() || ruleSimulating">
+              Simuler
+            </button>
+          </div>
+          <div class="card-body">
+            <form class="row g-3 mb-3" [formGroup]="ruleForm" (ngSubmit)="createRule()">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control" formControlName="name" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Evenement</label>
+                <input type="text" class="form-control" formControlName="event" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Condition</label>
+                <input type="text" class="form-control" formControlName="condition" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Action</label>
+                <input type="text" class="form-control" formControlName="action" />
+              </div>
+              <div class="col-xl-9 col-md-12">
+                <div class="form-check mt-2">
+                  <input class="form-check-input" type="checkbox" id="ruleEnabled" formControlName="enabled" />
+                  <label class="form-check-label" for="ruleEnabled">Regle active</label>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-12 d-flex align-items-end justify-content-end">
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canManageRecruitment() || ruleSubmitting">
+                  {{ ruleSubmitting ? 'Enregistrement...' : 'Creer regle' }}
+                </button>
+              </div>
+            </form>
+
+            <form class="row g-3 mb-3" [formGroup]="ruleSimulationForm" (ngSubmit)="simulateRule()">
+              <div class="col-xl-4">
+                <label class="form-label">Evenement simulation</label>
+                <input type="text" class="form-control" formControlName="event" />
+              </div>
+              <div class="col-xl-8">
+                <label class="form-label">Contexte (JSON)</label>
+                <input type="text" class="form-control" formControlName="context" />
+              </div>
+            </form>
+
+            <div class="alert alert-light border mb-3" *ngIf="ruleSimulation">
+              Simulation {{ ruleSimulation.event }}: {{ ruleSimulation.matches.length }} regle(s) candidate(s)
+            </div>
+
+            <div class="row g-3">
+              <div class="col-xl-6">
+                <h6 class="fw-semibold mb-2">Regles</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Nom</th>
+                        <th>Evenement</th>
+                        <th>Action</th>
+                        <th>Etat</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let rule of ruleEngineRules | slice:0:10">
+                        <td class="fw-semibold">{{ rule.name }}</td>
+                        <td>{{ rule.event }}</td>
+                        <td>{{ rule.action }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="rule.enabled ? 'bg-success-transparent text-success' : 'bg-warning-transparent text-warning'">
+                            {{ rule.enabled ? 'Active' : 'Inactive' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <h6 class="fw-semibold mb-2">Executions</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Regle</th>
+                        <th>Evenement</th>
+                        <th>Outcome</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let run of ruleExecutions | slice:0:10">
+                        <td>{{ run.executedAt | date: 'dd/MM HH:mm' }}</td>
+                        <td class="fw-semibold">{{ run.ruleName }}</td>
+                        <td>{{ run.event }}</td>
+                        <td>{{ run.outcome }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Export BI recrutement</h6>
+              <div class="text-muted fs-12">Export securise schema stable + journal des exports</div>
+            </div>
+            <div class="btn-list">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportBi('json')" [disabled]="biExporting || !canManageRecruitment()">
+                Export JSON
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportBi('csv')" [disabled]="biExporting || !canManageRecruitment()">
+                Export CSV
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive" *ngIf="biExportLogs.length > 0; else emptyBiLogState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Demandeur</th>
+                    <th>Format</th>
+                    <th>Records</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let log of biExportLogs">
+                    <td>{{ log.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ log.requestedBy }}</td>
+                    <td>{{ log.format }}</td>
+                    <td>{{ log.records }}</td>
+                    <td>{{ log.status }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyBiLogState>
+              <div class="alert alert-light border mb-0">Aucun export BI enregistre.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-1">Qualite, perf et observabilite</h6>
+            <div class="text-muted fs-12">Seuils performance, monitoring erreurs et remontes d'evenements</div>
+          </div>
+          <div class="card-body" *ngIf="observability as obs; else emptyObservabilityState">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">API p95</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ obs.metrics.apiP95Ms }} ms</div>
+                  <div class="text-muted fs-11">Seuil: {{ obs.thresholds.apiP95Ms }} ms</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Error rate</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ obs.metrics.errorRatePercent }}%</div>
+                  <div class="text-muted fs-11">Seuil: {{ obs.thresholds.errorRatePercent }}%</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">Donnees stale</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ obs.metrics.staleDataMinutes }} min</div>
+                  <div class="text-muted fs-11">Seuil: {{ obs.thresholds.staleDataMinutes }} min</div>
+                </div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <div class="border rounded p-3 h-100">
+                  <div class="text-muted fs-11 text-uppercase">E2E critique pass rate</div>
+                  <div class="fs-4 fw-semibold mt-1">{{ obs.metrics.e2eCriticalPassRate }}%</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-warning border" *ngIf="obs.alerts.length > 0">
+              Alertes actives: {{ obs.alerts.join(' | ') }}
+            </div>
+            <div class="alert alert-light border" *ngIf="obs.alerts.length === 0">
+              Aucun seuil en depassement.
+            </div>
+
+            <form class="row g-3 mb-3" [formGroup]="observabilityEventForm" (ngSubmit)="pushObservabilityEvent()">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Source</label>
+                <input type="text" class="form-control" formControlName="source" />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Severite</label>
+                <select class="form-select" formControlName="severity">
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+              <div class="col-xl-4 col-md-12">
+                <label class="form-label">Message</label>
+                <input type="text" class="form-control" formControlName="message" />
+              </div>
+              <div class="col-xl-2 col-md-12 d-flex align-items-end justify-content-end">
+                <button type="submit" class="btn btn-sm btn-primary w-100" [disabled]="observabilityEventSubmitting">
+                  {{ observabilityEventSubmitting ? 'Envoi...' : 'Publier' }}
+                </button>
+              </div>
+            </form>
+
+            <div class="table-responsive" *ngIf="obs.recentEvents.length > 0">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Source</th>
+                    <th>Message</th>
+                    <th>Severite</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let event of obs.recentEvents | slice:0:10">
+                    <td>{{ event.createdAt | date: 'dd/MM HH:mm:ss' }}</td>
+                    <td>{{ event.source }}</td>
+                    <td>{{ event.message }}</td>
+                    <td>{{ event.severity }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <ng-template #emptyObservabilityState>
+            <div class="card-body">
+              <div class="alert alert-light border mb-0">Observabilite indisponible.</div>
+            </div>
+          </ng-template>
         </div>
 
         <gridjs-angular [config]="gridConfig"></gridjs-angular>

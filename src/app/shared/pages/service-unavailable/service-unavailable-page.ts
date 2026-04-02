@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { firstValueFrom, timeout } from 'rxjs';
 import { readLastHealthyRoute } from '../../../core/recovery/route-recovery';
+import { NavService } from '../../services/nav.service';
 
 @Component({
   selector: 'app-service-unavailable-page',
@@ -23,12 +24,14 @@ export class ServiceUnavailablePage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly toastr = inject(ToastrService);
   private readonly rawHttp = new HttpClient(inject(HttpBackend));
+  private readonly navService = inject(NavService);
 
   protected isRetrying = false;
   protected autoRetryEnabled = true;
   protected autoRetryCountdownSeconds = 10;
   protected statusMessage = '';
   protected lastAttemptAtLabel = 'Aucune tentative';
+  protected readonly homePath = this.navService.getDefaultPath();
   protected readonly returnUrl = this.resolveReturnUrl(
     this.route.snapshot.queryParamMap.get('returnUrl')
   );
@@ -146,7 +149,7 @@ export class ServiceUnavailablePage implements OnInit, OnDestroy {
       return lastHealthy;
     }
 
-    return '/dashboard';
+    return this.homePath;
   }
 
   private appendRecoveryFlag(target: string): string {

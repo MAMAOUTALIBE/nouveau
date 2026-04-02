@@ -2,11 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { GridJsAngularComponent } from 'gridjs-angular';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import { downloadCsv } from '../../../../core/utils/csv-export.utils';
 import {
   CreateTrainingSessionPayload,
+  TrainingEnrollmentRequest,
   TrainingService,
   TrainingSession
 } from '../../training.service';
@@ -14,7 +17,7 @@ import {
 @Component({
   selector: 'app-training-sessions',
   standalone: true,
-  imports: [CommonModule, GridJsAngularComponent, ReactiveFormsModule],
+  imports: [CommonModule, GridJsAngularComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './training-sessions.html',
 })
 export class TrainingSessionsPage implements OnInit {
@@ -26,6 +29,9 @@ export class TrainingSessionsPage implements OnInit {
   items: TrainingSession[] = [];
   showCreateForm = false;
   submitting = false;
+  isLoading = false;
+  isRequestsLoading = false;
+  requests: TrainingEnrollmentRequest[] = [];
 
   gridConfig = {
     columns: ['Code', 'Intitulé', 'Dates', 'Lieu', 'Places', 'Inscrits', 'Statut'],
@@ -46,8 +52,65 @@ export class TrainingSessionsPage implements OnInit {
     status: ['Ouverte', [Validators.required]],
   });
 
+  filterForm = this.fb.group({
+    q: [''],
+    status: [''],
+    location: [''],
+  });
+
+  readonly statusOptions = ['', 'Ouverte', 'Complete', 'Planifiee', 'Annulee'];
+
   ngOnInit(): void {
     this.loadSessions();
+    this.loadRequests();
+  }
+
+  get totalSessions(): number {
+    return this.items.length;
+  }
+
+  get openSessions(): number {
+    return this.items.filter((item) => this.normalizeStatus(item.status) === 'ouverte').length;
+  }
+
+  get fullSessions(): number {
+    return this.items.filter((item) => this.normalizeStatus(item.status) === 'complete' || item.enrolled >= item.seats)
+      .length;
+  }
+
+  get availableSeats(): number {
+    return this.items.reduce((total, item) => total + Math.max(item.seats - item.enrolled, 0), 0);
+  }
+
+  get totalPendingRequests(): number {
+    return this.requests.filter((item) => this.normalizeRequestStatus(item.status) === 'soumise').length;
+  }
+
+  get sessionRequestSummaries(): Array<{
+    session: TrainingSession;
+    pendingCount: number;
+    approvedCount: number;
+    rejectedCount: number;
+    availableSeats: number;
+    fillRate: number;
+  }> {
+    return this.items.map((session) => {
+      const requests = this.requestsForSession(session.code);
+      const pendingCount = requests.filter((item) => this.normalizeRequestStatus(item.status) === 'soumise').length;
+      const approvedCount = requests.filter((item) => this.normalizeRequestStatus(item.status) === 'validee').length;
+      const rejectedCount = requests.filter((item) => this.normalizeRequestStatus(item.status) === 'rejetee').length;
+      const availableSeats = Math.max(session.seats - session.enrolled, 0);
+      const fillRate = session.seats > 0 ? Math.round((session.enrolled / session.seats) * 100) : 0;
+
+      return {
+        session,
+        pendingCount,
+        approvedCount,
+        rejectedCount,
+        availableSeats,
+        fillRate,
+      };
+    });
   }
 
   fieldError(fieldName: string): string | null {
@@ -77,6 +140,89 @@ export class TrainingSessionsPage implements OnInit {
     this.showCreateForm = false;
     this.resetForm();
     this.cdr.detectChanges();
+  }
+
+  applyFilters(): void {
+    this.loadSessions();
+  }
+
+  resetFilters(): void {
+    this.filterForm.reset({
+      q: '',
+      status: '',
+      location: '',
+    });
+    this.loadSessions();
+  }
+
+  refresh(): void {
+    this.loadSessions();
+    this.loadRequests();
+  }
+
+  exportSessions(): void {
+    if (!this.items.length) {
+      return;
+    }
+
+    downloadCsv({
+      filename: `training-sessions-${this.exportDateSuffix()}.csv`,
+      headers: [
+        'Code',
+        'Intitule',
+        'Dates',
+        'Lieu',
+        'Places',
+        'Inscrits',
+        'Places disponibles',
+        'Taux remplissage',
+        'Demandes en attente',
+        'Demandes validees',
+        'Demandes rejetees',
+        'Statut',
+      ],
+      rows: this.sessionRequestSummaries.map((summary) => [
+        summary.session.code,
+        summary.session.title,
+        summary.session.dates,
+        summary.session.location,
+        summary.session.seats,
+        summary.session.enrolled,
+        summary.availableSeats,
+        `${summary.fillRate}%`,
+        summary.pendingCount,
+        summary.approvedCount,
+        summary.rejectedCount,
+        summary.session.status,
+      ]),
+      delimiter: ';',
+    });
+  }
+
+  statusBadgeClass(status: string): string {
+    const normalized = this.normalizeStatus(status);
+    if (normalized === 'ouverte') {
+      return 'bg-success-transparent';
+    }
+    if (normalized === 'complete') {
+      return 'bg-danger-transparent';
+    }
+    if (normalized === 'planifiee') {
+      return 'bg-warning-transparent';
+    }
+    if (normalized === 'annulee') {
+      return 'bg-secondary-transparent';
+    }
+    return 'bg-primary-transparent';
+  }
+
+  trackBySessionCode(
+    _index: number,
+    item: {
+      session: TrainingSession;
+    }
+  ): string {
+    return item.session.code;
   }
 
   saveSession(): void {
@@ -142,33 +288,82 @@ export class TrainingSessionsPage implements OnInit {
   }
 
   private loadSessions(): void {
-    this.trainingService.getSessions().subscribe({
-      next: (items) => {
-        this.items = items;
-        this.gridConfig = {
-          ...this.gridConfig,
-          data: items.map((s) => [
-            s.code,
-            s.title,
-            s.dates,
-            s.location,
-            s.seats,
-            s.enrolled,
-            s.status,
-          ]),
-        };
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        this.items = [];
-        this.gridConfig = { ...this.gridConfig, data: [] };
-        this.toastr.error(this.resolveError(error), 'Formation', {
-          timeOut: 3500,
-          positionClass: 'toast-top-right',
-        });
-        this.cdr.detectChanges();
-      },
-    });
+    const filters = this.filterForm.getRawValue();
+    this.isLoading = true;
+    this.trainingService
+      .getSessions({
+        page: 1,
+        limit: 200,
+        sortBy: 'title',
+        sortOrder: 'asc',
+        q: this.normalizeFilter(filters.q),
+        status: this.normalizeFilter(filters.status),
+        location: this.normalizeFilter(filters.location),
+      })
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (items) => {
+          this.items = items;
+          this.gridConfig = {
+            ...this.gridConfig,
+            data: items.map((s) => [
+              s.code,
+              s.title,
+              s.dates,
+              s.location,
+              s.seats,
+              s.enrolled,
+              s.status,
+            ]),
+          };
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.items = [];
+          this.gridConfig = { ...this.gridConfig, data: [] };
+          this.toastr.error(this.resolveError(error), 'Formation', {
+            timeOut: 3500,
+            positionClass: 'toast-top-right',
+          });
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  private loadRequests(): void {
+    this.isRequestsLoading = true;
+    this.trainingService
+      .getRequests({
+        page: 1,
+        limit: 500,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+      .pipe(
+        finalize(() => {
+          this.isRequestsLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (items) => {
+          this.requests = items;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.requests = [];
+          this.toastr.error(this.resolveError(error), 'Formation', {
+            timeOut: 3500,
+            positionClass: 'toast-top-right',
+          });
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private resetForm(): void {
@@ -194,6 +389,28 @@ export class TrainingSessionsPage implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
+  }
+
+  private exportDateSuffix(): string {
+    return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  }
+
+  private normalizeFilter(value: string | null | undefined): string | undefined {
+    const normalized = String(value || '').trim();
+    return normalized.length ? normalized : undefined;
+  }
+
+  private normalizeStatus(status: string): string {
+    return String(status || '').trim().toLowerCase();
+  }
+
+  private normalizeRequestStatus(status: string): string {
+    return String(status || '').trim().toLowerCase();
+  }
+
+  private requestsForSession(sessionCode: string): TrainingEnrollmentRequest[] {
+    const normalizedCode = String(sessionCode || '').trim().toUpperCase();
+    return this.requests.filter((item) => String(item.sessionCode || '').trim().toUpperCase() === normalizedCode);
   }
 
   private resolveError(error: unknown): string {

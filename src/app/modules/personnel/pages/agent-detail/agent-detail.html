@@ -1,52 +1,216 @@
 <div class="row row-sm">
   <div class="col-xl-12">
     <div class="card custom-card">
-      <div class="card-body d-md-flex">
-        <div>
-          <img [src]="agent.photoUrl" alt="" class="br-5" />
-        </div>
-        <div class="my-md-auto mt-4 prof-details">
-          <h4 class="font-weight-semibold ms-md-4 mb-1">{{ agent.fullName }}</h4>
-          <p class="fs-13 text-muted ms-md-4 mb-2">
-            <span class="me-3 d-inline-block"><i class="far fa-address-card me-2"></i>{{ agent.position }}</span>
-            <span class="d-inline-block"><i class="far fa-building me-2"></i>{{ agent.unit }}</span>
-          </p>
-          <p class="text-muted ms-md-4 mb-2">
-            <i class="fa fa-sitemap me-2"></i>{{ agent.direction || '—' }}
-          </p>
-          <p class="text-muted ms-md-4 mb-2"><i class="fa fa-envelope me-2"></i>{{ agent.email }}</p>
-          <p class="text-muted ms-md-4 mb-0"><i class="fa fa-phone me-2"></i>{{ agent.phone }}</p>
-        </div>
-      </div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="card-body d-md-flex">
+          <div class="agent-photo-block">
+            <div class="agent-photo-frame">
+              <img [src]="photoPreview" alt="Photo agent" class="agent-photo br-5" />
+            </div>
+            @if (editMode) {
+              <div class="mt-2">
+                <label class="form-label fs-12">Photo (PNG/JPG/WebP, max 10 MB)</label>
+                <input type="file" class="form-control form-control-sm" accept="image/*" (change)="onPhotoSelected($event)" />
+                @if (selectedPhotoFileName) {
+                  <div class="text-muted fs-11 mt-1">{{ selectedPhotoFileName }}</div>
+                }
+                @if (uploadingPhoto) {
+                  <div class="text-info fs-11 mt-1">Téléversement en cours...</div>
+                }
+              </div>
+            }
+          </div>
 
-      <div class="card-footer py-0">
-        <nav ngbNav #nav="ngbNav" class="main-nav-line p-0 tabs-menu profile-nav-line border-0 br-5 mb-0">
-          <ng-container ngbNavItem>
-            <a ngbNavLink class="mb-2 mt-2">État civil</a>
-            <ng-template ngbNavContent>
-              <div class="p-4">
-                <div class="row">
-                  <div class="col-md-4"><strong>Matricule</strong><div>{{ agent.matricule }}</div></div>
-                  <div class="col-md-4"><strong>Fonction</strong><div>{{ agent.position }}</div></div>
-                  <div class="col-md-4"><strong>Structure</strong><div>{{ agent.unit }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Statut</strong><div>{{ agent.status || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Manager</strong><div>{{ agent.manager || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Type pièce</strong><div>{{ agent.identity.identityType || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>N° pièce</strong><div>{{ agent.identity.identityNumber || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Date naissance</strong><div>{{ agent.identity.birthDate || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Lieu naissance</strong><div>{{ agent.identity.birthPlace || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Nationalité</strong><div>{{ agent.identity.nationality || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Date recrutement</strong><div>{{ agent.administrative.hireDate || '—' }}</div></div>
-                  <div class="col-md-4 mt-3"><strong>Contrat</strong><div>{{ agent.administrative.contractType || '—' }}</div></div>
-                  <div class="col-md-6 mt-3"><strong>Adresse</strong><div>{{ agent.administrative.address || '—' }}</div></div>
-                  <div class="col-md-3 mt-3"><strong>Urgence</strong><div>{{ agent.administrative.emergencyContactName || '—' }}</div></div>
-                  <div class="col-md-3 mt-3"><strong>Tél urgence</strong><div>{{ agent.administrative.emergencyContactPhone || '—' }}</div></div>
+          <div class="my-md-auto mt-4 prof-details flex-fill">
+            @if (!editMode) {
+              <h4 class="font-weight-semibold ms-md-4 mb-1">{{ agent.fullName }}</h4>
+              <p class="fs-13 text-muted ms-md-4 mb-2">
+                <span class="me-3 d-inline-block"><i class="far fa-address-card me-2"></i>{{ agent.position }}</span>
+                <span class="d-inline-block"><i class="far fa-building me-2"></i>{{ agent.unit }}</span>
+              </p>
+              <p class="text-muted ms-md-4 mb-2">
+                <i class="fa fa-sitemap me-2"></i>{{ agent.direction || '—' }}
+              </p>
+              <p class="ms-md-4 mb-2">
+                <span class="badge bg-info-transparent text-info">
+                  Qualité dossier: {{ qualityReport.score }}% ({{ qualityReport.completedChecks }}/{{ qualityReport.totalChecks }})
+                </span>
+              </p>
+              <p class="text-muted ms-md-4 mb-2"><i class="fa fa-envelope me-2"></i>{{ agent.email || '—' }}</p>
+              <p class="text-muted ms-md-4 mb-0"><i class="fa fa-phone me-2"></i>{{ agent.phone || '—' }}</p>
+            } @else {
+              <div class="row g-2 ms-md-2">
+                <div class="col-md-6">
+                  <label class="form-label">Nom complet</label>
+                  <input class="form-control" type="text" formControlName="fullName" />
+                  @if (fieldError('fullName'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Matricule</label>
+                  <input class="form-control" type="text" formControlName="matricule" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Poste</label>
+                  <input class="form-control" type="text" formControlName="position" />
+                  @if (fieldError('position'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Unité</label>
+                  <input class="form-control" type="text" formControlName="unit" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Direction</label>
+                  <input class="form-control" type="text" formControlName="direction" />
+                  @if (fieldError('direction'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Manager</label>
+                  <input class="form-control" type="text" formControlName="manager" />
+                  @if (fieldError('manager'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input class="form-control" type="email" formControlName="email" />
+                  @if (fieldError('email'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Téléphone</label>
+                  <input class="form-control" type="text" formControlName="phone" />
+                  @if (fieldError('phone'); as error) {
+                    <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                  }
                 </div>
               </div>
-            </ng-template>
-          </ng-container>
+            }
+          </div>
+        </div>
 
-          <ng-container ngbNavItem>
+        <div class="card-footer py-0">
+          @if (editMode) {
+            <div class="px-3 pt-3">
+              <label class="form-label mb-1">Motif de modification (audit)</label>
+              <input
+                class="form-control"
+                type="text"
+                formControlName="auditReason"
+                placeholder="Ex: correction de coordonnées après vérification dossier"
+              />
+              <div class="text-muted fs-11 mt-1">
+                Ce motif sera enregistré dans l’historique des modifications.
+              </div>
+              @if (fieldError('auditReason'); as error) {
+                <div class="text-danger fs-11 mt-1">{{ error }}</div>
+              }
+            </div>
+          }
+
+          <div class="d-flex justify-content-end gap-2 pt-3 px-3">
+            @if (!editMode) {
+              <button type="button" class="btn btn-primary" (click)="toggleEdit()">Modifier la fiche</button>
+            } @else {
+              <button type="button" class="btn btn-light" (click)="cancelEdit()" [disabled]="saving || uploadingPhoto">
+                Annuler
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="saving || uploadingPhoto">
+                {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+              </button>
+            }
+          </div>
+
+          <nav ngbNav #nav="ngbNav" class="main-nav-line p-0 tabs-menu profile-nav-line border-0 br-5 mb-0">
+            <ng-container ngbNavItem>
+              <a ngbNavLink class="mb-2 mt-2">État civil</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  @if (!editMode) {
+                    <div class="row">
+                      <div class="col-md-4"><strong>Matricule</strong><div>{{ agent.matricule }}</div></div>
+                      <div class="col-md-4"><strong>Fonction</strong><div>{{ agent.position }}</div></div>
+                      <div class="col-md-4"><strong>Structure</strong><div>{{ agent.unit }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Statut</strong><div>{{ agent.status || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Manager</strong><div>{{ agent.manager || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Type pièce</strong><div>{{ agent.identity.identityType || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>N° pièce</strong><div>{{ agent.identity.identityNumber || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Date naissance</strong><div>{{ agent.identity.birthDate || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Lieu naissance</strong><div>{{ agent.identity.birthPlace || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Nationalité</strong><div>{{ agent.identity.nationality || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Date recrutement</strong><div>{{ agent.administrative.hireDate || '—' }}</div></div>
+                      <div class="col-md-4 mt-3"><strong>Contrat</strong><div>{{ agent.administrative.contractType || '—' }}</div></div>
+                      <div class="col-md-6 mt-3"><strong>Adresse</strong><div>{{ agent.administrative.address || '—' }}</div></div>
+                      <div class="col-md-3 mt-3"><strong>Urgence</strong><div>{{ agent.administrative.emergencyContactName || '—' }}</div></div>
+                      <div class="col-md-3 mt-3"><strong>Tél urgence</strong><div>{{ agent.administrative.emergencyContactPhone || '—' }}</div></div>
+                    </div>
+                  } @else {
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Statut</label>
+                        <select class="form-select" formControlName="status">
+                          <option value="Actif">Actif</option>
+                          <option value="En absence">En absence</option>
+                          <option value="Inactif">Inactif</option>
+                          <option value="Brouillon">Brouillon</option>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Type pièce</label>
+                        <input type="text" class="form-control" formControlName="identityType" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">N° pièce</label>
+                        <input type="text" class="form-control" formControlName="identityNumber" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Date naissance</label>
+                        <input type="date" class="form-control" formControlName="birthDate" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Lieu naissance</label>
+                        <input type="text" class="form-control" formControlName="birthPlace" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Nationalité</label>
+                        <input type="text" class="form-control" formControlName="nationality" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Date recrutement</label>
+                        <input type="date" class="form-control" formControlName="hireDate" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Contrat</label>
+                        <input type="text" class="form-control" formControlName="contractType" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Contact urgence (nom)</label>
+                        <input type="text" class="form-control" formControlName="emergencyContactName" />
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Téléphone urgence</label>
+                        <input type="text" class="form-control" formControlName="emergencyContactPhone" />
+                        @if (fieldError('emergencyContactPhone'); as error) {
+                          <div class="text-danger fs-11 mt-1">{{ error }}</div>
+                        }
+                      </div>
+                      <div class="col-md-8">
+                        <label class="form-label">Adresse</label>
+                        <input type="text" class="form-control" formControlName="address" />
+                      </div>
+                    </div>
+                  }
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem>
             <a ngbNavLink class="mb-2 mt-2">Diplômes</a>
             <ng-template ngbNavContent>
               <div class="p-4 table-responsive">
@@ -74,9 +238,94 @@
                 }
               </div>
             </ng-template>
-          </ng-container>
+            </ng-container>
 
-          <ng-container ngbNavItem>
+            <ng-container ngbNavItem>
+              <a ngbNavLink class="mb-2 mt-2">Qualité dossier</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                      <div class="fw-semibold">Indice de qualité</div>
+                      <div class="text-muted fs-12">
+                        {{ qualityReport.completedChecks }} contrôles validés sur {{ qualityReport.totalChecks }}
+                      </div>
+                    </div>
+                    <span class="badge bg-primary-transparent text-primary fs-13">
+                      {{ qualityReport.score }}%
+                    </span>
+                  </div>
+
+                  <div class="progress ht-8 mb-4">
+                    <div class="progress-bar bg-primary" [style.width.%]="qualityReport.score"></div>
+                  </div>
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <h6 class="mb-2 text-danger">Anomalies critiques</h6>
+                      @if (!qualityReport.criticalIssues.length) {
+                        <div class="text-success fs-12">Aucune anomalie critique détectée.</div>
+                      } @else {
+                        <ul class="mb-0 ps-3">
+                          @for (item of qualityReport.criticalIssues; track item) {
+                            <li class="mb-1 fs-12">{{ item }}</li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                    <div class="col-md-6">
+                      <h6 class="mb-2 text-warning">Points de vigilance</h6>
+                      @if (!qualityReport.warnings.length) {
+                        <div class="text-success fs-12">Aucun point de vigilance.</div>
+                      } @else {
+                        <ul class="mb-0 ps-3">
+                          @for (item of qualityReport.warnings; track item) {
+                            <li class="mb-1 fs-12">{{ item }}</li>
+                          }
+                        </ul>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem>
+              <a ngbNavLink class="mb-2 mt-2">Affectations</a>
+              <ng-template ngbNavContent>
+                <div class="p-4 table-responsive">
+                  @if (loadingContext) {
+                    <div class="text-muted fs-12 mb-2">Chargement de l’historique...</div>
+                  }
+                  <spk-reusable-tables
+                    [tableClass]="'table text-nowrap'"
+                    [columns]="[
+                      { header: 'Référence' },
+                      { header: 'Source' },
+                      { header: 'Cible' },
+                      { header: 'Date effective' },
+                      { header: 'Statut' }
+                    ]"
+                    [data]="affectations"
+                  >
+                    @for (item of affectations; track item.reference) {
+                      <tr>
+                        <td>{{ item.reference }}</td>
+                        <td>{{ item.fromUnit }}</td>
+                        <td>{{ item.toUnit }}</td>
+                        <td>{{ item.effectiveDate }}</td>
+                        <td>{{ item.status }}</td>
+                      </tr>
+                    }
+                  </spk-reusable-tables>
+                  @if (!affectations.length && !loadingContext) {
+                    <div class="text-muted fs-12 mt-2">Aucune affectation rattachée à cet agent.</div>
+                  }
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem>
             <a ngbNavLink class="mb-2 mt-2">Carrière</a>
             <ng-template ngbNavContent>
               <div class="p-4">
@@ -89,9 +338,86 @@
                 }
               </div>
             </ng-template>
-          </ng-container>
+            </ng-container>
 
-          <ng-container ngbNavItem>
+            <ng-container ngbNavItem>
+              <a ngbNavLink class="mb-2 mt-2">Chronologie 360</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  @if (loadingContext) {
+                    <div class="text-muted fs-12 mb-2">Chargement de la chronologie...</div>
+                  }
+                  @if (!timeline360.length && !loadingContext) {
+                    <div class="text-muted fs-12">Aucun événement consolidé disponible.</div>
+                  } @else {
+                    @for (item of timeline360; track item.type + '-' + item.date + '-' + item.title) {
+                      <div class="border-bottom pb-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                          <div class="fw-semibold">{{ item.title }}</div>
+                          <span class="badge bg-light text-dark">{{ item.type }}</span>
+                        </div>
+                        <div class="text-muted">{{ item.description }}</div>
+                        <small class="text-muted">{{ item.date }} - {{ item.status }}</small>
+                      </div>
+                    }
+                  }
+                </div>
+            </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem>
+              <a ngbNavLink class="mb-2 mt-2">Historique modifs</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  @if (loadingAuditTrail) {
+                    <div class="text-muted fs-12 mb-2">Chargement de l’historique des modifications...</div>
+                  }
+                  @if (!auditTrail.length && !loadingAuditTrail) {
+                    <div class="text-muted fs-12">Aucune modification journalisée pour cet agent.</div>
+                  } @else {
+                    @for (event of auditTrail; track event.reference) {
+                      <div class="border rounded p-3 mb-3">
+                        <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap mb-2">
+                          <div>
+                            <div class="fw-semibold">{{ event.reference }}</div>
+                            <div class="text-muted fs-12">{{ event.changedAt }} par {{ event.changedBy }}</div>
+                          </div>
+                          <span class="badge" [ngClass]="auditSourceBadgeClass(event.source)">
+                            {{ auditSourceLabel(event.source) }}
+                          </span>
+                        </div>
+                        <div class="mb-2">
+                          <span class="text-muted fs-12">Motif: </span>
+                          <span class="fw-medium fs-12">{{ event.reason || 'mise_a_jour_fiche' }}</span>
+                        </div>
+                        <div class="table-responsive">
+                          <table class="table table-sm text-nowrap mb-0">
+                            <thead>
+                              <tr>
+                                <th>Champ</th>
+                                <th>Avant</th>
+                                <th>Après</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (change of event.changes; track change.field + '-' + change.before + '-' + change.after) {
+                                <tr>
+                                  <td>{{ change.label || change.field }}</td>
+                                  <td>{{ change.before || '—' }}</td>
+                                  <td>{{ change.after || '—' }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem>
             <a ngbNavLink class="mb-2 mt-2">Documents</a>
             <ng-template ngbNavContent>
               <div class="p-4 table-responsive">
@@ -136,10 +462,11 @@
                 </spk-reusable-tables>
               </div>
             </ng-template>
-          </ng-container>
-        </nav>
-        <div class="border-top-0" [ngbNavOutlet]="nav"></div>
-      </div>
+            </ng-container>
+          </nav>
+          <div class="border-top-0" [ngbNavOutlet]="nav"></div>
+        </div>
+      </form>
     </div>
   </div>
 </div>

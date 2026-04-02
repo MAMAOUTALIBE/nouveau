@@ -19,6 +19,10 @@ export class Sidebar {
   public menuItems!: Menu[];
   public menuitemsSubscribe$!: Subscription;
 
+  get homePath(): string {
+    return this.navServices.getDefaultPath();
+  }
+
   clearNavDropdown() {
     this.menuItems?.forEach((a: any) => {
       a.active = false;

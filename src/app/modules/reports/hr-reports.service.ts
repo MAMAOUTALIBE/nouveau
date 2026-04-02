@@ -335,12 +335,20 @@ function isOpenLeaveRequest(request: LeaveRequest, nowTs: number): boolean {
 
 function isRecruitmentPipelineStatus(status: string): boolean {
   const normalized = normalizeText(status);
-  if (normalized.includes('rejete') || normalized.includes('annule') || normalized.includes('cloture')) {
+  if (
+    normalized.includes('rejete') ||
+    normalized.includes('annule') ||
+    normalized.includes('cloture') ||
+    normalized.includes('retenu') ||
+    normalized.includes('accepte')
+  ) {
     return false;
   }
   return (
+    normalized.includes('nouveau') ||
     normalized.includes('attente') ||
     normalized.includes('cours') ||
+    normalized.includes('shortlist') ||
     normalized.includes('preselection') ||
     normalized.includes('entretien') ||
     normalized.includes('validation')

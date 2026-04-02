@@ -1,520 +1,733 @@
-import { Component, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { SpkApexcharts } from '../../../@spk/charts/spk-apexcharts/spk-apexcharts';
-import { SpkReusableTables } from "../../../@spk/tables/spk-reusable-tables/spk-reusable-tables/spk-reusable-tables";
-import { SpkDropdowns } from "../../../@spk/reusable-ui-elements/spk-dropdowns/spk-dropdowns";
+import {
+  DashboardPendingRequest,
+  DashboardService,
+  DashboardSummary,
+} from '../../../modules/dashboard/services/dashboard.service';
+import { LeaveRequest, LeaveService } from '../../../modules/leave/leave.service';
+import {
+  AgentListItem,
+  PersonnelAffectation,
+  PersonnelDossier,
+  PersonnelService,
+} from '../../../modules/personnel/personnel.service';
+import {
+  Application,
+  OnboardingItem,
+  RecruitmentService,
+} from '../../../modules/recruitment/recruitment.service';
+import { OrganizationService, VacantPosition } from '../../../modules/organization/organization.service';
+import { AuthService } from '../../../shared/services/auth.service';
 
+interface Dashboard2MetricCard {
+  title: string;
+  value: string;
+  badge: string;
+  badgeClass: string;
+  icon: string;
+  iconBg: string;
+}
+
+interface Dashboard2TimelineItem {
+  name: string;
+  description: string;
+  date: string;
+  iconClass: string;
+  iconState: string;
+}
+
+interface Dashboard2StatusItem {
+  label: string;
+  value: string;
+  percentage: string;
+  trendIcon: string;
+  trendColor: string;
+  progressBarColor: string;
+  progressWidth: string;
+}
+
+interface Dashboard2TaskItem {
+  label: string;
+  checked: boolean;
+  badgeText?: string;
+  badgeColor?: string;
+}
+
+interface Dashboard2FlowItem {
+  name: string;
+  date: string;
+  status: string;
+  amount: string;
+  amountClass: string;
+  bgClass: string;
+  textClass: string;
+  icon: string;
+}
 
 @Component({
   selector: 'app-dashboard-2',
-  imports: [NgApexchartsModule, SpkApexcharts, SpkReusableTables, SpkDropdowns],
+  imports: [CommonModule, RouterLink, NgApexchartsModule, SpkApexcharts],
   templateUrl: './dashboard-2.html',
-  styleUrl: './dashboard-2.scss'
+  styleUrl: './dashboard-2.scss',
 })
-export class Dashboard2 {
-  SalesActivity: ApexOptions = {
-    series: [{
-      name: "Sales",
-      data: [32, 15, 63, 51, 136, 62, 99, 42, 178, 76, 32, 180]
-    }],
-    chart: {
-      height: 260,
-      type: 'line',
-      zoom: {
-        enabled: false
-      },
-      dropShadow: {
-        enabled: true,
-        enabledOnSeries: undefined,
-        top: 5,
-        left: 0,
-        blur: 3,
-        color: '#000',
-        opacity: 0.1
-      },
-    },
-    dataLabels: {
-      enabled: false
-    },
-    legend: {
-      position: "top",
-      horizontalAlign: "left",
-      offsetX: -15,
-      fontWeight: "bold",
-    },
-    stroke: {
-      curve: 'smooth',
+export class Dashboard2 implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly personnelService = inject(PersonnelService);
+  private readonly leaveService = inject(LeaveService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly recruitmentService = inject(RecruitmentService);
 
-    },
-    grid: {
-      borderColor: '#f2f6f7',
-    },
-    colors: ["var(--primary-color)"],
-    yaxis: {
-      title: {
-        text: 'Growth',
-        style: {
-          color: '#adb5be',
-          fontSize: '14px',
-          fontFamily: 'poppins, sans-serif',
-          fontWeight: 600,
-          cssClass: 'apexcharts-yaxis-label',
-        },
-      },
-      labels: {
-                offsetX: 10,
-        formatter: function (y: Number) {
-          return y.toFixed(0) + "";
-        }
-      }
-    },
-    xaxis: {
-      type: 'category',
-      categories: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-      axisBorder: {
-        show: true,
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0,
-      },
-      axisTicks: {
-        show: true,
-        borderType: 'solid',
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0
-      },
-      labels: {
-        rotate: -90
-      }
-    }
-  }
-  weeklyBudget: ApexOptions = {
-    series: [{
-      name: 'This Week',
-      data: [44, 42, 57, 86, 58, 55, 70],
-    }, {
-      name: 'Last Week',
-      data: [-34, -22, -37, -56, -21, -35, -60],
-    }],
-    chart: {
-      stacked: true,
-      type: 'bar',
-      height: 280,
-    },
-    grid: {
-      borderColor: '#f2f6f7',
-    },
-    colors: ["var(--primary-color)", "#e4e7ed"],
-    plotOptions: {
-      bar: {
-        borderRadius: 5,
-        colors: {
-          ranges: [{
-            from: -100,
-            to: -46,
-            color: '#ebeff5'
-          }, {
-            from: -45,
-            to: 0,
-            color: '#ebeff5'
-          }]
-        },
-        columnWidth: '25%',
-        borderRadiusApplication: 'end',
-        borderRadiusWhenStacked: 'all'
-      }
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      show: true,
-      position: 'top',
-    },
-    yaxis: {
-      title: {
-        style: {
-          color: '#adb5be',
-          fontSize: '14px',
-          fontFamily: 'poppins, sans-serif',
-          fontWeight: 600,
-          cssClass: 'apexcharts-yaxis-label',
-        },
-      },
-      labels: {
-        formatter: function (y: number) {
-          return y.toFixed(0) + "";
-        }
-      }
-    },
-    xaxis: {
-      type: 'category',
-      categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'sat'],
-      axisBorder: {
-        show: true,
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0,
-      },
-      axisTicks: {
-        show: true,
-        borderType: 'solid',
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0
-      },
-      labels: {
-        rotate: -90
-      }
-    }
-  }
-  WeeklyVisitors: ApexOptions = {
-    series: [{
-      name: 'Male',
-      data: [51, 44, 55, 42, 58, 50, 62],
-    }, {
-      name: 'Female',
-      data: [56, 58, 38, 50, 64, 45, 55]
-    }],
-    chart: {
-      height: 260,
-      type: 'line',
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false
-      },
-      background: 'none',
+  loading = true;
+  errorMessage = '';
+  userDisplayName = 'Utilisateur';
 
-    },
-    fill: {
-      colors: ["#fff"]
-    },
-    grid: {
-      borderColor: '#f2f6f7',
-    },
-    colors: ["var(--primary-color)", "#e4e7ed"],
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'smooth',
-      width: 2
-    },
-    legend: {
-      show: true,
-      position: 'top',
-    },
-    xaxis: {
-      type: 'category',
-      categories: ["1", "2", "3", "4", "5", "6", "7"],
-      axisBorder: {
-        show: false,
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0,
-      },
-      axisTicks: {
-        show: false,
-        borderType: 'solid',
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0
-      },
-      labels: {
-        rotate: -90,
-      }
-    },
-    yaxis: {
-      show: false,
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      }
-    },
-    tooltip: {
-      x: {
-        format: 'dd/MM/yy HH:mm'
-      },
-    },
-  }
-  weeklyVisitors1: ApexOptions = {
-    series: [{
-      name: 'Male',
-      data: [51, 44, 55, 42, 58, 50, 62],
-    }, {
-      name: 'Female',
-      data: [56, 58, 38, 50, 64, 45, 55]
-    }],
-    chart: {
-      height: 260,
-      type: 'line',
-      toolbar: {
-        show: false,
-      },
-      zoom: {
-        enabled: false
-      },
-      background: 'none',
-    },
-    fill: {
-      colors: ["#fff"]
-    },
-    grid: {
-      borderColor: '#f2f6f7',
-    },
-    colors: ["var(--primary-color)", "#e4e7ed"],
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'straight',
-      width: 2
-    },
-    legend: {
-      show: true,
-      position: 'top',
-    },
-    xaxis: {
-      type: 'category',
-      categories: ["1", "2", "3", "4", "5", "6", "7"],
-      axisBorder: {
-        show: false,
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0,
-      },
-      axisTicks: {
-        show: false,
-        borderType: 'solid',
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0
-      },
-      labels: {
-        rotate: -90,
-      }
-    },
-    yaxis: {
-      show: false,
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      }
-    },
-    tooltip: {
-      x: {
-        format: 'dd/MM/yy HH:mm'
-      },
-    },
-  };
+  cards: Dashboard2MetricCard[] = [];
+  timelineEvents: Dashboard2TimelineItem[] = [];
+  workflowStatusItems: Dashboard2StatusItem[] = [];
+  checklistItems: Dashboard2TaskItem[] = [];
+  recentFlows: Dashboard2FlowItem[] = [];
+  recentAgents: AgentListItem[] = [];
+  queueRows = signal<DashboardPendingRequest[]>([]);
+  searchTerm = signal('');
 
-  userData = [
-    { avatar: './assets/images/faces/2.jpg', name: 'Samantha Melon', userId: '#1234', status: 'paid', textcolor: 'dark' },
-    { avatar: './assets/images/faces/1.jpg', name: 'Allie Grater', userId: '#1234', status: 'pending', textcolor: 'dark' },
-    { avatar: './assets/images/faces/5.jpg', name: 'Gabe Lackmen', userId: '#1234', status: 'pending', textcolor: 'dark' },
-    { avatar: './assets/images/faces/7.jpg', name: 'Manuel Labor', userId: '#1234', status: 'paid', textcolor: 'dark' },
-  ];
-
-  cardData = [
-    {
-      id: 1, title: "Today Orders",
-      value: '5,472',
-      icon: 'shopping-bag',
-      iconBg: 'primary',
-      sales: '0.11%',
-      Bgcolor: 'primary',
-      direction: 'up',
-      textcolor: "success",
-      customcardClass:''
-    },
-
-    {
-      id: 2,
-      title: "Today Earnings",
-      value: '$47,589',
-      icon: 'dollar-sign',
-      iconBg: 'warning',
-      sales: '0.23%',
-      Bgcolor: 'danger',
-      direction: 'up',
-      textcolor: "danger",
-      customcardClass:'custom-dashboard2'
-    },
-
-    {
-      id: 3, title: "Profit Gain",
-      value: '$8,943',
-      icon: 'external-link',
-      iconBg: 'secondary',
-      sales: '1.57%',
-      Bgcolor: 'success',
-      direction: 'up',
-      textcolor: "success",
-      customcardClass:''
-    },
-
-    {
-      id: 4, title: "Total Earnings",
-      value: '$57.12M',
-      icon: 'credit-card',
-      iconBg: 'info',
-      sales: '0.45%',
-      Bgcolor: 'success',
-      direction: 'up',
-      textcolor: "success",
-      customcardClass:''
-    },
-  ]
-
-  checkboxItems = [
-    { label: 'Accurate information at any given point.', checked: false, badgeText: 'Today', badgeColor: 'primary-transparent' },
-    { label: 'Sharing the information with clients or stakeholders.', checked: false, badgeText: 'Today', badgeColor: 'primary-transparent' },
-    { label: 'Hearing the information and responding. ', checked: false, badgeText: '22 hrs', badgeColor: 'primary-transparent' },
-    { label: 'Setting up and customizing your own sales.', checked: false, badgeText: '1 Day', badgeColor: 'light-transparent' },
-    { label: 'Complete 360° overview of sales information.', checked: true, badgeText: '2 Days', badgeColor: 'light-transparent' },
-    { label: 'New Admin Launched.', checked: true },
-  ];
-
-  countries = [
-    {
-      country: 'India',
-      value: '$32,879',
-      percentage: '65%',
-      trendIcon: 'fe fe-trending-down',
-      trendColor: 'text-danger',
-      progressBarColor: 'bg-primary',
-      progressWidth: '60%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-    {
-      country: 'Russia',
-      value: '$22,710',
-      percentage: '55%',
-      trendIcon: 'fe fe-trending-up',
-      trendColor: 'text-info',
-      progressBarColor: 'bg-info',
-      progressWidth: '50%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-    {
-      country: 'Canada',
-      value: '$56,291',
-      percentage: '69%',
-      trendIcon: 'fe fe-trending-down',
-      trendColor: 'text-danger',
-      progressBarColor: 'bg-secondary',
-      progressWidth: '80%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-    {
-      country: 'Brazil',
-      value: '$34,209',
-      percentage: '60%',
-      trendIcon: 'fe fe-trending-up',
-      trendColor: 'text-success',
-      progressBarColor: 'bg-warning',
-      progressWidth: '60%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-    {
-      country: 'United States',
-      value: '$45,870',
-      percentage: '86%',
-      trendIcon: 'fe fe-trending-up',
-      trendColor: 'text-success',
-      progressBarColor: 'bg-danger',
-      progressWidth: '80%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-    {
-      country: 'Germany',
-      value: '$67,357',
-      percentage: '73%',
-      trendIcon: 'fe fe-trending-up',
-      trendColor: 'text-success',
-      progressBarColor: 'bg-success',
-      progressWidth: '70%',
-      progreClass: 'progress-style',
-      progressStriped: ''
-    },
-  ];
-
-  timelineEvents = [
-    { iconClass: 'featured_icon1 danger', iconState: '', name: 'Anita Letterback', description: 'Lorem ipsum dolor tempor incididunt.', date: '11.43 pm' },
-    { iconClass: 'featured_icon1 success', iconState: '', name: 'Paddy O\'Furniture', description: 'Lorem ipsum dolor tempor incididunt.', date: '12.22 am' },
-    { iconClass: 'featured_icon1 primary', iconState: '', name: 'Olive Yew', description: 'Lorem ipsum dolor tempor incididunt.', date: '08.11 pm' },
-    { iconClass: 'featured_icon1 warning', iconState: '', name: 'Maureen Biologist', description: 'Lorem ipsum dolor tempor incididunt.', date: '9.45 pm' },
-    { iconClass: 'featured_icon1 teal', iconState: '', name: 'Peg Legge', description: 'Lorem ipsum dolor tempor incididunt.', date: '12.09 am' },
-    { iconClass: 'featured_icon1 info', iconState: '', name: 'Letterbac', description: 'Lorem ipsum dolor tempor incididunt.', date: '05.28 pm' },
-    { iconClass: 'featured_icon1 danger', iconState: '', name: 'Anita Letterback', description: 'Lorem ipsum dolor tempor incididunt.', date: '9.10 pm' }
-  ];
-
-  RecentTransactions = [
-    { name: 'montha.K', date: '24-08-2021', amount: '$256,347', status: 'Processing', icon: 'fe fe-chevrons-right', bgClass: 'bg-primary-transparent', textClass: 'text-primary', amountClass: 'text-success' },
-    { name: 'Allies Grater', date: '31-12-2021', amount: '$12,345', icon: 'fe fe-bookmark', bgClass: 'bg-secondary-transparent', textClass: 'text-secondary', amountClass: 'text-danger' },
-    { name: 'Gabel', date: '15-09-2021', amount: '$34,567', status: 'Processing', icon: 'fe fe-more-horizontal', bgClass: 'bg-info-transparent', textClass: 'text-info', amountClass: 'text-success' },
-    { name: 'Emmanuel', date: '30-11-2021', amount: '$16,746', status: 'Processing', icon: 'fe fe-chevrons-right', bgClass: 'bg-success-transparent', textClass: 'text-success', amountClass: 'text-danger' },
-    { name: 'Manuel Labor', date: '20-10-2021', amount: '$45,900', icon: 'fe fe-file-text', bgClass: 'bg-warning-transparent', textClass: 'text-warning', amountClass: 'text-success' }
-  ];
-  ProductSummary = {
-    colums: [
-      { tableHeadColumn: 'text-center', header: 'Purchase Date' },
-      { tableHeadColumn: '', header: 'Client Name' },
-      { tableHeadColumn: '', header: 'Product ID' },
-      { tableHeadColumn: '', header: 'Product' },
-      { tableHeadColumn: '', header: 'Product Cost' },
-      { tableHeadColumn: '', header: 'Payment Mode' },
-      { tableHeadColumn: '', header: 'Status' },
-    ],
-    rows: signal([
-
-      { id: '#01', customer: 'Sean Black', productCode: 'PRO12345', productName: 'Mi LED Smart TV 4A 80', price: '$14,500', paymentMode: 'Online Payment', status: 'Delivered', badgeClass: 'bg-success' },
-      { id: '#02', customer: 'Evan Rees', productCode: 'PRO8765', productName: 'Thomson R9 122cm (48 inch) Full HD LED TV', price: '$30,000', paymentMode: 'Cash on delivered', status: 'Add Cart', badgeClass: 'bg-primary' },
-      { id: '#03', customer: 'David Wallace', productCode: 'PRO54321', productName: 'Vu 80cm (32 inch) HD Ready LED TV', price: '$13,200', paymentMode: 'Online Payment', status: 'Pending', badgeClass: 'bg-orange' },
-      { id: '#04', customer: 'Julia Bower', productCode: 'PRO97654', productName: 'Micromax 81cm (32 inch) HD Ready LED TV', price: '$15,100', paymentMode: 'Cash on delivered', status: 'Delivering', badgeClass: 'bg-secondary' },
-      { id: '#05', customer: 'Kevin James', productCode: 'PRO4532', productName: 'HP 200 Mouse & Wireless Laptop Keyboard', price: '$5,987', paymentMode: 'Online Payment', status: 'Shipped', badgeClass: 'bg-danger' },
-      { id: '#06', customer: 'Theresa Wright', productCode: 'PRO6789', productName: 'Digisol DG-HR3400 Router', price: '$11,987', paymentMode: 'Cash on delivered', status: 'Delivering', badgeClass: 'bg-secondary' }, { id: '#07', customer: 'Sebastian Black', productCode: 'PRO4567', productName: 'Dell WM118 Wireless Optical Mouse', price: '$4,700', paymentMode: 'Online Payment', status: 'Add to Cart', badgeClass: 'bg-info' }, { id: '#08', customer: 'Kevin Glover', productCode: 'PRO32156', productName: 'Dell 16 inch Laptop Backpack', price: '$678', paymentMode: 'Cash On delivered', status: 'Delivered', badgeClass: 'bg-pink' }
-    ])
-  }
-  searchQuery = signal<string>('');
-
-  // 2. Compute filtered rows based on the signal
   filteredRows = computed(() => {
-    const query = this.searchQuery().toLowerCase();
-    const allRows = this.ProductSummary.rows(); // Call the signal here
+    const query = this.normalizeText(this.searchTerm());
+    if (!query) {
+      return this.queueRows();
+    }
 
-    if (!query) return allRows;
-
-    return allRows.filter(row =>
-      Object.values(row).some(value =>
-        String(value).toLowerCase().includes(query)
-      )
+    return this.queueRows().filter((row) =>
+      [row.reference, row.agent, row.type, row.unit, row.status]
+        .some((value) => this.normalizeText(value).includes(query))
     );
   });
 
-  // 3. Delete functionality
-  deleteOrder(id: string) { // Changed to string because your IDs are '#01', etc.
+  operationsTrendChart: ApexOptions = this.buildOperationsTrendChart([], [], []);
+  weeklyLoadChart: ApexOptions = this.buildWeeklyLoadChart([], [], []);
+  serviceMixChart: ApexOptions = this.buildServiceMixChart([0, 0, 0, 0]);
 
-      this.ProductSummary.rows.update(rows => rows.filter(row => row.id !== id));
-
+  ngOnInit(): void {
+    this.userDisplayName = this.resolveDisplayName(this.authService.currentUserName());
+    this.loadDashboard();
   }
 
-  onSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchQuery.set(value);
+  onSearch(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    this.searchTerm.set(String(target?.value || ''));
+  }
+
+  getStatusBadgeClass(status: string): string {
+    const normalized = this.normalizeText(status);
+    if (normalized.includes('attente') || normalized.includes('pending')) {
+      return 'bg-warning-transparent text-warning';
+    }
+    if (
+      normalized.includes('approuve') ||
+      normalized.includes('actif') ||
+      normalized.includes('termine') ||
+      normalized.includes('effectif') ||
+      normalized.includes('en cours')
+    ) {
+      return 'bg-success-transparent text-success';
+    }
+    if (normalized.includes('rejete') || normalized.includes('bloque')) {
+      return 'bg-danger-transparent text-danger';
+    }
+    return 'bg-info-transparent text-info';
+  }
+
+  getAgentInitials(fullName: string): string {
+    const normalized = String(fullName || '').trim();
+    if (!normalized) {
+      return '--';
+    }
+    return normalized
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || '')
+      .join('');
+  }
+
+  formatDateLabel(value: string): string {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return value || '-';
+    }
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(parsed);
+  }
+
+  private loadDashboard(): void {
+    const emptySummary: DashboardSummary = {
+      headcount: 0,
+      active: 0,
+      absences: 0,
+      vacancies: 0,
+    };
+
+    forkJoin({
+      summary: this.safeStream(this.dashboardService.getSummary(), emptySummary),
+      pendingRequests: this.safeStream(this.dashboardService.getPendingRequests(), [] as DashboardPendingRequest[]),
+      dossiers: this.safeStream(
+        this.personnelService.getDossiers({ limit: 120, sortBy: 'updatedAt', sortOrder: 'desc' }),
+        [] as PersonnelDossier[]
+      ),
+      affectations: this.safeStream(
+        this.personnelService.getAffectations({ limit: 120, sortBy: 'effectiveDate', sortOrder: 'desc' }),
+        [] as PersonnelAffectation[]
+      ),
+      leaveRequests: this.safeStream(
+        this.leaveService.getRequests({ limit: 200, sortBy: 'startDate', sortOrder: 'desc' }),
+        [] as LeaveRequest[]
+      ),
+      applications: this.safeStream(
+        this.recruitmentService.getApplications({ limit: 200, sortBy: 'receivedOn', sortOrder: 'desc' }),
+        [] as Application[]
+      ),
+      onboarding: this.safeStream(
+        this.recruitmentService.getOnboarding({ limit: 100, sortBy: 'startDate', sortOrder: 'desc' }),
+        [] as OnboardingItem[]
+      ),
+      agents: this.safeStream(
+        this.personnelService.getAgents({ limit: 8, sortBy: 'id', sortOrder: 'desc' }),
+        [] as AgentListItem[]
+      ),
+      vacancies: this.safeStream(
+        this.organizationService.getVacantPositions({ limit: 100, sortBy: 'openedOn', sortOrder: 'desc' }),
+        [] as VacantPosition[]
+      ),
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.cards = this.buildMetricCards(
+            result.summary,
+            result.pendingRequests,
+            result.dossiers,
+            result.onboarding,
+            result.vacancies
+          );
+          this.timelineEvents = this.buildTimelineEvents(
+            result.pendingRequests,
+            result.affectations,
+            result.onboarding,
+            result.applications
+          );
+          this.workflowStatusItems = this.buildWorkflowStatusItems(
+            result.pendingRequests,
+            result.dossiers,
+            result.affectations,
+            result.onboarding
+          );
+          this.checklistItems = this.buildChecklistItems(
+            result.pendingRequests,
+            result.leaveRequests,
+            result.onboarding,
+            result.vacancies
+          );
+          this.recentFlows = this.buildRecentFlows(
+            result.pendingRequests,
+            result.dossiers,
+            result.affectations,
+            result.onboarding
+          );
+          this.recentAgents = [...result.agents].slice(0, 6);
+          this.queueRows.set([...result.pendingRequests].slice(0, 12));
+          this.operationsTrendChart = this.buildOperationsTrendChart(
+            this.countByMonth(result.pendingRequests.map((item) => item.submittedAt)),
+            this.countByMonth(result.dossiers.map((item) => item.updatedAt)),
+            this.countByMonth(result.applications.map((item) => item.receivedOn))
+          );
+          this.weeklyLoadChart = this.buildWeeklyLoadChart(
+            this.countLastSevenDays(result.leaveRequests.map((item) => item.startDate)),
+            this.countLastSevenDays(result.affectations.map((item) => item.effectiveDate)),
+            this.countLastSevenDays(result.onboarding.map((item) => item.startDate))
+          );
+          this.serviceMixChart = this.buildServiceMixChart([
+            result.pendingRequests.length,
+            result.leaveRequests.length,
+            result.affectations.length,
+            result.onboarding.length,
+          ]);
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.errorMessage = 'Impossible de charger la vue operationnelle pour le moment.';
+        },
+      });
+  }
+
+  private buildMetricCards(
+    summary: DashboardSummary,
+    pendingRequests: DashboardPendingRequest[],
+    dossiers: PersonnelDossier[],
+    onboarding: OnboardingItem[],
+    vacancies: VacantPosition[]
+  ): Dashboard2MetricCard[] {
+    const onboardingInProgress = onboarding.filter((item) =>
+      this.normalizeText(item.status).includes('cours') || this.normalizeText(item.status).includes('planifie')
+    ).length;
+    const criticalVacancies = vacancies.filter((item) => this.normalizeText(item.priority).includes('haute')).length;
+
+    return [
+      {
+        title: 'Demandes a arbitrer',
+        value: this.formatNumber(pendingRequests.length),
+        badge: `${this.formatNumber(summary.absences)} absences en cours`,
+        badgeClass: 'bg-warning-transparent text-warning',
+        icon: 'clipboard',
+        iconBg: 'warning',
+      },
+      {
+        title: 'Dossiers admin',
+        value: this.formatNumber(dossiers.length),
+        badge: 'Flux dossiers a jour',
+        badgeClass: 'bg-primary-transparent text-primary',
+        icon: 'file-text',
+        iconBg: 'primary',
+      },
+      {
+        title: 'Integrations actives',
+        value: this.formatNumber(onboardingInProgress),
+        badge: `${this.formatNumber(onboarding.length)} parcours suivis`,
+        badgeClass: 'bg-success-transparent text-success',
+        icon: 'user-plus',
+        iconBg: 'success',
+      },
+      {
+        title: 'Postes critiques',
+        value: this.formatNumber(criticalVacancies),
+        badge: `${this.formatNumber(vacancies.length)} postes vacants`,
+        badgeClass: 'bg-danger-transparent text-danger',
+        icon: 'briefcase',
+        iconBg: 'danger',
+      },
+    ];
+  }
+
+  private buildTimelineEvents(
+    pendingRequests: DashboardPendingRequest[],
+    affectations: PersonnelAffectation[],
+    onboarding: OnboardingItem[],
+    applications: Application[]
+  ): Dashboard2TimelineItem[] {
+    const items = [
+      ...pendingRequests.map((item) => ({
+        name: item.type,
+        description: `${item.agent} - ${item.unit}`,
+        date: item.submittedAt,
+        iconClass: 'bg-warning-transparent text-warning timeline-badge',
+        iconState: 'clock',
+      })),
+      ...affectations.map((item) => ({
+        name: 'Affectation',
+        description: `${item.agent} : ${item.fromUnit} vers ${item.toUnit}`,
+        date: item.effectiveDate,
+        iconClass: 'bg-primary-transparent text-primary timeline-badge',
+        iconState: 'shuffle',
+      })),
+      ...onboarding.map((item) => ({
+        name: 'Integration',
+        description: `${item.agent} - ${item.position}`,
+        date: item.startDate,
+        iconClass: 'bg-success-transparent text-success timeline-badge',
+        iconState: 'check',
+      })),
+      ...applications.map((item) => ({
+        name: 'Candidature',
+        description: `${item.candidate} - ${item.position}`,
+        date: item.receivedOn,
+        iconClass: 'bg-info-transparent text-info timeline-badge',
+        iconState: 'user',
+      })),
+    ];
+
+    return items
+      .sort((left, right) => this.parseDate(right.date) - this.parseDate(left.date))
+      .slice(0, 6)
+      .map((item) => ({
+        ...item,
+        date: this.formatDateLabel(item.date),
+      }));
+  }
+
+  private buildWorkflowStatusItems(
+    pendingRequests: DashboardPendingRequest[],
+    dossiers: PersonnelDossier[],
+    affectations: PersonnelAffectation[],
+    onboarding: OnboardingItem[]
+  ): Dashboard2StatusItem[] {
+    const values = [
+      { label: 'Validation des demandes', count: pendingRequests.length, color: 'bg-warning', trendColor: 'text-warning', trendIcon: 'bx bx-time' },
+      { label: 'Mises a jour dossiers', count: dossiers.length, color: 'bg-primary', trendColor: 'text-primary', trendIcon: 'bx bx-folder' },
+      { label: 'Mobilites planifiees', count: affectations.length, color: 'bg-info', trendColor: 'text-info', trendIcon: 'bx bx-transfer' },
+      { label: 'Parcours integration', count: onboarding.length, color: 'bg-success', trendColor: 'text-success', trendIcon: 'bx bx-check-circle' },
+    ];
+    const total = values.reduce((sum, item) => sum + item.count, 0);
+
+    return values.map((item) => ({
+      label: item.label,
+      value: this.formatNumber(item.count),
+      percentage: `${Math.round(this.calculatePercent(item.count, total))}%`,
+      trendIcon: item.trendIcon,
+      trendColor: item.trendColor,
+      progressBarColor: item.color,
+      progressWidth: `${Math.max(8, Math.round(this.calculatePercent(item.count, total)))}%`,
+    }));
+  }
+
+  private buildChecklistItems(
+    pendingRequests: DashboardPendingRequest[],
+    leaveRequests: LeaveRequest[],
+    onboarding: OnboardingItem[],
+    vacancies: VacantPosition[]
+  ): Dashboard2TaskItem[] {
+    const approvedLeaves = leaveRequests.filter((item) =>
+      this.normalizeText(item.status).includes('approuve')
+    ).length;
+    const blockedOnboarding = onboarding.filter((item) =>
+      this.normalizeText(item.status).includes('bloque')
+    ).length;
+    const criticalVacancies = vacancies.filter((item) =>
+      this.normalizeText(item.priority).includes('haute')
+    ).length;
+
+    return [
+      {
+        label: `${this.formatNumber(pendingRequests.length)} validations manager a traiter`,
+        checked: pendingRequests.length === 0,
+        badgeText: "Aujourd'hui",
+        badgeColor: 'warning-transparent',
+      },
+      {
+        label: `${this.formatNumber(approvedLeaves)} demandes d'absence deja securisees`,
+        checked: approvedLeaves > 0,
+        badgeText: 'Cette semaine',
+        badgeColor: 'success-transparent',
+      },
+      {
+        label: `${this.formatNumber(blockedOnboarding)} integrations a debloquer`,
+        checked: blockedOnboarding === 0,
+        badgeText: 'RH + managers',
+        badgeColor: 'danger-transparent',
+      },
+      {
+        label: `${this.formatNumber(criticalVacancies)} postes critiques a publier`,
+        checked: criticalVacancies === 0,
+        badgeText: 'Priorite haute',
+        badgeColor: 'primary-transparent',
+      },
+    ];
+  }
+
+  private buildRecentFlows(
+    pendingRequests: DashboardPendingRequest[],
+    dossiers: PersonnelDossier[],
+    affectations: PersonnelAffectation[],
+    onboarding: OnboardingItem[]
+  ): Dashboard2FlowItem[] {
+    const items = [
+      ...pendingRequests.map((item) => ({
+        name: item.type,
+        date: item.submittedAt,
+        status: item.status,
+        amount: item.agent,
+        amountClass: 'text-dark',
+        bgClass: 'bg-warning-transparent',
+        textClass: 'text-warning',
+        icon: 'fe fe-clock',
+      })),
+      ...dossiers.map((item) => ({
+        name: item.type,
+        date: item.updatedAt,
+        status: item.status,
+        amount: item.agent,
+        amountClass: 'text-dark',
+        bgClass: 'bg-primary-transparent',
+        textClass: 'text-primary',
+        icon: 'fe fe-file-text',
+      })),
+      ...affectations.map((item) => ({
+        name: 'Affectation',
+        date: item.effectiveDate,
+        status: item.status,
+        amount: item.agent,
+        amountClass: 'text-dark',
+        bgClass: 'bg-info-transparent',
+        textClass: 'text-info',
+        icon: 'fe fe-repeat',
+      })),
+      ...onboarding.map((item) => ({
+        name: 'Integration',
+        date: item.startDate,
+        status: item.status,
+        amount: item.agent,
+        amountClass: 'text-dark',
+        bgClass: 'bg-success-transparent',
+        textClass: 'text-success',
+        icon: 'fe fe-user-plus',
+      })),
+    ];
+
+    return items
+      .sort((left, right) => this.parseDate(right.date) - this.parseDate(left.date))
+      .slice(0, 6)
+      .map((item) => ({
+        ...item,
+        date: this.formatDateLabel(item.date),
+      }));
+  }
+
+  private buildOperationsTrendChart(
+    pendingSeries: number[],
+    dossierSeries: number[],
+    applicationSeries: number[]
+  ): ApexOptions {
+    return {
+      series: [
+        { name: 'Demandes', data: pendingSeries },
+        { name: 'Dossiers', data: dossierSeries },
+        { name: 'Candidatures', data: applicationSeries },
+      ],
+      chart: {
+        height: 280,
+        type: 'line',
+        zoom: { enabled: false },
+        toolbar: { show: false },
+      },
+      dataLabels: { enabled: false },
+      stroke: { curve: 'smooth', width: 3 },
+      grid: { borderColor: '#f2f6f7' },
+      colors: ['var(--primary-color)', '#38cab3', '#f7b731'],
+      legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+      },
+      xaxis: {
+        categories: ['Jan', 'Fev', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aou', 'Sep', 'Oct', 'Nov', 'Dec'],
+        axisBorder: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+        axisTicks: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+      },
+      yaxis: {
+        title: {
+          text: 'Volume',
+          style: {
+            color: '#adb5be',
+            fontSize: '14px',
+            fontFamily: 'poppins, sans-serif',
+            fontWeight: 600,
+            cssClass: 'apexcharts-yaxis-label',
+          },
+        },
+        labels: {
+          formatter: (value: number) => value.toFixed(0),
+        },
+      },
+    };
+  }
+
+  private buildWeeklyLoadChart(
+    leaveSeries: number[],
+    affectationSeries: number[],
+    onboardingSeries: number[]
+  ): ApexOptions {
+    const labels = this.lastSevenDayLabels();
+    return {
+      series: [
+        { name: 'Absences', data: leaveSeries },
+        { name: 'Affectations', data: affectationSeries },
+        { name: 'Integrations', data: onboardingSeries },
+      ],
+      chart: {
+        height: 260,
+        type: 'bar',
+        stacked: true,
+        toolbar: { show: false },
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 5,
+          columnWidth: '28%',
+        },
+      },
+      dataLabels: { enabled: false },
+      colors: ['var(--primary-color)', '#38cab3', '#f7b731'],
+      grid: { borderColor: '#f2f6f7' },
+      legend: { position: 'top' },
+      xaxis: {
+        categories: labels,
+        axisBorder: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+        axisTicks: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+      },
+      yaxis: {
+        labels: {
+          formatter: (value: number) => value.toFixed(0),
+        },
+      },
+    };
+  }
+
+  private buildServiceMixChart(series: number[]): ApexOptions {
+    return {
+      series: [{ name: 'Flux', data: series }],
+      chart: {
+        height: 260,
+        type: 'bar',
+        toolbar: { show: false },
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 6,
+          columnWidth: '42%',
+          distributed: true,
+        },
+      },
+      dataLabels: { enabled: false },
+      legend: { show: false },
+      colors: ['#6259ca', '#38cab3', '#f7b731', '#f74f75'],
+      xaxis: {
+        categories: ['Demandes', 'Conges', 'Mobilites', 'Integration'],
+        axisBorder: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+        axisTicks: { show: true, color: 'rgba(119, 119, 142, 0.05)' },
+      },
+      yaxis: {
+        labels: {
+          formatter: (value: number) => value.toFixed(0),
+        },
+      },
+      grid: { borderColor: '#f2f6f7' },
+    };
+  }
+
+  private countByMonth(rawDates: string[]): number[] {
+    const currentYearCounts = new Array(12).fill(0);
+    const allYearCounts = new Array(12).fill(0);
+    const currentYear = new Date().getFullYear();
+
+    for (const rawDate of rawDates) {
+      const parsed = new Date(rawDate);
+      if (Number.isNaN(parsed.getTime())) {
+        continue;
+      }
+      allYearCounts[parsed.getMonth()] += 1;
+      if (parsed.getFullYear() === currentYear) {
+        currentYearCounts[parsed.getMonth()] += 1;
+      }
+    }
+
+    return currentYearCounts.some((value) => value > 0) ? currentYearCounts : allYearCounts;
+  }
+
+  private countLastSevenDays(rawDates: string[]): number[] {
+    const keys = this.lastSevenDayKeys();
+    const buckets = new Map<string, number>(keys.map((key) => [key, 0]));
+
+    for (const rawDate of rawDates) {
+      const parsed = new Date(rawDate);
+      if (Number.isNaN(parsed.getTime())) {
+        continue;
+      }
+      const key = this.toDateKey(parsed);
+      if (buckets.has(key)) {
+        buckets.set(key, (buckets.get(key) || 0) + 1);
+      }
+    }
+
+    return keys.map((key) => buckets.get(key) || 0);
+  }
+
+  private lastSevenDayLabels(): string[] {
+    const formatter = new Intl.DateTimeFormat('fr-FR', { weekday: 'short' });
+    const labels: string[] = [];
+    const today = new Date();
+
+    for (let index = 6; index >= 0; index -= 1) {
+      const current = new Date(today);
+      current.setDate(today.getDate() - index);
+      labels.push(formatter.format(current));
+    }
+
+    return labels;
+  }
+
+  private lastSevenDayKeys(): string[] {
+    const keys: string[] = [];
+    const today = new Date();
+
+    for (let index = 6; index >= 0; index -= 1) {
+      const current = new Date(today);
+      current.setDate(today.getDate() - index);
+      keys.push(this.toDateKey(current));
+    }
+
+    return keys;
+  }
+
+  private toDateKey(value: Date): string {
+    const year = value.getFullYear();
+    const month = `${value.getMonth() + 1}`.padStart(2, '0');
+    const day = `${value.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private resolveDisplayName(rawName: string | null): string {
+    const normalized = String(rawName || '').trim();
+    if (!normalized) {
+      return 'Utilisateur';
+    }
+
+    const fromEmail = normalized.includes('@') ? normalized.split('@')[0] : normalized;
+    if (this.normalizeText(fromEmail) === 'spruko') {
+      return 'DRH';
+    }
+
+    return fromEmail
+      .replace(/[._-]+/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter((part) => !!part)
+      .map((part) => part[0].toUpperCase() + part.slice(1).toLowerCase())
+      .join(' ');
+  }
+
+  private calculatePercent(numerator: number, denominator: number): number {
+    if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
+      return 0;
+    }
+    return (numerator / denominator) * 100;
+  }
+
+  private formatNumber(value: number): string {
+    return new Intl.NumberFormat('fr-FR').format(value || 0);
+  }
+
+  private normalizeText(value: string): string {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  private parseDate(value: string): number {
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  private safeStream<T>(stream: Observable<T>, fallback: T): Observable<T> {
+    return stream.pipe(catchError(() => of(fallback)));
   }
 }
-
-

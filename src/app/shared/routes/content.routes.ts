@@ -1,8 +1,23 @@
 import { Routes } from '@angular/router';
-import { APP_PERMISSIONS } from '../../core/security/access-control.service';
+import { APP_PERMISSIONS, APP_SCOPES } from '../../core/security/access-control.service';
 import { permissionMatchGuard } from '../../core/guards/permission.guard';
 
 export const content: Routes = [
+  {
+    path: 'dashboards/dashboard-1',
+    pathMatch: 'full',
+    redirectTo: 'dashboard',
+  },
+  {
+    path: 'dashboards/dashboard-2',
+    pathMatch: 'full',
+    redirectTo: 'dashboard/operations',
+  },
+  {
+    path: 'dashboards/dashboard-3',
+    pathMatch: 'full',
+    redirectTo: 'dashboard/pilotage',
+  },
   {
     path: 'dashboard',
     canMatch: [permissionMatchGuard],
@@ -92,8 +107,9 @@ export const content: Routes = [
     canMatch: [permissionMatchGuard],
     data: {
       requiredAnyPermissions: [APP_PERMISSIONS.portalAgent],
+      requiredAnyScopes: [APP_SCOPES.self, APP_SCOPES.global],
       parentTitle: 'Portails',
-      childTitle: 'Portail agent',
+      childTitle: 'Portail employe',
     },
     loadComponent: () =>
       import('../../modules/self-service/agent-portal').then((m) => m.AgentPortalPage),
@@ -103,6 +119,7 @@ export const content: Routes = [
     canMatch: [permissionMatchGuard],
     data: {
       requiredAnyPermissions: [APP_PERMISSIONS.portalManager],
+      requiredAnyScopes: [APP_SCOPES.team, APP_SCOPES.unit, APP_SCOPES.direction, APP_SCOPES.global],
       parentTitle: 'Portails',
       childTitle: 'Portail manager',
     },
@@ -112,7 +129,10 @@ export const content: Routes = [
   {
     path: 'administration',
     canMatch: [permissionMatchGuard],
-    data: { requiredAnyPermissions: [APP_PERMISSIONS.adminView] },
+    data: {
+      requiredAnyPermissions: [APP_PERMISSIONS.adminView],
+      requiredAnyScopes: [APP_SCOPES.global],
+    },
     loadChildren: () =>
       import('../../modules/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
@@ -125,6 +145,11 @@ export const content: Routes = [
       childTitle: 'Acces refuse',
     },
   },
-  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('../pages/home-redirect/home-redirect-page').then((m) => m.HomeRedirectPage),
+  },
 ];
 

@@ -1,11 +1,29 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { finalize } from 'rxjs';
-import { CreateAgentPayload, PersonnelService } from '../../personnel.service';
+import {
+  Subject,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  finalize,
+  startWith,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
+import {
+  AgentDuplicateIndexItem,
+  AgentMatriculeSuggestion,
+  CreatePersonnelMatriculeSuggestionAuditPayload,
+  PersonnelMatriculeSuggestionAuditItem,
+  CreateAgentPayload,
+  PersonnelService,
+} from '../../personnel.service';
+import { AccessControlService } from '../../../../core/security/access-control.service';
+import { AuthService } from '../../../../shared/services/auth.service';
 
 const MATRICULE_PATTERN = /^PRM-\d{4,8}$/;
 const PHONE_PATTERN = /^[+\d\s().-]{7,20}$/;
@@ -56,22 +74,47 @@ const REQUIRED_DOCUMENT_DEFINITIONS = [
   },
 ] as const;
 
+interface AgentDuplicateConflicts {
+  matricule: AgentDuplicateIndexItem | null;
+  email: AgentDuplicateIndexItem | null;
+  identityNumber: AgentDuplicateIndexItem | null;
+}
+
 @Component({
   selector: 'app-agent-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './agent-create.html',
 })
-export class AgentCreatePage {
+export class AgentCreatePage implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private personnelService = inject(PersonnelService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+  private accessControl = inject(AccessControlService);
+  private authService = inject(AuthService);
+  private destroy$ = new Subject<void>();
 
   submitting = false;
   uploadingFiles = 0;
   photoPreview = './assets/images/faces/profile.jpg';
   selectedPhotoFileName = '';
+  loadingDuplicateIndex = false;
+  duplicateIndex: AgentDuplicateIndexItem[] = [];
+  duplicateConflicts: AgentDuplicateConflicts = {
+    matricule: null,
+    email: null,
+    identityNumber: null,
+  };
+  duplicateMessages: string[] = [];
+  generatingMatricule = false;
+  suggestedMatricule = '';
+  matriculeSuggestionScope = '';
+  matriculeSuggestionMode: AgentMatriculeSuggestion['basedOn'] = 'Global';
+  matriculeLocked = false;
+  canUnlockMatricule = false;
+  loadingMatriculeAudit = false;
+  matriculeAuditItems: PersonnelMatriculeSuggestionAuditItem[] = [];
 
   form = this.fb.group({
     matricule: ['', [Validators.pattern(MATRICULE_PATTERN)]],
@@ -117,6 +160,19 @@ export class AgentCreatePage {
     educations: this.fb.array([this.createEducationGroup()]),
     additionalDocuments: this.fb.array([]),
   });
+
+  ngOnInit(): void {
+    this.setupLockPrivileges();
+    this.loadDuplicateIndex();
+    this.loadMatriculeAudit();
+    this.setupDuplicateChecks();
+    this.setupMatriculeSuggestionWatcher();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   get educations(): FormArray {
     return this.form.get('educations') as FormArray;
@@ -245,6 +301,27 @@ export class AgentCreatePage {
     return 'Valeur invalide';
   }
 
+  hasDuplicateConflicts(): boolean {
+    return !!(
+      this.duplicateConflicts.matricule ||
+      this.duplicateConflicts.email ||
+      this.duplicateConflicts.identityNumber
+    );
+  }
+
+  toggleMatriculeLock(): void {
+    if (!this.canUnlockMatricule) {
+      return;
+    }
+    this.matriculeLocked = !this.matriculeLocked;
+  }
+
+  generateMatricule(): void {
+    const current = String(this.form.value.matricule || '').trim();
+    const reason = current ? 'regeneration_manuelle' : 'generation_manuelle';
+    this.requestMatriculeSuggestion('force', true, reason);
+  }
+
   saveDraft(): void {
     this.submit(true);
   }
@@ -257,6 +334,15 @@ export class AgentCreatePage {
     if (this.uploadingFiles > 0) {
       this.toastr.warning('Veuillez attendre la fin des téléversements en cours', 'Agent', {
         timeOut: 3000,
+        positionClass: 'toast-top-right',
+      });
+      return;
+    }
+
+    const duplicateError = this.getDuplicateBlockingError();
+    if (duplicateError) {
+      this.toastr.error(duplicateError, 'Agent', {
+        timeOut: 3500,
         positionClass: 'toast-top-right',
       });
       return;
@@ -333,6 +419,262 @@ export class AgentCreatePage {
           });
         },
       });
+  }
+
+  private setupLockPrivileges(): void {
+    this.accessControl.state$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.canUnlockMatricule = this.accessControl.hasAnyRole(['super_admin']);
+      });
+  }
+
+  private loadMatriculeAudit(): void {
+    this.loadingMatriculeAudit = true;
+    this.personnelService
+      .getMatriculeSuggestionAudit({
+        page: 1,
+        limit: 8,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+      })
+      .pipe(
+        finalize(() => (this.loadingMatriculeAudit = false)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (items) => {
+          this.matriculeAuditItems = items || [];
+        },
+        error: () => {
+          this.matriculeAuditItems = [];
+        },
+      });
+  }
+
+  private loadDuplicateIndex(): void {
+    this.loadingDuplicateIndex = true;
+    this.personnelService
+      .getAgentDuplicateIndex()
+      .pipe(
+        finalize(() => (this.loadingDuplicateIndex = false)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (items) => {
+          this.duplicateIndex = items || [];
+          this.refreshDuplicateConflicts();
+        },
+        error: () => {
+          this.duplicateIndex = [];
+          this.refreshDuplicateConflicts();
+        },
+      });
+  }
+
+  private setupDuplicateChecks(): void {
+    const matriculeControl = this.form.get('matricule');
+    const emailControl = this.form.get('email');
+    const identityNumberControl = this.form.get('identityNumber');
+    if (!matriculeControl || !emailControl || !identityNumberControl) {
+      return;
+    }
+
+    combineLatest([
+      matriculeControl.valueChanges.pipe(startWith(matriculeControl.value || '')),
+      emailControl.valueChanges.pipe(startWith(emailControl.value || '')),
+      identityNumberControl.valueChanges.pipe(startWith(identityNumberControl.value || '')),
+    ])
+      .pipe(
+        debounceTime(200),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.refreshDuplicateConflicts();
+      });
+  }
+
+  private setupMatriculeSuggestionWatcher(): void {
+    const directionControl = this.form.get('direction');
+    const unitControl = this.form.get('unit');
+    if (!directionControl || !unitControl) {
+      return;
+    }
+
+    combineLatest([
+      directionControl.valueChanges.pipe(startWith(directionControl.value || '')),
+      unitControl.valueChanges.pipe(startWith(unitControl.value || '')),
+    ])
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(([leftDirection, leftUnit], [rightDirection, rightUnit]) => {
+          return (
+            String(leftDirection || '').trim() === String(rightDirection || '').trim() &&
+            String(leftUnit || '').trim() === String(rightUnit || '').trim()
+          );
+        }),
+        switchMap(() => this.fetchMatriculeSuggestion()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((suggestion) => {
+        this.applyMatriculeSuggestionState(suggestion, 'if-empty', false);
+      });
+  }
+
+  private requestMatriculeSuggestion(
+    applyMode: 'none' | 'if-empty' | 'force',
+    notifyUser: boolean,
+    reason?: string
+  ): void {
+    const previous = String(this.form.value.matricule || '').trim();
+    this.fetchMatriculeSuggestion()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((suggestion) => {
+        const applied = this.applyMatriculeSuggestionState(suggestion, applyMode, notifyUser);
+        if (applied && reason) {
+          this.recordMatriculeAudit(previous, suggestion, reason);
+        }
+      });
+  }
+
+  private fetchMatriculeSuggestion() {
+    const direction = String(this.form.value.direction || '').trim();
+    const unit = String(this.form.value.unit || '').trim();
+    this.generatingMatricule = true;
+    return this.personnelService
+      .getAgentMatriculeSuggestion({
+        direction: direction || undefined,
+        unit: unit || undefined,
+      })
+      .pipe(finalize(() => (this.generatingMatricule = false)));
+  }
+
+  private applyMatriculeSuggestionState(
+    suggestion: AgentMatriculeSuggestion,
+    applyMode: 'none' | 'if-empty' | 'force',
+    notifyUser: boolean
+  ): boolean {
+    this.suggestedMatricule = suggestion.matricule;
+    this.matriculeSuggestionScope = suggestion.scopeLabel;
+    this.matriculeSuggestionMode = suggestion.basedOn;
+
+    const current = String(this.form.value.matricule || '').trim();
+    const shouldApply =
+      applyMode === 'force' || (applyMode === 'if-empty' && !current);
+
+    if (shouldApply && this.suggestedMatricule) {
+      this.form.patchValue({ matricule: this.suggestedMatricule });
+      this.matriculeLocked = true;
+      this.refreshDuplicateConflicts();
+    }
+
+    if (notifyUser) {
+      this.toastr.info(
+        `Matricule suggéré: ${suggestion.matricule} (${suggestion.scopeLabel})`,
+        'Agent',
+        {
+          timeOut: 2600,
+          positionClass: 'toast-top-right',
+        }
+      );
+    }
+    return shouldApply && !!this.suggestedMatricule;
+  }
+
+  private recordMatriculeAudit(
+    previousMatricule: string,
+    suggestion: AgentMatriculeSuggestion,
+    reason: string
+  ): void {
+    const payload: CreatePersonnelMatriculeSuggestionAuditPayload = {
+      username: this.authService.currentUserName() || 'system',
+      previousMatricule: previousMatricule || '',
+      suggestedMatricule: suggestion.matricule,
+      direction: String(this.form.value.direction || '').trim(),
+      unit: String(this.form.value.unit || '').trim(),
+      scopeLabel: suggestion.scopeLabel,
+      basedOn: suggestion.basedOn,
+      reason,
+    };
+    this.personnelService
+      .createMatriculeSuggestionAudit(payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loadMatriculeAudit();
+        },
+        error: () => {
+          // Silent failure: audit persistence should not block agent creation flow.
+        },
+      });
+  }
+
+  private refreshDuplicateConflicts(): void {
+    const matricule = String(this.form.value.matricule || '').trim();
+    const email = String(this.form.value.email || '').trim();
+    const identityNumber = String(this.form.value.identityNumber || '').trim();
+
+    this.duplicateConflicts = {
+      matricule: this.findDuplicate('matricule', matricule),
+      email: this.findDuplicate('email', email),
+      identityNumber: this.findDuplicate('identityNumber', identityNumber),
+    };
+    this.duplicateMessages = this.buildDuplicateMessages(this.duplicateConflicts);
+  }
+
+  private findDuplicate(
+    field: 'matricule' | 'email' | 'identityNumber',
+    rawValue: string
+  ): AgentDuplicateIndexItem | null {
+    const normalizedValue = this.normalizeDuplicateKey(field, rawValue);
+    if (!normalizedValue) {
+      return null;
+    }
+
+    return (
+      this.duplicateIndex.find((item) => {
+        const candidateValue = this.normalizeDuplicateKey(field, String(item[field] || ''));
+        return !!candidateValue && candidateValue === normalizedValue;
+      }) || null
+    );
+  }
+
+  private normalizeDuplicateKey(field: 'matricule' | 'email' | 'identityNumber', value: string): string {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (!normalized) {
+      return '';
+    }
+
+    if (field === 'identityNumber') {
+      return normalized.replace(/[\s-]/g, '');
+    }
+
+    return normalized;
+  }
+
+  private buildDuplicateMessages(conflicts: AgentDuplicateConflicts): string[] {
+    const messages: string[] = [];
+    if (conflicts.matricule) {
+      messages.push(`Matricule déjà utilisé par ${this.resolveConflictOwner(conflicts.matricule)}`);
+    }
+    if (conflicts.email) {
+      messages.push(`Email déjà utilisé par ${this.resolveConflictOwner(conflicts.email)}`);
+    }
+    if (conflicts.identityNumber) {
+      messages.push(`Numéro de pièce déjà utilisé par ${this.resolveConflictOwner(conflicts.identityNumber)}`);
+    }
+    return messages;
+  }
+
+  private resolveConflictOwner(item: AgentDuplicateIndexItem): string {
+    return item.fullName || item.matricule || item.id;
+  }
+
+  private getDuplicateBlockingError(): string | null {
+    if (!this.hasDuplicateConflicts()) {
+      return null;
+    }
+    return `Doublon détecté: ${this.duplicateMessages.join(' | ')}`;
   }
 
   private createEducationGroup() {

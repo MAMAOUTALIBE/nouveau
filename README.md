@@ -1,71 +1,101 @@
-# NowaAngular21
+# RH-ADMIN
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+Application RH Angular 21 basée sur le dossier `Final`.
 
-## Development server
+## Prérequis
 
-To start a local development server, run:
+- Node.js `20.19.5` minimum ou `22.12.0+`
+- npm `10+`
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Le projet fournit un fichier `.nvmrc` :
 
 ```bash
-ng generate component component-name
+nvm use
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Démarrage local
+
+Frontend Angular :
 
 ```bash
-ng generate --help
+npm run start
 ```
 
-## Building
-
-To build the project run:
+API mock locale :
 
 ```bash
-ng build
+npm run start:api
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Le frontend utilise `proxy.conf.json` et relaie `/api/*` vers `http://localhost:8080` en développement.
 
-## Running unit tests
+## Vérifications qualité
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-Alternative command (used by CI):
-
-```bash
-npm run test:unit
-```
-
-Type checking:
+Typage :
 
 ```bash
 npm run typecheck
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Tests unitaires :
 
 ```bash
-ng e2e
+npm run test:unit
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Tests end-to-end :
 
-## Additional Resources
+```bash
+npm run test:e2e
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Build de production
+
+```bash
+npm run build
+```
+
+Les artefacts sont générés dans `dist/nowa-angular-21/`.
+
+Pour un déploiement sous sous-répertoire, fournissez explicitement le `base-href` :
+
+```bash
+npm run build -- --base-href=/mon/sous-chemin/
+```
+
+## Notes de déploiement
+
+- Le shell applicatif ne dépend plus de scripts Google Maps ni de polices Google chargées à l’exécution.
+- Le quality gate CI exécute `typecheck`, `test:unit` et `build`.
+- La route `/dashboard` pointe désormais vers la page métier `HrDashboardPage`.
+
+## Déploiement en ligne de test
+
+Le dépôt est prêt pour un déploiement simple sur Railway avec un seul service :
+
+- `npm run build` compile Angular dans `dist/nowa-angular-21/`
+- `npm run start:prod` lance `mock-backend/server.cjs`
+- le backend sert aussi le frontend compilé et les routes SPA (`/`, `/auth/login`, `/dashboard`, etc.)
+- la configuration Railway est versionnée dans `railway.json`
+
+Étapes minimales :
+
+```bash
+npm i -g @railway/cli
+railway login
+railway init
+railway up
+```
+
+Si vous déployez via GitHub :
+
+1. poussez la branche sur GitHub
+2. créez un projet Railway depuis le dépôt
+3. laissez Railway utiliser `railway.json`
+4. générez un domaine public depuis Railway
+
+Points d'attention :
+
+- l'application exposera le compte de test mock `spruko@admin.com / sprukoadmin`
+- les fichiers téléversés par le mock backend sont stockés localement sur le conteneur et peuvent disparaître lors d'un redéploiement
+- pour la production réelle, remplacez le mock backend et le stockage local des uploads

@@ -1,0 +1,22 @@
+.dashboard-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: var(--primary-005);
+  border: 1px solid var(--primary-02);
+}
+
+.timeline-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

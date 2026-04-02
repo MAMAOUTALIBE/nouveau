@@ -17,15 +17,8 @@ import { Switcher } from '../switcher/switcher';
 import { AppStateService } from '../../services/app-state.service';
 import { RightSidebar } from '../right-sidebar/right-sidebar';
 import { AuthService } from '../../services/auth.service';
+import { AccessControlService, AppRole } from '../../../core/security/access-control.service';
 import { Subject, filter, takeUntil } from 'rxjs';
-
-interface Item {
-  id: number;
-  name: string;
-  type: string;
-  title: string;
-  // Add other properties as needed
-}
 
 type CommandType = 'navigation' | 'action' | 'recent';
 
@@ -50,6 +43,7 @@ export class Header implements OnInit, OnDestroy {
   renderer = inject(Renderer2);
   NavServices = inject(NavService);
   authService = inject(AuthService);
+  private accessControl = inject(AccessControlService);
   private appStateService = inject(AppStateService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
@@ -61,7 +55,6 @@ export class Header implements OnInit, OnDestroy {
 
   private modalService = inject(NgbModal);
 
-  cartItemCount: number = 5;
   commandPaletteOpen = false;
   commandQuery = '';
   commandResults: CommandItem[] = [];
@@ -69,6 +62,10 @@ export class Header implements OnInit, OnDestroy {
   readonly commandHint = this.isMacPlatform() ? 'Cmd+K' : 'Ctrl+K';
 
   constructor() { }
+
+  get homePath(): string {
+    return this.NavServices.getDefaultPath();
+  }
 
   private offcanvasService = inject(NgbOffcanvas);
   toggleSwitcher() {
@@ -169,51 +166,30 @@ export class Header implements OnInit, OnDestroy {
       }
     }
   }
-
-  cartItems = [
-    { id: 'row1', imageUrl: './assets/images/ecommerce/19.jpg', name: 'Lence Camera', quantity: 1, price: 189.00 },
-    { id: 'row2', imageUrl: './assets/images/ecommerce/16.jpg', name: 'White Earbuds', quantity: 3, price: 59.00 },
-    { id: 'row3', imageUrl: './assets/images/ecommerce/12.jpg', name: 'Branded Black Headset', quantity: 2, price: 39.99 },
-    { id: 'row4', imageUrl: './assets/images/ecommerce/6.jpg', name: 'Glass Decor Item', quantity: 5, price: 5.99 },
-    { id: 'row5', imageUrl: './assets/images/ecommerce/4.jpg', name: 'Pink Teddy Bear', quantity: 1, price: 10.00 },
-  ];
-
   notifications = [
     {
       icon: 'far fa-folder-open text-fixed-white fs-18',
       bgClass: 'bg-pink',
-      title: 'New Files available',
-      timeAgo: '10 hours ago'
+      title: 'Dossiers administratifs à compléter',
+      timeAgo: 'Il y a 10 minutes',
     },
     {
       icon: 'fab fa-delicious text-fixed-white fs-18',
       bgClass: 'bg-purple',
-      title: 'Updates available',
-      timeAgo: '2 days ago'
+      title: 'Campagne de recrutement à valider',
+      timeAgo: 'Il y a 30 minutes',
     },
     {
       icon: 'fa fa-cart-plus text-fixed-white fs-18',
       bgClass: 'bg-success',
-      title: 'New order received',
-      timeAgo: '1 hour ago'
+      title: 'Nouvelle demande de congé soumise',
+      timeAgo: 'Il y a 1 heure',
     },
     {
       icon: 'far fa-envelope-open text-fixed-white fs-18',
       bgClass: 'bg-warning',
-      title: 'New review received',
-      timeAgo: '1 day ago'
-    },
-    {
-      icon: 'fab fa-wpforms text-fixed-white fs-18',
-      bgClass: 'bg-danger',
-      title: '22 verified registrations',
-      timeAgo: '2 hours ago'
-    },
-    {
-      icon: 'far fa-check-square text-fixed-white fs-18',
-      bgClass: 'bg-success',
-      title: 'Project approved',
-      timeAgo: '4 hours ago'
+      title: 'Rapport RH mensuel disponible',
+      timeAgo: 'Aujourd’hui',
     },
   ];
   notificationCount: number = this.notifications.length;
@@ -238,51 +214,13 @@ export class Header implements OnInit, OnDestroy {
     { code: 'ru', name: 'Russian', flagSrc: './assets/images/flags/russia_flag.jpg' },
   ];
 
-
-  apps = [
-    { name: 'Figma', iconSrc: './assets/images/apps/figma.png' },
-    { name: 'Power Point', iconSrc: './assets/images/apps/microsoft-powerpoint.png' },
-    { name: 'MS Word', iconSrc: './assets/images/apps/microsoft-word.png' },
-    { name: 'Calendar', iconSrc: './assets/images/apps/calender.png' },
-    { name: 'Sketch', iconSrc: './assets/images/apps/sketch.png' },
-    { name: 'Docs', iconSrc: './assets/images/apps/google-docs.png' },
-    { name: 'Google', iconSrc: './assets/images/apps/google.png' },
-    { name: 'Translate', iconSrc: './assets/images/apps/translate.png' },
-    { name: 'Sheets', iconSrc: './assets/images/apps/google-sheets.png' },
-  ];
-
-
-
-  activities = [
-    { initials: 'CH', bgClass: 'bg-primary', title: 'New Websites is Created', timeAgo: '30 mins ago' },
-    { initials: 'N', bgClass: 'bg-danger', title: 'Prepare For the Next Project', timeAgo: '2 hours ago' },
-    { initials: 'S', bgClass: 'bg-info', title: 'Decide the live Discussion', timeAgo: '3 hours ago' },
-    { initials: 'K', bgClass: 'bg-warning', title: 'Meeting at 3:00 pm', timeAgo: '4 hours ago' },
-    { initials: 'R', bgClass: 'bg-success', title: 'Prepare for Presentation', timeAgo: '1 days ago' },
-    { initials: 'MS', bgClass: 'bg-pink', title: 'Prepare for Presentation', timeAgo: '1 days ago' },
-    { initials: 'L', bgClass: 'bg-purple', title: 'Prepare for Presentation', timeAgo: '45 mintues ago' },
-    { initials: 'U', bgClass: 'bg-secondary', title: 'Prepare for Presentation', timeAgo: '2 days ago' },
-  ];
-
   SearchModal(SearchModal: TemplateRef<HTMLElement>) {
     this.modalService.open(SearchModal);
   }
   SearchHeader() {
     document.querySelector('.header-search')?.classList.toggle('searchdrop');
   }
-  isCartEmpty: boolean = false;
   isNotifyEmpty: boolean = false;
-
-  removeRow(rowId: string) {
-    const rowElement = document.getElementById(rowId);
-    if (rowElement) {
-      rowElement.remove();
-    }
-    this.cartItemCount--;
-    this.isCartEmpty = this.cartItemCount === 0;
-  }
-
-
 
   handleCardClick(event: MouseEvent) {
     // Prevent the click event from propagating to the container
@@ -297,6 +235,25 @@ export class Header implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
+  }
+
+  get currentUserDisplayName(): string {
+    const username = this.authService.currentUserName();
+    if (!username) {
+      return 'Utilisateur RH';
+    }
+
+    const localPart = username.split('@')[0] || username;
+    return localPart
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  }
+
+  get currentUserRoleLabel(): string {
+    const role = this.accessControl.snapshot().roles[0];
+    return this.roleLabel(role);
   }
 
   openModal(content: TemplateRef<HTMLElement>) {
@@ -728,6 +685,20 @@ export class Header implements OnInit, OnDestroy {
     return this.text, this.menuItems
   }
 
+  private roleLabel(role: AppRole | undefined): string {
+    switch (role) {
+      case 'super_admin':
+        return 'Super administrateur';
+      case 'hr_manager':
+        return 'Responsable RH';
+      case 'manager':
+        return 'Manager';
+      case 'agent':
+        return 'Agent';
+      default:
+        return 'Utilisateur RH';
+    }
+  }
 }
 
 

@@ -18,4 +18,10 @@ export const TRAINING_ROUTES: Routes = [
       import('./pages/training-catalog/training-catalog').then((m) => m.TrainingCatalogPage),
     data: { parentTitle: 'Pilotage', childTitle: 'Catalogue' },
   },
+  {
+    path: 'demandes',
+    loadComponent: () =>
+      import('./pages/training-requests/training-requests').then((m) => m.TrainingRequestsPage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Demandes' },
+  },
 ];

@@ -1,0 +1,183 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Demandes de formation</div>
+        <div class="btn-list">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !items.length"
+            (click)="exportRequests()">
+            Exporter
+          </button>
+          <button
+            type="button"
+            class="btn btn-light"
+            [disabled]="isLoading || isSessionsLoading || !!updatingReference"
+            (click)="refresh()">
+            {{ isLoading || isSessionsLoading ? 'Chargement...' : 'Rafraichir' }}
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div
+          class="alert alert-primary-transparent d-flex justify-content-between align-items-center mb-4"
+          *ngIf="hasActiveFilters">
+          <span>
+            Filtres actifs
+            <span *ngIf="filters.sessionCode"> | Session: {{ filters.sessionCode }}</span>
+            <span *ngIf="filters.status"> | Statut: {{ filters.status }}</span>
+            <span *ngIf="filters.q"> | Recherche: {{ filters.q }}</span>
+          </span>
+          <button type="button" class="btn btn-sm btn-light" (click)="resetFilters()">Effacer</button>
+        </div>
+
+        <form class="row g-3 mb-4" (ngSubmit)="applyFilters()">
+          <div class="col-lg-4">
+            <label class="form-label">Recherche</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="filters.q"
+              name="requests-search"
+              placeholder="Reference, agent, session..." />
+          </div>
+          <div class="col-lg-3">
+            <label class="form-label">Statut</label>
+            <select class="form-select" [(ngModel)]="filters.status" name="requests-status">
+              <option value="">Tous les statuts</option>
+              <option *ngFor="let status of statusOptions.slice(1)" [value]="status">{{ status }}</option>
+            </select>
+          </div>
+          <div class="col-lg-3">
+            <label class="form-label">Session</label>
+            <select class="form-select" [(ngModel)]="filters.sessionCode" name="requests-session">
+              <option value="">Toutes les sessions</option>
+              <option *ngFor="let session of sessionOptions" [value]="session.code">
+                {{ session.label }}
+              </option>
+            </select>
+            <div class="text-muted fs-11 mt-1" *ngIf="isSessionsLoading">Chargement des sessions...</div>
+          </div>
+          <div class="col-lg-2 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading">Filtrer</button>
+            <button type="button" class="btn btn-light w-100" [disabled]="isLoading" (click)="resetFilters()">
+              Reset
+            </button>
+          </div>
+        </form>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Total</div>
+              <div class="fs-20 fw-semibold">{{ totalRequests }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">En attente</div>
+              <div class="fs-20 fw-semibold text-warning">{{ pendingRequests }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Validees</div>
+              <div class="fs-20 fw-semibold text-success">{{ approvedRequests }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Rejetees</div>
+              <div class="fs-20 fw-semibold text-danger">{{ rejectedRequests }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Session</th>
+                <th>Agent</th>
+                <th>Motivation</th>
+                <th>Statut</th>
+                <th>Soumise le</th>
+                <th>Decision</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="8" class="text-center text-muted">Chargement des demandes de formation...</td>
+              </tr>
+              <tr *ngIf="!isLoading && !items.length">
+                <td colspan="8" class="text-center text-muted">Aucune demande de formation</td>
+              </tr>
+              <tr *ngFor="let request of items; trackBy: trackByReference">
+                <td>{{ request.reference }}</td>
+                <td>
+                  <div class="fw-semibold">{{ request.sessionCode }} - {{ request.sessionTitle }}</div>
+                  <div class="text-muted fs-11">
+                    {{ request.sessionDates || '-' }}
+                    <span *ngIf="request.sessionLocation"> | {{ request.sessionLocation }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="fw-semibold">{{ request.applicantName }}</div>
+                  <div class="text-muted fs-11">{{ request.applicantUsername || '-' }}</div>
+                </td>
+                <td class="text-wrap" style="min-width: 260px;">{{ request.motivation }}</td>
+                <td>
+                  <span class="badge" [ngClass]="statusBadgeClass(request.status)">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td>{{ request.createdAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+                <td style="min-width: 240px;">
+                  <ng-container *ngIf="isPendingRequest(request) && canManage; else decisionDisplay">
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="decisionNotes[request.reference]"
+                      [name]="'decision-note-' + request.reference"
+                      placeholder="Optionnel si validation, obligatoire si rejet" />
+                  </ng-container>
+                  <ng-template #decisionDisplay>
+                    <div class="fw-semibold">{{ request.decidedBy || '-' }}</div>
+                    <div class="text-muted fs-11">{{ request.decisionComment || '-' }}</div>
+                  </ng-template>
+                </td>
+                <td style="min-width: 180px;">
+                  <div class="d-flex gap-2" *ngIf="isPendingRequest(request) && canManage; else readOnlyAction">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-success"
+                      (click)="approveRequest(request)"
+                      [disabled]="updatingReference === request.reference">
+                      Valider
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="rejectRequest(request)"
+                      [disabled]="updatingReference === request.reference">
+                      Rejeter
+                    </button>
+                  </div>
+                  <ng-template #readOnlyAction>
+                    <span class="text-muted fs-12">
+                      {{ isPendingRequest(request) ? 'Lecture seule' : 'Traitee' }}
+                    </span>
+                  </ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

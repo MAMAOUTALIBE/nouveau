@@ -4,7 +4,7 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Parcours d'intégration</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageRecruitment()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Planifier une arrivee' }}
           </button>
           <button type="button" class="btn btn-outline-primary">Exporter</button>
@@ -21,8 +21,16 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label">Poste</label>
-                <input type="text" class="form-control" formControlName="position" />
+                <input type="text" class="form-control" formControlName="position" (blur)="applyTemplateFromPosition(false)" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
+                <div class="text-muted fs-11 mt-1" *ngIf="detectedTemplateLabel">
+                  Template detecte: {{ detectedTemplateLabel }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Reference candidature source (optionnel)</label>
+                <input type="text" class="form-control" formControlName="applicationReference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('applicationReference') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Date de debut</label>
@@ -30,7 +38,12 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('startDate') as error">{{ error }}</div>
               </div>
               <div class="col-md-8">
-                <label class="form-label">Checklist (une etape par ligne, ou separee par ; ou ,)</label>
+                <div class="d-flex justify-content-between align-items-center">
+                  <label class="form-label mb-1">Checklist (une etape par ligne, ou separee par ; ou ,)</label>
+                  <button type="button" class="btn btn-sm btn-outline-info" (click)="applyTemplateFromPosition(true)" [disabled]="!canManageRecruitment()">
+                    Appliquer template poste
+                  </button>
+                </div>
                 <textarea
                   rows="3"
                   class="form-control"
@@ -39,6 +52,7 @@
                 ></textarea>
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('checklistText') as error">{{ error }}</div>
               </div>
+              <input type="hidden" formControlName="templateId" />
               <div class="col-md-4">
                 <label class="form-label">Statut</label>
                 <select class="form-select" formControlName="status">
@@ -51,11 +65,254 @@
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                <button type="submit" class="btn btn-primary" [disabled]="!canManageRecruitment() || submitting">
                   {{ submitting ? 'Enregistrement...' : 'Enregistrer le parcours' }}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Parcours 30 / 60 / 90 jours</h6>
+              <div class="text-muted fs-12">Jalons parametrables avec feedback manager et agent</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ milestones306090.length }} parcours</span>
+          </div>
+          <div class="card-body">
+            <form
+              class="row g-3 mb-3"
+              [formGroup]="milestoneFeedbackForm"
+              *ngIf="selectedMilestoneFeedbackReference"
+              (ngSubmit)="submitMilestoneFeedback()"
+            >
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Reference</label>
+                <input type="text" class="form-control" formControlName="applicationReference" />
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Jalon</label>
+                <select class="form-select" formControlName="day">
+                  <option [ngValue]="30">J+30</option>
+                  <option [ngValue]="60">J+60</option>
+                  <option [ngValue]="90">J+90</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Auteur</label>
+                <select class="form-select" formControlName="authorRole">
+                  <option value="manager">Manager</option>
+                  <option value="agent">Agent</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-6">
+                <label class="form-label">Score</label>
+                <input type="number" class="form-control" min="0" max="100" formControlName="score" />
+              </div>
+              <div class="col-xl-3 col-md-12">
+                <label class="form-label">Commentaire</label>
+                <input type="text" class="form-control" formControlName="comment" />
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light btn-sm" (click)="closeMilestoneFeedbackForm()" [disabled]="milestoneFeedbackSubmitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm" [disabled]="!canManageRecruitment() || milestoneFeedbackSubmitting">
+                  {{ milestoneFeedbackSubmitting ? 'Enregistrement...' : 'Enregistrer feedback' }}
+                </button>
+              </div>
+            </form>
+
+            <div class="table-responsive" *ngIf="milestones306090.length > 0; else emptyMilestonesState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Agent</th>
+                    <th>J+30</th>
+                    <th>J+60</th>
+                    <th>J+90</th>
+                    <th>Feedbacks</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of milestones306090 | slice:0:20">
+                    <td class="fw-semibold">{{ item.applicationReference }}</td>
+                    <td>{{ item.agent }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="milestoneStatusBadgeClass(item.milestones[0]?.status || 'A venir')">
+                        {{ item.milestones[0]?.status || 'A venir' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="milestoneStatusBadgeClass(item.milestones[1]?.status || 'A venir')">
+                        {{ item.milestones[1]?.status || 'A venir' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="milestoneStatusBadgeClass(item.milestones[2]?.status || 'A venir')">
+                        {{ item.milestones[2]?.status || 'A venir' }}
+                      </span>
+                    </td>
+                    <td>{{ feedbackCountOfMilestones(item) }}</td>
+                    <td class="text-end">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="openMilestoneFeedbackForm(item.applicationReference)"
+                        [disabled]="!canManageRecruitment()"
+                      >
+                        Ajouter feedback
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptyMilestonesState>
+              <div class="alert alert-light border mb-0">Aucun parcours 30/60/90 disponible.</div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-1">Score de reussite onboarding</h6>
+            <div class="text-muted fs-12">Completude, jalons et incidents avec seuils d'alerte configurables</div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Seuil alerte</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  min="50"
+                  max="95"
+                  [(ngModel)]="warningThreshold"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="updateSuccessThresholds()"
+                />
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Seuil critique</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  min="30"
+                  max="90"
+                  [(ngModel)]="criticalThreshold"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="updateSuccessThresholds()"
+                />
+              </div>
+              <div class="col-xl-6 col-md-12 d-flex align-items-end">
+                <div class="alert alert-light border mb-0 w-100">
+                  Seuil API: alerte {{ successThresholds.warning }} / critique {{ successThresholds.critical }}
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive mb-3" *ngIf="successScores.length > 0; else emptySuccessState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Agent</th>
+                    <th>Cohorte</th>
+                    <th>Completude</th>
+                    <th>Jalons</th>
+                    <th>Incidents</th>
+                    <th>Score</th>
+                    <th>Alerte</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let score of successScores | slice:0:20">
+                    <td class="fw-semibold">{{ score.applicationReference }}</td>
+                    <td>{{ score.agent }}</td>
+                    <td>{{ score.cohort }}</td>
+                    <td>{{ score.completionRate }}%</td>
+                    <td>{{ score.milestoneRate }}%</td>
+                    <td>{{ score.blockedIncidents }}</td>
+                    <td>{{ score.score }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="successAlertBadgeClass(computedSuccessAlert(score.score))">
+                        {{ computedSuccessAlert(score.score) }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptySuccessState>
+              <div class="alert alert-light border mb-0">Aucun score onboarding disponible.</div>
+            </ng-template>
+
+            <div class="table-responsive" *ngIf="cohortSuccessRows().length > 0">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Cohorte</th>
+                    <th>Population</th>
+                    <th>Score moyen</th>
+                    <th>Critiques</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of cohortSuccessRows()">
+                    <td class="fw-semibold">{{ row.cohort }}</td>
+                    <td>{{ row.total }}</td>
+                    <td>{{ row.avgScore | number: '1.0-1' }}</td>
+                    <td>{{ row.critical }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title mb-1">Synchronisation onboarding -> RH</h6>
+              <div class="text-muted fs-12">Creation dossier agent et affectation initiale avec tracabilite</div>
+            </div>
+            <span class="badge bg-primary-transparent">{{ syncLogs.length }} sync(s)</span>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive" *ngIf="syncLogs.length > 0; else emptySyncState">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Synchronise le</th>
+                    <th>Reference</th>
+                    <th>Agent</th>
+                    <th>Dossier</th>
+                    <th>Affectation</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let log of syncLogs | slice:0:20">
+                    <td>{{ log.syncedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    <td class="fw-semibold">{{ log.applicationReference }}</td>
+                    <td>{{ log.agent }}</td>
+                    <td>{{ log.dossierReference }}</td>
+                    <td>{{ log.affectationReference }}</td>
+                    <td>
+                      <span class="badge bg-success-transparent text-success">{{ log.status }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #emptySyncState>
+              <div class="alert alert-light border mb-0">Aucune synchronisation enregistree.</div>
+            </ng-template>
           </div>
         </div>
 
@@ -66,26 +323,107 @@
                 <div>
                   <div class="fw-semibold">{{ item.agent }}</div>
                   <div class="text-muted fs-12">{{ item.position }}</div>
+                  <div class="text-muted fs-12" *ngIf="item.templateId">
+                    Template: {{ item.templateId }}
+                  </div>
+                  <div class="text-muted fs-12" *ngIf="item.applicationReference">
+                    Source: {{ item.applicationReference }}
+                  </div>
+                  <div class="d-flex flex-wrap gap-2 mt-1" *ngIf="blockedTasksCountOf(item) > 0 || escalatedTasksCountOf(item) > 0">
+                    <span class="badge bg-danger-transparent text-danger" *ngIf="blockedTasksCountOf(item) > 0">
+                      {{ blockedTasksCountOf(item) }} blocage(s)
+                    </span>
+                    <span class="badge bg-warning-transparent text-warning" *ngIf="escalatedTasksCountOf(item) > 0">
+                      {{ escalatedTasksCountOf(item) }} escalade(s)
+                    </span>
+                  </div>
                 </div>
                 <span class="badge bg-primary-transparent">{{ item.startDate }}</span>
               </div>
               <div class="card-body">
+                <div class="mb-3" *ngIf="progressOf(item) as progress">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted fs-11 text-uppercase">Progression checklist</span>
+                    <span class="badge" [ngClass]="progressStatusBadgeClass(progress.status)">
+                      {{ progress.status }}
+                    </span>
+                  </div>
+                  <div class="progress progress-sm mt-2">
+                    <div class="progress-bar bg-primary" [style.width.%]="progress.completionRate"></div>
+                  </div>
+                  <div class="text-muted fs-12 mt-1">
+                    {{ progress.completed }}/{{ progress.total }} terminees -
+                    {{ progress.completionRate | number: '1.0-1' }}%
+                  </div>
+                  <div class="text-danger fs-12 mt-1" *ngIf="progress.blocked > 0">
+                    {{ progress.blocked }} tache(s) bloquee(s)
+                  </div>
+                </div>
+
                 <ul class="list-unstyled mb-0">
-                  <li *ngFor="let step of item.checklist" class="d-flex align-items-center mb-2">
-                    <i class="ri-check-line text-success me-2"></i> {{ step }}
+                  <li *ngFor="let step of checklistTasksOf(item)" class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <div class="pe-2">
+                      <div class="fw-semibold fs-13">{{ step.label }}</div>
+                      <div class="text-muted fs-12">Assigne a: {{ step.assignedTo }}</div>
+                      <div class="text-muted fs-12" *ngIf="step.dueDate">Echeance: {{ step.dueDate }}</div>
+                      <div class="text-danger fs-12" *ngIf="step.status === 'Bloquee' && step.blockedReason">
+                        Blocage: {{ step.blockedReason }}
+                      </div>
+                      <div class="text-danger fs-12" *ngIf="step.status === 'Bloquee' && step.blockedSince">
+                        Bloquee depuis: {{ step.blockedSince }}
+                      </div>
+                      <div class="fs-12 mt-1" *ngIf="step.escalation">
+                        <span class="badge bg-warning-transparent text-warning">
+                          Escalade {{ step.escalation.level }} ({{ step.escalation.target }})
+                        </span>
+                      </div>
+                    </div>
+                    <span class="badge" [ngClass]="taskStatusBadgeClass(step.status)">{{ step.status }}</span>
                   </li>
-                  <li *ngIf="!item.checklist.length" class="text-muted fs-12">
+                  <li *ngIf="!checklistTasksOf(item).length" class="text-muted fs-12">
                     Aucune etape definie
                   </li>
                 </ul>
+
+                <div class="mt-3" *ngIf="onboardingHistoryOf(item).length">
+                  <div class="text-muted fs-11 text-uppercase mb-2">Historique blocages et escalades</div>
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let event of onboardingHistoryOf(item) | slice:0:5" class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                      <div class="pe-2">
+                        <div class="fw-semibold fs-12">{{ event.taskLabel }}</div>
+                        <div class="text-muted fs-12">{{ event.detail }}</div>
+                        <div class="text-muted fs-11">{{ event.occurredAt }}</div>
+                      </div>
+                      <span class="badge" [ngClass]="historyTypeBadgeClass(event.type)">
+                        {{ event.type }}
+                      </span>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div class="card-footer">
-                <span
-                  class="badge"
-                  [ngClass]="item.status === 'Validé' || item.status === 'Valide' || item.status === 'Termine' ? 'bg-success-transparent' : 'bg-warning-transparent'"
-                >
-                  {{ item.status }}
-                </span>
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                  <span
+                    class="badge"
+                    [ngClass]="
+                      item.status === 'Validé' || item.status === 'Valide' || item.status === 'Termine'
+                        ? 'bg-success-transparent'
+                        : item.status === 'Bloque' || item.status === 'Bloquee'
+                          ? 'bg-danger-transparent'
+                          : 'bg-warning-transparent'
+                    "
+                  >
+                    {{ item.status }}
+                  </span>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="triggerOnboardingSync(item)"
+                    [disabled]="!canManageRecruitment() || !item.applicationReference || isSyncing(item.applicationReference)"
+                  >
+                    {{ isSyncing(item.applicationReference) ? 'Sync...' : 'Synchroniser RH' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

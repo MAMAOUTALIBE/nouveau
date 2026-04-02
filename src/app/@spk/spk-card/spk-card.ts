@@ -55,7 +55,6 @@ export class SpkCard {
 
   Closetoggle() {
     this.isClosed = true
-    console.log(this.isClosed)
   }
 
 

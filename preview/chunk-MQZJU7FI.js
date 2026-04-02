@@ -1,0 +1,1 @@
+import"./chunk-MG3ERZGY.js";var o=[{path:"",redirectTo:"rh",pathMatch:"full"},{path:"rh",loadComponent:()=>import("./chunk-6NH3CJKW.js").then(t=>t.HrReportsPage),data:{parentTitle:"Pilotage",childTitle:"Rapports"}}];export{o as REPORTS_ROUTES};

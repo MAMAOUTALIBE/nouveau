@@ -4,12 +4,14 @@ const pathModule = require('path');
 const { createHash } = require('crypto');
 const { URL } = require('url');
 
-const PORT = Number(process.env.MOCK_API_PORT || 8080);
-const HOST = process.env.MOCK_API_HOST || '0.0.0.0';
+const PORT = Number(process.env.PORT || process.env.MOCK_API_PORT || 8080);
+const HOST = process.env.HOST || process.env.MOCK_API_HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
 const ACCESS_TOKEN_TTL_MS = Number(process.env.MOCK_ACCESS_TOKEN_TTL_MS || 30 * 60 * 1000);
 const REFRESH_TOKEN_TTL_MS = Number(process.env.MOCK_REFRESH_TOKEN_TTL_MS || 24 * 60 * 60 * 1000);
 const MAX_UPLOAD_BYTES = Number(process.env.MOCK_MAX_UPLOAD_BYTES || 15 * 1024 * 1024);
 const PERSONNEL_UPLOAD_DIR = pathModule.join(__dirname, 'uploads');
+const FRONTEND_DIST_DIR = pathModule.join(__dirname, '..', 'dist', 'nowa-angular-21');
+const FRONTEND_INDEX_PATH = pathModule.join(FRONTEND_DIST_DIR, 'index.html');
 const ALLOWED_UPLOAD_EXTENSIONS = new Set(['.pdf', '.png', '.jpg', '.jpeg', '.webp']);
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf',
@@ -30,6 +32,22 @@ const UPLOAD_EXTENSION_BY_MIME = {
   'image/png': '.png',
   'image/jpeg': '.jpg',
   'image/webp': '.webp',
+};
+const STATIC_MIME_BY_EXTENSION = {
+  '.css': 'text/css; charset=utf-8',
+  '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
+  '.jpeg': 'image/jpeg',
+  '.jpg': 'image/jpeg',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.map': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
 };
 
 if (!fs.existsSync(PERSONNEL_UPLOAD_DIR)) {
@@ -228,7 +246,7 @@ const agents = [
     manager: 'Directeur RH',
     email: 'aminata.diallo@gouv.gn',
     phone: '+224 620000001',
-    photoUrl: './assets/images/faces/profile.jpg',
+    photoUrl: './assets/images/faces/5.jpg',
     careerEvents: [
       {
         title: 'Prise de fonction',
@@ -255,7 +273,7 @@ const agents = [
     manager: 'Aminata Diallo',
     email: 'mamadou.camara@gouv.gn',
     phone: '+224 620000002',
-    photoUrl: './assets/images/faces/profile.jpg',
+    photoUrl: './assets/images/faces/9.jpg',
     careerEvents: [],
     documents: [],
   },
@@ -309,6 +327,47 @@ const personnelAffectations = [
     toUnit: 'Direction des Ressources Humaines',
     effectiveDate: '2026-03-28',
     status: 'En cours',
+  },
+];
+
+const personnelMatriculeSuggestionAudit = [
+  {
+    reference: 'MAT-AUD-2026-001',
+    createdAt: '2026-03-29T21:40:00.000Z',
+    username: 'spruko@admin.com',
+    previousMatricule: 'PRM-0002',
+    suggestedMatricule: 'PRM-0003',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    scopeLabel: 'Direction des Ressources Humaines / Gestion administrative',
+    basedOn: 'Direction+Unite',
+    reason: 'regeneration_manuelle',
+  },
+];
+
+const personnelAgentAuditTrail = [
+  {
+    reference: 'AG-AUD-2026-0001',
+    agentId: 'PRM-0001',
+    agentLabel: 'Aminata Diallo',
+    changedAt: '2026-03-29T21:20:00.000Z',
+    changedBy: 'spruko@admin.com',
+    source: 'update',
+    reason: 'mise_a_jour_fiche',
+    changes: [
+      {
+        field: 'phone',
+        label: 'Telephone',
+        before: '+224 620000000',
+        after: '+224 620000001',
+      },
+      {
+        field: 'manager',
+        label: 'Manager',
+        before: 'Directeur RH Interim',
+        after: 'Directeur RH',
+      },
+    ],
   },
 ];
 
@@ -486,34 +545,150 @@ const recruitmentApplications = [
   {
     reference: 'APP-2026-001',
     candidate: 'Fatoumata Barry',
+    candidateEmail: 'fatoumata.barry@gmail.com',
+    candidatePhone: '+224622111001',
+    identityNumber: 'CNI-GN-00124578',
     position: 'Analyste Recrutement',
     campaign: 'CMP-RECRUT-Q2',
-    status: 'Shortlist',
+    source: 'Portail RH',
+    status: 'Preselection',
     receivedOn: '2026-03-12',
+    experienceYears: 4,
+    skillsMatch: 84,
+    educationLevel: 82,
+    interviewAverage: 76,
+    testScore: 79,
+    statusHistory: [
+      {
+        fromStatus: null,
+        toStatus: 'Nouveau',
+        changedAt: '2026-03-12T09:00:00.000Z',
+        changedBy: 'system',
+        note: 'Creation candidature',
+      },
+      {
+        fromStatus: 'Nouveau',
+        toStatus: 'Preselection',
+        changedAt: '2026-03-14T11:10:00.000Z',
+        changedBy: 'responsable.rh',
+        note: 'Profil retenu pour analyse approfondie',
+      },
+    ],
+    comments: [
+      {
+        id: 'COM-APP-2026-001-001',
+        author: 'responsable.rh',
+        message: 'Profil interessant pour entretien technique.',
+        createdAt: '2026-03-14T11:25:00.000Z',
+      },
+    ],
+    attachments: [],
   },
   {
     reference: 'APP-2026-002',
     candidate: 'Sekou Keita',
+    candidateEmail: 'sekou.keita@outlook.com',
+    candidatePhone: '+224622111002',
+    identityNumber: 'CNI-GN-00163544',
     position: 'Gestionnaire Paie',
     campaign: 'CMP-PAIE-Q2',
+    source: 'Jobboard',
     status: 'Entretien',
     receivedOn: '2026-03-10',
+    experienceYears: 7,
+    skillsMatch: 91,
+    educationLevel: 75,
+    interviewAverage: 83,
+    testScore: 88,
+    statusHistory: [
+      {
+        fromStatus: null,
+        toStatus: 'Nouveau',
+        changedAt: '2026-03-10T08:30:00.000Z',
+        changedBy: 'system',
+        note: 'Creation candidature',
+      },
+      {
+        fromStatus: 'Nouveau',
+        toStatus: 'Preselection',
+        changedAt: '2026-03-11T14:45:00.000Z',
+        changedBy: 'responsable.rh',
+      },
+      {
+        fromStatus: 'Preselection',
+        toStatus: 'Entretien',
+        changedAt: '2026-03-13T10:20:00.000Z',
+        changedBy: 'responsable.rh',
+      },
+    ],
+    comments: [
+      {
+        id: 'COM-APP-2026-002-001',
+        author: 'responsable.rh',
+        message: 'Entretien planifie avec le manager de service.',
+        createdAt: '2026-03-13T12:00:00.000Z',
+      },
+    ],
+    attachments: [],
   },
   {
     reference: 'APP-2026-003',
     candidate: 'Mariama Camara',
+    candidateEmail: 'mariama.camara@yahoo.fr',
+    candidatePhone: '+224622111003',
+    identityNumber: 'CNI-GN-00884110',
     position: 'Assistant RH',
     campaign: 'CMP-RH-Q1',
+    source: 'Cooptation',
     status: 'Rejete',
     receivedOn: '2026-03-05',
+    experienceYears: 2,
+    skillsMatch: 65,
+    educationLevel: 68,
+    interviewAverage: 0,
+    testScore: 60,
+    statusHistory: [
+      {
+        fromStatus: null,
+        toStatus: 'Nouveau',
+        changedAt: '2026-03-05T09:00:00.000Z',
+        changedBy: 'system',
+      },
+      {
+        fromStatus: 'Nouveau',
+        toStatus: 'Rejete',
+        changedAt: '2026-03-07T15:00:00.000Z',
+        changedBy: 'responsable.rh',
+        note: 'Candidature non alignée avec le poste',
+      },
+    ],
+    attachments: [],
   },
   {
     reference: 'APP-2026-004',
     candidate: 'Oumar Bah',
+    candidateEmail: 'oumar.bah@gmail.com',
+    candidatePhone: '+224622111004',
+    identityNumber: 'CNI-GN-00600219',
     position: 'Gestionnaire Paie',
     campaign: 'CMP-PAIE-Q2',
+    source: 'Cabinet',
     status: 'Nouveau',
     receivedOn: '2026-03-20',
+    experienceYears: 5,
+    skillsMatch: 73,
+    educationLevel: 80,
+    interviewAverage: 0,
+    testScore: 74,
+    statusHistory: [
+      {
+        fromStatus: null,
+        toStatus: 'Nouveau',
+        changedAt: '2026-03-20T09:00:00.000Z',
+        changedBy: 'system',
+      },
+    ],
+    attachments: [],
   },
 ];
 
@@ -525,6 +700,10 @@ const recruitmentCampaigns = [
     openings: 2,
     startDate: '2026-01-10',
     endDate: '2026-03-30',
+    needPosition: 'Assistant RH',
+    needQuota: 2,
+    needDeadline: '2026-03-20',
+    needOwner: 'responsable.rh',
     status: 'Cloturee',
   },
   {
@@ -534,6 +713,10 @@ const recruitmentCampaigns = [
     openings: 3,
     startDate: '2026-03-01',
     endDate: '2026-05-15',
+    needPosition: 'Gestionnaire Paie',
+    needQuota: 3,
+    needDeadline: '2026-05-01',
+    needOwner: 'manager.paie',
     status: 'Active',
   },
   {
@@ -543,6 +726,10 @@ const recruitmentCampaigns = [
     openings: 2,
     startDate: '2026-03-15',
     endDate: '2026-05-30',
+    needPosition: 'Analyste Recrutement',
+    needQuota: 2,
+    needDeadline: '2026-05-20',
+    needOwner: 'manager.recrutement',
     status: 'Active',
   },
 ];
@@ -551,9 +738,35 @@ const recruitmentOnboarding = [
   {
     agent: 'Aissatou Diallo',
     position: 'Analyste Recrutement',
-    startDate: '2026-04-02',
-    checklist: ['Contrat signe', 'Badge cree', 'Compte SI active'],
+    startDate: '2026-03-18',
+    checklistTasks: [
+      { label: 'Contrat signe', assignedTo: 'RH Admin', status: 'Termine', dueDate: '2026-03-18' },
+      {
+        label: 'Badge cree',
+        assignedTo: 'Services Generaux',
+        status: 'Bloquee',
+        dueDate: '2026-03-19',
+        blockedReason: 'Validation securite batiment en attente',
+        blockedSince: '2026-03-20',
+      },
+      { label: 'Compte SI active', assignedTo: 'IT Support', status: 'A faire', dueDate: '2026-03-20' },
+      {
+        label: 'Formation ATS et process recrutement',
+        assignedTo: 'Manager Recrutement',
+        status: 'A faire',
+        dueDate: '2026-03-21',
+      },
+    ],
+    history: [
+      {
+        type: 'Blocage',
+        taskLabel: 'Badge cree',
+        detail: 'Validation securite batiment en attente',
+        occurredAt: '2026-03-20',
+      },
+    ],
     status: 'En cours',
+    applicationReference: 'APP-2026-001',
   },
   {
     agent: 'Abdoulaye Camara',
@@ -570,6 +783,222 @@ const recruitmentOnboarding = [
     status: 'Termine',
   },
 ];
+
+const recruitmentOnboardingTemplates = [
+  {
+    id: 'ONB-TPL-REC-ANALYSTE',
+    label: 'Template Analyste Recrutement',
+    keywords: ['analyste recrutement', 'recrutement'],
+    tasks: [
+      { label: 'Contrat signe', assignedTo: 'RH Admin' },
+      { label: 'Badge cree', assignedTo: 'Services Generaux' },
+      { label: 'Compte SI active', assignedTo: 'IT Support' },
+      { label: 'Formation ATS et process recrutement', assignedTo: 'Manager Recrutement' },
+    ],
+  },
+  {
+    id: 'ONB-TPL-PAIE-GEST',
+    label: 'Template Gestionnaire Paie',
+    keywords: ['gestionnaire paie', 'paie'],
+    tasks: [
+      { label: 'Contrat signe', assignedTo: 'RH Admin' },
+      { label: 'Badge cree', assignedTo: 'Services Generaux' },
+      { label: 'Compte SI active', assignedTo: 'IT Support' },
+      { label: 'Acces outils paie valide', assignedTo: 'Manager Paie' },
+      { label: 'Formation procedure paie', assignedTo: 'Manager Paie' },
+    ],
+  },
+  {
+    id: 'ONB-TPL-RH-ASSIST',
+    label: 'Template Assistant RH',
+    keywords: ['assistant rh', 'rh'],
+    tasks: [
+      { label: 'Contrat signe', assignedTo: 'RH Admin' },
+      { label: 'Badge cree', assignedTo: 'Services Generaux' },
+      { label: 'Compte SI active', assignedTo: 'IT Support' },
+      { label: 'Formation dossiers personnel', assignedTo: 'Responsable RH' },
+    ],
+  },
+];
+
+const RECRUITMENT_ONBOARDING_ESCALATION_DELAY_DAYS = 2;
+const RECRUITMENT_ONBOARDING_ESCALATION_TARGET_BY_LEVEL = {
+  N1: 'Manager RH',
+  N2: 'Direction RH',
+  N3: 'Secretariat General',
+};
+
+const RECRUITMENT_NOTIFICATION_SLA_DAYS_BY_STATUS = {
+  Nouveau: 3,
+  Preselection: 4,
+  Entretien: 5,
+};
+const RECRUITMENT_NOTIFICATION_INTERVIEW_REMINDER_DAYS = 2;
+const RECRUITMENT_NOTIFICATION_VALIDATION_REMINDER_DAYS = 1;
+
+const recruitmentAuditLogs = [];
+const recruitmentDuplicateLinks = [];
+const recruitmentShortlistValidations = [];
+const RECRUITMENT_SHORTLIST_VALIDATION_LIMIT = 800;
+
+const recruitmentScoringPolicy = {
+  criteria: [
+    {
+      key: 'experienceYears',
+      label: 'Experience pertinente',
+      weight: 25,
+      maxYears: 10,
+    },
+    {
+      key: 'skillsMatch',
+      label: 'Adequation competences',
+      weight: 30,
+    },
+    {
+      key: 'educationLevel',
+      label: 'Niveau academique',
+      weight: 15,
+    },
+    {
+      key: 'interviewAverage',
+      label: 'Evaluation entretien',
+      weight: 20,
+    },
+    {
+      key: 'testScore',
+      label: 'Score test technique',
+      weight: 10,
+    },
+  ],
+  updatedAt: new Date().toISOString(),
+  updatedBy: 'system',
+};
+
+const recruitmentInterviewQuestionBank = [
+  {
+    id: 'IQB-ANALYSTE-RECRUTEMENT-V1',
+    position: 'Analyste Recrutement',
+    version: 1,
+    questions: [
+      'Comment structurez-vous un processus de sourcing pour un poste penurique ?',
+      'Quelle methode utilisez-vous pour evaluer l objectivite d un entretien ?',
+      'Donnez un exemple de KPI recrutement que vous avez fait progresser.',
+    ],
+    createdAt: '2026-03-14T09:00:00.000Z',
+    updatedAt: '2026-03-14T09:00:00.000Z',
+    createdBy: 'responsable.rh',
+  },
+  {
+    id: 'IQB-GESTIONNAIRE-PAIE-V1',
+    position: 'Gestionnaire Paie',
+    version: 1,
+    questions: [
+      'Expliquez votre methode de controle d un bulletin avant validation.',
+      'Comment traitez-vous une anomalie de cotisation detectee apres cloture ?',
+      'Quel est votre plan de secours si le cycle paie est bloque la veille de paie ?',
+    ],
+    createdAt: '2026-03-10T08:30:00.000Z',
+    updatedAt: '2026-03-10T08:30:00.000Z',
+    createdBy: 'manager.paie',
+  },
+];
+
+const recruitmentInterviewSchedules = [
+  {
+    id: 'INT-2026-001',
+    applicationReference: 'APP-2026-002',
+    candidate: 'Sekou Keita',
+    position: 'Gestionnaire Paie',
+    campaign: 'CMP-PAIE-Q2',
+    slotStart: '2026-04-03T09:00:00.000Z',
+    slotEnd: '2026-04-03T10:00:00.000Z',
+    interviewers: ['manager.paie', 'rh.operations'],
+    location: 'Salle RH 2',
+    status: 'Planifie',
+    history: [],
+    evaluations: [
+      {
+        interviewer: 'manager.paie',
+        technicalScore: 82,
+        communicationScore: 75,
+        cultureFitScore: 80,
+        recommendation: 'Go',
+        comment: 'Profil solide, besoin de renfort sur outils internes.',
+        submittedAt: '2026-04-03T11:10:00.000Z',
+      },
+    ],
+  },
+  {
+    id: 'INT-2026-002',
+    applicationReference: 'APP-2026-001',
+    candidate: 'Fatoumata Barry',
+    position: 'Analyste Recrutement',
+    campaign: 'CMP-RECRUT-Q2',
+    slotStart: '2026-04-04T14:00:00.000Z',
+    slotEnd: '2026-04-04T15:00:00.000Z',
+    interviewers: ['manager.recrutement', 'responsable.rh'],
+    location: 'Visio Teams',
+    status: 'Planifie',
+    history: [],
+    evaluations: [],
+  },
+];
+
+const recruitmentCampaignBudgets = [
+  {
+    campaignCode: 'CMP-PAIE-Q2',
+    budgetAmount: 120000000,
+    currency: 'GNF',
+    expensesAmount: 45000000,
+    lastUpdatedAt: '2026-03-28T10:00:00.000Z',
+    updatedBy: 'manager.paie',
+  },
+  {
+    campaignCode: 'CMP-RECRUT-Q2',
+    budgetAmount: 90000000,
+    currency: 'GNF',
+    expensesAmount: 32000000,
+    lastUpdatedAt: '2026-03-28T10:30:00.000Z',
+    updatedBy: 'manager.recrutement',
+  },
+];
+
+const recruitmentRuleEngineRules = [
+  {
+    id: 'REC-RULE-001',
+    name: 'Relance auto candidature en retard',
+    event: 'application_sla_breached',
+    condition: 'status in [Nouveau, Preselection]',
+    action: 'send_notification',
+    enabled: true,
+    createdAt: '2026-03-20T08:00:00.000Z',
+    updatedAt: '2026-03-20T08:00:00.000Z',
+    createdBy: 'responsable.rh',
+  },
+  {
+    id: 'REC-RULE-002',
+    name: 'Auto-planification entretien shortlist',
+    event: 'shortlist_validated',
+    condition: 'score >= 70',
+    action: 'create_interview_slot',
+    enabled: false,
+    createdAt: '2026-03-22T10:00:00.000Z',
+    updatedAt: '2026-03-22T10:00:00.000Z',
+    createdBy: 'responsable.rh',
+  },
+];
+
+const recruitmentRuleExecutions = [];
+const recruitmentOnboardingSyncLogs = [];
+const recruitmentOnboardingMilestoneFeedback = [];
+const recruitmentBiExportLogs = [];
+const recruitmentObservabilityEvents = [];
+
+const RECRUITMENT_PERF_THRESHOLDS = {
+  apiP95Ms: 900,
+  errorRatePercent: 1.5,
+  staleDataMinutes: 15,
+};
 
 const careerMovements = [
   {
@@ -688,6 +1117,54 @@ const trainingCatalog = [
   { code: 'CAT-001', title: 'Gestion RH moderne', duration: '5 jours', modality: 'Presentiel', domain: 'RH' },
   { code: 'CAT-002', title: 'Conduite du changement', duration: '3 jours', modality: 'Hybride', domain: 'Management' },
   { code: 'CAT-003', title: 'Analyse de donnees RH', duration: '4 jours', modality: 'Distanciel', domain: 'Data RH' },
+];
+
+const trainingEnrollmentRequests = [
+  {
+    reference: 'TRN-REQ-2026-001',
+    sessionCode: 'TRN-2026-001',
+    sessionTitle: 'Gestion avancee des conges',
+    sessionDates: '25/03/2026 - 27/03/2026',
+    sessionLocation: 'Conakry',
+    applicantName: 'Agent RH',
+    applicantUsername: 'agent.rh@gouv.gn',
+    motivation: 'Renforcer mes competences sur la gestion avancee des absences.',
+    status: 'Soumise',
+    createdAt: '2026-03-27T10:40:00.000Z',
+    decidedAt: '',
+    decidedBy: '',
+    decisionComment: '',
+  },
+  {
+    reference: 'TRN-REQ-2026-002',
+    sessionCode: 'TRN-2026-003',
+    sessionTitle: 'SIRH niveau expert',
+    sessionDates: '15/04/2026 - 19/04/2026',
+    sessionLocation: 'Kindia',
+    applicantName: 'Aminata Diallo',
+    applicantUsername: 'aminata.diallo@gouv.gn',
+    motivation: 'Accompagner le deploiement du SIRH dans la direction RH.',
+    status: 'Validee',
+    createdAt: '2026-03-23T14:12:00.000Z',
+    decidedAt: '2026-03-24T09:05:00.000Z',
+    decidedBy: 'Manager RH',
+    decisionComment: 'Priorite validee pour le plan de formation du trimestre.',
+  },
+  {
+    reference: 'TRN-REQ-2026-003',
+    sessionCode: 'TRN-2026-002',
+    sessionTitle: 'Pilotage KPI RH',
+    sessionDates: '02/04/2026 - 03/04/2026',
+    sessionLocation: 'Conakry',
+    applicantName: 'Mamadou Camara',
+    applicantUsername: 'mamadou.camara@gouv.gn',
+    motivation: 'Mieux analyser les indicateurs RH de mon unite.',
+    status: 'Rejetee',
+    createdAt: '2026-03-22T08:18:00.000Z',
+    decidedAt: '2026-03-22T17:30:00.000Z',
+    decidedBy: 'Chef Service',
+    decisionComment: 'Session complete, proposer une prochaine edition.',
+  },
 ];
 
 const disciplineCases = [
@@ -1820,6 +2297,423 @@ function findAgent(id) {
   return agents.find((a) => a.id === id);
 }
 
+function extractMatriculeNumber(value) {
+  const match = /^PRM-(\d{4,8})$/i.exec(String(value || '').trim());
+  if (!match) return Number.NaN;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : Number.NaN;
+}
+
+function buildAgentMatriculeSuggestion(direction, unit) {
+  const normalizedDirection = normalizeText(direction);
+  const normalizedUnit = normalizeText(unit);
+
+  const scoped = agents.filter((agent) => {
+    if (!normalizedDirection) {
+      return false;
+    }
+    if (normalizeText(agent.direction) !== normalizedDirection) {
+      return false;
+    }
+    if (!normalizedUnit) {
+      return true;
+    }
+    return normalizeText(agent.unit) === normalizedUnit;
+  });
+
+  const scopeAgents = scoped.length > 0 ? scoped : agents;
+  const highest = scopeAgents.reduce((max, agent) => {
+    const value = extractMatriculeNumber(agent.matricule);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+
+  const nextNumber = highest + 1;
+  const matricule = `PRM-${String(nextNumber).padStart(4, '0')}`;
+  const basedOn = normalizedDirection
+    ? normalizedUnit
+      ? 'Direction+Unite'
+      : 'Direction'
+    : 'Global';
+  const scopeLabel = basedOn === 'Direction+Unite'
+    ? `${String(direction || '').trim()} / ${String(unit || '').trim()}`
+    : basedOn === 'Direction'
+      ? String(direction || '').trim()
+      : 'Global';
+
+  return {
+    matricule,
+    scopeLabel: scopeLabel || 'Global',
+    basedOn,
+    nextNumber,
+  };
+}
+
+function normalizeDuplicateCaseField(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'email') return 'email';
+  if (normalized === 'identitynumber' || normalized === 'identity_number') return 'identityNumber';
+  return 'fullName';
+}
+
+function duplicateCaseConfidence(field) {
+  if (field === 'identityNumber') return 99;
+  if (field === 'email') return 96;
+  return 72;
+}
+
+function toAgentDuplicateSummary(agent) {
+  return {
+    id: String(agent.id || '').trim(),
+    matricule: String(agent.matricule || '').trim(),
+    fullName: String(agent.fullName || '').trim(),
+    direction: String(agent.direction || '').trim(),
+    unit: String(agent.unit || '').trim(),
+    position: String(agent.position || '').trim(),
+    status: String(agent.status || '').trim(),
+    manager: String(agent.manager || '').trim(),
+    email: String(agent.email || '').trim(),
+    identityNumber: String(agent.identity?.identityNumber || '').trim(),
+    phone: String(agent.phone || '').trim(),
+    contractType: String(agent.administrative?.contractType || '').trim(),
+  };
+}
+
+function buildAgentDuplicateCases() {
+  const buckets = {
+    email: new Map(),
+    identityNumber: new Map(),
+    fullName: new Map(),
+  };
+
+  agents.forEach((agent) => {
+    const normalizedEmail = normalizeText(agent.email || '');
+    if (normalizedEmail) {
+      const current = buckets.email.get(normalizedEmail) || [];
+      current.push(agent);
+      buckets.email.set(normalizedEmail, current);
+    }
+
+    const normalizedIdentity = normalizeText(agent.identity?.identityNumber || '');
+    if (normalizedIdentity) {
+      const current = buckets.identityNumber.get(normalizedIdentity) || [];
+      current.push(agent);
+      buckets.identityNumber.set(normalizedIdentity, current);
+    }
+
+    const normalizedName = normalizeText(agent.fullName || '');
+    if (normalizedName.length >= 4) {
+      const current = buckets.fullName.get(normalizedName) || [];
+      current.push(agent);
+      buckets.fullName.set(normalizedName, current);
+    }
+  });
+
+  const createdAt = new Date().toISOString();
+  const cases = [];
+  const fields = ['email', 'identityNumber', 'fullName'];
+  fields.forEach((field) => {
+    buckets[field].forEach((members, key) => {
+      if (!Array.isArray(members) || members.length < 2) {
+        return;
+      }
+      const sortedMembers = [...members].sort((left, right) => {
+        const leftKey = `${String(left.fullName || '').toLowerCase()}-${String(left.matricule || '').toLowerCase()}`;
+        const rightKey = `${String(right.fullName || '').toLowerCase()}-${String(right.matricule || '').toLowerCase()}`;
+        return leftKey.localeCompare(rightKey);
+      });
+      const duplicateValue = field === 'email'
+        ? String(sortedMembers[0]?.email || '').trim()
+        : field === 'identityNumber'
+          ? String(sortedMembers[0]?.identity?.identityNumber || '').trim()
+          : String(sortedMembers[0]?.fullName || '').trim();
+      if (!duplicateValue) {
+        return;
+      }
+
+      const compactKey = String(key || '')
+        .replace(/[^a-z0-9]+/gi, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 22)
+        .toUpperCase();
+      const code = field === 'email' ? 'EML' : field === 'identityNumber' ? 'IDN' : 'NAM';
+      const reference = `DUP-${code}-${compactKey || 'CASE'}-${String(sortedMembers.length).padStart(2, '0')}`;
+      cases.push({
+        reference,
+        duplicateField: field,
+        duplicateValue,
+        confidenceScore: duplicateCaseConfidence(field),
+        impactedCount: sortedMembers.length,
+        createdAt,
+        agents: sortedMembers.map((agent) => toAgentDuplicateSummary(agent)),
+      });
+    });
+  });
+
+  cases.sort((left, right) => {
+    if (left.confidenceScore !== right.confidenceScore) {
+      return right.confidenceScore - left.confidenceScore;
+    }
+    if (left.impactedCount !== right.impactedCount) {
+      return right.impactedCount - left.impactedCount;
+    }
+    return String(left.duplicateValue || '').localeCompare(String(right.duplicateValue || ''));
+  });
+
+  return cases;
+}
+
+function getAgentMergeFieldValue(agent, field) {
+  if (!agent || typeof agent !== 'object') {
+    return '';
+  }
+  if (field === 'identityNumber') {
+    return String(agent.identity?.identityNumber || '').trim();
+  }
+  if (field === 'contractType') {
+    return String(agent.administrative?.contractType || '').trim();
+  }
+  return String(agent[field] || '').trim();
+}
+
+function normalizeAgentMergeFieldSource(value) {
+  return value === 'secondary' ? 'secondary' : 'primary';
+}
+
+function validateAgentMergePayload(body) {
+  const errors = [];
+  const safeBody = body && typeof body === 'object' ? body : {};
+  const reference = String(safeBody.reference || '').trim().toUpperCase();
+  const primaryAgentId = String(safeBody.primaryAgentId || safeBody.primary_agent_id || '').trim();
+  const secondaryAgentId = String(safeBody.secondaryAgentId || safeBody.secondary_agent_id || '').trim();
+  const reason = String(safeBody.reason || 'fusion_doublon').trim() || 'fusion_doublon';
+  const allowedFields = new Set([
+    'matricule',
+    'fullName',
+    'direction',
+    'unit',
+    'position',
+    'status',
+    'manager',
+    'email',
+    'phone',
+    'identityNumber',
+    'contractType',
+  ]);
+
+  if (!primaryAgentId) {
+    errors.push('Agent principal requis');
+  }
+  if (!secondaryAgentId) {
+    errors.push('Agent secondaire requis');
+  }
+  if (primaryAgentId && secondaryAgentId && primaryAgentId === secondaryAgentId) {
+    errors.push('Agents de fusion invalides (identiques)');
+  }
+  if (reason.length < 3) {
+    errors.push('Motif fusion requis');
+  }
+
+  const primaryAgent = primaryAgentId ? findAgent(primaryAgentId) : null;
+  const secondaryAgent = secondaryAgentId ? findAgent(secondaryAgentId) : null;
+  if (primaryAgentId && !primaryAgent) {
+    errors.push('Agent principal introuvable');
+  }
+  if (secondaryAgentId && !secondaryAgent) {
+    errors.push('Agent secondaire introuvable');
+  }
+
+  const fieldSourcesRaw = safeBody.fieldSources && typeof safeBody.fieldSources === 'object'
+    ? safeBody.fieldSources
+    : {};
+  const fieldSources = {};
+  Object.keys(fieldSourcesRaw).forEach((field) => {
+    if (!allowedFields.has(field)) {
+      return;
+    }
+    fieldSources[field] = normalizeAgentMergeFieldSource(fieldSourcesRaw[field]);
+  });
+
+  return {
+    errors,
+    payload: {
+      reference: reference || null,
+      primaryAgentId,
+      secondaryAgentId,
+      reason,
+      fieldSources,
+      primaryAgent,
+      secondaryAgent,
+    },
+  };
+}
+
+function mergeAgentDocumentLists(primaryDocuments, secondaryDocuments) {
+  const merged = [
+    ...normalizeAgentDocumentsPayload(primaryDocuments),
+    ...normalizeAgentDocumentsPayload(secondaryDocuments),
+  ];
+  const byKey = new Map();
+  merged.forEach((document) => {
+    const key = `${normalizeText(document.type)}:${normalizeText(document.reference)}`;
+    if (!key || key === ':') {
+      return;
+    }
+    byKey.set(key, document);
+  });
+  return Array.from(byKey.values());
+}
+
+function mergeAgentEducationLists(primaryEducations, secondaryEducations) {
+  const merged = [
+    ...normalizeAgentEducationsPayload(primaryEducations),
+    ...normalizeAgentEducationsPayload(secondaryEducations),
+  ];
+  const byKey = new Map();
+  merged.forEach((education) => {
+    const key = `${normalizeText(education.degree)}:${normalizeText(education.institution)}:${normalizeText(education.graduationYear)}`;
+    if (!key || key === '::') {
+      return;
+    }
+    byKey.set(key, education);
+  });
+  return Array.from(byKey.values());
+}
+
+function isAgentAliasMatch(candidate, aliases) {
+  const normalizedCandidate = normalizeText(candidate);
+  if (!normalizedCandidate) {
+    return false;
+  }
+  return aliases.some((alias) => {
+    if (!alias) return false;
+    return (
+      normalizedCandidate === alias ||
+      normalizedCandidate.includes(alias) ||
+      alias.includes(normalizedCandidate)
+    );
+  });
+}
+
+function executeAgentMerge(payload, currentUser) {
+  const mergeTimestamp = new Date().toISOString();
+  const primaryAgent = payload.primaryAgent;
+  const secondaryAgent = payload.secondaryAgent;
+  const beforePrimarySnapshot = buildAgentAuditSnapshot(primaryAgent);
+  const fieldSources = payload.fieldSources || {};
+  const allFields = [
+    'matricule',
+    'fullName',
+    'direction',
+    'unit',
+    'position',
+    'status',
+    'manager',
+    'email',
+    'phone',
+    'identityNumber',
+    'contractType',
+  ];
+
+  allFields.forEach((field) => {
+    const source = normalizeAgentMergeFieldSource(fieldSources[field] || 'primary');
+    const preferred = source === 'secondary' ? secondaryAgent : primaryAgent;
+    const fallback = source === 'secondary' ? primaryAgent : secondaryAgent;
+    const nextValue = getAgentMergeFieldValue(preferred, field) || getAgentMergeFieldValue(fallback, field);
+
+    if (field === 'identityNumber') {
+      primaryAgent.identity = normalizeAgentIdentityPayload({
+        ...(primaryAgent.identity || {}),
+        identityNumber: nextValue,
+      });
+      return;
+    }
+
+    if (field === 'contractType') {
+      primaryAgent.administrative = normalizeAgentAdministrativePayload({
+        ...(primaryAgent.administrative || {}),
+        contractType: nextValue,
+      });
+      return;
+    }
+
+    primaryAgent[field] = nextValue;
+  });
+
+  primaryAgent.educations = mergeAgentEducationLists(primaryAgent.educations, secondaryAgent.educations);
+  primaryAgent.documents = mergeAgentDocumentLists(primaryAgent.documents, secondaryAgent.documents);
+  primaryAgent.careerEvents = normalizeAgentCareerEventsPayload([
+    {
+      title: 'Fusion doublon',
+      description: `Fusion de ${String(secondaryAgent.matricule || secondaryAgent.id || '').trim()} vers ${String(primaryAgent.matricule || primaryAgent.id || '').trim()} (${payload.reason})`,
+      date: mergeTimestamp.slice(0, 10),
+    },
+    ...(Array.isArray(primaryAgent.careerEvents) ? primaryAgent.careerEvents : []),
+    ...(Array.isArray(secondaryAgent.careerEvents) ? secondaryAgent.careerEvents : []),
+  ]);
+
+  const mergeAuditChanges = computeAgentAuditChanges(beforePrimarySnapshot, buildAgentAuditSnapshot(primaryAgent));
+  mergeAuditChanges.unshift({
+    field: 'merge',
+    label: 'Fusion doublon',
+    before: String(secondaryAgent.matricule || secondaryAgent.id || '').trim(),
+    after: String(primaryAgent.matricule || primaryAgent.id || '').trim(),
+  });
+
+  appendAgentAuditEvent({
+    agentId: primaryAgent.id,
+    agentLabel: primaryAgent.fullName,
+    changedAt: mergeTimestamp,
+    changedBy: String(currentUser?.username || 'system').trim() || 'system',
+    source: 'merge',
+    reason: String(payload.reason || 'fusion_doublon').trim() || 'fusion_doublon',
+    changes: mergeAuditChanges,
+  });
+
+  const aliases = [secondaryAgent.id, secondaryAgent.matricule, secondaryAgent.fullName]
+    .map((value) => normalizeText(value))
+    .filter((value) => !!value);
+
+  let reassignedDossiers = 0;
+  personnelDossiers.forEach((item) => {
+    if (!isAgentAliasMatch(item.agent, aliases)) {
+      return;
+    }
+    item.agent = String(primaryAgent.fullName || '').trim();
+    item.updatedAt = mergeTimestamp;
+    reassignedDossiers += 1;
+  });
+
+  let reassignedAffectations = 0;
+  personnelAffectations.forEach((item) => {
+    if (!isAgentAliasMatch(item.agent, aliases)) {
+      return;
+    }
+    item.agent = String(primaryAgent.fullName || '').trim();
+    reassignedAffectations += 1;
+  });
+
+  const secondaryIndex = agents.findIndex((item) => item.id === secondaryAgent.id);
+  if (secondaryIndex >= 0) {
+    agents.splice(secondaryIndex, 1);
+  }
+
+  const reference = payload.reference || `AG-MERGE-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}`;
+  const mergedBy = String(currentUser?.username || 'system').trim() || 'system';
+
+  return {
+    reference,
+    mergedAt: mergeTimestamp,
+    mergedBy,
+    primaryAgentId: primaryAgent.id,
+    secondaryAgentId: secondaryAgent.id,
+    removedAgentId: secondaryAgent.id,
+    keptAgentId: primaryAgent.id,
+    mergedAgent: primaryAgent,
+    reassignedDossiers,
+    reassignedAffectations,
+  };
+}
+
 function findOrgUnit(id) {
   return orgUnits.find((unit) => unit.id === id);
 }
@@ -1877,6 +2771,86 @@ function validateOrgUnitCreatePayload(body) {
     name &&
     orgUnits.some(
       (unit) =>
+        normalizeText(unit.name) === normalizeText(name) &&
+        String(unit.parentId || '') === String(parentId || '')
+    )
+  ) {
+    errors.push('Une unite avec ce nom existe deja a ce niveau');
+  }
+
+  return {
+    errors,
+    payload: {
+      name,
+      parentId: parentId || null,
+      head: head || '',
+      headTitle: headTitle || '',
+      staffCount,
+    },
+  };
+}
+
+function createsOrgHierarchyCycle(unitId, parentId) {
+  let cursor = String(parentId || '').trim();
+  const visited = new Set([String(unitId || '').trim()]);
+
+  while (cursor) {
+    if (visited.has(cursor)) {
+      return true;
+    }
+
+    visited.add(cursor);
+    const parent = findOrgUnit(cursor);
+    if (!parent) {
+      return false;
+    }
+    cursor = String(parent.parentId || '').trim();
+  }
+
+  return false;
+}
+
+function validateOrgUnitUpdatePayload(body, currentUnit) {
+  const errors = [];
+
+  const name = String(body.name || body.label || currentUnit?.name || '').trim();
+  const parentId = String(body.parentId || body.parent_id || '').trim();
+  const head = String(body.head || body.manager || '').trim();
+  const headTitle = String(
+    body.headTitle || body.head_title || body.managerTitle || body.manager_title || ''
+  ).trim();
+  const staffCountRaw = Number(
+    body.staffCount ?? body.staff_count ?? body.agentsCount ?? body.agents_count ?? currentUnit?.staffCount ?? 0
+  );
+  const staffCount = Number.isFinite(staffCountRaw) ? Math.max(0, Math.round(staffCountRaw)) : 0;
+
+  if (name.length < 2) {
+    errors.push('Nom unite requis (2 caracteres minimum)');
+  }
+  if (parentId && !findOrgUnit(parentId)) {
+    errors.push('Unite parente introuvable');
+  }
+  if (parentId && parentId === String(currentUnit?.id || '').trim()) {
+    errors.push('Une unite ne peut pas etre sa propre parente');
+  }
+  if (parentId && createsOrgHierarchyCycle(String(currentUnit?.id || '').trim(), parentId)) {
+    errors.push('Cycle hierarchique detecte');
+  }
+  if (head.length > 120) {
+    errors.push('Responsable trop long');
+  }
+  if (headTitle.length > 120) {
+    errors.push('Titre du responsable trop long');
+  }
+  if (!Number.isFinite(staffCountRaw) || staffCountRaw < 0) {
+    errors.push('Effectif invalide');
+  }
+
+  if (
+    name &&
+    orgUnits.some(
+      (unit) =>
+        unit.id !== currentUnit?.id &&
         normalizeText(unit.name) === normalizeText(name) &&
         String(unit.parentId || '') === String(parentId || '')
     )
@@ -2036,20 +3010,1806 @@ function buildRecruitmentApplicationReference() {
   return `APP-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
 }
 
+function normalizeRecruitmentApplicationStatus(value, fallback = 'Nouveau') {
+  const normalized = normalizeText(value);
+  if (normalized === 'nouveau') return 'Nouveau';
+  if (normalized === 'preselection' || normalized === 'shortlist') return 'Preselection';
+  if (normalized === 'entretien') return 'Entretien';
+  if (normalized === 'retenu' || normalized === 'accepte' || normalized === 'accepté' || normalized === 'embauche') {
+    return 'Retenu';
+  }
+  if (normalized === 'rejete' || normalized === 'rejeté') return 'Rejete';
+  return fallback;
+}
+
+function normalizeRecruitmentApplicationSource(value, fallback = 'Autre') {
+  const normalized = normalizeText(value);
+
+  if (
+    normalized === 'portailrh' ||
+    normalized === 'portail rh' ||
+    normalized === 'portail' ||
+    normalized === 'sitecarriere' ||
+    normalized === 'site carriere'
+  ) {
+    return 'Portail RH';
+  }
+  if (
+    normalized === 'jobboard' ||
+    normalized === 'linkedin' ||
+    normalized === 'apec' ||
+    normalized === 'indeed' ||
+    normalized === 'reseau social' ||
+    normalized === 'reseaux sociaux'
+  ) {
+    return 'Jobboard';
+  }
+  if (normalized === 'cooptation' || normalized === 'referral' || normalized === 'recommandation') {
+    return 'Cooptation';
+  }
+  if (normalized === 'cabinet' || normalized === 'agence' || normalized === 'chasseur de tete' || normalized === 'chasseurdetete') {
+    return 'Cabinet';
+  }
+  if (normalized === 'interne' || normalized === 'mobilite interne' || normalized === 'mobiliteinterne') {
+    return 'Interne';
+  }
+  if (normalized === 'autre' || normalized === 'other') {
+    return 'Autre';
+  }
+  return fallback;
+}
+
+function normalizeRecruitmentCandidateEmail(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+    return null;
+  }
+  return normalized;
+}
+
+function normalizeRecruitmentCandidatePhone(value) {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return null;
+  }
+  const digits = raw.replace(/[^\d+]/g, '');
+  if (digits.length < 8 || digits.length > 20) {
+    return null;
+  }
+  return digits.startsWith('+') ? digits : `+${digits}`;
+}
+
+function normalizeRecruitmentCandidateIdentity(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]/g, '');
+  return normalized || null;
+}
+
+function normalizeRecruitmentPercentage(value, fallback = 0) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return Math.max(0, Math.min(100, fallback));
+  }
+  return Math.max(0, Math.min(100, Math.round(parsed)));
+}
+
+function normalizeRecruitmentExperienceYears(value, fallback = 0) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return Math.max(0, Math.floor(fallback));
+  }
+  return Math.max(0, Math.floor(parsed));
+}
+
+function hashRecruitmentSeed(value) {
+  const source = String(value || '');
+  let hash = 0;
+  for (let index = 0; index < source.length; index += 1) {
+    hash = (hash << 5) - hash + source.charCodeAt(index);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function deriveRecruitmentPseudoScore(reference, key, min, max) {
+  const safeMin = Number.isFinite(min) ? min : 0;
+  const safeMax = Number.isFinite(max) ? max : 100;
+  if (safeMax <= safeMin) {
+    return safeMin;
+  }
+  const spread = safeMax - safeMin + 1;
+  const seeded = hashRecruitmentSeed(`${reference || 'APP'}|${key}`);
+  return safeMin + (seeded % spread);
+}
+
+function normalizeRecruitmentScoringCriterionLabel(key) {
+  if (key === 'experienceYears') return 'Experience pertinente';
+  if (key === 'skillsMatch') return 'Adequation competences';
+  if (key === 'educationLevel') return 'Niveau academique';
+  if (key === 'interviewAverage') return 'Evaluation entretien';
+  if (key === 'testScore') return 'Score test technique';
+  return key;
+}
+
+function normalizeRecruitmentScoringCriteria(criteria) {
+  const allowedKeys = new Set(['experienceYears', 'skillsMatch', 'educationLevel', 'interviewAverage', 'testScore']);
+  if (!Array.isArray(criteria) || criteria.length === 0) {
+    return recruitmentScoringPolicy.criteria.map((item) => ({ ...item }));
+  }
+
+  const normalized = criteria
+    .map((entry) => {
+      const key = String(entry?.key || '').trim();
+      if (!allowedKeys.has(key)) {
+        return null;
+      }
+      const weightRaw = Number(entry?.weight);
+      const weight = Number.isFinite(weightRaw) ? Math.max(1, Math.min(100, Math.round(weightRaw))) : 0;
+      const label = String(entry?.label || normalizeRecruitmentScoringCriterionLabel(key)).trim()
+        || normalizeRecruitmentScoringCriterionLabel(key);
+      const maxYearsRaw = Number(entry?.maxYears);
+      const maxYears = Number.isFinite(maxYearsRaw) && maxYearsRaw > 0 ? Math.round(maxYearsRaw) : undefined;
+      return {
+        key,
+        label,
+        weight,
+        maxYears,
+      };
+    })
+    .filter((entry) => !!entry);
+
+  if (normalized.length === 0) {
+    return recruitmentScoringPolicy.criteria.map((item) => ({ ...item }));
+  }
+
+  const totalWeight = normalized.reduce((sum, item) => sum + item.weight, 0);
+  if (totalWeight <= 0) {
+    return recruitmentScoringPolicy.criteria.map((item) => ({ ...item }));
+  }
+
+  return normalized.map((item) => ({
+    ...item,
+    weight: Math.max(1, Math.round((item.weight / totalWeight) * 100)),
+  }));
+}
+
+function rebalanceRecruitmentScoringCriteria(criteria) {
+  const working = Array.isArray(criteria) ? criteria.map((item) => ({ ...item })) : [];
+  if (working.length === 0) {
+    return [];
+  }
+  const total = working.reduce((sum, item) => sum + Number(item.weight || 0), 0);
+  if (total <= 0) {
+    const evenWeight = Math.floor(100 / working.length);
+    let remainder = 100 - evenWeight * working.length;
+    return working.map((item) => {
+      const weight = evenWeight + (remainder > 0 ? 1 : 0);
+      remainder = Math.max(0, remainder - 1);
+      return { ...item, weight };
+    });
+  }
+  let remaining = 100;
+  const rebalanced = working.map((item, index) => {
+    if (index === working.length - 1) {
+      return { ...item, weight: Math.max(1, remaining) };
+    }
+    const ratio = Number(item.weight || 0) / total;
+    const weight = Math.max(1, Math.round(ratio * 100));
+    remaining -= weight;
+    return { ...item, weight };
+  });
+  if (remaining !== 0) {
+    const last = rebalanced[rebalanced.length - 1];
+    last.weight = Math.max(1, last.weight + remaining);
+  }
+  return rebalanced;
+}
+
+function scoreRecruitmentApplication(application, scoringCriteria) {
+  const criteria = Array.isArray(scoringCriteria) && scoringCriteria.length > 0
+    ? scoringCriteria
+    : recruitmentScoringPolicy.criteria;
+  const reference = String(application?.reference || '').trim().toUpperCase();
+  const details = criteria.map((criterion) => {
+    if (criterion.key === 'experienceYears') {
+      const maxYears = Number.isFinite(criterion.maxYears) && criterion.maxYears > 0
+        ? criterion.maxYears
+        : 10;
+      const inputYears = normalizeRecruitmentExperienceYears(
+        application?.experienceYears,
+        deriveRecruitmentPseudoScore(reference, 'experienceYears', 1, maxYears)
+      );
+      const normalizedScore = normalizeRecruitmentPercentage(Math.round((Math.min(maxYears, inputYears) / maxYears) * 100), 0);
+      const weightedScore = Math.round((normalizedScore * criterion.weight) / 1000) / 10;
+      return {
+        criterionKey: criterion.key,
+        criterionLabel: criterion.label,
+        weight: criterion.weight,
+        rawScore: normalizedScore,
+        weightedScore,
+        justification: `${inputYears} an(s) d experience sur une cible de ${maxYears} an(s).`,
+      };
+    }
+
+    const fallbackValue = deriveRecruitmentPseudoScore(reference, criterion.key, 45, 92);
+    const scoreValue = normalizeRecruitmentPercentage(application?.[criterion.key], fallbackValue);
+    const weightedScore = Math.round((scoreValue * criterion.weight) / 1000) / 10;
+    let justification = 'Critere evalue automatiquement.';
+    if (criterion.key === 'skillsMatch') {
+      justification = `Matching competences estime a ${scoreValue}%.`;
+    } else if (criterion.key === 'educationLevel') {
+      justification = `Niveau academique converti en score ${scoreValue}%.`;
+    } else if (criterion.key === 'interviewAverage') {
+      justification = scoreValue > 0
+        ? `Evaluation entretien moyenne ${scoreValue}%.`
+        : 'Entretien non encore conduit, score provisoire.';
+    } else if (criterion.key === 'testScore') {
+      justification = `Resultat test technique ${scoreValue}%.`;
+    }
+    return {
+      criterionKey: criterion.key,
+      criterionLabel: criterion.label,
+      weight: criterion.weight,
+      rawScore: scoreValue,
+      weightedScore,
+      justification,
+    };
+  });
+
+  const totalScore = Math.round(details.reduce((sum, entry) => sum + entry.weightedScore, 0) * 10) / 10;
+  return {
+    reference,
+    candidate: application?.candidate,
+    position: application?.position,
+    campaign: application?.campaign,
+    status: application?.status,
+    receivedOn: application?.receivedOn,
+    totalScore,
+    details,
+  };
+}
+
+function buildRecruitmentApplicationScores(options = {}) {
+  const campaign = String(options?.campaign || '').trim().toLowerCase();
+  const position = String(options?.position || '').trim().toLowerCase();
+  const includeStatuses = Array.isArray(options?.includeStatuses)
+    ? options.includeStatuses
+        .map((status) => normalizeRecruitmentApplicationStatus(status, ''))
+        .filter((status) => !!status)
+    : [];
+  const hasStatusFilter = includeStatuses.length > 0;
+
+  const filtered = recruitmentApplications.filter((application) => {
+    if (campaign && !String(application?.campaign || '').toLowerCase().includes(campaign)) {
+      return false;
+    }
+    if (position && !String(application?.position || '').toLowerCase().includes(position)) {
+      return false;
+    }
+    if (hasStatusFilter && !includeStatuses.includes(application.status)) {
+      return false;
+    }
+    return true;
+  });
+
+  const ranked = filtered
+    .map((application) => scoreRecruitmentApplication(application, recruitmentScoringPolicy.criteria))
+    .sort((left, right) => {
+      if (left.totalScore !== right.totalScore) {
+        return right.totalScore - left.totalScore;
+      }
+      const leftTs = parseRecruitmentReceivedTimestamp(left.receivedOn);
+      const rightTs = parseRecruitmentReceivedTimestamp(right.receivedOn);
+      const safeLeft = Number.isFinite(leftTs) ? leftTs : 0;
+      const safeRight = Number.isFinite(rightTs) ? rightTs : 0;
+      return safeRight - safeLeft;
+    })
+    .map((item, index) => ({
+      ...item,
+      rank: index + 1,
+    }));
+
+  return ranked;
+}
+
+function normalizeRecruitmentDuplicateMode(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'merge' || normalized === 'fusion') return 'merge';
+  return 'link';
+}
+
+function buildRecruitmentIdentityMatchLabel(matchType) {
+  if (matchType === 'email') return 'email';
+  if (matchType === 'phone') return 'telephone';
+  if (matchType === 'identity') return 'identite';
+  return matchType;
+}
+
+function findRecruitmentPotentialDuplicateMatches(candidateData, currentReference = '') {
+  const reference = String(currentReference || '').trim().toUpperCase();
+  const email = normalizeRecruitmentCandidateEmail(candidateData?.candidateEmail || candidateData?.email);
+  const phone = normalizeRecruitmentCandidatePhone(candidateData?.candidatePhone || candidateData?.phone);
+  const identity = normalizeRecruitmentCandidateIdentity(candidateData?.identityNumber || candidateData?.identity);
+
+  if (!email && !phone && !identity) {
+    return [];
+  }
+
+  return recruitmentApplications
+    .filter((item) => String(item.reference || '').trim().toUpperCase() !== reference)
+    .map((item) => {
+      const itemEmail = normalizeRecruitmentCandidateEmail(item.candidateEmail || item.email);
+      const itemPhone = normalizeRecruitmentCandidatePhone(item.candidatePhone || item.phone);
+      const itemIdentity = normalizeRecruitmentCandidateIdentity(item.identityNumber || item.identity);
+      const matchTypes = [];
+      if (email && itemEmail && email === itemEmail) {
+        matchTypes.push('email');
+      }
+      if (phone && itemPhone && phone === itemPhone) {
+        matchTypes.push('phone');
+      }
+      if (identity && itemIdentity && identity === itemIdentity) {
+        matchTypes.push('identity');
+      }
+      if (matchTypes.length === 0) {
+        return null;
+      }
+      return {
+        reference: item.reference,
+        candidate: item.candidate,
+        status: item.status,
+        campaign: item.campaign,
+        position: item.position,
+        matchTypes,
+      };
+    })
+    .filter((item) => !!item);
+}
+
+function buildRecruitmentDuplicateCases() {
+  const bySignature = new Map();
+
+  recruitmentApplications.forEach((application) => {
+    const email = normalizeRecruitmentCandidateEmail(application.candidateEmail || application.email);
+    const phone = normalizeRecruitmentCandidatePhone(application.candidatePhone || application.phone);
+    const identity = normalizeRecruitmentCandidateIdentity(application.identityNumber || application.identity);
+    const signatures = [];
+    if (email) signatures.push(`email:${email}`);
+    if (phone) signatures.push(`phone:${phone}`);
+    if (identity) signatures.push(`identity:${identity}`);
+
+    signatures.forEach((signature) => {
+      if (!bySignature.has(signature)) {
+        bySignature.set(signature, []);
+      }
+      bySignature.get(signature).push(application);
+    });
+  });
+
+  const cases = [];
+  bySignature.forEach((applications, signature) => {
+    if (!Array.isArray(applications) || applications.length < 2) {
+      return;
+    }
+    const [type, value] = String(signature).split(':');
+    const items = applications
+      .map((item) => ({
+        reference: item.reference,
+        candidate: item.candidate,
+        status: item.status,
+        campaign: item.campaign,
+        position: item.position,
+      }))
+      .sort((left, right) => String(left.reference).localeCompare(String(right.reference)));
+    const referenceList = items.map((item) => item.reference).join('|');
+    const caseId = `DEDUP-${type.toUpperCase()}-${hashRecruitmentSeed(referenceList)}`;
+    cases.push({
+      id: caseId,
+      matchType: type,
+      matchLabel: buildRecruitmentIdentityMatchLabel(type),
+      matchValue: value,
+      count: items.length,
+      applications: items,
+      suggestedPrimaryReference: items[0]?.reference,
+    });
+  });
+
+  cases.sort((left, right) => {
+    if (left.count !== right.count) {
+      return right.count - left.count;
+    }
+    return String(left.matchValue || '').localeCompare(String(right.matchValue || ''));
+  });
+  return cases;
+}
+
+function trimRecruitmentShortlistValidationJournal() {
+  if (recruitmentShortlistValidations.length <= RECRUITMENT_SHORTLIST_VALIDATION_LIMIT) {
+    return;
+  }
+  recruitmentShortlistValidations.splice(
+    0,
+    recruitmentShortlistValidations.length - RECRUITMENT_SHORTLIST_VALIDATION_LIMIT
+  );
+}
+
+function buildRecruitmentShortlistSuggestions(input) {
+  const topNCandidate = Number(input?.topN ?? input?.top_n ?? 5);
+  const topN = Number.isFinite(topNCandidate) ? Math.max(1, Math.min(30, Math.floor(topNCandidate))) : 5;
+  const includeStatusesRaw = Array.isArray(input?.includeStatuses)
+    ? input.includeStatuses
+    : Array.isArray(input?.include_statuses)
+      ? input.include_statuses
+      : ['Nouveau', 'Preselection', 'Entretien'];
+  const includeStatuses = includeStatusesRaw
+    .map((status) => normalizeRecruitmentApplicationStatus(status, ''))
+    .filter((status) => !!status);
+  const includeStatusesSet = new Set(includeStatuses);
+
+  const scored = buildRecruitmentApplicationScores({
+    campaign: input?.campaign,
+    position: input?.position,
+    includeStatuses: includeStatuses.length > 0 ? includeStatuses : undefined,
+  });
+
+  const shortlisted = scored
+    .filter((item) => includeStatusesSet.size === 0 || includeStatusesSet.has(item.status))
+    .slice(0, topN)
+    .map((item) => {
+      const strongest = [...item.details]
+        .sort((left, right) => right.weightedScore - left.weightedScore)
+        .slice(0, 2);
+      const strongestReason = strongest
+        .map((entry) => `${entry.criterionLabel}: ${entry.rawScore}%`)
+        .join(' | ');
+      return {
+        ...item,
+        justification: strongestReason || 'Score global prioritaire',
+        validationRequired: true,
+        validationStatus: 'PENDING',
+      };
+    });
+
+  return {
+    generatedAt: new Date().toISOString(),
+    topN,
+    totalCandidates: scored.length,
+    suggested: shortlisted,
+    criteriaVersion: recruitmentScoringPolicy.updatedAt,
+  };
+}
+
+function normalizeRecruitmentQuestionList(input) {
+  let values = [];
+  if (Array.isArray(input)) {
+    values = input;
+  } else if (typeof input === 'string') {
+    values = input.split(/\r?\n/);
+  }
+  return values
+    .map((entry) => String(entry || '').trim())
+    .filter((entry) => entry.length > 0)
+    .map((entry) => entry.replace(/\s+/g, ' '));
+}
+
+function buildRecruitmentQuestionTemplateId(position, version) {
+  const normalizedPosition = String(position || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'POSTE';
+  return `IQB-${normalizedPosition.slice(0, 40)}-V${version}`;
+}
+
+function listRecruitmentInterviewQuestionTemplates(filters = {}) {
+  const positionFilter = String(filters?.position || '').trim().toLowerCase();
+  const search = String(filters?.q || '').trim().toLowerCase();
+  const latestOnly = parseBooleanFlag(filters?.latestOnly ?? filters?.latest_only, false);
+
+  let items = recruitmentInterviewQuestionBank.filter((item) => {
+    if (positionFilter && !String(item.position || '').toLowerCase().includes(positionFilter)) {
+      return false;
+    }
+    if (!search) {
+      return true;
+    }
+    return (
+      String(item.id || '').toLowerCase().includes(search) ||
+      String(item.position || '').toLowerCase().includes(search) ||
+      item.questions.some((question) => String(question || '').toLowerCase().includes(search))
+    );
+  });
+
+  if (latestOnly) {
+    const bestByPosition = new Map();
+    items.forEach((item) => {
+      const key = String(item.position || '').trim().toLowerCase();
+      const current = bestByPosition.get(key);
+      if (!current || Number(item.version || 0) > Number(current.version || 0)) {
+        bestByPosition.set(key, item);
+      }
+    });
+    items = Array.from(bestByPosition.values());
+  }
+
+  items.sort((left, right) => {
+    if (left.position !== right.position) {
+      return String(left.position).localeCompare(String(right.position));
+    }
+    return Number(right.version || 0) - Number(left.version || 0);
+  });
+  return items;
+}
+
+function validateRecruitmentQuestionTemplatePayload(body, currentUser) {
+  const errors = [];
+  const position = String(body?.position || body?.positionTitle || body?.position_title || '').trim();
+  const questions = normalizeRecruitmentQuestionList(
+    body?.questions ?? body?.questionList ?? body?.question_list ?? body?.content
+  );
+
+  if (position.length < 2) {
+    errors.push('Poste template requis');
+  }
+  if (questions.length === 0) {
+    errors.push('Questions template requises');
+  }
+  if (questions.length > 80) {
+    errors.push('Nombre de questions limite a 80');
+  }
+  if (questions.some((question) => question.length < 6)) {
+    errors.push('Chaque question doit contenir au moins 6 caracteres');
+  }
+  if (questions.some((question) => question.length > 320)) {
+    errors.push('Chaque question est limitee a 320 caracteres');
+  }
+
+  const existingSamePosition = recruitmentInterviewQuestionBank.filter(
+    (item) => normalizeText(item.position) === normalizeText(position)
+  );
+  const maxVersion = existingSamePosition.reduce(
+    (max, item) => Math.max(max, Number(item.version || 0)),
+    0
+  );
+  const nextVersion = maxVersion + 1;
+  const now = new Date().toISOString();
+
+  return {
+    errors,
+    payload: {
+      id: buildRecruitmentQuestionTemplateId(position, nextVersion),
+      position,
+      version: nextVersion,
+      questions,
+      createdAt: now,
+      updatedAt: now,
+      createdBy: String(currentUser?.username || body?.createdBy || body?.created_by || 'system').trim() || 'system',
+    },
+  };
+}
+
+function parseRecruitmentQuestionBankCsvRows(csvText) {
+  const lines = String(csvText || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  if (lines.length === 0) {
+    return [];
+  }
+
+  const rows = [];
+  lines.forEach((line, index) => {
+    if (index === 0 && /position/i.test(line) && /questions?/i.test(line)) {
+      return;
+    }
+    const parts = line.split(';');
+    const position = String(parts[0] || '').trim();
+    const questionsRaw = parts.slice(1).join(';').trim();
+    if (!position || !questionsRaw) {
+      return;
+    }
+    const questions = questionsRaw
+      .split('|')
+      .map((question) => question.trim())
+      .filter((question) => question.length > 0);
+    if (questions.length === 0) {
+      return;
+    }
+    rows.push({ position, questions });
+  });
+  return rows;
+}
+
+function buildRecruitmentQuestionBankCsvExport(items) {
+  const rows = ['position;version;questions'];
+  items.forEach((item) => {
+    const position = String(item.position || '').replace(/;/g, ',');
+    const version = Number(item.version || 1);
+    const questions = (Array.isArray(item.questions) ? item.questions : [])
+      .map((question) => String(question || '').replace(/[;\n\r|]/g, ' ').trim())
+      .filter((question) => question.length > 0)
+      .join(' | ');
+    rows.push(`${position};${version};${questions}`);
+  });
+  return rows.join('\n');
+}
+
+function normalizeRecruitmentInterviewStatus(value, fallback = 'Planifie') {
+  const normalized = normalizeText(value);
+  if (normalized === 'planifie' || normalized === 'planned') return 'Planifie';
+  if (normalized === 'replanifie' || normalized === 'rescheduled') return 'Replanifie';
+  if (normalized === 'termine' || normalized === 'completed') return 'Termine';
+  if (normalized === 'annule' || normalized === 'canceled' || normalized === 'cancelled') return 'Annule';
+  return fallback;
+}
+
+function normalizeRecruitmentInterviewers(input) {
+  const values = Array.isArray(input) ? input : typeof input === 'string' ? input.split(/[;,]/) : [];
+  const normalized = values
+    .map((entry) => String(entry || '').trim())
+    .filter((entry) => entry.length > 0)
+    .slice(0, 8);
+  return Array.from(new Set(normalized));
+}
+
+function buildRecruitmentInterviewId() {
+  const year = new Date().getFullYear();
+  const regex = new RegExp(`^INT-${year}-(\\d+)$`);
+  const maxExisting = recruitmentInterviewSchedules.reduce((max, item) => {
+    const match = regex.exec(String(item.id || ''));
+    if (!match) return max;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+  return `INT-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
+}
+
+function findRecruitmentInterview(interviewId) {
+  const normalizedId = String(interviewId || '').trim().toUpperCase();
+  return recruitmentInterviewSchedules.find(
+    (item) => String(item.id || '').trim().toUpperCase() === normalizedId
+  );
+}
+
+function normalizeRecruitmentInterviewEvaluations(input) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+  return input
+    .map((entry) => {
+      const interviewer = String(entry?.interviewer || '').trim();
+      if (!interviewer) {
+        return null;
+      }
+      const technicalScore = normalizeRecruitmentPercentage(entry?.technicalScore, 0);
+      const communicationScore = normalizeRecruitmentPercentage(entry?.communicationScore, 0);
+      const cultureFitScore = normalizeRecruitmentPercentage(entry?.cultureFitScore, 0);
+      const recommendationRaw = normalizeText(entry?.recommendation || 'go');
+      const recommendation = recommendationRaw === 'no-go' || recommendationRaw === 'nogo' ? 'No-Go' : 'Go';
+      const comment = String(entry?.comment || '').trim();
+      const submittedAt = normalizeRecruitmentNotificationSentAt(entry?.submittedAt || entry?.submitted_at);
+      return {
+        interviewer,
+        technicalScore,
+        communicationScore,
+        cultureFitScore,
+        recommendation,
+        comment,
+        submittedAt,
+      };
+    })
+    .filter((entry) => !!entry);
+}
+
+function buildRecruitmentInterviewConsolidation(evaluations) {
+  const list = normalizeRecruitmentInterviewEvaluations(evaluations);
+  if (list.length === 0) {
+    return {
+      evaluators: 0,
+      overallScore: 0,
+      recommendation: 'Pending',
+    };
+  }
+  const averageByEvaluator = list.map((entry) => {
+    return (entry.technicalScore + entry.communicationScore + entry.cultureFitScore) / 3;
+  });
+  const overallScore = Math.round(
+    (averageByEvaluator.reduce((sum, item) => sum + item, 0) / averageByEvaluator.length) * 10
+  ) / 10;
+  const goVotes = list.filter((entry) => entry.recommendation === 'Go').length;
+  const recommendation = goVotes >= Math.ceil(list.length / 2) ? 'Go' : 'No-Go';
+  return {
+    evaluators: list.length,
+    overallScore,
+    recommendation,
+  };
+}
+
+function normalizeRecruitmentInterviewHistory(input) {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+  return input
+    .map((entry) => {
+      const type = String(entry?.type || '').trim() || 'Event';
+      const detail = String(entry?.detail || '').trim() || type;
+      const at = normalizeRecruitmentNotificationSentAt(entry?.at || entry?.occurredAt || entry?.occurred_at);
+      const actor = String(entry?.actor || 'system').trim() || 'system';
+      return {
+        type,
+        detail,
+        at,
+        actor,
+      };
+    })
+    .filter((entry) => !!entry.detail)
+    .sort((left, right) => Date.parse(right.at) - Date.parse(left.at));
+}
+
+function normalizeRecruitmentInterviewSchedule(entry) {
+  const id = String(entry?.id || '').trim().toUpperCase() || buildRecruitmentInterviewId();
+  const applicationReference = String(entry?.applicationReference || entry?.application_reference || '').trim().toUpperCase();
+  const linkedApplication = applicationReference ? findRecruitmentApplication(applicationReference) : null;
+  const candidate = String(entry?.candidate || linkedApplication?.candidate || '').trim();
+  const position = String(entry?.position || linkedApplication?.position || '').trim();
+  const campaign = String(entry?.campaign || linkedApplication?.campaign || '').trim();
+  const slotStart = normalizeRecruitmentNotificationSentAt(entry?.slotStart || entry?.slot_start);
+  const slotEnd = normalizeRecruitmentNotificationSentAt(entry?.slotEnd || entry?.slot_end || slotStart);
+  const interviewers = normalizeRecruitmentInterviewers(entry?.interviewers || entry?.panel || []);
+  const location = String(entry?.location || 'A definir').trim() || 'A definir';
+  const status = normalizeRecruitmentInterviewStatus(entry?.status, 'Planifie');
+  const evaluations = normalizeRecruitmentInterviewEvaluations(entry?.evaluations || []);
+  const history = normalizeRecruitmentInterviewHistory(entry?.history || []);
+  const consolidation = buildRecruitmentInterviewConsolidation(evaluations);
+  return {
+    id,
+    applicationReference,
+    candidate,
+    position,
+    campaign,
+    slotStart,
+    slotEnd,
+    interviewers,
+    location,
+    status,
+    evaluations,
+    history,
+    consolidation,
+  };
+}
+
+function validateRecruitmentInterviewCreatePayload(body, currentUser) {
+  const errors = [];
+  const applicationReference = String(
+    body?.applicationReference || body?.application_reference || body?.reference || ''
+  ).trim().toUpperCase();
+  const application = applicationReference ? findRecruitmentApplication(applicationReference) : null;
+  const candidate = String(body?.candidate || application?.candidate || '').trim();
+  const position = String(body?.position || application?.position || '').trim();
+  const campaign = String(body?.campaign || application?.campaign || '').trim();
+  const slotStart = normalizeRecruitmentNotificationSentAt(body?.slotStart || body?.slot_start);
+  const slotEnd = normalizeRecruitmentNotificationSentAt(body?.slotEnd || body?.slot_end || slotStart);
+  const interviewers = normalizeRecruitmentInterviewers(body?.interviewers || body?.panel || []);
+  const location = String(body?.location || '').trim() || 'A definir';
+
+  if (!applicationReference) {
+    errors.push('Reference candidature requise');
+  }
+  if (applicationReference && !application) {
+    errors.push('Candidature introuvable');
+  }
+  if (application && !['Preselection', 'Entretien'].includes(application.status)) {
+    errors.push('La candidature doit etre en Preselection ou Entretien pour planifier un entretien');
+  }
+  if (candidate.length < 2) {
+    errors.push('Candidat requis');
+  }
+  if (position.length < 2) {
+    errors.push('Poste requis');
+  }
+  if (interviewers.length === 0) {
+    errors.push('Panel interviewers requis');
+  }
+  if (interviewers.length > 8) {
+    errors.push('Panel interviewers limite a 8');
+  }
+
+  const startTs = Date.parse(slotStart);
+  const endTs = Date.parse(slotEnd);
+  if (Number.isNaN(startTs) || Number.isNaN(endTs) || endTs <= startTs) {
+    errors.push('Creneau entretien invalide');
+  }
+
+  return {
+    errors,
+    payload: {
+      id: buildRecruitmentInterviewId(),
+      applicationReference,
+      candidate,
+      position,
+      campaign,
+      slotStart,
+      slotEnd,
+      interviewers,
+      location,
+      status: 'Planifie',
+      evaluations: [],
+      history: [
+        {
+          type: 'Creation',
+          detail: `Reservation creneau entretien ${applicationReference}`,
+          at: new Date().toISOString(),
+          actor: String(currentUser?.username || 'system').trim() || 'system',
+        },
+      ],
+    },
+  };
+}
+
+function validateRecruitmentInterviewReschedulePayload(body, interview, currentUser) {
+  const errors = [];
+  const slotStart = normalizeRecruitmentNotificationSentAt(body?.slotStart || body?.slot_start);
+  const slotEnd = normalizeRecruitmentNotificationSentAt(body?.slotEnd || body?.slot_end || slotStart);
+  const location = String(body?.location || interview?.location || '').trim() || interview?.location || 'A definir';
+  const reason = String(body?.reason || body?.note || '').trim() || 'Replanification manuelle';
+  const interviewers = normalizeRecruitmentInterviewers(body?.interviewers || interview?.interviewers || []);
+  const startTs = Date.parse(slotStart);
+  const endTs = Date.parse(slotEnd);
+
+  if (Number.isNaN(startTs) || Number.isNaN(endTs) || endTs <= startTs) {
+    errors.push('Nouveau creneau invalide');
+  }
+  if (interviewers.length === 0) {
+    errors.push('Panel interviewers requis');
+  }
+
+  return {
+    errors,
+    payload: {
+      slotStart,
+      slotEnd,
+      location,
+      reason,
+      interviewers,
+      actor: String(currentUser?.username || 'system').trim() || 'system',
+    },
+  };
+}
+
+function validateRecruitmentInterviewEvaluationPayload(body, interview, currentUser) {
+  const errors = [];
+  const interviewer = String(body?.interviewer || currentUser?.username || '').trim();
+  const technicalScore = normalizeRecruitmentPercentage(body?.technicalScore ?? body?.technical_score, 0);
+  const communicationScore = normalizeRecruitmentPercentage(body?.communicationScore ?? body?.communication_score, 0);
+  const cultureFitScore = normalizeRecruitmentPercentage(body?.cultureFitScore ?? body?.culture_fit_score, 0);
+  const recommendationRaw = normalizeText(body?.recommendation || 'go');
+  const recommendation = recommendationRaw === 'no-go' || recommendationRaw === 'nogo' ? 'No-Go' : 'Go';
+  const comment = String(body?.comment || body?.note || '').trim();
+
+  if (!interviewer) {
+    errors.push('Interviewer requis');
+  }
+  if (comment.length > 400) {
+    errors.push('Commentaire evaluation trop long');
+  }
+  if (
+    Array.isArray(interview?.interviewers) &&
+    interview.interviewers.length > 0 &&
+    !interview.interviewers.includes(interviewer)
+  ) {
+    errors.push('Interviewer non membre du panel');
+  }
+
+  return {
+    errors,
+    payload: {
+      interviewer,
+      technicalScore,
+      communicationScore,
+      cultureFitScore,
+      recommendation,
+      comment,
+      submittedAt: new Date().toISOString(),
+    },
+  };
+}
+
+function buildRecruitmentInterviewWorkloadForecast() {
+  const nowTs = Date.now();
+  const next14DaysTs = nowTs + 14 * 86400000;
+  const bucketByRecruiter = new Map();
+
+  recruitmentInterviewSchedules.forEach((rawItem) => {
+    const item = normalizeRecruitmentInterviewSchedule(rawItem);
+    const startTs = Date.parse(item.slotStart);
+    const inNext14Days = !Number.isNaN(startTs) && startTs >= nowTs && startTs <= next14DaysTs;
+    item.interviewers.forEach((recruiter) => {
+      if (!bucketByRecruiter.has(recruiter)) {
+        bucketByRecruiter.set(recruiter, {
+          recruiter,
+          targetPerWeek: 6,
+          currentWeekLoad: 0,
+          upcomingTwoWeeksLoad: 0,
+          monthlyLoadEstimate: 0,
+          alert: 'OK',
+        });
+      }
+      const entry = bucketByRecruiter.get(recruiter);
+      const date = new Date(startTs);
+      const today = new Date(nowTs);
+      const sameWeek = date.getUTCFullYear() === today.getUTCFullYear()
+        && Math.floor((date.getUTCDate() - 1) / 7) === Math.floor((today.getUTCDate() - 1) / 7)
+        && date.getUTCMonth() === today.getUTCMonth();
+      if (sameWeek) {
+        entry.currentWeekLoad += 1;
+      }
+      if (inNext14Days) {
+        entry.upcomingTwoWeeksLoad += 1;
+      }
+      if (!Number.isNaN(startTs)) {
+        entry.monthlyLoadEstimate += 1;
+      }
+    });
+  });
+
+  const recruiters = Array.from(bucketByRecruiter.values()).map((item) => {
+    const ratio = item.currentWeekLoad / Math.max(1, item.targetPerWeek);
+    let alert = 'OK';
+    if (ratio > 1.2) alert = 'Surcharge';
+    else if (ratio < 0.5) alert = 'Sous-charge';
+    return {
+      ...item,
+      alert,
+    };
+  });
+
+  return recruiters.sort((left, right) => left.recruiter.localeCompare(right.recruiter));
+}
+
+function findRecruitmentCampaignBudget(campaignCode) {
+  const normalizedCode = String(campaignCode || '').trim().toUpperCase();
+  return recruitmentCampaignBudgets.find(
+    (item) => String(item.campaignCode || '').trim().toUpperCase() === normalizedCode
+  );
+}
+
+function validateRecruitmentCampaignBudgetPayload(body, currentUser) {
+  const errors = [];
+  const campaignCode = String(body?.campaignCode || body?.campaign_code || '').trim().toUpperCase();
+  const budgetAmount = Number(body?.budgetAmount ?? body?.budget_amount ?? 0);
+  const expensesAmount = Number(body?.expensesAmount ?? body?.expenses_amount ?? 0);
+  const currency = String(body?.currency || 'GNF').trim().toUpperCase() || 'GNF';
+
+  if (!campaignCode) {
+    errors.push('Code campagne requis');
+  }
+  if (!findRecruitmentCampaign(campaignCode)) {
+    errors.push('Campagne budget introuvable');
+  }
+  if (!Number.isFinite(budgetAmount) || budgetAmount < 0) {
+    errors.push('Budget invalide');
+  }
+  if (!Number.isFinite(expensesAmount) || expensesAmount < 0) {
+    errors.push('Depenses invalides');
+  }
+  if (expensesAmount > budgetAmount && Number.isFinite(budgetAmount)) {
+    errors.push('Depenses superieures au budget');
+  }
+
+  return {
+    errors,
+    payload: {
+      campaignCode,
+      budgetAmount: Math.max(0, Math.round(budgetAmount)),
+      expensesAmount: Math.max(0, Math.round(expensesAmount)),
+      currency,
+      lastUpdatedAt: new Date().toISOString(),
+      updatedBy: String(currentUser?.username || 'system').trim() || 'system',
+    },
+  };
+}
+
+function buildRecruitmentCampaignBudgetAnalytics() {
+  return recruitmentCampaigns.map((campaign) => {
+    const budget = findRecruitmentCampaignBudget(campaign.code) || {
+      campaignCode: campaign.code,
+      budgetAmount: 0,
+      expensesAmount: 0,
+      currency: 'GNF',
+      lastUpdatedAt: new Date().toISOString(),
+      updatedBy: 'system',
+    };
+    const applications = recruitmentApplications.filter(
+      (item) => String(item.campaign || '').trim().toUpperCase() === String(campaign.code || '').trim().toUpperCase()
+    );
+    const hires = applications.filter((item) => item.status === 'Retenu').length;
+    const costPerApplication = applications.length > 0 ? budget.expensesAmount / applications.length : 0;
+    const costPerHire = hires > 0 ? budget.expensesAmount / hires : 0;
+    const variance = budget.budgetAmount - budget.expensesAmount;
+    return {
+      campaignCode: campaign.code,
+      campaignTitle: campaign.title,
+      budgetAmount: budget.budgetAmount,
+      expensesAmount: budget.expensesAmount,
+      variance,
+      hires,
+      applications: applications.length,
+      costPerApplication: Math.round(costPerApplication),
+      costPerHire: Math.round(costPerHire),
+      currency: budget.currency || 'GNF',
+      updatedAt: budget.lastUpdatedAt,
+      updatedBy: budget.updatedBy,
+    };
+  });
+}
+
+function isoDateFromValue(value, fallback = '') {
+  const raw = String(value || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return raw;
+  }
+  const parsed = Date.parse(raw);
+  if (Number.isNaN(parsed)) {
+    return fallback;
+  }
+  return new Date(parsed).toISOString().slice(0, 10);
+}
+
+function addDaysToIsoDate(isoDate, days) {
+  const parsed = Date.parse(`${isoDate}T00:00:00.000Z`);
+  if (Number.isNaN(parsed)) {
+    return isoDate;
+  }
+  return new Date(parsed + Math.floor(days) * 86400000).toISOString().slice(0, 10);
+}
+
+function buildRecruitmentOnboarding306090Milestones() {
+  return recruitmentOnboarding.map((rawItem) => {
+    const item = normalizeRecruitmentOnboardingRecord(rawItem);
+    const startDate = isoDateFromValue(item.startDate, new Date().toISOString().slice(0, 10));
+    const milestones = [
+      { day: 30, targetDate: addDaysToIsoDate(startDate, 30) },
+      { day: 60, targetDate: addDaysToIsoDate(startDate, 60) },
+      { day: 90, targetDate: addDaysToIsoDate(startDate, 90) },
+    ].map((milestone) => {
+      const now = Date.now();
+      const targetTs = Date.parse(`${milestone.targetDate}T23:59:59.999Z`);
+      const feedbacks = recruitmentOnboardingMilestoneFeedback.filter((feedback) => {
+        return (
+          String(feedback.applicationReference || '').trim().toUpperCase() === String(item.applicationReference || '').trim().toUpperCase()
+          && Number(feedback.day) === milestone.day
+        );
+      });
+      let status = 'A venir';
+      if (!Number.isNaN(targetTs) && now > targetTs) {
+        status = feedbacks.length > 0 ? 'Complete' : 'En retard';
+      } else if (feedbacks.length > 0) {
+        status = 'Complete';
+      }
+      return {
+        day: milestone.day,
+        targetDate: milestone.targetDate,
+        status,
+        feedbacks,
+      };
+    });
+    return {
+      applicationReference: item.applicationReference,
+      agent: item.agent,
+      position: item.position,
+      startDate,
+      milestones,
+    };
+  });
+}
+
+function validateRecruitmentOnboardingMilestoneFeedbackPayload(body, reference, currentUser) {
+  const errors = [];
+  const applicationReference = String(reference || '').trim().toUpperCase();
+  const day = Number(body?.day ?? body?.milestoneDay ?? body?.milestone_day ?? 0);
+  const authorRoleRaw = normalizeText(body?.authorRole || body?.author_role || 'manager');
+  const authorRole = authorRoleRaw === 'agent' ? 'agent' : 'manager';
+  const comment = String(body?.comment || '').trim();
+  const score = normalizeRecruitmentPercentage(body?.score, 0);
+  if (!applicationReference) {
+    errors.push('Reference onboarding requise');
+  }
+  if (![30, 60, 90].includes(day)) {
+    errors.push('Jalon onboarding invalide (30/60/90)');
+  }
+  if (comment.length < 3) {
+    errors.push('Commentaire feedback requis');
+  }
+  if (comment.length > 400) {
+    errors.push('Commentaire feedback trop long');
+  }
+
+  return {
+    errors,
+    payload: {
+      id: `ONB-FB-${applicationReference}-${day}-${Date.now()}`.toUpperCase(),
+      applicationReference,
+      day,
+      authorRole,
+      author: String(currentUser?.username || 'system').trim() || 'system',
+      comment,
+      score,
+      createdAt: new Date().toISOString(),
+    },
+  };
+}
+
+function buildRecruitmentOnboardingSuccessScores() {
+  const milestones = buildRecruitmentOnboarding306090Milestones();
+  return milestones.map((entry) => {
+    const onboarding = recruitmentOnboarding.find((item) => String(item.applicationReference || '').trim().toUpperCase() === String(entry.applicationReference || '').trim().toUpperCase());
+    const normalized = onboarding ? normalizeRecruitmentOnboardingRecord(onboarding) : null;
+    const completionRate = Number(normalized?.progress?.completionRate || 0);
+    const blocked = Number(normalized?.progress?.blocked || 0);
+    const milestoneCompletion = entry.milestones.filter((item) => item.status === 'Complete').length;
+    const milestoneRate = (milestoneCompletion / 3) * 100;
+    const incidentPenalty = blocked > 0 ? Math.min(30, blocked * 8) : 0;
+    const score = Math.max(0, Math.round((completionRate * 0.5 + milestoneRate * 0.5) - incidentPenalty));
+    const cohortKey = String(entry.startDate || '').slice(0, 7);
+    return {
+      applicationReference: entry.applicationReference,
+      agent: entry.agent,
+      position: entry.position,
+      cohort: cohortKey,
+      completionRate: Math.round(completionRate),
+      milestoneRate: Math.round(milestoneRate),
+      blockedIncidents: blocked,
+      score,
+      alert: score < 60 ? 'Critique' : score < 75 ? 'Alerte' : 'OK',
+    };
+  });
+}
+
+function findRecruitmentOnboardingByReference(reference) {
+  const normalizedReference = String(reference || '').trim().toUpperCase();
+  return recruitmentOnboarding.find((item) => {
+    const normalizedItem = normalizeRecruitmentOnboardingRecord(item);
+    return String(normalizedItem.applicationReference || '').trim().toUpperCase() === normalizedReference;
+  });
+}
+
+function runRecruitmentOnboardingSync(reference, currentUser) {
+  const onboardingItem = findRecruitmentOnboardingByReference(reference);
+  if (!onboardingItem) {
+    return { error: 'Onboarding introuvable' };
+  }
+  const normalizedOnboarding = normalizeRecruitmentOnboardingRecord(onboardingItem);
+  const referenceCode = String(reference || '').trim().toUpperCase();
+  const now = new Date().toISOString();
+  const dossierReference = `DOS-${new Date().getFullYear()}-${String(recruitmentOnboardingSyncLogs.length + 1).padStart(3, '0')}`;
+  const affectationReference = `AFF-${new Date().getFullYear()}-${String(recruitmentOnboardingSyncLogs.length + 1).padStart(3, '0')}`;
+
+  personnelDossiers.push({
+    reference: dossierReference,
+    agent: normalizedOnboarding.agent,
+    type: 'Dossier agent auto-onboarding',
+    status: 'Actif',
+    updatedAt: now,
+  });
+
+  personnelAffectations.push({
+    reference: affectationReference,
+    agent: normalizedOnboarding.agent,
+    fromUnit: 'Recrutement',
+    toUnit: normalizedOnboarding.position,
+    effectiveDate: normalizedOnboarding.startDate,
+    status: 'Effective',
+  });
+
+  const log = {
+    id: `ONB-SYNC-${Date.now()}`,
+    applicationReference: referenceCode,
+    agent: normalizedOnboarding.agent,
+    position: normalizedOnboarding.position,
+    syncedAt: now,
+    syncedBy: String(currentUser?.username || 'system').trim() || 'system',
+    dossierReference,
+    affectationReference,
+    status: 'SUCCESS',
+    detail: 'Creation dossier et affectation automatique',
+  };
+  recruitmentOnboardingSyncLogs.push(log);
+  return { log };
+}
+
+function validateRecruitmentRulePayload(body, currentUser) {
+  const errors = [];
+  const name = String(body?.name || '').trim();
+  const event = String(body?.event || '').trim();
+  const condition = String(body?.condition || '').trim();
+  const action = String(body?.action || '').trim();
+  const enabled = parseBooleanFlag(body?.enabled, true);
+  if (name.length < 3) errors.push('Nom regle requis');
+  if (event.length < 3) errors.push('Evenement regle requis');
+  if (condition.length < 3) errors.push('Condition regle requise');
+  if (action.length < 3) errors.push('Action regle requise');
+  return {
+    errors,
+    payload: {
+      id: `REC-RULE-${String(recruitmentRuleEngineRules.length + 1).padStart(3, '0')}`,
+      name,
+      event,
+      condition,
+      action,
+      enabled,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: String(currentUser?.username || 'system').trim() || 'system',
+    },
+  };
+}
+
+function simulateRecruitmentRuleExecution(payload) {
+  const event = normalizeText(payload?.event || '');
+  const context = payload?.context || {};
+  const matches = recruitmentRuleEngineRules
+    .filter((rule) => rule.enabled && normalizeText(rule.event) === event)
+    .map((rule) => ({
+      ruleId: rule.id,
+      ruleName: rule.name,
+      action: rule.action,
+      wouldExecute: true,
+      reason: `Condition [${rule.condition}] evaluee sur contexte fourni`,
+      context,
+    }));
+  return {
+    event: payload?.event || '',
+    simulatedAt: new Date().toISOString(),
+    matches,
+  };
+}
+
+function appendRecruitmentRuleExecution(entry) {
+  recruitmentRuleExecutions.push({
+    id: `REC-RUN-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`.toUpperCase(),
+    ruleId: String(entry?.ruleId || '').trim(),
+    ruleName: String(entry?.ruleName || '').trim(),
+    event: String(entry?.event || '').trim(),
+    executedAt: normalizeRecruitmentNotificationSentAt(entry?.executedAt || ''),
+    outcome: String(entry?.outcome || 'SUCCESS').trim(),
+    detail: String(entry?.detail || '').trim() || 'Execution regle',
+  });
+}
+
+function buildRecruitmentControlTowerView(filters = {}) {
+  const campaignFilter = String(filters.campaign || '').trim().toLowerCase();
+  const statusFilter = String(filters.status || '').trim().toLowerCase();
+  const search = String(filters.q || '').trim().toLowerCase();
+  const onboardingByReference = new Map(
+    recruitmentOnboarding
+      .map((item) => normalizeRecruitmentOnboardingRecord(item))
+      .map((item) => [String(item.applicationReference || '').trim().toUpperCase(), item])
+  );
+  const interviewsByReference = new Map();
+  recruitmentInterviewSchedules.forEach((item) => {
+    const normalized = normalizeRecruitmentInterviewSchedule(item);
+    const reference = String(normalized.applicationReference || '').trim().toUpperCase();
+    if (!reference) {
+      return;
+    }
+    if (!interviewsByReference.has(reference)) {
+      interviewsByReference.set(reference, []);
+    }
+    interviewsByReference.get(reference).push(normalized);
+  });
+
+  let items = recruitmentApplications.map((application) => {
+    const reference = String(application.reference || '').trim().toUpperCase();
+    const onboarding = onboardingByReference.get(reference);
+    const interviews = interviewsByReference.get(reference) || [];
+    const lastInterview = interviews
+      .slice()
+      .sort((left, right) => Date.parse(right.slotStart) - Date.parse(left.slotStart))[0];
+    return {
+      reference,
+      candidate: application.candidate,
+      campaign: application.campaign,
+      position: application.position,
+      status: application.status,
+      receivedOn: application.receivedOn,
+      interviewStatus: lastInterview ? lastInterview.status : 'Non planifie',
+      interviewSlot: lastInterview ? lastInterview.slotStart : '',
+      onboardingStatus: onboarding ? onboarding.status : 'Non lance',
+      onboardingProgress: Number(onboarding?.progress?.completionRate || 0),
+    };
+  });
+
+  if (campaignFilter) {
+    items = items.filter((item) => String(item.campaign || '').toLowerCase().includes(campaignFilter));
+  }
+  if (statusFilter) {
+    items = items.filter((item) => String(item.status || '').toLowerCase().includes(statusFilter));
+  }
+  if (search) {
+    items = items.filter((item) => {
+      return (
+        String(item.reference || '').toLowerCase().includes(search)
+        || String(item.candidate || '').toLowerCase().includes(search)
+        || String(item.position || '').toLowerCase().includes(search)
+        || String(item.campaign || '').toLowerCase().includes(search)
+      );
+    });
+  }
+
+  const summary = {
+    totalApplications: items.length,
+    interviewsPlanned: items.filter((item) => item.interviewStatus === 'Planifie' || item.interviewStatus === 'Replanifie').length,
+    onboardingActive: items.filter((item) => item.onboardingStatus === 'En cours' || item.onboardingStatus === 'Planifie').length,
+    retained: items.filter((item) => item.status === 'Retenu').length,
+  };
+
+  return { summary, items };
+}
+
+function buildRecruitmentExecutiveDashboard() {
+  const totalApplications = recruitmentApplications.length;
+  const retained = recruitmentApplications.filter((item) => item.status === 'Retenu').length;
+  const interviewStage = recruitmentApplications.filter((item) => item.status === 'Entretien').length;
+  const conversionInterviewToRetained = interviewStage > 0 ? (retained / interviewStage) * 100 : 0;
+  const processingDurations = recruitmentApplications.map((application) => {
+    const history = normalizeRecruitmentStatusHistory(application.statusHistory, application.status, application.receivedOn);
+    const createdAt = Date.parse(history[0]?.changedAt || application.receivedOn);
+    const finalEvent = history
+      .slice()
+      .reverse()
+      .find((event) => event.toStatus === 'Retenu' || event.toStatus === 'Rejete');
+    const finalAt = finalEvent ? Date.parse(finalEvent.changedAt) : Date.now();
+    if (Number.isNaN(createdAt) || Number.isNaN(finalAt)) return 0;
+    return Math.max(0, Math.round((finalAt - createdAt) / 86400000));
+  });
+  const avgTimeToHire = processingDurations.length > 0
+    ? processingDurations.reduce((sum, value) => sum + value, 0) / processingDurations.length
+    : 0;
+
+  const byCampaign = recruitmentCampaigns.map((campaign) => {
+    const scoped = recruitmentApplications.filter((item) => item.campaign === campaign.code);
+    const retainedCount = scoped.filter((item) => item.status === 'Retenu').length;
+    const rejectedCount = scoped.filter((item) => item.status === 'Rejete').length;
+    return {
+      campaignCode: campaign.code,
+      campaignTitle: campaign.title,
+      total: scoped.length,
+      retained: retainedCount,
+      rejected: rejectedCount,
+      conversion: scoped.length > 0 ? Math.round((retainedCount / scoped.length) * 1000) / 10 : 0,
+    };
+  });
+
+  return {
+    generatedAt: new Date().toISOString(),
+    kpis: {
+      totalApplications,
+      retained,
+      conversionInterviewToRetained: Math.round(conversionInterviewToRetained * 10) / 10,
+      averageTimeToHireDays: Math.round(avgTimeToHire * 10) / 10,
+    },
+    byCampaign,
+  };
+}
+
+function appendRecruitmentBiExportLog(entry) {
+  recruitmentBiExportLogs.push({
+    id: `REC-BI-LOG-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase(),
+    createdAt: normalizeRecruitmentNotificationSentAt(entry?.createdAt || ''),
+    requestedBy: String(entry?.requestedBy || 'system').trim() || 'system',
+    format: String(entry?.format || 'json').trim().toLowerCase() === 'csv' ? 'csv' : 'json',
+    records: Number.isFinite(Number(entry?.records)) ? Number(entry.records) : 0,
+    status: String(entry?.status || 'SUCCESS').trim(),
+  });
+}
+
+function buildRecruitmentBiExportPayload() {
+  return {
+    exportedAt: new Date().toISOString(),
+    schemaVersion: 'rec-bi-v1',
+    datasets: {
+      applications: recruitmentApplications,
+      campaigns: recruitmentCampaigns,
+      onboarding: recruitmentOnboarding.map((item) => normalizeRecruitmentOnboardingRecord(item)),
+      interviews: recruitmentInterviewSchedules.map((item) => normalizeRecruitmentInterviewSchedule(item)),
+      budgets: buildRecruitmentCampaignBudgetAnalytics(),
+    },
+  };
+}
+
+function buildRecruitmentObservabilitySnapshot() {
+  const now = Date.now();
+  const simulatedApiP95 = 540 + (recruitmentObservabilityEvents.length % 150);
+  const simulatedErrorRate = recruitmentObservabilityEvents.length === 0
+    ? 0
+    : Math.min(5, Math.round((recruitmentObservabilityEvents.length / 250) * 1000) / 10);
+  const alerts = [];
+  if (simulatedApiP95 > RECRUITMENT_PERF_THRESHOLDS.apiP95Ms) {
+    alerts.push('API_P95_THRESHOLD_BREACH');
+  }
+  if (simulatedErrorRate > RECRUITMENT_PERF_THRESHOLDS.errorRatePercent) {
+    alerts.push('ERROR_RATE_THRESHOLD_BREACH');
+  }
+  const lastEvent = recruitmentObservabilityEvents
+    .slice()
+    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))[0];
+  const staleMinutes = lastEvent ? Math.floor((now - Date.parse(lastEvent.createdAt)) / 60000) : 0;
+  if (staleMinutes > RECRUITMENT_PERF_THRESHOLDS.staleDataMinutes) {
+    alerts.push('STALE_DATA_WARNING');
+  }
+  return {
+    generatedAt: new Date().toISOString(),
+    thresholds: RECRUITMENT_PERF_THRESHOLDS,
+    metrics: {
+      apiP95Ms: simulatedApiP95,
+      errorRatePercent: simulatedErrorRate,
+      staleDataMinutes: staleMinutes,
+      e2eCriticalPassRate: 98.5,
+    },
+    alerts,
+    recentEvents: recruitmentObservabilityEvents
+      .slice()
+      .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
+      .slice(0, 30),
+  };
+}
+
+function listRecruitmentApplicationNextStatuses(status) {
+  if (status === 'Nouveau') return ['Preselection', 'Rejete'];
+  if (status === 'Preselection') return ['Entretien', 'Rejete'];
+  if (status === 'Entretien') return ['Retenu', 'Rejete'];
+  return [];
+}
+
+function isRecruitmentApplicationTransitionAllowed(fromStatus, toStatus) {
+  return listRecruitmentApplicationNextStatuses(fromStatus).includes(toStatus);
+}
+
+function normalizeRecruitmentHistoryTimestamp(value, receivedOn) {
+  const parsedChangedAt = Date.parse(String(value || '').trim());
+  if (!Number.isNaN(parsedChangedAt)) {
+    return new Date(parsedChangedAt).toISOString();
+  }
+
+  const parsedReceivedOn = Date.parse(String(receivedOn || '').trim());
+  if (!Number.isNaN(parsedReceivedOn)) {
+    return new Date(parsedReceivedOn).toISOString();
+  }
+
+  return new Date().toISOString();
+}
+
+function buildRecruitmentInitialStatusHistory(status, receivedOn, changedBy = 'system') {
+  return [
+    {
+      fromStatus: null,
+      toStatus: status,
+      changedAt: normalizeRecruitmentHistoryTimestamp('', receivedOn),
+      changedBy: String(changedBy || '').trim() || 'system',
+      note: 'Initialisation',
+    },
+  ];
+}
+
+function normalizeRecruitmentStatusHistory(value, currentStatus, receivedOn) {
+  if (!Array.isArray(value)) {
+    return buildRecruitmentInitialStatusHistory(currentStatus, receivedOn);
+  }
+
+  const normalized = value
+    .map((entry) => {
+      const fromStatusInput = String(entry?.fromStatus ?? entry?.from_status ?? '').trim();
+      const toStatusInput = String(entry?.toStatus ?? entry?.to_status ?? '').trim();
+      const toStatus = normalizeRecruitmentApplicationStatus(toStatusInput, currentStatus);
+      const changedAt = normalizeRecruitmentHistoryTimestamp(entry?.changedAt ?? entry?.changed_at, receivedOn);
+      const changedBy = String(entry?.changedBy ?? entry?.changed_by ?? '').trim() || 'system';
+      const note = String(entry?.note || '').trim() || undefined;
+
+      return {
+        fromStatus: fromStatusInput ? normalizeRecruitmentApplicationStatus(fromStatusInput, currentStatus) : null,
+        toStatus,
+        changedAt,
+        changedBy,
+        note,
+      };
+    })
+    .filter((entry) => !!entry.toStatus);
+
+  if (normalized.length === 0) {
+    return buildRecruitmentInitialStatusHistory(currentStatus, receivedOn);
+  }
+
+  normalized.sort((left, right) => Date.parse(left.changedAt) - Date.parse(right.changedAt));
+  return normalized;
+}
+
+function parseRecruitmentDateBoundary(value, boundary = 'start') {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return null;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    const suffix = boundary === 'end' ? 'T23:59:59.999Z' : 'T00:00:00.000Z';
+    const parsedDateOnly = Date.parse(`${raw}${suffix}`);
+    return Number.isNaN(parsedDateOnly) ? null : parsedDateOnly;
+  }
+
+  const parsed = Date.parse(raw);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+function parseRecruitmentReceivedTimestamp(value) {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return Number.NaN;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return Date.parse(`${raw}T00:00:00.000Z`);
+  }
+
+  return Date.parse(raw);
+}
+
+function applyRecruitmentReceivedOnRangeFilter(items, url) {
+  const fromTimestamp = parseRecruitmentDateBoundary(
+    url.searchParams.get('receivedFrom') || url.searchParams.get('received_from'),
+    'start'
+  );
+  const toTimestamp = parseRecruitmentDateBoundary(
+    url.searchParams.get('receivedTo') || url.searchParams.get('received_to'),
+    'end'
+  );
+
+  if (!Number.isFinite(fromTimestamp) && !Number.isFinite(toTimestamp)) {
+    return items;
+  }
+
+  return items.filter((item) => {
+    const timestamp = parseRecruitmentReceivedTimestamp(item?.receivedOn ?? item?.received_on);
+    if (!Number.isFinite(timestamp)) {
+      return false;
+    }
+    if (Number.isFinite(fromTimestamp) && timestamp < fromTimestamp) {
+      return false;
+    }
+    if (Number.isFinite(toTimestamp) && timestamp > toTimestamp) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function normalizeRecruitmentCommentCreatedAt(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+function buildRecruitmentApplicationCommentId(reference, existingComments) {
+  const referenceCode = String(reference || 'APP')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'APP';
+  const prefix = `COM-${referenceCode}-`;
+  const maxExisting = Array.isArray(existingComments)
+    ? existingComments.reduce((max, comment) => {
+        const id = String(comment?.id || '')
+          .trim()
+          .toUpperCase();
+        if (!id.startsWith(prefix)) {
+          return max;
+        }
+        const sequence = Number(id.slice(prefix.length));
+        return Number.isFinite(sequence) ? Math.max(max, sequence) : max;
+      }, 0)
+    : 0;
+  return `${prefix}${String(maxExisting + 1).padStart(3, '0')}`;
+}
+
+function normalizeRecruitmentApplicationComments(value, reference = '') {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const referenceCode = String(reference || 'APP')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'APP';
+
+  const normalized = value
+    .map((entry, index) => {
+      const message = String(entry?.message ?? entry?.text ?? entry?.comment ?? '').trim();
+      if (!message) {
+        return null;
+      }
+      const author = String(
+        entry?.author ??
+          entry?.createdBy ??
+          entry?.created_by ??
+          entry?.actor ??
+          'system'
+      ).trim() || 'system';
+      const createdAt = normalizeRecruitmentCommentCreatedAt(entry?.createdAt ?? entry?.created_at);
+      const id = String(entry?.id || '').trim() || `COM-${referenceCode}-${String(index + 1).padStart(3, '0')}`;
+      return {
+        id,
+        author,
+        message,
+        createdAt,
+      };
+    })
+    .filter((entry) => !!entry);
+
+  normalized.sort((left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt));
+  return normalized;
+}
+
+function normalizeRecruitmentAttachmentUploadedAt(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+function normalizeRecruitmentApplicationAttachments(value, reference = '') {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const referenceCode = String(reference || 'APP')
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'APP';
+
+  const normalized = value
+    .map((entry, index) => {
+      const fileName = String(entry?.fileName ?? entry?.file_name ?? entry?.name ?? '').trim();
+      const url = String(entry?.url ?? entry?.fileDataUrl ?? entry?.file_data_url ?? entry?.path ?? '').trim();
+      if (!fileName || !url) {
+        return null;
+      }
+      const id = String(entry?.id || '').trim() || `ATT-${referenceCode}-${String(index + 1).padStart(3, '0')}`;
+      const mimeType = String(entry?.mimeType ?? entry?.mime_type ?? 'application/octet-stream').trim() || 'application/octet-stream';
+      const sizeRaw = Number(entry?.size ?? 0);
+      const size = Number.isFinite(sizeRaw) && sizeRaw >= 0 ? Math.round(sizeRaw) : 0;
+      const uploadedAt = normalizeRecruitmentAttachmentUploadedAt(entry?.uploadedAt ?? entry?.uploaded_at);
+      return {
+        id,
+        fileName,
+        url,
+        mimeType,
+        size,
+        uploadedAt,
+      };
+    })
+    .filter((entry) => !!entry);
+
+  normalized.sort((left, right) => Date.parse(left.uploadedAt) - Date.parse(right.uploadedAt));
+  return normalized;
+}
+
+function validateRecruitmentApplicationAttachmentsPayload(value) {
+  const errors = [];
+
+  if (value === null || value === undefined) {
+    return { errors, attachments: [] };
+  }
+
+  if (!Array.isArray(value)) {
+    return {
+      errors: ['Pieces jointes invalides'],
+      attachments: [],
+    };
+  }
+
+  if (value.length > 20) {
+    errors.push('Nombre maximal de pieces jointes depasse (20)');
+  }
+
+  const attachments = normalizeRecruitmentApplicationAttachments(value);
+  attachments.forEach((attachment) => {
+    if (attachment.fileName.length > 180) {
+      errors.push(`Nom de fichier trop long: ${attachment.fileName}`);
+    }
+    if (attachment.url.length > 500) {
+      errors.push(`URL piece jointe trop longue: ${attachment.fileName}`);
+    }
+    if (
+      !attachment.url.startsWith('/api/v1/public/uploads/') &&
+      !/^https?:\/\//i.test(attachment.url)
+    ) {
+      errors.push(`URL piece jointe invalide: ${attachment.fileName}`);
+    }
+    if (attachment.size > MAX_UPLOAD_BYTES) {
+      errors.push(`Piece jointe trop volumineuse: ${attachment.fileName}`);
+    }
+  });
+
+  return {
+    errors,
+    attachments,
+  };
+}
+
+function validateRecruitmentApplicationCommentCreatePayload(body, currentUser) {
+  const errors = [];
+
+  const message = String(body.message || body.text || body.comment || body.note || '').trim();
+  const author = String(
+    body.author ||
+      body.createdBy ||
+      body.created_by ||
+      body.actor ||
+      body.username ||
+      currentUser?.username ||
+      'system'
+  ).trim();
+
+  if (message.length < 2) {
+    errors.push('Commentaire requis (2 caracteres minimum)');
+  }
+  if (message.length > 1000) {
+    errors.push('Commentaire trop long (1000 caracteres max)');
+  }
+  if (author.length > 120) {
+    errors.push('Auteur commentaire trop long');
+  }
+
+  return {
+    errors,
+    payload: {
+      message,
+      author: author || 'system',
+    },
+  };
+}
+
 function validateRecruitmentApplicationCreatePayload(body) {
   const errors = [];
 
   const reference = String(body.reference || body.requestRef || body.request_ref || '').trim().toUpperCase();
   const candidate = String(body.candidate || body.candidateName || body.candidate_name || '').trim();
+  const candidateEmailInput = String(body.candidateEmail || body.candidate_email || body.email || '').trim();
+  const candidatePhoneInput = String(body.candidatePhone || body.candidate_phone || body.phone || '').trim();
+  const identityNumberInput = String(body.identityNumber || body.identity_number || body.identity || '').trim();
+  const candidateEmail = candidateEmailInput ? normalizeRecruitmentCandidateEmail(candidateEmailInput) : null;
+  const candidatePhone = candidatePhoneInput ? normalizeRecruitmentCandidatePhone(candidatePhoneInput) : null;
+  const identityNumber = identityNumberInput ? normalizeRecruitmentCandidateIdentity(identityNumberInput) : null;
   const position = String(body.position || body.positionTitle || body.position_title || '').trim();
   const campaign = String(body.campaign || body.campaignTitle || body.campaign_title || '').trim().toUpperCase();
-  const statusRaw = normalizeText(body.status || 'nouveau');
-  let status = 'Nouveau';
-  if (statusRaw === 'shortlist') status = 'Shortlist';
-  else if (statusRaw === 'entretien') status = 'Entretien';
-  else if (statusRaw === 'accepte' || statusRaw === 'accepté') status = 'Accepte';
-  else if (statusRaw === 'rejete' || statusRaw === 'rejeté') status = 'Rejete';
+  const sourceInput = String(
+    body.source || body.sourceName || body.source_name || body.channel || body.canal || body.origin || body.origine || ''
+  ).trim();
+  const source = sourceInput ? normalizeRecruitmentApplicationSource(sourceInput, '') : '';
+  const statusInput = String(body.status || '').trim();
+  const status = normalizeRecruitmentApplicationStatus(statusInput || 'Nouveau', 'Nouveau');
+  const explicitStatus = statusInput ? normalizeRecruitmentApplicationStatus(statusInput, '') : status;
   const receivedOn = String(body.receivedOn || body.received_on || '').trim();
+  const experienceYears = normalizeRecruitmentExperienceYears(body.experienceYears ?? body.experience_years, 0);
+  const skillsMatch = normalizeRecruitmentPercentage(body.skillsMatch ?? body.skills_match, 0);
+  const educationLevel = normalizeRecruitmentPercentage(body.educationLevel ?? body.education_level, 0);
+  const interviewAverage = normalizeRecruitmentPercentage(body.interviewAverage ?? body.interview_average, 0);
+  const testScore = normalizeRecruitmentPercentage(body.testScore ?? body.test_score, 0);
+  const allowDuplicate = parseBooleanFlag(body.allowDuplicate ?? body.allow_duplicate, false);
+  const attachmentsValidation = validateRecruitmentApplicationAttachmentsPayload(
+    body.attachments ?? body.files ?? body.documents
+  );
 
   if (reference && !/^[A-Z0-9-]{3,40}$/.test(reference)) {
     errors.push('Reference candidature invalide');
@@ -2060,14 +4820,48 @@ function validateRecruitmentApplicationCreatePayload(body) {
   if (candidate.length < 2) {
     errors.push('Nom candidat requis');
   }
+  if (candidateEmailInput && !candidateEmail) {
+    errors.push('Email candidat invalide');
+  }
+  if (candidatePhoneInput && !candidatePhone) {
+    errors.push('Telephone candidat invalide');
+  }
+  if (identityNumberInput && !identityNumber) {
+    errors.push('Identite candidat invalide');
+  }
   if (position.length < 2) {
     errors.push('Poste requis');
   }
   if (campaign.length < 3) {
     errors.push('Campagne requise');
   }
+  if (!sourceInput) {
+    errors.push('Source candidature requise');
+  } else if (!source) {
+    errors.push('Source candidature invalide');
+  }
+  if (statusInput && !explicitStatus) {
+    errors.push('Statut candidature invalide');
+  }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(receivedOn) || Number.isNaN(Date.parse(receivedOn))) {
     errors.push('Date reception invalide');
+  }
+  const duplicateMatches = findRecruitmentPotentialDuplicateMatches(
+    {
+      candidateEmail,
+      candidatePhone,
+      identityNumber,
+    }
+  );
+  if (duplicateMatches.length > 0 && !allowDuplicate) {
+    errors.push(
+      `Doublon potentiel detecte (${duplicateMatches
+        .map((item) => `${item.reference} via ${item.matchTypes.map((type) => buildRecruitmentIdentityMatchLabel(type)).join(', ')}`)
+        .join(' | ')})`
+    );
+  }
+  if (attachmentsValidation.errors.length > 0) {
+    errors.push(...attachmentsValidation.errors);
   }
 
   return {
@@ -2075,13 +4869,210 @@ function validateRecruitmentApplicationCreatePayload(body) {
     payload: {
       reference: reference || null,
       candidate,
+      candidateEmail,
+      candidatePhone,
+      identityNumber,
       position,
       campaign,
+      source,
       status,
       receivedOn,
+      experienceYears,
+      skillsMatch,
+      educationLevel,
+      interviewAverage,
+      testScore,
+      duplicateMatches,
+      attachments: attachmentsValidation.attachments,
     },
   };
 }
+
+function validateRecruitmentApplicationStatusUpdatePayload(body, currentApplication, currentUser) {
+  const errors = [];
+
+  const targetStatusInput = String(body.status || '').trim();
+  const targetStatus = normalizeRecruitmentApplicationStatus(targetStatusInput, '');
+  const note = String(body.note || body.reason || '').trim();
+  const changedBy = String(
+    body.changedBy ||
+      body.changed_by ||
+      body.actor ||
+      body.username ||
+      currentUser?.username ||
+      'system'
+  ).trim();
+
+  if (!targetStatusInput) {
+    errors.push('Statut cible requis');
+  } else if (!targetStatus) {
+    errors.push('Statut cible invalide');
+  } else if (targetStatus === currentApplication.status) {
+    errors.push('Candidature deja dans ce statut');
+  } else if (!isRecruitmentApplicationTransitionAllowed(currentApplication.status, targetStatus)) {
+    const allowed = listRecruitmentApplicationNextStatuses(currentApplication.status);
+    errors.push(
+      allowed.length > 0
+        ? `Transition invalide (${currentApplication.status} -> ${targetStatus}). Etapes autorisees: ${allowed.join(', ')}`
+        : `Transition invalide depuis le statut ${currentApplication.status}`
+    );
+  }
+
+  if (note.length > 240) {
+    errors.push('Note trop longue (240 caracteres max)');
+  }
+
+  return {
+    errors,
+    payload: {
+      status: targetStatus || currentApplication.status,
+      note: note || null,
+      changedBy: changedBy || 'system',
+    },
+  };
+}
+
+function validateRecruitmentScoringPolicyUpdatePayload(body, currentUser) {
+  const errors = [];
+  const criteriaInput = Array.isArray(body?.criteria) ? body.criteria : [];
+  if (criteriaInput.length === 0) {
+    errors.push('Liste de criteres de scoring requise');
+  }
+  const normalized = normalizeRecruitmentScoringCriteria(criteriaInput);
+  const rebalanced = rebalanceRecruitmentScoringCriteria(normalized);
+  const totalWeight = rebalanced.reduce((sum, item) => sum + Number(item.weight || 0), 0);
+  if (totalWeight !== 100) {
+    errors.push('Ponderation globale invalide (100 attendu)');
+  }
+  return {
+    errors,
+    payload: {
+      criteria: rebalanced,
+      updatedAt: new Date().toISOString(),
+      updatedBy: String(currentUser?.username || body?.updatedBy || body?.updated_by || 'system').trim() || 'system',
+    },
+  };
+}
+
+function validateRecruitmentShortlistValidationPayload(body, reference, currentUser) {
+  const errors = [];
+  const normalizedReference = String(reference || '').trim().toUpperCase();
+  const application = findRecruitmentApplication(normalizedReference);
+  if (!application) {
+    errors.push('Candidature shortlist introuvable');
+  }
+
+  const decisionRaw = normalizeText(body?.decision || body?.status || body?.validationStatus || body?.validation_status || '');
+  let decision = 'VALIDATED';
+  if (decisionRaw === 'rejected' || decisionRaw === 'refused' || decisionRaw === 'rejete' || decisionRaw === 'rejected') {
+    decision = 'REJECTED';
+  } else if (decisionRaw && decisionRaw !== 'validated' && decisionRaw !== 'valide') {
+    errors.push('Decision shortlist invalide');
+  }
+
+  const note = String(body?.note || body?.reason || '').trim();
+  if (note.length > 240) {
+    errors.push('Commentaire validation shortlist trop long');
+  }
+
+  return {
+    errors,
+    payload: {
+      reference: normalizedReference,
+      decision,
+      note: note || undefined,
+      validatedAt: new Date().toISOString(),
+      validatedBy: String(currentUser?.username || body?.validatedBy || body?.validated_by || 'system').trim() || 'system',
+    },
+  };
+}
+
+function validateRecruitmentDuplicateLinkPayload(body, currentUser) {
+  const errors = [];
+  const primaryReference = String(body?.primaryReference || body?.primary_reference || '').trim().toUpperCase();
+  const secondaryReference = String(body?.secondaryReference || body?.secondary_reference || '').trim().toUpperCase();
+  const mode = normalizeRecruitmentDuplicateMode(body?.mode || body?.action || 'link');
+  const reason = String(body?.reason || '').trim() || 'Traitement dedoublonnage manuel';
+
+  if (!primaryReference || !findRecruitmentApplication(primaryReference)) {
+    errors.push('Reference primaire introuvable');
+  }
+  if (!secondaryReference || !findRecruitmentApplication(secondaryReference)) {
+    errors.push('Reference secondaire introuvable');
+  }
+  if (primaryReference && secondaryReference && primaryReference === secondaryReference) {
+    errors.push('References primaire et secondaire doivent etre differentes');
+  }
+  if (reason.length > 240) {
+    errors.push('Motif dedoublonnage trop long');
+  }
+
+  return {
+    errors,
+    payload: {
+      id: `DEDUP-LINK-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase(),
+      primaryReference,
+      secondaryReference,
+      mode,
+      reason,
+      linkedAt: new Date().toISOString(),
+      linkedBy: String(currentUser?.username || body?.linkedBy || body?.linked_by || 'system').trim() || 'system',
+    },
+  };
+}
+
+recruitmentApplications.forEach((application) => {
+  const normalizedStatus = normalizeRecruitmentApplicationStatus(application.status, 'Nouveau');
+  application.status = normalizedStatus;
+  application.candidateEmail = normalizeRecruitmentCandidateEmail(
+    application.candidateEmail || application.candidate_email || application.email
+  ) || undefined;
+  application.candidatePhone = normalizeRecruitmentCandidatePhone(
+    application.candidatePhone || application.candidate_phone || application.phone
+  ) || undefined;
+  application.identityNumber = normalizeRecruitmentCandidateIdentity(
+    application.identityNumber || application.identity_number || application.identity
+  ) || undefined;
+  application.experienceYears = normalizeRecruitmentExperienceYears(
+    application.experienceYears || application.experience_years,
+    deriveRecruitmentPseudoScore(application.reference, 'experienceYears', 1, 8)
+  );
+  application.skillsMatch = normalizeRecruitmentPercentage(
+    application.skillsMatch || application.skills_match,
+    deriveRecruitmentPseudoScore(application.reference, 'skillsMatch', 50, 92)
+  );
+  application.educationLevel = normalizeRecruitmentPercentage(
+    application.educationLevel || application.education_level,
+    deriveRecruitmentPseudoScore(application.reference, 'educationLevel', 45, 90)
+  );
+  application.interviewAverage = normalizeRecruitmentPercentage(
+    application.interviewAverage || application.interview_average,
+    application.status === 'Entretien' || application.status === 'Retenu'
+      ? deriveRecruitmentPseudoScore(application.reference, 'interviewAverage', 60, 92)
+      : 0
+  );
+  application.testScore = normalizeRecruitmentPercentage(
+    application.testScore || application.test_score,
+    deriveRecruitmentPseudoScore(application.reference, 'testScore', 48, 94)
+  );
+  application.source = normalizeRecruitmentApplicationSource(
+    application.source || application.sourceName || application.source_name || application.channel || application.canal || application.origin || application.origine,
+    'Autre'
+  );
+  application.statusHistory = normalizeRecruitmentStatusHistory(
+    application.statusHistory,
+    normalizedStatus,
+    application.receivedOn
+  );
+  application.comments = normalizeRecruitmentApplicationComments(
+    application.comments || application.commentaries || application.comments_history,
+    application.reference
+  );
+  application.attachments = normalizeRecruitmentApplicationAttachments(
+    application.attachments || application.files || application.documents,
+    application.reference
+  );
+});
 
 function findRecruitmentCampaign(code) {
   return recruitmentCampaigns.find((item) => item.code === code);
@@ -2117,6 +5108,15 @@ function validateRecruitmentCampaignCreatePayload(body) {
   const openings = Number.isFinite(openingsRaw) ? Math.max(0, Math.round(openingsRaw)) : 0;
   const startDate = String(body.startDate || body.start_date || '').trim();
   const endDate = String(body.endDate || body.end_date || '').trim();
+  const needPosition = String(
+    body.needPosition || body.need_position || body.targetPosition || body.target_position || body.position || ''
+  ).trim();
+  const needQuotaRaw = Number(body.needQuota ?? body.need_quota ?? body.quota ?? openingsRaw);
+  const needQuota = Number.isFinite(needQuotaRaw) ? Math.max(0, Math.round(needQuotaRaw)) : 0;
+  const needDeadline = String(
+    body.needDeadline || body.need_deadline || body.deadline || body.targetDeadline || body.target_deadline || ''
+  ).trim();
+  const needOwner = String(body.needOwner || body.need_owner || body.owner || body.campaignOwner || '').trim();
   const statusRaw = normalizeText(body.status || 'planifiee');
   let status = 'Planifiee';
   if (statusRaw === 'active') status = 'Active';
@@ -2149,6 +5149,28 @@ function validateRecruitmentCampaignCreatePayload(body) {
       errors.push('Date fin doit etre superieure ou egale a date debut');
     }
   }
+  if (needPosition.length < 2) {
+    errors.push('Besoin poste cible requis');
+  }
+  if (!Number.isFinite(needQuotaRaw) || needQuotaRaw <= 0) {
+    errors.push('Besoin quota invalide');
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(needDeadline) || Number.isNaN(Date.parse(needDeadline))) {
+    errors.push('Besoin delai invalide');
+  }
+  if (
+    !Number.isNaN(Date.parse(startDate)) &&
+    !Number.isNaN(Date.parse(endDate)) &&
+    !Number.isNaN(Date.parse(needDeadline))
+  ) {
+    const needDeadlineTs = Date.parse(needDeadline);
+    if (needDeadlineTs < Date.parse(startDate) || needDeadlineTs > Date.parse(endDate)) {
+      errors.push('Besoin delai doit etre compris entre date debut et date fin');
+    }
+  }
+  if (needOwner.length < 2) {
+    errors.push('Besoin owner requis');
+  }
 
   return {
     errors,
@@ -2159,9 +5181,411 @@ function validateRecruitmentCampaignCreatePayload(body) {
       openings,
       startDate,
       endDate,
+      needPosition,
+      needQuota,
+      needDeadline,
+      needOwner,
       status,
     },
   };
+}
+
+function normalizeRecruitmentNotificationType(value, fallback = 'Alerte SLA candidature') {
+  const normalized = normalizeText(value);
+  if (normalized === 'relance entretien' || normalized === 'entretien reminder') return 'Relance entretien';
+  if (normalized === 'relance validation' || normalized === 'validation reminder') return 'Relance validation';
+  if (
+    normalized === 'alerte sla candidature' ||
+    normalized === 'alerte sla' ||
+    normalized === 'sla alert'
+  ) {
+    return 'Alerte SLA candidature';
+  }
+  return fallback;
+}
+
+function normalizeRecruitmentNotificationSeverity(value, fallback = 'Alerte') {
+  const normalized = normalizeText(value);
+  if (normalized === 'info') return 'Info';
+  if (normalized === 'alerte' || normalized === 'warning') return 'Alerte';
+  if (normalized === 'critique' || normalized === 'critical') return 'Critique';
+  return fallback;
+}
+
+function normalizeRecruitmentNotificationStatus(value, fallback = 'Envoyee') {
+  const normalized = normalizeText(value);
+  if (normalized === 'envoyee' || normalized === 'envoye' || normalized === 'sent') return 'Envoyee';
+  if (normalized === 'en attente' || normalized === 'pending') return 'En attente';
+  if (normalized === 'echec' || normalized === 'failed') return 'Echec';
+  return fallback;
+}
+
+function normalizeRecruitmentNotificationSentAt(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+function daysSinceRecruitmentDate(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  const elapsed = Date.now() - parsed;
+  return Math.max(0, Math.floor(elapsed / 86400000));
+}
+
+function addDaysToRecruitmentIsoDateTime(value, days) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (Number.isNaN(parsed)) {
+    return new Date().toISOString();
+  }
+  const safeDays = Number.isFinite(days) ? Math.max(0, Math.floor(days)) : 0;
+  return new Date(parsed + safeDays * 86400000).toISOString();
+}
+
+function getRecruitmentApplicationStageChangedAt(application) {
+  const history = normalizeRecruitmentStatusHistory(
+    application?.statusHistory,
+    application?.status || 'Nouveau',
+    application?.receivedOn || ''
+  );
+  for (let index = history.length - 1; index >= 0; index -= 1) {
+    if (history[index]?.toStatus === application?.status && history[index]?.changedAt) {
+      return history[index].changedAt;
+    }
+  }
+  return normalizeRecruitmentHistoryTimestamp(application?.receivedOn, application?.receivedOn);
+}
+
+function hasRecruitmentOnboardingForApplication(reference, candidate, position) {
+  const normalizedReference = String(reference || '').trim().toUpperCase();
+  const normalizedCandidate = normalizeText(candidate);
+  const normalizedPosition = normalizeText(position);
+
+  return recruitmentOnboarding.some((item) => {
+    const normalizedItem = normalizeRecruitmentOnboardingRecord(item);
+    const itemReference = String(normalizedItem.applicationReference || '').trim().toUpperCase();
+    if (normalizedReference && itemReference === normalizedReference) {
+      return true;
+    }
+    return (
+      normalizeText(normalizedItem.agent) === normalizedCandidate &&
+      normalizeText(normalizedItem.position) === normalizedPosition
+    );
+  });
+}
+
+function buildRecruitmentNotificationsJournal() {
+  const notifications = [];
+
+  recruitmentApplications.forEach((application) => {
+    const stageChangedAt = getRecruitmentApplicationStageChangedAt(application);
+    const stageAgeDays = daysSinceRecruitmentDate(stageChangedAt);
+    const campaign = findRecruitmentCampaign(String(application?.campaign || '').trim().toUpperCase());
+    const recipient = String(campaign?.needOwner || 'responsable.rh').trim() || 'responsable.rh';
+    const slaThreshold = RECRUITMENT_NOTIFICATION_SLA_DAYS_BY_STATUS[application.status];
+
+    if (Number.isFinite(slaThreshold) && stageAgeDays > slaThreshold) {
+      const overdueDays = stageAgeDays - slaThreshold;
+      notifications.push({
+        id: `REC-NOTIF-SLA-${application.reference}-${slaThreshold}`,
+        type: 'Alerte SLA candidature',
+        severity: overdueDays >= 3 ? 'Critique' : 'Alerte',
+        status: 'Envoyee',
+        channel: 'Email',
+        recipient,
+        reference: application.reference,
+        candidate: application.candidate,
+        campaign: application.campaign,
+        message: `SLA depasse sur ${application.reference} (${application.status}) de ${overdueDays} jour(s).`,
+        trigger: `SLA etape ${application.status} depasse (${slaThreshold} jour(s))`,
+        sentAt: addDaysToRecruitmentIsoDateTime(stageChangedAt, slaThreshold),
+      });
+    }
+
+    if (application.status === 'Entretien' && stageAgeDays >= RECRUITMENT_NOTIFICATION_INTERVIEW_REMINDER_DAYS) {
+      notifications.push({
+        id: `REC-NOTIF-ENTRETIEN-${application.reference}-${RECRUITMENT_NOTIFICATION_INTERVIEW_REMINDER_DAYS}`,
+        type: 'Relance entretien',
+        severity: stageAgeDays >= 6 ? 'Critique' : 'Alerte',
+        status: 'Envoyee',
+        channel: 'Email',
+        recipient,
+        reference: application.reference,
+        candidate: application.candidate,
+        campaign: application.campaign,
+        message: `Relance entretien pour ${application.candidate} (${application.reference}) en attente depuis ${stageAgeDays} jour(s).`,
+        trigger: 'Etape entretien non finalisee',
+        sentAt: addDaysToRecruitmentIsoDateTime(stageChangedAt, RECRUITMENT_NOTIFICATION_INTERVIEW_REMINDER_DAYS),
+      });
+    }
+
+    if (application.status === 'Retenu' && stageAgeDays >= RECRUITMENT_NOTIFICATION_VALIDATION_REMINDER_DAYS) {
+      const hasOnboarding = hasRecruitmentOnboardingForApplication(
+        application.reference,
+        application.candidate,
+        application.position
+      );
+      if (!hasOnboarding) {
+        notifications.push({
+          id: `REC-NOTIF-VALIDATION-${application.reference}-${RECRUITMENT_NOTIFICATION_VALIDATION_REMINDER_DAYS}`,
+          type: 'Relance validation',
+          severity: stageAgeDays >= 4 ? 'Critique' : 'Alerte',
+          status: 'Envoyee',
+          channel: 'Email',
+          recipient,
+          reference: application.reference,
+          candidate: application.candidate,
+          campaign: application.campaign,
+          message: `Validation integration en attente pour ${application.reference}.`,
+          trigger: 'Candidature retenue sans integration planifiee',
+          sentAt: addDaysToRecruitmentIsoDateTime(stageChangedAt, RECRUITMENT_NOTIFICATION_VALIDATION_REMINDER_DAYS),
+        });
+      }
+    }
+  });
+
+  recruitmentOnboarding.forEach((item) => {
+    const normalizedItem = normalizeRecruitmentOnboardingRecord(item);
+    const tasks = Array.isArray(normalizedItem.checklistTasks) ? normalizedItem.checklistTasks : [];
+    tasks.forEach((task) => {
+      if (task.status !== 'Bloquee') {
+        return;
+      }
+      const blockedSince = normalizeRecruitmentOnboardingDate(
+        task.blockedSince || task.dueDate || normalizedItem.startDate
+      );
+      if (!blockedSince) {
+        return;
+      }
+      const blockedDays = daysSinceRecruitmentDate(blockedSince);
+      if (blockedDays < 1) {
+        return;
+      }
+      const reference = String(normalizedItem.applicationReference || '').trim().toUpperCase() || undefined;
+      notifications.push({
+        id: `REC-NOTIF-BLOCK-${reference || normalizedItem.agent}-${task.label}-${blockedSince}`
+          .replace(/\s+/g, '-')
+          .toUpperCase(),
+        type: 'Relance validation',
+        severity: task?.escalation?.level === 'N3' || blockedDays >= 5 ? 'Critique' : 'Alerte',
+        status: 'Envoyee',
+        channel: 'Email',
+        recipient: String(task.assignedTo || 'RH Operations').trim() || 'RH Operations',
+        reference,
+        candidate: normalizedItem.agent,
+        campaign: undefined,
+        message: `Blocage onboarding: ${task.label} pour ${normalizedItem.agent}.`,
+        trigger: String(task.blockedReason || 'Tache onboarding bloquee').trim(),
+        sentAt: addDaysToRecruitmentIsoDateTime(blockedSince, 1),
+      });
+    });
+  });
+
+  const normalized = notifications
+    .map((entry) => {
+      const type = normalizeRecruitmentNotificationType(entry.type, 'Alerte SLA candidature');
+      const severity = normalizeRecruitmentNotificationSeverity(entry.severity, 'Alerte');
+      const status = normalizeRecruitmentNotificationStatus(entry.status, 'Envoyee');
+      const sentAt = normalizeRecruitmentNotificationSentAt(entry.sentAt);
+      const reference = String(entry.reference || '').trim().toUpperCase() || undefined;
+      const candidate = String(entry.candidate || '').trim() || undefined;
+      const campaign = String(entry.campaign || '').trim() || undefined;
+      const channel = String(entry.channel || 'Email').trim() || 'Email';
+      const recipient = String(entry.recipient || 'responsable.rh').trim() || 'responsable.rh';
+      const message = String(entry.message || '').trim();
+      const trigger = String(entry.trigger || 'Automatique').trim() || 'Automatique';
+      const id = String(entry.id || '').trim()
+        || `${type}-${reference || candidate || campaign || 'GLOBAL'}-${sentAt}`.replace(/\s+/g, '-').toUpperCase();
+      return {
+        id,
+        type,
+        severity,
+        status,
+        channel,
+        recipient,
+        reference,
+        candidate,
+        campaign,
+        message: message || `${type} ${reference || candidate || ''}`.trim(),
+        trigger,
+        sentAt,
+      };
+    })
+    .filter((entry) => !!entry.id && !!entry.message);
+
+  const deduped = new Map();
+  normalized.forEach((entry) => {
+    const key = `${entry.type}|${entry.reference || ''}|${entry.candidate || ''}|${entry.message}|${entry.sentAt}`.toLowerCase();
+    if (!deduped.has(key)) {
+      deduped.set(key, entry);
+    }
+  });
+
+  return Array.from(deduped.values()).sort((left, right) => {
+    const leftTs = Date.parse(left.sentAt);
+    const rightTs = Date.parse(right.sentAt);
+    const safeLeft = Number.isNaN(leftTs) ? 0 : leftTs;
+    const safeRight = Number.isNaN(rightTs) ? 0 : rightTs;
+    return safeRight - safeLeft;
+  });
+}
+
+function normalizeRecruitmentAuditAction(value, fallback = 'APPLICATION_STATUS_UPDATED') {
+  const normalized = normalizeText(value).toUpperCase();
+  if (normalized === 'APPLICATION_CREATED') return 'APPLICATION_CREATED';
+  if (normalized === 'APPLICATION_STATUS_UPDATED') return 'APPLICATION_STATUS_UPDATED';
+  if (normalized === 'APPLICATION_COMMENT_ADDED') return 'APPLICATION_COMMENT_ADDED';
+  if (normalized === 'CAMPAIGN_CREATED') return 'CAMPAIGN_CREATED';
+  if (normalized === 'ONBOARDING_CREATED') return 'ONBOARDING_CREATED';
+  if (normalized === 'NOTIFICATION_SENT') return 'NOTIFICATION_SENT';
+  return fallback;
+}
+
+function normalizeRecruitmentAuditEntityType(value, fallback = 'Application') {
+  const normalized = normalizeText(value);
+  if (normalized === 'application') return 'Application';
+  if (normalized === 'campaign' || normalized === 'campagne') return 'Campaign';
+  if (normalized === 'onboarding' || normalized === 'integration') return 'Onboarding';
+  if (normalized === 'notification' || normalized === 'notifications') return 'Notification';
+  return fallback;
+}
+
+function normalizeRecruitmentAuditOutcome(value, fallback = 'SUCCESS') {
+  const normalized = normalizeText(value).toUpperCase();
+  if (normalized === 'SUCCESS' || normalized === 'SUCCES') return 'SUCCESS';
+  if (normalized === 'DENIED' || normalized === 'REFUSED') return 'DENIED';
+  if (normalized === 'FAILED' || normalized === 'ECHEC') return 'FAILED';
+  return fallback;
+}
+
+function normalizeRecruitmentAuditCreatedAt(value) {
+  const parsed = Date.parse(String(value || '').trim());
+  if (!Number.isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+function buildRecruitmentAuditLogId(action, entityType, entityId, createdAt) {
+  const safeAction = String(action || '').trim() || 'ACTION';
+  const safeEntityType = String(entityType || '').trim() || 'ENTITY';
+  const safeEntityId = String(entityId || '').trim() || 'GLOBAL';
+  const safeDate = String(createdAt || '').trim() || new Date().toISOString();
+  return `REC-AUDIT-${safeAction}-${safeEntityType}-${safeEntityId}-${safeDate}`
+    .replace(/[^A-Z0-9-:T.Z_]/gi, '-')
+    .replace(/-+/g, '-')
+    .toUpperCase();
+}
+
+function appendRecruitmentAuditLog(entry) {
+  const action = normalizeRecruitmentAuditAction(entry?.action, 'APPLICATION_STATUS_UPDATED');
+  const entityType = normalizeRecruitmentAuditEntityType(entry?.entityType, 'Application');
+  const entityId = String(entry?.entityId || entry?.reference || '').trim().toUpperCase() || undefined;
+  const actor = String(entry?.actor || entry?.user || 'system').trim() || 'system';
+  const outcome = normalizeRecruitmentAuditOutcome(entry?.outcome, 'SUCCESS');
+  const detail = String(entry?.detail || entry?.message || '').trim()
+    || `${action} ${entityId || ''}`.trim();
+  const createdAt = normalizeRecruitmentAuditCreatedAt(entry?.createdAt || '');
+  const id = String(entry?.id || '').trim() || buildRecruitmentAuditLogId(action, entityType, entityId || actor, createdAt);
+
+  recruitmentAuditLogs.push({
+    id,
+    action,
+    entityType,
+    entityId,
+    actor,
+    outcome,
+    detail,
+    createdAt,
+  });
+}
+
+function seedRecruitmentAuditLogs() {
+  if (recruitmentAuditLogs.length > 0) {
+    return;
+  }
+
+  recruitmentApplications.forEach((application) => {
+    const history = normalizeRecruitmentStatusHistory(
+      application.statusHistory,
+      application.status,
+      application.receivedOn
+    );
+    const createdAt = history[0]?.changedAt || normalizeRecruitmentHistoryTimestamp(application.receivedOn, application.receivedOn);
+    appendRecruitmentAuditLog({
+      action: 'APPLICATION_CREATED',
+      entityType: 'Application',
+      entityId: application.reference,
+      actor: history[0]?.changedBy || 'system',
+      detail: `Creation candidature ${application.reference}`,
+      createdAt,
+    });
+
+    history
+      .filter((entry) => !!entry.fromStatus)
+      .forEach((entry) => {
+        appendRecruitmentAuditLog({
+          action: 'APPLICATION_STATUS_UPDATED',
+          entityType: 'Application',
+          entityId: application.reference,
+          actor: entry.changedBy || 'system',
+          detail: `Transition ${entry.fromStatus} -> ${entry.toStatus}`,
+          createdAt: entry.changedAt,
+        });
+      });
+
+    (application.comments || []).forEach((comment) => {
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_COMMENT_ADDED',
+        entityType: 'Application',
+        entityId: application.reference,
+        actor: comment.author || 'system',
+        detail: `Commentaire ajoute sur ${application.reference}`,
+        createdAt: comment.createdAt,
+      });
+    });
+  });
+
+  recruitmentCampaigns.forEach((campaign) => {
+    appendRecruitmentAuditLog({
+      action: 'CAMPAIGN_CREATED',
+      entityType: 'Campaign',
+      entityId: campaign.code,
+      actor: campaign.needOwner || 'responsable.rh',
+      detail: `Creation campagne ${campaign.code}`,
+      createdAt: campaign.startDate,
+    });
+  });
+
+  recruitmentOnboarding.forEach((item) => {
+    const normalizedItem = normalizeRecruitmentOnboardingRecord(item);
+    const entityId = String(normalizedItem.applicationReference || '').trim().toUpperCase()
+      || `${normalizedItem.agent}-${normalizedItem.position}-${normalizedItem.startDate}`;
+    appendRecruitmentAuditLog({
+      action: 'ONBOARDING_CREATED',
+      entityType: 'Onboarding',
+      entityId,
+      actor: 'rh.operations',
+      detail: `Creation parcours integration ${normalizedItem.agent}`,
+      createdAt: normalizedItem.startDate,
+    });
+  });
+
+  buildRecruitmentNotificationsJournal().forEach((notification) => {
+    appendRecruitmentAuditLog({
+      action: 'NOTIFICATION_SENT',
+      entityType: 'Notification',
+      entityId: notification.reference || notification.id,
+      actor: notification.recipient || 'system',
+      outcome: notification.status === 'Echec' ? 'FAILED' : 'SUCCESS',
+      detail: `${notification.type} - ${notification.message}`,
+      createdAt: notification.sentAt,
+    });
+  });
 }
 
 function findRecruitmentOnboarding(agent, position, startDate) {
@@ -2173,26 +5597,481 @@ function findRecruitmentOnboarding(agent, position, startDate) {
   );
 }
 
+function normalizeRecruitmentOnboardingStatus(value, fallback = 'Planifie') {
+  const statusRaw = normalizeText(value || fallback);
+  if (statusRaw === 'bloque' || statusRaw === 'bloquee' || statusRaw === 'blocked') return 'Bloque';
+  if (statusRaw === 'en cours' || statusRaw === 'en_cours' || statusRaw === 'encours') return 'En cours';
+  if (statusRaw === 'termine' || statusRaw === 'valide') return 'Termine';
+  return 'Planifie';
+}
+
+function normalizeRecruitmentOnboardingTaskStatus(value, fallback = 'A faire') {
+  const statusRaw = normalizeText(value || fallback);
+  if (statusRaw === 'bloque' || statusRaw === 'bloquee' || statusRaw === 'blocked') return 'Bloquee';
+  if (statusRaw === 'en cours' || statusRaw === 'en_cours' || statusRaw === 'encours') return 'En cours';
+  if (statusRaw === 'termine' || statusRaw === 'valide' || statusRaw === 'done') return 'Termine';
+  return 'A faire';
+}
+
+function normalizeRecruitmentOnboardingEscalationLevel(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'n1' || normalized === 'niveau1') return 'N1';
+  if (normalized === 'n2' || normalized === 'niveau2') return 'N2';
+  if (normalized === 'n3' || normalized === 'niveau3') return 'N3';
+  return null;
+}
+
+function findRecruitmentOnboardingTemplate(position, templateId = '') {
+  const normalizedTemplateId = String(templateId || '').trim().toUpperCase();
+  if (normalizedTemplateId) {
+    const byId = recruitmentOnboardingTemplates.find((template) => String(template.id || '').trim().toUpperCase() === normalizedTemplateId);
+    if (byId) return byId;
+  }
+
+  const normalizedPosition = normalizeText(position);
+  if (!normalizedPosition) {
+    return null;
+  }
+
+  return recruitmentOnboardingTemplates.find((template) =>
+    Array.isArray(template.keywords) && template.keywords.some((keyword) => normalizedPosition.includes(normalizeText(keyword)))
+  ) || null;
+}
+
+function deriveRecruitmentOnboardingTaskDefaultStatus(index, onboardingStatus) {
+  const normalizedOnboardingStatus = normalizeText(onboardingStatus);
+  if (normalizedOnboardingStatus === 'termine' || normalizedOnboardingStatus === 'valide') {
+    return 'Termine';
+  }
+  if (normalizedOnboardingStatus === 'bloque' || normalizedOnboardingStatus === 'bloquee' || normalizedOnboardingStatus === 'blocked') {
+    if (index === 0) return 'Bloquee';
+    return 'A faire';
+  }
+  if (normalizedOnboardingStatus === 'en cours' || normalizedOnboardingStatus === 'en_cours' || normalizedOnboardingStatus === 'encours') {
+    if (index === 0) return 'Termine';
+    if (index === 1) return 'En cours';
+  }
+  return 'A faire';
+}
+
+function addDaysIsoDate(baseDate, daysToAdd) {
+  const parsed = Date.parse(String(baseDate || '').trim());
+  if (Number.isNaN(parsed)) {
+    return undefined;
+  }
+  const date = new Date(parsed);
+  date.setUTCDate(date.getUTCDate() + Math.max(0, Number(daysToAdd) || 0));
+  return date.toISOString().slice(0, 10);
+}
+
+function normalizeRecruitmentOnboardingDate(value) {
+  const raw = String(value || '').trim();
+  if (!raw) {
+    return null;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return raw;
+  }
+  const parsed = Date.parse(raw);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return new Date(parsed).toISOString().slice(0, 10);
+}
+
+function daysSinceIsoDate(isoDate) {
+  const normalized = normalizeRecruitmentOnboardingDate(isoDate);
+  if (!normalized) {
+    return 0;
+  }
+  const parsed = Date.parse(`${normalized}T00:00:00Z`);
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+  const elapsedMs = Date.now() - parsed;
+  return Math.max(0, Math.floor(elapsedMs / 86400000));
+}
+
+function computeRecruitmentOnboardingEscalation(blockedSince) {
+  const blockedDate = normalizeRecruitmentOnboardingDate(blockedSince);
+  if (!blockedDate) {
+    return null;
+  }
+  const elapsedDays = daysSinceIsoDate(blockedDate);
+  if (elapsedDays < RECRUITMENT_ONBOARDING_ESCALATION_DELAY_DAYS) {
+    return null;
+  }
+
+  let level = 'N1';
+  if (elapsedDays >= 8) level = 'N3';
+  else if (elapsedDays >= 5) level = 'N2';
+
+  return {
+    level,
+    triggeredAt: addDaysIsoDate(blockedDate, RECRUITMENT_ONBOARDING_ESCALATION_DELAY_DAYS) || blockedDate,
+    delayDays: elapsedDays,
+    target: RECRUITMENT_ONBOARDING_ESCALATION_TARGET_BY_LEVEL[level] || RECRUITMENT_ONBOARDING_ESCALATION_TARGET_BY_LEVEL.N1,
+  };
+}
+
+function normalizeRecruitmentOnboardingTaskEscalation(inputEscalation, blockedSince) {
+  const autoEscalation = computeRecruitmentOnboardingEscalation(blockedSince);
+  if (!inputEscalation || typeof inputEscalation !== 'object') {
+    return autoEscalation;
+  }
+
+  const level = normalizeRecruitmentOnboardingEscalationLevel(inputEscalation.level) || autoEscalation?.level;
+  if (!level) {
+    return autoEscalation;
+  }
+  const triggeredAt = normalizeRecruitmentOnboardingDate(
+    inputEscalation.triggeredAt || inputEscalation.triggered_at || autoEscalation?.triggeredAt || blockedSince
+  );
+  const delayCandidate = Number(inputEscalation.delayDays ?? inputEscalation.delay_days);
+  const delayDays = Number.isFinite(delayCandidate)
+    ? Math.max(0, Math.floor(delayCandidate))
+    : autoEscalation?.delayDays || 0;
+  const target = String(inputEscalation.target || autoEscalation?.target || RECRUITMENT_ONBOARDING_ESCALATION_TARGET_BY_LEVEL[level] || '').trim()
+    || RECRUITMENT_ONBOARDING_ESCALATION_TARGET_BY_LEVEL[level];
+
+  return {
+    level,
+    triggeredAt: triggeredAt || autoEscalation?.triggeredAt || blockedSince || new Date().toISOString().slice(0, 10),
+    delayDays,
+    target,
+  };
+}
+
+function normalizeRecruitmentOnboardingHistoryType(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'blocage' || normalized === 'blocked') return 'Blocage';
+  if (normalized === 'deblocage' || normalized === 'unblocked') return 'Deblocage';
+  if (normalized === 'escalade auto' || normalized === 'escalade_auto' || normalized === 'auto escalation') return 'Escalade auto';
+  return null;
+}
+
+function buildRecruitmentOnboardingHistoryFromTasks(tasks) {
+  const items = [];
+  (Array.isArray(tasks) ? tasks : []).forEach((task) => {
+    if (task.status !== 'Bloquee') {
+      return;
+    }
+    const blockedDate = normalizeRecruitmentOnboardingDate(task.blockedSince || task.dueDate || '');
+    if (blockedDate) {
+      items.push({
+        id: `BLOCAGE-${task.label}-${blockedDate}`.replace(/\s+/g, '-').toUpperCase(),
+        type: 'Blocage',
+        taskLabel: task.label,
+        detail: task.blockedReason || `Blocage detecte sur la tache ${task.label}`,
+        occurredAt: blockedDate,
+      });
+    }
+    if (task.escalation?.level && task.escalation?.triggeredAt) {
+      items.push({
+        id: `ESCALADE-${task.label}-${task.escalation.triggeredAt}-${task.escalation.level}`.replace(/\s+/g, '-').toUpperCase(),
+        type: 'Escalade auto',
+        taskLabel: task.label,
+        detail: `Escalade ${task.escalation.level} vers ${task.escalation.target}`,
+        occurredAt: task.escalation.triggeredAt,
+        escalationLevel: task.escalation.level,
+      });
+    }
+  });
+  return items;
+}
+
+function normalizeRecruitmentOnboardingHistory(inputHistory, tasks) {
+  const automaticHistory = buildRecruitmentOnboardingHistoryFromTasks(tasks);
+  const manualHistory = Array.isArray(inputHistory)
+    ? inputHistory
+        .map((entry) => {
+          const type = normalizeRecruitmentOnboardingHistoryType(entry?.type);
+          const taskLabel = String(entry?.taskLabel || entry?.task_label || '').trim();
+          const detail = String(entry?.detail || entry?.message || '').trim();
+          const occurredAt = normalizeRecruitmentOnboardingDate(entry?.occurredAt || entry?.occurred_at || '');
+          if (!type || !taskLabel || !detail || !occurredAt) {
+            return null;
+          }
+          const escalationLevel = normalizeRecruitmentOnboardingEscalationLevel(entry?.escalationLevel || entry?.escalation_level || '');
+          const id = String(entry?.id || '').trim()
+            || `${type}-${taskLabel}-${occurredAt}`.replace(/\s+/g, '-').toUpperCase();
+          return {
+            id,
+            type,
+            taskLabel,
+            detail,
+            occurredAt,
+            escalationLevel: escalationLevel || undefined,
+          };
+        })
+        .filter((entry) => !!entry)
+    : [];
+
+  const merged = [...manualHistory, ...automaticHistory];
+  const deduped = new Map();
+  merged.forEach((event) => {
+    const key = `${event.type}|${event.taskLabel}|${event.occurredAt}|${event.detail}|${event.escalationLevel || ''}`.toLowerCase();
+    if (!deduped.has(key)) {
+      deduped.set(key, event);
+    }
+  });
+  return Array.from(deduped.values()).sort((left, right) => {
+    const leftTime = Date.parse(left.occurredAt);
+    const rightTime = Date.parse(right.occurredAt);
+    const safeLeft = Number.isNaN(leftTime) ? 0 : leftTime;
+    const safeRight = Number.isNaN(rightTime) ? 0 : rightTime;
+    return safeRight - safeLeft;
+  });
+}
+
+function buildRecruitmentOnboardingChecklistTasks(inputTasks, inputChecklist, template, onboardingStatus, startDate) {
+  const templateTasks = Array.isArray(template?.tasks)
+    ? template.tasks
+        .map((task) => ({
+          label: String(task?.label || '').trim(),
+          assignedTo: String(task?.assignedTo || '').trim() || 'RH Operations',
+        }))
+        .filter((task) => task.label.length > 0)
+    : [];
+
+  const templateTaskByLabel = new Map(
+    templateTasks.map((task) => [normalizeText(task.label), task])
+  );
+
+  const normalizedInputTasks = Array.isArray(inputTasks)
+    ? inputTasks
+        .map((entry) => {
+          const label = String(entry?.label ?? entry?.title ?? entry?.name ?? '').trim();
+          if (!label) {
+            return null;
+          }
+          const templateMatch = templateTaskByLabel.get(normalizeText(label));
+          const assignedTo = String(entry?.assignedTo ?? entry?.assigned_to ?? entry?.owner ?? templateMatch?.assignedTo ?? 'RH Operations').trim() || 'RH Operations';
+          const status = normalizeRecruitmentOnboardingTaskStatus(
+            entry?.status,
+            deriveRecruitmentOnboardingTaskDefaultStatus(0, onboardingStatus)
+          );
+          const dueDate = normalizeRecruitmentOnboardingDate(entry?.dueDate ?? entry?.due_date ?? '');
+          const blockedReason = String(
+            entry?.blockedReason ??
+              entry?.blocked_reason ??
+              entry?.blockReason ??
+              entry?.block_reason ??
+              ''
+          ).trim();
+          const blockedSince = normalizeRecruitmentOnboardingDate(
+            entry?.blockedSince ?? entry?.blocked_since ?? entry?.blockedAt ?? entry?.blocked_at ?? ''
+          );
+          const escalation = normalizeRecruitmentOnboardingTaskEscalation(
+            entry?.escalation ?? entry?.escalationInfo ?? entry?.escalation_info ?? null,
+            blockedSince || dueDate
+          );
+          if (status === 'Bloquee') {
+            return {
+              label,
+              assignedTo,
+              status,
+              dueDate: dueDate || undefined,
+              blockedReason: blockedReason || 'Blocage en attente de resolution',
+              blockedSince: blockedSince || dueDate || undefined,
+              escalation: escalation || undefined,
+            };
+          }
+          return {
+            label,
+            assignedTo,
+            status,
+            dueDate: dueDate || undefined,
+          };
+        })
+        .filter((task) => !!task)
+    : [];
+
+  if (normalizedInputTasks.length > 0) {
+    return normalizedInputTasks.map((task, index) => ({
+      ...task,
+      dueDate: task.dueDate || addDaysIsoDate(startDate, index),
+      blockedReason: task.status === 'Bloquee'
+        ? task.blockedReason || 'Blocage en attente de resolution'
+        : undefined,
+      blockedSince: task.status === 'Bloquee'
+        ? task.blockedSince || task.dueDate || addDaysIsoDate(startDate, index)
+        : undefined,
+      escalation: task.status === 'Bloquee'
+        ? normalizeRecruitmentOnboardingTaskEscalation(task.escalation || null, task.blockedSince || task.dueDate || addDaysIsoDate(startDate, index))
+        : undefined,
+    }));
+  }
+
+  const checklistSource = Array.isArray(inputChecklist)
+    ? inputChecklist.map((item) => String(item || '').trim()).filter((item) => item.length > 0)
+    : [];
+  const baseChecklist = checklistSource.length > 0
+    ? checklistSource
+    : templateTasks.length > 0
+      ? templateTasks.map((task) => task.label)
+      : ['Accueil et prise de poste'];
+
+  return baseChecklist.map((label, index) => {
+    const templateMatch = templateTaskByLabel.get(normalizeText(label));
+    const status = deriveRecruitmentOnboardingTaskDefaultStatus(index, onboardingStatus);
+    const dueDate = addDaysIsoDate(startDate, index);
+    return {
+      label,
+      assignedTo: templateMatch?.assignedTo || 'RH Operations',
+      status,
+      dueDate,
+      blockedReason: status === 'Bloquee' ? 'Blocage en attente de resolution' : undefined,
+      blockedSince: status === 'Bloquee' ? dueDate : undefined,
+      escalation: status === 'Bloquee'
+        ? normalizeRecruitmentOnboardingTaskEscalation(null, dueDate)
+        : undefined,
+    };
+  });
+}
+
+function buildRecruitmentOnboardingChecklistProgress(checklistTasks, onboardingStatus) {
+  const tasks = Array.isArray(checklistTasks) ? checklistTasks : [];
+  const total = tasks.length;
+  const completed = tasks.filter((task) => task.status === 'Termine').length;
+  const inProgress = tasks.filter((task) => task.status === 'En cours').length;
+  const blocked = tasks.filter((task) => task.status === 'Bloquee').length;
+  const todo = Math.max(0, total - completed - inProgress - blocked);
+  const completionRate = total > 0 ? (completed / total) * 100 : 0;
+
+  let status = 'Non demarre';
+  if (total > 0 && completed === total) {
+    status = 'Termine';
+  } else if (blocked > 0) {
+    status = 'Bloque';
+  } else if (inProgress > 0 || completed > 0) {
+    status = 'En cours';
+  } else {
+    const normalizedOnboardingStatus = normalizeText(onboardingStatus);
+    if (normalizedOnboardingStatus === 'termine' || normalizedOnboardingStatus === 'valide') status = 'Termine';
+    else if (normalizedOnboardingStatus === 'en cours' || normalizedOnboardingStatus === 'en_cours' || normalizedOnboardingStatus === 'encours') status = 'En cours';
+    else if (normalizedOnboardingStatus === 'bloque' || normalizedOnboardingStatus === 'bloquee' || normalizedOnboardingStatus === 'blocked') status = 'Bloque';
+  }
+
+  return {
+    total,
+    completed,
+    inProgress,
+    blocked,
+    todo,
+    completionRate,
+    status,
+  };
+}
+
+function normalizeRecruitmentOnboardingRecord(item) {
+  const normalizedStatus = normalizeRecruitmentOnboardingStatus(item?.status || 'Planifie', 'Planifie');
+  const template = findRecruitmentOnboardingTemplate(item?.position || '', item?.templateId || item?.template_id || '');
+  const checklistSource = Array.isArray(item?.checklist)
+    ? item.checklist
+    : Array.isArray(item?.tasks)
+      ? item.tasks
+      : [];
+  const checklistTasksSource = Array.isArray(item?.checklistTasks)
+    ? item.checklistTasks
+    : Array.isArray(item?.checklist_tasks)
+      ? item.checklist_tasks
+      : Array.isArray(item?.tasksDetailed)
+        ? item.tasksDetailed
+        : Array.isArray(item?.task_assignments)
+          ? item.task_assignments
+          : [];
+  const historySource = Array.isArray(item?.history)
+    ? item.history
+    : Array.isArray(item?.onboardingHistory)
+      ? item.onboardingHistory
+      : Array.isArray(item?.onboarding_history)
+        ? item.onboarding_history
+        : [];
+
+  const checklistTasks = buildRecruitmentOnboardingChecklistTasks(
+    checklistTasksSource,
+    checklistSource,
+    template,
+    normalizedStatus,
+    item?.startDate || item?.start_date || ''
+  );
+  const checklist = checklistTasks.map((task) => task.label);
+  const progress = buildRecruitmentOnboardingChecklistProgress(checklistTasks, normalizedStatus);
+  const history = normalizeRecruitmentOnboardingHistory(historySource, checklistTasks);
+  const blockedTasksCount = checklistTasks.filter((task) => task.status === 'Bloquee').length;
+  const escalatedTasksCount = checklistTasks.filter((task) => !!task.escalation).length;
+
+  return {
+    agent: String(item?.agent || item?.agentName || item?.agent_name || '').trim(),
+    position: String(item?.position || item?.positionTitle || item?.position_title || '').trim(),
+    startDate: String(item?.startDate || item?.start_date || '').trim(),
+    checklist,
+    checklistTasks,
+    progress,
+    templateId: template?.id || String(item?.templateId || item?.template_id || '').trim() || undefined,
+    history,
+    blockedTasksCount,
+    escalatedTasksCount,
+    status: normalizedStatus,
+    applicationReference: String(
+      item?.applicationReference || item?.application_reference || item?.applicationRef || item?.application_ref || ''
+    ).trim().toUpperCase() || undefined,
+  };
+}
+
 function validateRecruitmentOnboardingCreatePayload(body) {
   const errors = [];
 
   const agent = String(body.agent || body.agentName || body.agent_name || '').trim();
   const position = String(body.position || body.positionTitle || body.position_title || '').trim();
   const startDate = String(body.startDate || body.start_date || '').trim();
+  const templateIdInput = String(body.templateId || body.template_id || '').trim();
+  const applicationReference = String(
+    body.applicationReference ||
+      body.application_reference ||
+      body.applicationRef ||
+      body.application_ref ||
+      ''
+  ).trim().toUpperCase();
   const checklistSource = Array.isArray(body.checklist)
     ? body.checklist
     : Array.isArray(body.tasks)
       ? body.tasks
       : [];
-  const checklist = checklistSource
-    .map((item) => String(item || '').trim())
-    .filter((item) => item.length > 0);
+  const checklistTasksSource = Array.isArray(body.checklistTasks)
+    ? body.checklistTasks
+    : Array.isArray(body.checklist_tasks)
+      ? body.checklist_tasks
+      : Array.isArray(body.tasksDetailed)
+        ? body.tasksDetailed
+        : Array.isArray(body.task_assignments)
+          ? body.task_assignments
+          : [];
+  const historySource = Array.isArray(body.history)
+    ? body.history
+    : Array.isArray(body.onboardingHistory)
+      ? body.onboardingHistory
+      : Array.isArray(body.onboarding_history)
+        ? body.onboarding_history
+        : [];
 
-  const statusRaw = normalizeText(body.status || 'planifie');
-  let status = 'Planifie';
-  if (statusRaw === 'en cours' || statusRaw === 'en_cours') status = 'En cours';
-  else if (statusRaw === 'termine') status = 'Termine';
-  else if (statusRaw === 'valide') status = 'Valide';
+  const status = normalizeRecruitmentOnboardingStatus(body.status || 'Planifie', 'Planifie');
+  const template = findRecruitmentOnboardingTemplate(position, templateIdInput);
+  const checklistTasks = buildRecruitmentOnboardingChecklistTasks(
+    checklistTasksSource,
+    checklistSource,
+    template,
+    status,
+    startDate
+  );
+  const checklist = checklistTasks.map((task) => task.label);
+  const progress = buildRecruitmentOnboardingChecklistProgress(checklistTasks, status);
+  const history = normalizeRecruitmentOnboardingHistory(historySource, checklistTasks);
+  const blockedTasksCount = checklistTasks.filter((task) => task.status === 'Bloquee').length;
+  const escalatedTasksCount = checklistTasks.filter((task) => !!task.escalation).length;
+
+  const sourceApplication = applicationReference ? findRecruitmentApplication(applicationReference) : null;
 
   if (agent.length < 2) {
     errors.push('Agent requis');
@@ -2203,8 +6082,29 @@ function validateRecruitmentOnboardingCreatePayload(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || Number.isNaN(Date.parse(startDate))) {
     errors.push('Date debut integration invalide');
   }
+  if (applicationReference && !/^[A-Z0-9-]{3,40}$/.test(applicationReference)) {
+    errors.push('Reference candidature source invalide');
+  }
+  if (applicationReference && !sourceApplication) {
+    errors.push('Reference candidature source introuvable');
+  }
+  if (sourceApplication && sourceApplication.status !== 'Retenu') {
+    errors.push('La candidature source doit etre au statut Retenu');
+  }
+  if (templateIdInput && !template) {
+    errors.push('Template onboarding introuvable');
+  }
   if (checklist.some((item) => item.length > 160)) {
     errors.push('Checklist contient une etape trop longue');
+  }
+  if (checklistTasks.some((task) => String(task.assignedTo || '').trim().length > 120)) {
+    errors.push('Checklist contient un assignee trop long');
+  }
+  if (checklistTasks.some((task) => task.status === 'Bloquee' && String(task.blockedReason || '').trim().length < 3)) {
+    errors.push('Chaque tache bloquee doit avoir une raison de blocage');
+  }
+  if (history.some((event) => String(event.detail || '').trim().length > 240)) {
+    errors.push('Historique onboarding contient un detail trop long');
   }
   if (agent && position && startDate && findRecruitmentOnboarding(agent, position, startDate)) {
     errors.push('Parcours integration deja existant');
@@ -2217,8 +6117,137 @@ function validateRecruitmentOnboardingCreatePayload(body) {
       position,
       startDate,
       checklist,
+      checklistTasks,
+      progress,
+      templateId: template?.id || templateIdInput || null,
+      history,
+      blockedTasksCount,
+      escalatedTasksCount,
       status,
+      applicationReference: applicationReference || null,
     },
+  };
+}
+
+for (let index = 0; index < recruitmentOnboarding.length; index += 1) {
+  recruitmentOnboarding[index] = normalizeRecruitmentOnboardingRecord(recruitmentOnboarding[index]);
+}
+for (let index = 0; index < recruitmentInterviewSchedules.length; index += 1) {
+  recruitmentInterviewSchedules[index] = normalizeRecruitmentInterviewSchedule(recruitmentInterviewSchedules[index]);
+}
+seedRecruitmentAuditLogs();
+
+function upsertRecruitmentShortlistValidation(entry) {
+  const reference = String(entry?.reference || '').trim().toUpperCase();
+  if (!reference) {
+    return null;
+  }
+
+  const normalized = {
+    reference,
+    decision: entry?.decision === 'REJECTED' ? 'REJECTED' : 'VALIDATED',
+    note: String(entry?.note || '').trim() || undefined,
+    validatedAt: String(entry?.validatedAt || '').trim() || new Date().toISOString(),
+    validatedBy: String(entry?.validatedBy || '').trim() || 'system',
+  };
+
+  const index = recruitmentShortlistValidations.findIndex(
+    (item) => String(item?.reference || '').trim().toUpperCase() === reference
+  );
+  if (index >= 0) {
+    recruitmentShortlistValidations[index] = normalized;
+  } else {
+    recruitmentShortlistValidations.push(normalized);
+  }
+  trimRecruitmentShortlistValidationJournal();
+  return normalized;
+}
+
+function getRecruitmentShortlistValidation(reference) {
+  const normalizedReference = String(reference || '').trim().toUpperCase();
+  if (!normalizedReference) {
+    return null;
+  }
+  return recruitmentShortlistValidations.find(
+    (item) => String(item?.reference || '').trim().toUpperCase() === normalizedReference
+  ) || null;
+}
+
+function resolveRecruitmentDuplicateLink(payload) {
+  const primary = findRecruitmentApplication(payload.primaryReference);
+  const secondary = findRecruitmentApplication(payload.secondaryReference);
+  if (!primary || !secondary) {
+    return null;
+  }
+
+  const mode = payload.mode === 'merge' ? 'merge' : 'link';
+  const record = {
+    id: payload.id,
+    primaryReference: payload.primaryReference,
+    secondaryReference: payload.secondaryReference,
+    mode,
+    reason: payload.reason,
+    linkedAt: payload.linkedAt,
+    linkedBy: payload.linkedBy,
+  };
+
+  const existingIndex = recruitmentDuplicateLinks.findIndex(
+    (item) =>
+      item.primaryReference === record.primaryReference &&
+      item.secondaryReference === record.secondaryReference
+  );
+  if (existingIndex >= 0) {
+    recruitmentDuplicateLinks[existingIndex] = record;
+  } else {
+    recruitmentDuplicateLinks.push(record);
+  }
+
+  if (mode === 'merge') {
+    const primaryComments = normalizeRecruitmentApplicationComments(primary.comments, primary.reference);
+    const secondaryComments = normalizeRecruitmentApplicationComments(secondary.comments, secondary.reference);
+    const mergedComments = normalizeRecruitmentApplicationComments(
+      [...primaryComments, ...secondaryComments],
+      primary.reference
+    );
+    primary.comments = mergedComments;
+
+    const primaryAttachments = normalizeRecruitmentApplicationAttachments(primary.attachments, primary.reference);
+    const secondaryAttachments = normalizeRecruitmentApplicationAttachments(secondary.attachments, secondary.reference);
+    primary.attachments = normalizeRecruitmentApplicationAttachments(
+      [...primaryAttachments, ...secondaryAttachments],
+      primary.reference
+    );
+
+    const secondaryHistory = normalizeRecruitmentStatusHistory(
+      secondary.statusHistory,
+      secondary.status,
+      secondary.receivedOn
+    );
+    primary.statusHistory = normalizeRecruitmentStatusHistory(
+      [...normalizeRecruitmentStatusHistory(primary.statusHistory, primary.status, primary.receivedOn), ...secondaryHistory],
+      primary.status,
+      primary.receivedOn
+    );
+
+    secondary.status = 'Rejete';
+    secondary.statusHistory = normalizeRecruitmentStatusHistory(
+      secondary.statusHistory,
+      secondary.status,
+      secondary.receivedOn
+    );
+    secondary.statusHistory.push({
+      fromStatus: secondary.statusHistory[secondary.statusHistory.length - 1]?.toStatus || 'Nouveau',
+      toStatus: 'Rejete',
+      changedAt: new Date().toISOString(),
+      changedBy: payload.linkedBy,
+      note: `Fusion vers ${primary.reference}`,
+    });
+  }
+
+  return {
+    link: record,
+    primary,
+    secondary,
   };
 }
 
@@ -2715,6 +6744,136 @@ function validateTrainingCourseCreatePayload(body) {
       duration,
       modality,
       domain,
+    },
+  };
+}
+
+function findTrainingEnrollmentRequest(reference) {
+  const expected = String(reference || '').trim().toUpperCase();
+  return trainingEnrollmentRequests.find((item) => String(item.reference || '').trim().toUpperCase() === expected);
+}
+
+function findTrainingEnrollmentRequestIndex(reference) {
+  const expected = String(reference || '').trim().toUpperCase();
+  return trainingEnrollmentRequests.findIndex((item) => String(item.reference || '').trim().toUpperCase() === expected);
+}
+
+function buildTrainingEnrollmentRequestReference() {
+  const year = new Date().getFullYear();
+  const regex = new RegExp(`^TRN-REQ-${year}-(\\d+)$`);
+  const maxExisting = trainingEnrollmentRequests.reduce((max, item) => {
+    const match = regex.exec(String(item.reference || ''));
+    if (!match) return max;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+  return `TRN-REQ-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
+}
+
+function validateTrainingEnrollmentRequestCreatePayload(body, currentUser) {
+  const errors = [];
+
+  const reference = String(body.reference || body.requestRef || body.request_ref || '').trim().toUpperCase();
+  const sessionCode = String(
+    body.sessionCode || body.session_code || body.trainingSessionCode || body.training_session_code || ''
+  )
+    .trim()
+    .toUpperCase();
+  const applicantName = String(body.applicantName || body.applicant_name || body.applicant || body.agent || currentUser?.fullName || '')
+    .trim();
+  const applicantUsername = String(body.applicantUsername || body.applicant_username || body.username || currentUser?.username || '')
+    .trim()
+    .toLowerCase();
+  const motivation = String(body.motivation || body.reason || '').trim();
+
+  const session = sessionCode ? findTrainingSession(sessionCode) : null;
+
+  if (reference && !/^[A-Z0-9-]{3,60}$/.test(reference)) {
+    errors.push('Reference demande formation invalide');
+  }
+  if (reference && findTrainingEnrollmentRequest(reference)) {
+    errors.push('Reference demande formation deja existante');
+  }
+  if (!sessionCode) {
+    errors.push('Code session formation requis');
+  }
+  if (sessionCode && !session) {
+    errors.push('Session formation introuvable');
+  }
+  if (session && normalizeText(session.status) === 'annulee') {
+    errors.push('Session formation annulee');
+  }
+  if (session && Number(session.enrolled || 0) >= Number(session.seats || 0)) {
+    errors.push('Session formation complete');
+  }
+  if (applicantName.length < 2) {
+    errors.push('Nom agent requis');
+  }
+  if (applicantUsername.length < 5 || !applicantUsername.includes('@')) {
+    errors.push('Username agent invalide');
+  }
+  if (motivation.length < 8) {
+    errors.push('Motivation demande trop courte');
+  }
+
+  return {
+    errors,
+    payload: {
+      reference: reference || null,
+      sessionCode,
+      sessionTitle: session ? String(session.title || '').trim() : String(body.sessionTitle || body.title || '').trim(),
+      sessionDates: session ? String(session.dates || '').trim() : String(body.sessionDates || body.dates || '').trim(),
+      sessionLocation: session ? String(session.location || '').trim() : String(body.sessionLocation || body.location || '').trim(),
+      applicantName,
+      applicantUsername,
+      motivation,
+      status: 'Soumise',
+      createdAt: new Date().toISOString(),
+      decidedAt: '',
+      decidedBy: '',
+      decisionComment: '',
+    },
+  };
+}
+
+function validateTrainingEnrollmentDecisionPayload(body, currentRequest, currentUser) {
+  const errors = [];
+  const actionRaw = normalizeText(body.action || body.decision || body.status || '');
+  let action = '';
+
+  if (actionRaw === 'approuver' || actionRaw === 'valider' || actionRaw === 'validee' || actionRaw === 'approved') {
+    action = 'APPROUVER';
+  } else if (actionRaw === 'rejeter' || actionRaw === 'rejetee' || actionRaw === 'rejected') {
+    action = 'REJETER';
+  } else {
+    errors.push('Action decision invalide');
+  }
+
+  const reason = String(body.reason || body.comment || body.note || body.decisionReason || '').trim();
+  if (action === 'REJETER' && reason.length < 3) {
+    errors.push('Motif rejet requis');
+  }
+
+  if (currentRequest && normalizeText(currentRequest.status) !== 'soumise') {
+    errors.push('Demande formation deja traitee');
+  }
+
+  const session = currentRequest ? findTrainingSession(currentRequest.sessionCode) : null;
+  if (action === 'APPROUVER') {
+    if (!session) {
+      errors.push('Session formation introuvable');
+    } else if (Number(session.enrolled || 0) >= Number(session.seats || 0)) {
+      errors.push('Plus de places disponibles sur cette session');
+    }
+  }
+
+  return {
+    errors,
+    payload: {
+      action,
+      reason,
+      decidedAt: new Date().toISOString(),
+      decidedBy: String(currentUser?.fullName || currentUser?.username || 'Responsable RH').trim() || 'Responsable RH',
     },
   };
 }
@@ -4370,6 +8529,19 @@ function validatePersonnelAffectationCreatePayload(body) {
     errors.push('Date effective affectation invalide');
   }
 
+  if (agent && effectiveDate && !Number.isNaN(parsedEffectiveDate)) {
+    const normalizedAgent = normalizeText(agent);
+    const conflict = personnelAffectations.some((item) => {
+      const sameAgent = normalizeText(item.agent) === normalizedAgent;
+      const sameDate = String(item.effectiveDate || '').slice(0, 10) === effectiveDate;
+      const notCanceled = normalizeText(item.status) !== 'annulee';
+      return sameAgent && sameDate && notCanceled;
+    });
+    if (conflict) {
+      errors.push('Conflit: une affectation existe deja pour cet agent a la meme date effective');
+    }
+  }
+
   return {
     errors,
     payload: {
@@ -4381,6 +8553,227 @@ function validatePersonnelAffectationCreatePayload(body) {
       status,
     },
   };
+}
+
+function findPersonnelMatriculeAudit(reference) {
+  const expected = normalizeText(reference);
+  return personnelMatriculeSuggestionAudit.find((item) => normalizeText(item.reference) === expected);
+}
+
+function buildPersonnelMatriculeAuditReference() {
+  const year = new Date().getFullYear();
+  const regex = new RegExp(`^MAT-AUD-${year}-(\\d+)$`);
+  const maxExisting = personnelMatriculeSuggestionAudit.reduce((max, item) => {
+    const match = regex.exec(String(item.reference || ''));
+    if (!match) return max;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+  return `MAT-AUD-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
+}
+
+function normalizeMatriculeSuggestionBasedOn(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'direction+unite' || normalized === 'direction_unite') {
+    return 'Direction+Unite';
+  }
+  if (normalized === 'direction') {
+    return 'Direction';
+  }
+  return 'Global';
+}
+
+function validatePersonnelMatriculeAuditCreatePayload(body, currentUser) {
+  const errors = [];
+  const reference = String(body.reference || '').trim().toUpperCase();
+  const createdAtInput = String(body.createdAt || body.created_at || '').trim();
+  const parsedCreatedAt = Date.parse(createdAtInput);
+  const createdAt = !createdAtInput
+    ? new Date().toISOString()
+    : Number.isNaN(parsedCreatedAt)
+      ? createdAtInput
+      : new Date(parsedCreatedAt).toISOString();
+  const username = String(body.username || currentUser?.username || 'system').trim();
+  const previousMatricule = String(body.previousMatricule || body.previous_matricule || '').trim();
+  const suggestedMatricule = String(body.suggestedMatricule || body.suggested_matricule || '').trim();
+  const direction = String(body.direction || '').trim();
+  const unit = String(body.unit || '').trim();
+  const scopeLabel = String(body.scopeLabel || body.scope_label || 'Global').trim() || 'Global';
+  const basedOn = normalizeMatriculeSuggestionBasedOn(body.basedOn || body.based_on || 'Global');
+  const reason = String(body.reason || 'generation').trim() || 'generation';
+
+  if (reference && !/^[A-Z0-9-]{3,40}$/.test(reference)) {
+    errors.push('Reference audit matricule invalide');
+  }
+  if (reference && findPersonnelMatriculeAudit(reference)) {
+    errors.push('Reference audit matricule deja existante');
+  }
+  if (!suggestedMatricule || !/^PRM-\d{4,8}$/i.test(suggestedMatricule)) {
+    errors.push('Matricule suggere invalide');
+  }
+  if (previousMatricule && !/^PRM-\d{4,8}$/i.test(previousMatricule)) {
+    errors.push('Matricule precedent invalide');
+  }
+  if (!username) {
+    errors.push('Utilisateur audit requis');
+  }
+  if (createdAtInput && Number.isNaN(parsedCreatedAt)) {
+    errors.push('Date audit matricule invalide');
+  }
+  if (reason.length < 3) {
+    errors.push('Motif audit matricule requis');
+  }
+
+  return {
+    errors,
+    payload: {
+      reference: reference || null,
+      createdAt,
+      username,
+      previousMatricule,
+      suggestedMatricule,
+      direction,
+      unit,
+      scopeLabel,
+      basedOn,
+      reason,
+    },
+  };
+}
+
+function buildAgentAuditReference() {
+  const year = new Date().getFullYear();
+  const regex = new RegExp(`^AG-AUD-${year}-(\\d+)$`);
+  const maxExisting = personnelAgentAuditTrail.reduce((max, item) => {
+    const match = regex.exec(String(item.reference || ''));
+    if (!match) return max;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? Math.max(max, value) : max;
+  }, 0);
+  return `AG-AUD-${year}-${String(maxExisting + 1).padStart(4, '0')}`;
+}
+
+function normalizeAgentAuditSource(value) {
+  const normalized = normalizeText(value);
+  if (normalized === 'merge') return 'merge';
+  if (normalized === 'system') return 'system';
+  return 'update';
+}
+
+function buildAgentAuditSnapshot(agent) {
+  return {
+    matricule: String(agent?.matricule || '').trim(),
+    fullName: String(agent?.fullName || '').trim(),
+    direction: String(agent?.direction || '').trim(),
+    unit: String(agent?.unit || '').trim(),
+    position: String(agent?.position || '').trim(),
+    status: String(agent?.status || '').trim(),
+    manager: String(agent?.manager || '').trim(),
+    email: String(agent?.email || '').trim(),
+    phone: String(agent?.phone || '').trim(),
+    identityNumber: String(agent?.identity?.identityNumber || '').trim(),
+    contractType: String(agent?.administrative?.contractType || '').trim(),
+  };
+}
+
+function computeAgentAuditChanges(beforeSnapshot, afterSnapshot) {
+  const fields = [
+    ['matricule', 'Matricule'],
+    ['fullName', 'Nom complet'],
+    ['direction', 'Direction'],
+    ['unit', 'Unite'],
+    ['position', 'Poste'],
+    ['status', 'Statut'],
+    ['manager', 'Manager'],
+    ['email', 'Email'],
+    ['phone', 'Telephone'],
+    ['identityNumber', "Numero piece d'identite"],
+    ['contractType', 'Type contrat'],
+  ];
+
+  return fields
+    .map(([field, label]) => ({
+      field,
+      label,
+      before: String(beforeSnapshot?.[field] || '').trim(),
+      after: String(afterSnapshot?.[field] || '').trim(),
+    }))
+    .filter((item) => item.before !== item.after);
+}
+
+function appendAgentAuditEvent(input) {
+  const changes = Array.isArray(input?.changes)
+    ? input.changes
+        .map((change) => ({
+          field: String(change?.field || '').trim(),
+          label: String(change?.label || '').trim(),
+          before: String(change?.before || '').trim(),
+          after: String(change?.after || '').trim(),
+        }))
+        .filter((change) => change.field || change.before || change.after)
+    : [];
+
+  if (!changes.length) {
+    return null;
+  }
+
+  const created = {
+    reference: String(input?.reference || '').trim().toUpperCase() || buildAgentAuditReference(),
+    agentId: String(input?.agentId || '').trim(),
+    agentLabel: String(input?.agentLabel || input?.agentId || '').trim(),
+    changedAt: String(input?.changedAt || new Date().toISOString()).trim(),
+    changedBy: String(input?.changedBy || 'system').trim() || 'system',
+    source: normalizeAgentAuditSource(input?.source || 'update'),
+    reason: String(input?.reason || 'mise_a_jour_fiche').trim() || 'mise_a_jour_fiche',
+    changes,
+  };
+
+  if (!created.agentId || !created.agentLabel) {
+    return null;
+  }
+
+  personnelAgentAuditTrail.push(created);
+  return created;
+}
+
+function listAgentAuditTrail(agentId, url) {
+  const expectedAgentId = normalizeText(agentId);
+  let items = personnelAgentAuditTrail.filter((item) => normalizeText(item.agentId) === expectedAgentId);
+
+  items = applyStringFilter(items, url, 'changedBy', 'changedBy');
+  items = applyStringFilter(items, url, 'source', 'source');
+  items = applyStringFilter(items, url, 'reason', 'reason');
+
+  const fieldFilter = normalizeText(url.searchParams.get('field'));
+  if (fieldFilter) {
+    items = items.filter((item) => {
+      const changes = Array.isArray(item.changes) ? item.changes : [];
+      return changes.some((change) => {
+        return (
+          normalizeText(change.field).includes(fieldFilter) ||
+          normalizeText(change.label).includes(fieldFilter)
+        );
+      });
+    });
+  }
+
+  const withChangesText = items.map((item) => ({
+    ...item,
+    changesText: (Array.isArray(item.changes) ? item.changes : [])
+      .map((change) => `${change.field} ${change.label} ${change.before} ${change.after}`)
+      .join(' '),
+  }));
+
+  const filtered = applyCollectionQuery(withChangesText, url, {
+    searchFields: ['reference', 'changedBy', 'source', 'reason', 'changedAt', 'changesText'],
+    defaultSortBy: 'changedAt',
+    defaultSortOrder: 'desc',
+  });
+
+  return filtered.map((item) => {
+    const { changesText, ...clean } = item;
+    return clean;
+  });
 }
 
 function normalizeAgentDocumentsPayload(rawDocuments) {
@@ -4512,8 +8905,38 @@ function validateAgentCreatePayload(body) {
   if (phone && !/^[+\d\s().-]{7,20}$/.test(phone)) {
     errors.push('Telephone invalide');
   }
+  const parsedBirthDate = identity.birthDate ? Date.parse(identity.birthDate) : Number.NaN;
+  const parsedHireDate = administrative.hireDate ? Date.parse(administrative.hireDate) : Number.NaN;
+  if (identity.birthDate && Number.isNaN(parsedBirthDate)) {
+    errors.push('Date de naissance invalide');
+  }
+  if (administrative.hireDate && Number.isNaN(parsedHireDate)) {
+    errors.push('Date de recrutement invalide');
+  }
+  if (!Number.isNaN(parsedBirthDate) && !Number.isNaN(parsedHireDate)) {
+    if (parsedHireDate < parsedBirthDate) {
+      errors.push('Date de recrutement incoherente (anterieure a la date de naissance)');
+    } else {
+      const ageAtHire = (parsedHireDate - parsedBirthDate) / (365.25 * 24 * 60 * 60 * 1000);
+      if (ageAtHire < 16) {
+        errors.push('Date de recrutement incoherente (age inferieur a 16 ans)');
+      }
+    }
+  }
   if (matricule && agents.some((agent) => normalizeText(agent.matricule) === normalizeText(matricule))) {
     errors.push('Matricule deja existant');
+  }
+  if (email && agents.some((agent) => normalizeText(agent.email || '') === normalizeText(email))) {
+    errors.push('Email deja utilise par un autre agent');
+  }
+  if (
+    identity.identityNumber &&
+    agents.some(
+      (agent) =>
+        normalizeText(agent.identity?.identityNumber || '') === normalizeText(identity.identityNumber)
+    )
+  ) {
+    errors.push("Numero de piece d'identite deja existant");
   }
 
   if (!isDraft) {
@@ -4633,6 +9056,24 @@ function validateAgentUpdatePayload(body, currentAgent) {
   if (has('phone') && phone && !/^[+\d\s().-]{7,20}$/.test(phone)) {
     errors.push('Telephone invalide');
   }
+  const parsedBirthDate = identity.birthDate ? Date.parse(identity.birthDate) : Number.NaN;
+  const parsedHireDate = administrative.hireDate ? Date.parse(administrative.hireDate) : Number.NaN;
+  if (has('identity') && identity.birthDate && Number.isNaN(parsedBirthDate)) {
+    errors.push('Date de naissance invalide');
+  }
+  if (has('administrative') && administrative.hireDate && Number.isNaN(parsedHireDate)) {
+    errors.push('Date de recrutement invalide');
+  }
+  if (!Number.isNaN(parsedBirthDate) && !Number.isNaN(parsedHireDate)) {
+    if (parsedHireDate < parsedBirthDate) {
+      errors.push('Date de recrutement incoherente (anterieure a la date de naissance)');
+    } else {
+      const ageAtHire = (parsedHireDate - parsedBirthDate) / (365.25 * 24 * 60 * 60 * 1000);
+      if (ageAtHire < 16) {
+        errors.push('Date de recrutement incoherente (age inferieur a 16 ans)');
+      }
+    }
+  }
   if (hasPhoto && !photoUrl) {
     errors.push("Photo d'identite invalide");
   }
@@ -4644,6 +9085,24 @@ function validateAgentUpdatePayload(body, currentAgent) {
     )
   ) {
     errors.push('Matricule deja existant');
+  }
+  if (
+    email &&
+    agents.some(
+      (agent) => agent.id !== currentAgent.id && normalizeText(agent.email || '') === normalizeText(email)
+    )
+  ) {
+    errors.push('Email deja utilise par un autre agent');
+  }
+  if (
+    identity.identityNumber &&
+    agents.some(
+      (agent) =>
+        agent.id !== currentAgent.id &&
+        normalizeText(agent.identity?.identityNumber || '') === normalizeText(identity.identityNumber)
+    )
+  ) {
+    errors.push("Numero de piece d'identite deja existant");
   }
 
   return {
@@ -5361,6 +9820,83 @@ normalizeAllWorkflowSla();
 pushWorkflowAutomationEvent('INFO', 'Moteur workflow initialise', 'Scheduler backend pret', { trigger: 'system' });
 restartWorkflowAutomationTimer();
 
+function resolveFrontendFilePath(requestPath) {
+  let decodedPath = '/';
+  try {
+    decodedPath = decodeURIComponent(requestPath || '/');
+  } catch {
+    return null;
+  }
+
+  const normalizedPath = decodedPath === '/' ? '/index.html' : decodedPath;
+  const absolutePath = pathModule.resolve(FRONTEND_DIST_DIR, `.${normalizedPath}`);
+  if (!absolutePath.startsWith(FRONTEND_DIST_DIR)) {
+    return null;
+  }
+
+  return absolutePath;
+}
+
+function frontendContentTypeFor(filePath) {
+  return STATIC_MIME_BY_EXTENSION[pathModule.extname(filePath).toLowerCase()] || 'application/octet-stream';
+}
+
+function serveFrontendFile(req, res, filePath, cacheControl) {
+  if (!fs.existsSync(filePath)) {
+    return false;
+  }
+
+  const stats = fs.statSync(filePath);
+  if (!stats.isFile()) {
+    return false;
+  }
+
+  res.writeHead(200, {
+    'Content-Type': frontendContentTypeFor(filePath),
+    'Content-Length': stats.size,
+    'Cache-Control': cacheControl,
+  });
+
+  if ((req.method || 'GET') === 'HEAD') {
+    res.end();
+    return true;
+  }
+
+  const stream = fs.createReadStream(filePath);
+  stream.on('error', () => {
+    if (!res.headersSent) {
+      sendApiError(res, 500, 'FRONTEND_READ_ERROR', 'Lecture frontend impossible');
+      return;
+    }
+    res.end();
+  });
+  stream.pipe(res);
+  return true;
+}
+
+function serveFrontendRequest(req, res, requestPath) {
+  if (!fs.existsSync(FRONTEND_INDEX_PATH)) {
+    return false;
+  }
+
+  const method = req.method || 'GET';
+  if (method !== 'GET' && method !== 'HEAD') {
+    return false;
+  }
+
+  const directFile = resolveFrontendFilePath(requestPath);
+  if (directFile && fs.existsSync(directFile) && fs.statSync(directFile).isFile()) {
+    const cacheControl = directFile === FRONTEND_INDEX_PATH ? 'no-store' : 'public, max-age=3600';
+    return serveFrontendFile(req, res, directFile, cacheControl);
+  }
+
+  if (pathModule.extname(requestPath || '').length > 0) {
+    return false;
+  }
+
+  return serveFrontendFile(req, res, FRONTEND_INDEX_PATH, 'no-store');
+}
+
 const server = http.createServer(async (req, res) => {
   const method = req.method || 'GET';
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -5383,6 +9919,9 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (!path.startsWith('/api/v1')) {
+    if (serveFrontendRequest(req, res, path)) {
+      return;
+    }
     sendApiError(res, 404, 'NOT_FOUND', 'Not Found');
     return;
   }
@@ -5465,10 +10004,12 @@ const server = http.createServer(async (req, res) => {
 
       const extension = pathModule.extname(safeFileName).toLowerCase();
       const mimeType = UPLOAD_MIME_BY_EXTENSION[extension] || 'application/octet-stream';
+      const dispositionRaw = normalizeText(url.searchParams.get('disposition') || '');
+      const contentDisposition = dispositionRaw === 'inline' ? 'inline' : 'attachment';
       res.writeHead(200, {
         'Content-Type': mimeType,
         'Content-Length': stats.size,
-        'Content-Disposition': `attachment; filename="${safeFileName}"`,
+        'Content-Disposition': `${contentDisposition}; filename="${safeFileName}"`,
         'Cache-Control': 'public, max-age=3600',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-Id',
@@ -5497,6 +10038,95 @@ const server = http.createServer(async (req, res) => {
     processNotificationDeliveries();
     const accessRequirements = resolveRouteAccessRequirements(method, path);
     if (accessRequirements && !ensureAccess(res, currentUser, accessRequirements)) {
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/uploads') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const contentType = Array.isArray(req.headers['content-type'])
+        ? req.headers['content-type'][0]
+        : req.headers['content-type'];
+      if (!String(contentType || '').toLowerCase().includes('multipart/form-data')) {
+        sendApiError(res, 415, 'UPLOAD_CONTENT_TYPE_INVALID', 'Content-Type multipart/form-data attendu');
+        return;
+      }
+
+      let rawBody;
+      try {
+        rawBody = await readRawBody(req, MAX_UPLOAD_BYTES + 1024 * 1024);
+      } catch (error) {
+        const isTooLarge = error instanceof Error && error.message === 'Body too large';
+        sendApiError(
+          res,
+          isTooLarge ? 413 : 400,
+          isTooLarge ? 'UPLOAD_TOO_LARGE' : 'UPLOAD_BODY_INVALID',
+          isTooLarge ? 'Fichier trop volumineux' : 'Body upload invalide'
+        );
+        return;
+      }
+
+      let uploadedFile;
+      try {
+        uploadedFile = parseMultipartFile(rawBody, contentType);
+      } catch (error) {
+        sendApiError(
+          res,
+          400,
+          'UPLOAD_MULTIPART_INVALID',
+          error instanceof Error ? error.message : 'Multipart invalide'
+        );
+        return;
+      }
+
+      if (uploadedFile.fieldName !== 'file') {
+        sendApiError(res, 400, 'UPLOAD_FIELD_INVALID', 'Champ fichier invalide');
+        return;
+      }
+
+      if (!uploadedFile.data || uploadedFile.data.length === 0) {
+        sendApiError(res, 400, 'UPLOAD_EMPTY_FILE', 'Fichier vide');
+        return;
+      }
+
+      if (uploadedFile.data.length > MAX_UPLOAD_BYTES) {
+        sendApiError(res, 413, 'UPLOAD_TOO_LARGE', 'Fichier trop volumineux');
+        return;
+      }
+
+      const sanitizedFileName = sanitizeUploadFileName(uploadedFile.fileName);
+      const extension = resolveUploadExtension(sanitizedFileName, uploadedFile.mimeType);
+      if (!extension || !ALLOWED_UPLOAD_EXTENSIONS.has(extension)) {
+        sendApiError(
+          res,
+          400,
+          'UPLOAD_EXTENSION_INVALID',
+          `Type de fichier non supporte. Extensions: ${Array.from(ALLOWED_UPLOAD_EXTENSIONS).join(', ')}`
+        );
+        return;
+      }
+
+      const mimeType = resolveUploadMimeType(uploadedFile.mimeType, extension);
+      if (!ALLOWED_UPLOAD_MIME_TYPES.has(mimeType)) {
+        sendApiError(res, 400, 'UPLOAD_MIME_TYPE_INVALID', 'Mime type non supporte');
+        return;
+      }
+
+      const uploadId = nowToken('upl');
+      const storedFileName = `${uploadId}${extension}`;
+      const targetPath = pathModule.join(PERSONNEL_UPLOAD_DIR, storedFileName);
+      fs.writeFileSync(targetPath, uploadedFile.data);
+
+      sendJson(res, 201, {
+        id: uploadId,
+        fileName: sanitizedFileName,
+        mimeType,
+        size: uploadedFile.data.length,
+        url: `/api/v1/public/uploads/${encodeURIComponent(storedFileName)}`,
+        uploadedAt: new Date().toISOString(),
+      });
       return;
     }
 
@@ -5618,14 +10248,21 @@ const server = http.createServer(async (req, res) => {
         matricule: a.matricule,
         fullName: a.fullName,
         direction: a.direction,
+        unit: a.unit || '',
         position: a.position,
         status: a.status,
         manager: a.manager,
+        contractType: String(a.administrative?.contractType || '').trim(),
+        photoUrl: a.photoUrl,
       }));
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'direction', 'direction');
+      items = applyStringFilter(items, url, 'unit', 'unit');
+      items = applyStringFilter(items, url, 'manager', 'manager');
+      items = applyStringFilter(items, url, 'position', 'position');
+      items = applyStringFilter(items, url, 'contractType', 'contractType');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['id', 'matricule', 'fullName', 'direction', 'position', 'status', 'manager'],
+        searchFields: ['id', 'matricule', 'fullName', 'direction', 'unit', 'position', 'status', 'manager', 'contractType'],
         defaultSortBy: 'fullName',
         defaultSortOrder: 'asc',
       });
@@ -5694,6 +10331,10 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      const beforeSnapshot = buildAgentAuditSnapshot(agent);
+      const updatedAt = new Date().toISOString();
+      const auditReason = String(body?.auditReason || body?.audit_reason || '').trim() || 'mise_a_jour_fiche';
+
       Object.assign(agent, {
         matricule: validation.payload.matricule || agent.id,
         fullName: validation.payload.fullName,
@@ -5712,7 +10353,132 @@ const server = http.createServer(async (req, res) => {
         documents: validation.payload.documents,
       });
 
+      appendAgentAuditEvent({
+        agentId: agent.id,
+        agentLabel: agent.fullName,
+        changedAt: updatedAt,
+        changedBy: String(currentUser?.username || 'system').trim() || 'system',
+        source: 'update',
+        reason: auditReason,
+        changes: computeAgentAuditChanges(beforeSnapshot, buildAgentAuditSnapshot(agent)),
+      });
+
       sendJson(res, 200, agent);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/personnel/agents/duplicate-index') {
+      const items = agents.map((agent) => ({
+        id: String(agent.id || '').trim(),
+        fullName: String(agent.fullName || '').trim(),
+        matricule: String(agent.matricule || '').trim(),
+        email: String(agent.email || '').trim(),
+        identityNumber: String(agent.identity?.identityNumber || '').trim(),
+      }));
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/personnel/agents/duplicate-cases') {
+      let items = buildAgentDuplicateCases();
+      items = applyStringFilter(items, url, 'duplicateField', 'duplicateField');
+      const minCountRaw = Number(url.searchParams.get('minCount') || 2);
+      const minCount = Number.isFinite(minCountRaw) ? Math.max(2, Math.round(minCountRaw)) : 2;
+      items = items.filter((item) => Number(item.impactedCount || 0) >= minCount);
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['reference', 'duplicateField', 'duplicateValue'],
+        defaultSortBy: 'confidenceScore',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/personnel/agents/merge') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateAgentMergePayload(body || {});
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees fusion agent invalides', validation.errors);
+        return;
+      }
+
+      const merged = executeAgentMerge(validation.payload, currentUser);
+      sendJson(res, 200, merged);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/personnel/agents/matricule-suggestion') {
+      const direction = String(url.searchParams.get('direction') || '').trim();
+      const unit = String(url.searchParams.get('unit') || '').trim();
+      const suggestion = buildAgentMatriculeSuggestion(direction, unit);
+      sendJson(res, 200, suggestion);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/personnel/agents/matricule-suggestion-audit') {
+      let items = [...personnelMatriculeSuggestionAudit];
+      items = applyStringFilter(items, url, 'username', 'username');
+      items = applyStringFilter(items, url, 'reason', 'reason');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'username',
+          'previousMatricule',
+          'suggestedMatricule',
+          'scopeLabel',
+          'basedOn',
+          'reason',
+          'createdAt',
+        ],
+        defaultSortBy: 'createdAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/personnel/agents/matricule-suggestion-audit') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validatePersonnelMatriculeAuditCreatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees audit matricule invalides', validation.errors);
+        return;
+      }
+
+      const created = {
+        reference: validation.payload.reference || buildPersonnelMatriculeAuditReference(),
+        createdAt: validation.payload.createdAt,
+        username: validation.payload.username,
+        previousMatricule: validation.payload.previousMatricule,
+        suggestedMatricule: validation.payload.suggestedMatricule,
+        direction: validation.payload.direction,
+        unit: validation.payload.unit,
+        scopeLabel: validation.payload.scopeLabel,
+        basedOn: validation.payload.basedOn,
+        reason: validation.payload.reason,
+      };
+      personnelMatriculeSuggestionAudit.push(created);
+      sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'GET' && /^\/api\/v1\/personnel\/agents\/[^/]+\/audit-trail$/.test(path)) {
+      const segments = path.split('/');
+      const id = String(segments[5] || '').trim();
+      const agent = findAgent(id);
+      if (!agent) {
+        sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
+        return;
+      }
+      sendJson(res, 200, listAgentAuditTrail(id, url));
       return;
     }
 
@@ -6157,6 +10923,37 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (method === 'PUT' && path.startsWith('/api/v1/organization/units/')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const unitId = String(path.split('/').pop() || '').trim();
+      const unit = findOrgUnit(unitId);
+      if (!unit) {
+        sendApiError(res, 404, 'ORG_UNIT_NOT_FOUND', 'Unite introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateOrgUnitUpdatePayload(body || {}, unit);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees unite invalides', validation.errors);
+        return;
+      }
+
+      Object.assign(unit, {
+        name: validation.payload.name,
+        parentId: validation.payload.parentId,
+        head: validation.payload.head || undefined,
+        headTitle: validation.payload.headTitle || undefined,
+        staffCount: validation.payload.staffCount,
+      });
+
+      sendJson(res, 200, unit);
+      return;
+    }
+
     if (method === 'GET' && path === '/api/v1/organization/positions/budgeted') {
       let items = [...budgetedPositions];
       items = applyStringFilter(items, url, 'status', 'status');
@@ -6238,9 +11035,370 @@ const server = http.createServer(async (req, res) => {
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'campaign', 'campaign');
       items = applyStringFilter(items, url, 'position', 'position');
+      items = applyStringFilter(items, url, 'source', 'source');
+      items = applyRecruitmentReceivedOnRangeFilter(items, url);
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'candidate',
+          'candidateEmail',
+          'candidatePhone',
+          'identityNumber',
+          'position',
+          'campaign',
+          'source',
+          'status',
+        ],
+        defaultSortBy: 'receivedOn',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/application-scores') {
+      const includeStatuses = String(url.searchParams.get('includeStatuses') || '')
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
+      let items = buildRecruitmentApplicationScores({
+        campaign: url.searchParams.get('campaign') || '',
+        position: url.searchParams.get('position') || '',
+        includeStatuses: includeStatuses.length > 0 ? includeStatuses : undefined,
+      });
       items = applyCollectionQuery(items, url, {
         searchFields: ['reference', 'candidate', 'position', 'campaign', 'status'],
-        defaultSortBy: 'receivedOn',
+        defaultSortBy: 'totalScore',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, {
+        policyUpdatedAt: recruitmentScoringPolicy.updatedAt,
+        criteria: recruitmentScoringPolicy.criteria,
+        items,
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/scoring-policy') {
+      sendJson(res, 200, {
+        ...recruitmentScoringPolicy,
+      });
+      return;
+    }
+
+    if (method === 'PUT' && path === '/api/v1/recruitment/scoring-policy') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentScoringPolicyUpdatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Politique scoring invalide', validation.errors);
+        return;
+      }
+
+      recruitmentScoringPolicy.criteria = validation.payload.criteria;
+      recruitmentScoringPolicy.updatedAt = validation.payload.updatedAt;
+      recruitmentScoringPolicy.updatedBy = validation.payload.updatedBy;
+
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_STATUS_UPDATED',
+        entityType: 'Application',
+        entityId: 'SCORING-POLICY',
+        actor: validation.payload.updatedBy,
+        outcome: 'SUCCESS',
+        detail: 'Mise a jour regles scoring candidat',
+        createdAt: validation.payload.updatedAt,
+      });
+      sendJson(res, 200, {
+        ...recruitmentScoringPolicy,
+      });
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/shortlists/suggest') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const suggestion = buildRecruitmentShortlistSuggestions(body || {});
+      const items = suggestion.suggested.map((entry) => {
+        const validation = getRecruitmentShortlistValidation(entry.reference);
+        return {
+          ...entry,
+          validationStatus: validation ? validation.decision : 'PENDING',
+          validatedAt: validation?.validatedAt,
+          validatedBy: validation?.validatedBy,
+          validationNote: validation?.note,
+        };
+      });
+      sendJson(res, 200, {
+        ...suggestion,
+        suggested: items,
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/shortlists/validations') {
+      let items = [...recruitmentShortlistValidations];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['reference', 'decision', 'validatedBy', 'note'],
+        defaultSortBy: 'validatedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/shortlists/') && path.endsWith('/validate')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+      const reference = String(rawReference || '').trim().toUpperCase();
+      if (!reference) {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentShortlistValidationPayload(body || {}, reference, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Validation shortlist invalide', validation.errors);
+        return;
+      }
+
+      const saved = upsertRecruitmentShortlistValidation(validation.payload);
+      if (!saved) {
+        sendApiError(res, 500, 'SHORTLIST_VALIDATION_SAVE_FAILED', 'Impossible de sauvegarder la validation shortlist');
+        return;
+      }
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_STATUS_UPDATED',
+        entityType: 'Application',
+        entityId: saved.reference,
+        actor: saved.validatedBy,
+        outcome: 'SUCCESS',
+        detail: `Validation shortlist ${saved.decision}`,
+        createdAt: saved.validatedAt,
+      });
+      sendJson(res, 200, saved);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/applications/duplicates') {
+      let items = buildRecruitmentDuplicateCases();
+      items = applyStringFilter(items, url, 'matchType', 'matchType');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'matchType', 'matchValue', 'matchLabel'],
+        defaultSortBy: 'count',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/applications/duplicates/links') {
+      let items = [...recruitmentDuplicateLinks];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'primaryReference', 'secondaryReference', 'mode', 'reason', 'linkedBy'],
+        defaultSortBy: 'linkedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/applications/duplicates/link') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentDuplicateLinkPayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Operation dedoublonnage invalide', validation.errors);
+        return;
+      }
+
+      const resolved = resolveRecruitmentDuplicateLink(validation.payload);
+      if (!resolved) {
+        sendApiError(res, 404, 'RECRUITMENT_APPLICATION_NOT_FOUND', 'Candidature introuvable pour operation dedoublonnage');
+        return;
+      }
+
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_STATUS_UPDATED',
+        entityType: 'Application',
+        entityId: `${resolved.link.primaryReference}|${resolved.link.secondaryReference}`,
+        actor: resolved.link.linkedBy,
+        outcome: 'SUCCESS',
+        detail: resolved.link.mode === 'merge'
+          ? `Fusion profils ${resolved.link.secondaryReference} -> ${resolved.link.primaryReference}`
+          : `Liaison profils ${resolved.link.primaryReference} <-> ${resolved.link.secondaryReference}`,
+        createdAt: resolved.link.linkedAt,
+      });
+
+      sendJson(res, 200, resolved);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/interview-question-bank') {
+      let items = listRecruitmentInterviewQuestionTemplates({
+        position: url.searchParams.get('position') || '',
+        q: url.searchParams.get('q') || '',
+        latestOnly: url.searchParams.get('latestOnly') || url.searchParams.get('latest_only') || '',
+      });
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'position', 'createdBy', 'questions'],
+        defaultSortBy: 'updatedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/interview-question-bank') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentQuestionTemplatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Template questions entretien invalide', validation.errors);
+        return;
+      }
+      recruitmentInterviewQuestionBank.push(validation.payload);
+      sendJson(res, 201, validation.payload);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/interview-question-bank/import') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const format = normalizeText(body?.format || body?.type || 'json');
+      let entries = [];
+      if (format === 'csv') {
+        entries = parseRecruitmentQuestionBankCsvRows(body?.content || body?.csv || '');
+      } else {
+        const rows = Array.isArray(body?.items)
+          ? body.items
+          : Array.isArray(body?.templates)
+            ? body.templates
+            : [];
+        entries = rows.map((item) => ({
+          position: String(item?.position || '').trim(),
+          questions: normalizeRecruitmentQuestionList(item?.questions || item?.questionList || item?.content || []),
+        }));
+      }
+
+      const created = [];
+      const errors = [];
+      entries.forEach((entry, index) => {
+        const validation = validateRecruitmentQuestionTemplatePayload(entry, currentUser);
+        if (validation.errors.length > 0) {
+          errors.push(`Ligne ${index + 1}: ${validation.errors.join(', ')}`);
+          return;
+        }
+        recruitmentInterviewQuestionBank.push(validation.payload);
+        created.push(validation.payload);
+      });
+
+      if (created.length === 0 && errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Import questions entretien invalide', errors);
+        return;
+      }
+
+      sendJson(res, 201, {
+        importedCount: created.length,
+        errors,
+        items: created,
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/interview-question-bank/export') {
+      const format = normalizeText(url.searchParams.get('format') || 'json');
+      const items = listRecruitmentInterviewQuestionTemplates({
+        position: url.searchParams.get('position') || '',
+        q: url.searchParams.get('q') || '',
+        latestOnly: url.searchParams.get('latestOnly') || url.searchParams.get('latest_only') || '',
+      });
+
+      if (format === 'csv') {
+        sendJson(res, 200, {
+          format: 'csv',
+          content: buildRecruitmentQuestionBankCsvExport(items),
+          itemsCount: items.length,
+          exportedAt: new Date().toISOString(),
+        });
+        return;
+      }
+
+      sendJson(res, 200, {
+        format: 'json',
+        content: JSON.stringify(items, null, 2),
+        itemsCount: items.length,
+        exportedAt: new Date().toISOString(),
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/notifications') {
+      let items = buildRecruitmentNotificationsJournal();
+      items = applyStringFilter(items, url, 'type', 'type');
+      items = applyStringFilter(items, url, 'severity', 'severity');
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyStringFilter(items, url, 'reference', 'reference');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'id',
+          'type',
+          'severity',
+          'status',
+          'channel',
+          'recipient',
+          'reference',
+          'candidate',
+          'campaign',
+          'message',
+          'trigger',
+        ],
+        defaultSortBy: 'sentAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/audit-logs') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      let items = [...recruitmentAuditLogs];
+      items = applyStringFilter(items, url, 'action', 'action');
+      items = applyStringFilter(items, url, 'actor', 'actor');
+      items = applyStringFilter(items, url, 'entityType', 'entityType');
+      items = applyStringFilter(items, url, 'outcome', 'outcome');
+      items = applyStringFilter(items, url, 'reference', 'entityId');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'action', 'entityType', 'entityId', 'actor', 'outcome', 'detail'],
+        defaultSortBy: 'createdAt',
         defaultSortOrder: 'desc',
       });
       sendJson(res, 200, items);
@@ -6255,20 +11413,174 @@ const server = http.createServer(async (req, res) => {
       const body = await readJsonBody(req);
       const validation = validateRecruitmentApplicationCreatePayload(body || {});
       if (validation.errors.length > 0) {
-        sendApiError(res, 400, 'VALIDATION', 'Donnees candidature invalides', validation.errors);
+        const isDuplicate = validation.errors.some((entry) =>
+          String(entry || '').toLowerCase().includes('doublon potentiel')
+        );
+        sendApiError(
+          res,
+          isDuplicate ? 409 : 400,
+          isDuplicate ? 'RECRUITMENT_APPLICATION_DUPLICATE' : 'VALIDATION',
+          isDuplicate ? 'Doublon candidature detecte' : 'Donnees candidature invalides',
+          isDuplicate
+            ? {
+                errors: validation.errors,
+                duplicateMatches: validation.payload.duplicateMatches || [],
+              }
+            : validation.errors
+        );
         return;
       }
 
       const created = {
         reference: validation.payload.reference || buildRecruitmentApplicationReference(),
         candidate: validation.payload.candidate,
+        candidateEmail: validation.payload.candidateEmail || undefined,
+        candidatePhone: validation.payload.candidatePhone || undefined,
+        identityNumber: validation.payload.identityNumber || undefined,
         position: validation.payload.position,
         campaign: validation.payload.campaign,
+        source: validation.payload.source,
         status: validation.payload.status,
         receivedOn: validation.payload.receivedOn,
+        experienceYears: validation.payload.experienceYears,
+        skillsMatch: validation.payload.skillsMatch,
+        educationLevel: validation.payload.educationLevel,
+        interviewAverage: validation.payload.interviewAverage,
+        testScore: validation.payload.testScore,
+        statusHistory: buildRecruitmentInitialStatusHistory(
+          validation.payload.status,
+          validation.payload.receivedOn,
+          String(currentUser?.username || 'system').trim() || 'system'
+        ),
+        comments: [],
+        attachments: validation.payload.attachments,
       };
       recruitmentApplications.push(created);
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_CREATED',
+        entityType: 'Application',
+        entityId: created.reference,
+        actor: String(currentUser?.username || 'system').trim() || 'system',
+        outcome: 'SUCCESS',
+        detail: `Creation candidature ${created.reference}`,
+        createdAt: new Date().toISOString(),
+      });
       sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/applications/') && path.endsWith('/comments')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+
+      const reference = String(rawReference || '').trim().toUpperCase();
+      if (!reference) {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+
+      const application = findRecruitmentApplication(reference);
+      if (!application) {
+        sendApiError(res, 404, 'RECRUITMENT_APPLICATION_NOT_FOUND', 'Candidature introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentApplicationCommentCreatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Commentaire candidature invalide', validation.errors);
+        return;
+      }
+
+      application.comments = normalizeRecruitmentApplicationComments(application.comments, application.reference);
+      application.comments.push({
+        id: buildRecruitmentApplicationCommentId(application.reference, application.comments),
+        author: validation.payload.author,
+        message: validation.payload.message,
+        createdAt: new Date().toISOString(),
+      });
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_COMMENT_ADDED',
+        entityType: 'Application',
+        entityId: application.reference,
+        actor: validation.payload.author,
+        outcome: 'SUCCESS',
+        detail: `Commentaire ajoute sur ${application.reference}`,
+        createdAt: new Date().toISOString(),
+      });
+
+      sendJson(res, 201, application);
+      return;
+    }
+
+    if (method === 'PUT' && path.startsWith('/api/v1/recruitment/applications/') && path.endsWith('/status')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+
+      const reference = String(rawReference || '').trim().toUpperCase();
+      if (!reference) {
+        sendApiError(res, 400, 'RECRUITMENT_APPLICATION_REFERENCE_INVALID', 'Reference candidature invalide');
+        return;
+      }
+
+      const application = findRecruitmentApplication(reference);
+      if (!application) {
+        sendApiError(res, 404, 'RECRUITMENT_APPLICATION_NOT_FOUND', 'Candidature introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentApplicationStatusUpdatePayload(body || {}, application, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Transition candidature invalide', validation.errors);
+        return;
+      }
+
+      const previousStatus = application.status;
+      application.status = validation.payload.status;
+      application.statusHistory = normalizeRecruitmentStatusHistory(
+        application.statusHistory,
+        previousStatus,
+        application.receivedOn
+      );
+      application.statusHistory.push({
+        fromStatus: previousStatus,
+        toStatus: validation.payload.status,
+        changedAt: new Date().toISOString(),
+        changedBy: validation.payload.changedBy,
+        note: validation.payload.note || undefined,
+      });
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_STATUS_UPDATED',
+        entityType: 'Application',
+        entityId: application.reference,
+        actor: validation.payload.changedBy,
+        outcome: 'SUCCESS',
+        detail: `Transition ${previousStatus} -> ${validation.payload.status}`,
+        createdAt: new Date().toISOString(),
+      });
+
+      sendJson(res, 200, application);
       return;
     }
 
@@ -6277,7 +11589,7 @@ const server = http.createServer(async (req, res) => {
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'department', 'department');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['code', 'title', 'department', 'status'],
+        searchFields: ['code', 'title', 'department', 'status', 'needPosition', 'needOwner'],
         defaultSortBy: 'startDate',
         defaultSortOrder: 'desc',
       });
@@ -6304,19 +11616,40 @@ const server = http.createServer(async (req, res) => {
         openings: validation.payload.openings,
         startDate: validation.payload.startDate,
         endDate: validation.payload.endDate,
+        needPosition: validation.payload.needPosition,
+        needQuota: validation.payload.needQuota,
+        needDeadline: validation.payload.needDeadline,
+        needOwner: validation.payload.needOwner,
         status: validation.payload.status,
       };
       recruitmentCampaigns.push(created);
+      appendRecruitmentAuditLog({
+        action: 'CAMPAIGN_CREATED',
+        entityType: 'Campaign',
+        entityId: created.code,
+        actor: String(currentUser?.username || validation.payload.needOwner || 'system').trim() || 'system',
+        outcome: 'SUCCESS',
+        detail: `Creation campagne ${created.code}`,
+        createdAt: new Date().toISOString(),
+      });
       sendJson(res, 201, created);
       return;
     }
 
     if (method === 'GET' && path === '/api/v1/recruitment/onboarding') {
-      let items = [...recruitmentOnboarding];
+      let items = recruitmentOnboarding.map((item) => normalizeRecruitmentOnboardingRecord(item));
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'agent', 'agent');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['agent', 'position', 'status'],
+        searchFields: [
+          'agent',
+          'position',
+          'status',
+          'templateId',
+          'applicationReference',
+          'blockedTasksCount',
+          'escalatedTasksCount',
+        ],
         defaultSortBy: 'startDate',
         defaultSortOrder: 'desc',
       });
@@ -6341,10 +11674,438 @@ const server = http.createServer(async (req, res) => {
         position: validation.payload.position,
         startDate: validation.payload.startDate,
         checklist: validation.payload.checklist,
+        checklistTasks: validation.payload.checklistTasks,
+        progress: validation.payload.progress,
+        templateId: validation.payload.templateId || undefined,
+        history: validation.payload.history,
+        blockedTasksCount: validation.payload.blockedTasksCount,
+        escalatedTasksCount: validation.payload.escalatedTasksCount,
         status: validation.payload.status,
+        applicationReference: validation.payload.applicationReference || undefined,
       };
-      recruitmentOnboarding.push(created);
+      const normalizedCreated = normalizeRecruitmentOnboardingRecord(created);
+      recruitmentOnboarding.push(normalizedCreated);
+      appendRecruitmentAuditLog({
+        action: 'ONBOARDING_CREATED',
+        entityType: 'Onboarding',
+        entityId: String(normalizedCreated.applicationReference || '').trim().toUpperCase()
+          || `${normalizedCreated.agent}-${normalizedCreated.position}-${normalizedCreated.startDate}`,
+        actor: String(currentUser?.username || 'rh.operations').trim() || 'rh.operations',
+        outcome: 'SUCCESS',
+        detail: `Creation parcours integration ${normalizedCreated.agent}`,
+        createdAt: new Date().toISOString(),
+      });
+      sendJson(res, 201, normalizedCreated);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/interviews') {
+      let items = recruitmentInterviewSchedules.map((item) => normalizeRecruitmentInterviewSchedule(item));
+      items = applyStringFilter(items, url, 'applicationReference', 'applicationReference');
+      items = applyStringFilter(items, url, 'campaign', 'campaign');
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'applicationReference', 'candidate', 'position', 'campaign', 'status', 'location'],
+        defaultSortBy: 'slotStart',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/interviews') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentInterviewCreatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Planification entretien invalide', validation.errors);
+        return;
+      }
+      const created = normalizeRecruitmentInterviewSchedule(validation.payload);
+      recruitmentInterviewSchedules.push(created);
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_STATUS_UPDATED',
+        entityType: 'Application',
+        entityId: created.applicationReference,
+        actor: String(currentUser?.username || 'system').trim() || 'system',
+        outcome: 'SUCCESS',
+        detail: `Planification entretien ${created.id}`,
+        createdAt: new Date().toISOString(),
+      });
       sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/interviews/') && path.endsWith('/reschedule')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const segments = path.split('/');
+      let interviewId = '';
+      try {
+        interviewId = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_INTERVIEW_ID_INVALID', 'Reference entretien invalide');
+        return;
+      }
+      const interview = findRecruitmentInterview(interviewId);
+      if (!interview) {
+        sendApiError(res, 404, 'RECRUITMENT_INTERVIEW_NOT_FOUND', 'Entretien introuvable');
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentInterviewReschedulePayload(body || {}, interview, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Replanification entretien invalide', validation.errors);
+        return;
+      }
+      interview.slotStart = validation.payload.slotStart;
+      interview.slotEnd = validation.payload.slotEnd;
+      interview.location = validation.payload.location;
+      interview.interviewers = validation.payload.interviewers;
+      interview.status = 'Replanifie';
+      interview.history = normalizeRecruitmentInterviewHistory(interview.history || []);
+      interview.history.unshift({
+        type: 'Replanification',
+        detail: validation.payload.reason,
+        at: new Date().toISOString(),
+        actor: validation.payload.actor,
+      });
+      sendJson(res, 200, normalizeRecruitmentInterviewSchedule(interview));
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/interviews/') && path.endsWith('/evaluations')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const segments = path.split('/');
+      let interviewId = '';
+      try {
+        interviewId = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_INTERVIEW_ID_INVALID', 'Reference entretien invalide');
+        return;
+      }
+      const interview = findRecruitmentInterview(interviewId);
+      if (!interview) {
+        sendApiError(res, 404, 'RECRUITMENT_INTERVIEW_NOT_FOUND', 'Entretien introuvable');
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentInterviewEvaluationPayload(body || {}, interview, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Evaluation entretien invalide', validation.errors);
+        return;
+      }
+      interview.evaluations = normalizeRecruitmentInterviewEvaluations(interview.evaluations || []);
+      const existingIndex = interview.evaluations.findIndex(
+        (item) => String(item.interviewer || '').trim() === validation.payload.interviewer
+      );
+      if (existingIndex >= 0) {
+        interview.evaluations[existingIndex] = validation.payload;
+      } else {
+        interview.evaluations.push(validation.payload);
+      }
+      interview.consolidation = buildRecruitmentInterviewConsolidation(interview.evaluations);
+      if (interview.evaluations.length >= interview.interviewers.length) {
+        interview.status = 'Termine';
+      }
+      appendRecruitmentAuditLog({
+        action: 'APPLICATION_COMMENT_ADDED',
+        entityType: 'Application',
+        entityId: interview.applicationReference,
+        actor: validation.payload.interviewer,
+        outcome: 'SUCCESS',
+        detail: `Evaluation entretien ${interview.id}`,
+        createdAt: validation.payload.submittedAt,
+      });
+      sendJson(res, 201, normalizeRecruitmentInterviewSchedule(interview));
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/campaigns/workload-forecast') {
+      const items = buildRecruitmentInterviewWorkloadForecast();
+      sendJson(res, 200, {
+        generatedAt: new Date().toISOString(),
+        items,
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/campaigns/budgets') {
+      const items = buildRecruitmentCampaignBudgetAnalytics();
+      sendJson(res, 200, {
+        generatedAt: new Date().toISOString(),
+        items,
+      });
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/campaigns/budgets') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentCampaignBudgetPayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Budget campagne invalide', validation.errors);
+        return;
+      }
+      const index = recruitmentCampaignBudgets.findIndex(
+        (item) => item.campaignCode === validation.payload.campaignCode
+      );
+      if (index >= 0) {
+        recruitmentCampaignBudgets[index] = validation.payload;
+      } else {
+        recruitmentCampaignBudgets.push(validation.payload);
+      }
+      sendJson(res, 201, validation.payload);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/onboarding/306090') {
+      let items = buildRecruitmentOnboarding306090Milestones();
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['applicationReference', 'agent', 'position', 'startDate'],
+        defaultSortBy: 'startDate',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/onboarding/') && path.endsWith('/306090-feedback')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const segments = path.split('/');
+      let reference = '';
+      try {
+        reference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_ONBOARDING_REFERENCE_INVALID', 'Reference onboarding invalide');
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentOnboardingMilestoneFeedbackPayload(body || {}, reference, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Feedback 30/60/90 invalide', validation.errors);
+        return;
+      }
+      recruitmentOnboardingMilestoneFeedback.push(validation.payload);
+      sendJson(res, 201, validation.payload);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/onboarding/success-scores') {
+      const scores = buildRecruitmentOnboardingSuccessScores();
+      const thresholds = {
+        warning: 75,
+        critical: 60,
+      };
+      sendJson(res, 200, {
+        generatedAt: new Date().toISOString(),
+        thresholds,
+        items: scores,
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/onboarding/sync-logs') {
+      let items = [...recruitmentOnboardingSyncLogs];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'applicationReference', 'agent', 'position', 'status', 'detail'],
+        defaultSortBy: 'syncedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/recruitment/onboarding/') && path.endsWith('/sync')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const segments = path.split('/');
+      let reference = '';
+      try {
+        reference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'RECRUITMENT_ONBOARDING_REFERENCE_INVALID', 'Reference onboarding invalide');
+        return;
+      }
+      const result = runRecruitmentOnboardingSync(reference, currentUser);
+      if (result.error) {
+        sendApiError(res, 404, 'RECRUITMENT_ONBOARDING_NOT_FOUND', result.error);
+        return;
+      }
+      sendJson(res, 201, result.log);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/rules') {
+      let items = [...recruitmentRuleEngineRules];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'name', 'event', 'condition', 'action'],
+        defaultSortBy: 'updatedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/rules') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const body = await readJsonBody(req);
+      const validation = validateRecruitmentRulePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Regle recrutement invalide', validation.errors);
+        return;
+      }
+      recruitmentRuleEngineRules.push(validation.payload);
+      sendJson(res, 201, validation.payload);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/rules/simulate') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const body = await readJsonBody(req);
+      const simulation = simulateRecruitmentRuleExecution(body || {});
+      simulation.matches.forEach((match) => {
+        appendRecruitmentRuleExecution({
+          ruleId: match.ruleId,
+          ruleName: match.ruleName,
+          event: simulation.event,
+          outcome: 'SIMULATED',
+          detail: match.reason,
+          executedAt: simulation.simulatedAt,
+        });
+      });
+      sendJson(res, 200, simulation);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/rules/executions') {
+      let items = [...recruitmentRuleExecutions];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'ruleId', 'ruleName', 'event', 'outcome', 'detail'],
+        defaultSortBy: 'executedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/control-tower') {
+      const controlTower = buildRecruitmentControlTowerView({
+        campaign: url.searchParams.get('campaign') || '',
+        status: url.searchParams.get('status') || '',
+        q: url.searchParams.get('q') || '',
+      });
+      sendJson(res, 200, controlTower);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/executive-dashboard') {
+      const dashboard = buildRecruitmentExecutiveDashboard();
+      sendJson(res, 200, dashboard);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/executive-dashboard/export') {
+      const format = normalizeText(url.searchParams.get('format') || 'csv') === 'pdf' ? 'pdf' : 'csv';
+      const dashboard = buildRecruitmentExecutiveDashboard();
+      if (format === 'pdf') {
+        sendJson(res, 200, {
+          format: 'pdf',
+          content: `EXECUTIVE DASHBOARD RECRUTEMENT\nGeneratedAt=${dashboard.generatedAt}\nTotal=${dashboard.kpis.totalApplications}\nRetained=${dashboard.kpis.retained}\nConversion=${dashboard.kpis.conversionInterviewToRetained}%`,
+        });
+        return;
+      }
+      const rows = ['campaignCode;campaignTitle;total;retained;rejected;conversion'];
+      dashboard.byCampaign.forEach((entry) => {
+        rows.push(`${entry.campaignCode};${entry.campaignTitle};${entry.total};${entry.retained};${entry.rejected};${entry.conversion}`);
+      });
+      sendJson(res, 200, {
+        format: 'csv',
+        content: rows.join('\n'),
+      });
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/bi-export') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+      const format = normalizeText(url.searchParams.get('format') || 'json') === 'csv' ? 'csv' : 'json';
+      const payload = buildRecruitmentBiExportPayload();
+      const recordsCount = Object.values(payload.datasets).reduce((sum, dataset) => {
+        return sum + (Array.isArray(dataset) ? dataset.length : 0);
+      }, 0);
+      appendRecruitmentBiExportLog({
+        requestedBy: String(currentUser?.username || 'system').trim() || 'system',
+        format,
+        records: recordsCount,
+        status: 'SUCCESS',
+      });
+      if (format === 'csv') {
+        const rows = ['dataset;records'];
+        Object.entries(payload.datasets).forEach(([key, dataset]) => {
+          rows.push(`${key};${Array.isArray(dataset) ? dataset.length : 0}`);
+        });
+        sendJson(res, 200, {
+          format,
+          exportedAt: payload.exportedAt,
+          schemaVersion: payload.schemaVersion,
+          content: rows.join('\n'),
+        });
+        return;
+      }
+      sendJson(res, 200, payload);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/bi-export/logs') {
+      let items = [...recruitmentBiExportLogs];
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['id', 'requestedBy', 'format', 'status'],
+        defaultSortBy: 'createdAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/recruitment/observability') {
+      const snapshot = buildRecruitmentObservabilitySnapshot();
+      sendJson(res, 200, snapshot);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/recruitment/observability/events') {
+      const body = await readJsonBody(req);
+      const severityRaw = normalizeText(body?.severity || 'info');
+      const severity = severityRaw === 'critical' || severityRaw === 'critique'
+        ? 'critical'
+        : severityRaw === 'warning' || severityRaw === 'alerte'
+          ? 'warning'
+          : 'info';
+      const event = {
+        id: `REC-OBS-EVT-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`.toUpperCase(),
+        source: String(body?.source || 'frontend').trim() || 'frontend',
+        message: String(body?.message || 'event').trim() || 'event',
+        severity,
+        createdAt: new Date().toISOString(),
+      };
+      recruitmentObservabilityEvents.push(event);
+      sendJson(res, 201, event);
       return;
     }
 
@@ -6545,6 +12306,128 @@ const server = http.createServer(async (req, res) => {
       };
       trainingCatalog.push(created);
       sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/training/requests') {
+      let items = [...trainingEnrollmentRequests];
+      const isAgentOnly = hasAnyRole(currentUser, ['agent']) && !hasAnyRole(currentUser, ['manager', 'hr_manager', 'super_admin']);
+      if (isAgentOnly) {
+        const currentUsername = String(currentUser.username || '').trim().toLowerCase();
+        items = items.filter((item) => String(item.applicantUsername || '').trim().toLowerCase() === currentUsername);
+      }
+
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyStringFilter(items, url, 'sessionCode', 'sessionCode');
+      items = applyStringFilter(items, url, 'applicantUsername', 'applicantUsername');
+      items = applyStringFilter(items, url, 'applicant', 'applicantName');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'sessionCode',
+          'sessionTitle',
+          'sessionDates',
+          'sessionLocation',
+          'applicantName',
+          'applicantUsername',
+          'motivation',
+          'status',
+          'createdAt',
+          'decidedBy',
+          'decisionComment',
+        ],
+        defaultSortBy: 'createdAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'POST' && path === '/api/v1/training/requests') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager', 'manager', 'agent'])) {
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const validation = validateTrainingEnrollmentRequestCreatePayload(body || {}, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Donnees demande formation invalides', validation.errors);
+        return;
+      }
+
+      const created = {
+        reference: validation.payload.reference || buildTrainingEnrollmentRequestReference(),
+        sessionCode: validation.payload.sessionCode,
+        sessionTitle: validation.payload.sessionTitle,
+        sessionDates: validation.payload.sessionDates,
+        sessionLocation: validation.payload.sessionLocation,
+        applicantName: validation.payload.applicantName,
+        applicantUsername: validation.payload.applicantUsername,
+        motivation: validation.payload.motivation,
+        status: validation.payload.status,
+        createdAt: validation.payload.createdAt,
+        decidedAt: '',
+        decidedBy: '',
+        decisionComment: '',
+      };
+      trainingEnrollmentRequests.push(created);
+      sendJson(res, 201, created);
+      return;
+    }
+
+    if (method === 'POST' && path.startsWith('/api/v1/training/requests/') && path.endsWith('/decision')) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager', 'manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[segments.length - 2] || '');
+      } catch {
+        sendApiError(res, 400, 'TRAINING_REQUEST_INVALID', 'Reference demande formation invalide');
+        return;
+      }
+
+      const reference = String(rawReference || '').trim().toUpperCase();
+      if (!reference) {
+        sendApiError(res, 400, 'TRAINING_REQUEST_INVALID', 'Reference demande formation invalide');
+        return;
+      }
+
+      const requestIndex = findTrainingEnrollmentRequestIndex(reference);
+      if (requestIndex < 0) {
+        sendApiError(res, 404, 'TRAINING_REQUEST_NOT_FOUND', 'Demande formation introuvable');
+        return;
+      }
+
+      const currentRequest = trainingEnrollmentRequests[requestIndex];
+      const body = await readJsonBody(req);
+      const validation = validateTrainingEnrollmentDecisionPayload(body || {}, currentRequest, currentUser);
+      if (validation.errors.length > 0) {
+        sendApiError(res, 400, 'VALIDATION', 'Decision demande formation invalide', validation.errors);
+        return;
+      }
+
+      const nextStatus = validation.payload.action === 'REJETER' ? 'Rejetee' : 'Validee';
+      currentRequest.status = nextStatus;
+      currentRequest.decidedAt = validation.payload.decidedAt;
+      currentRequest.decidedBy = validation.payload.decidedBy;
+      currentRequest.decisionComment = validation.payload.reason || '';
+
+      if (nextStatus === 'Validee') {
+        const session = findTrainingSession(currentRequest.sessionCode);
+        if (session) {
+          const seats = Number(session.seats || 0);
+          const enrolled = Number(session.enrolled || 0);
+          session.enrolled = Math.min(seats, Math.max(0, enrolled + 1));
+          if (session.enrolled >= seats) {
+            session.status = 'Complete';
+          }
+        }
+      }
+
+      sendJson(res, 200, currentRequest);
       return;
     }
 

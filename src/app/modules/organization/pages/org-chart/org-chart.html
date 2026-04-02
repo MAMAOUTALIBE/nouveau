@@ -7,7 +7,41 @@
           <button class="btn btn-primary" (click)="toggleCreateForm()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Ajouter une unite' }}
           </button>
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button class="btn btn-outline-primary" (click)="expandAll()" [disabled]="loading || !roots.length">
+            Deplier tout
+          </button>
+          <button class="btn btn-outline-primary" (click)="collapseAll()" [disabled]="loading || !roots.length">
+            Replier tout
+          </button>
+          <button class="btn btn-outline-primary" (click)="exportUnits()" [disabled]="loading || !roots.length">
+            Exporter
+          </button>
+
+          <ng-container *ngIf="!isSimulationMode; else simulationControls">
+            <button class="btn btn-warning" (click)="startSimulation()" [disabled]="loading || !allUnits.length">
+              Nouvelle simulation
+            </button>
+          </ng-container>
+          <ng-template #simulationControls>
+            <span class="badge bg-warning-transparent">Mode simulation</span>
+            <button
+              class="btn btn-outline-warning"
+              (click)="saveSimulationDraft()"
+              [disabled]="isSubmittingSimulation || !simulationChanges.length"
+            >
+              Sauver brouillon
+            </button>
+            <button
+              class="btn btn-warning"
+              (click)="submitSimulationForApproval()"
+              [disabled]="isSubmittingSimulation || !simulationChanges.length"
+            >
+              {{ isSubmittingSimulation ? 'Soumission...' : 'Soumettre validation' }}
+            </button>
+            <button class="btn btn-outline-secondary" (click)="cancelSimulation()" [disabled]="isSubmittingSimulation">
+              Quitter simulation
+            </button>
+          </ng-template>
         </div>
       </div>
       <div class="card-body">
@@ -23,7 +57,7 @@
                 <label class="form-label">Unite parente</label>
                 <select class="form-select" formControlName="parentId">
                   <option value="">Aucune (racine)</option>
-                  <option *ngFor="let unit of units" [value]="unit.id">{{ unit.name }} ({{ unit.id }})</option>
+                  <option *ngFor="let unit of allUnits" [value]="unit.id">{{ unit.name }} ({{ unit.id }})</option>
                 </select>
               </div>
               <div class="col-md-4">
@@ -46,54 +80,270 @@
                   Annuler
                 </button>
                 <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Enregistrement...' : 'Enregistrer l unite' }}
+                  {{ submitting ? 'Enregistrement...' : (isSimulationMode ? 'Ajouter au brouillon' : 'Enregistrer l unite') }}
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-4" *ngFor="let node of roots">
-            <div class="card border shadow-none mb-3">
-              <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <div class="fw-semibold">{{ node.unit.name }}</div>
-                    <div class="text-muted fs-12">
-                      {{ node.unit.head || 'Responsable à définir' }}
-                      <ng-container *ngIf="node.unit.headTitle"> · {{ node.unit.headTitle }}</ng-container>
+        <div class="card border shadow-none mb-4">
+          <div class="card-body">
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="row g-3 align-items-end">
+              <div class="col-md-5">
+                <label class="form-label">Recherche globale</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="q"
+                  placeholder="Code, unite, responsable ou titre"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Responsable</label>
+                <input type="text" class="form-control" formControlName="head" placeholder="Nom du responsable" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Unite parente</label>
+                <select class="form-select" formControlName="parentId">
+                  <option value="">Toutes</option>
+                  <option *ngFor="let unit of allUnits" [value]="unit.id">{{ unit.name }} ({{ unit.id }})</option>
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="clearFilters()" [disabled]="loading">
+                  Reinitialiser
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="loading">
+                  Filtrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="badge bg-primary-transparent">Unites: {{ totalUnits }}</span>
+          <span class="badge bg-success-transparent">Effectif total: {{ totalStaff }}</span>
+          <span class="badge bg-warning-transparent" *ngIf="isSimulationMode">
+            Changements simulation: {{ simulationChanges.length }}
+          </span>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-8">
+            <div class="d-flex align-items-center gap-2 py-4" *ngIf="loading">
+              <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+              <span class="text-muted">Chargement de l organigramme...</span>
+            </div>
+
+            <div class="alert alert-danger" *ngIf="!loading && loadError">
+              {{ loadError }}
+            </div>
+
+            <div class="alert alert-info" *ngIf="!loading && !loadError && !roots.length">
+              Aucune unite ne correspond aux filtres actuels.
+            </div>
+
+            <div *ngIf="!loading && !loadError && roots.length">
+              <ng-container *ngFor="let node of roots; trackBy: trackNode">
+                <ng-container *ngTemplateOutlet="nodeTemplate; context: { $implicit: node, level: 0 }"></ng-container>
+              </ng-container>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card border shadow-none mb-3" *ngIf="selectedUnit; else emptySelection">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="fw-semibold">Detail unite</div>
+                <button type="button" class="btn btn-sm btn-light" (click)="clearSelectedUnit()">Fermer</button>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <div class="fw-semibold">{{ selectedUnit.name }}</div>
+                  <div class="text-muted fs-12">{{ selectedUnit.id }}</div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                  <span class="badge bg-primary-transparent">Effectif: {{ selectedUnit.staffCount }}</span>
+                  <span class="badge bg-danger-transparent">Vacants: {{ selectedVacancyCount }}</span>
+                </div>
+
+                <form [formGroup]="editForm" (ngSubmit)="saveSelectedUnit()" class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Nom de l unite</label>
+                    <input type="text" class="form-control" formControlName="name" />
+                    <div class="text-danger fs-11 mt-1" *ngIf="fieldError('name', 'edit') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Unite parente</label>
+                    <select class="form-select" formControlName="parentId">
+                      <option value="">Aucune (racine)</option>
+                      <option *ngFor="let unit of availableParentUnits" [value]="unit.id">
+                        {{ unit.name }} ({{ unit.id }})
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Responsable</label>
+                    <input type="text" class="form-control" formControlName="head" />
+                    <div class="text-danger fs-11 mt-1" *ngIf="fieldError('head', 'edit') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Titre du responsable</label>
+                    <input type="text" class="form-control" formControlName="headTitle" />
+                    <div class="text-danger fs-11 mt-1" *ngIf="fieldError('headTitle', 'edit') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Effectif</label>
+                    <input type="number" min="0" class="form-control" formControlName="staffCount" />
+                    <div class="text-danger fs-11 mt-1" *ngIf="fieldError('staffCount', 'edit') as error">
+                      {{ error }}
                     </div>
                   </div>
-                  <span class="badge bg-primary-transparent">{{ node.unit.staffCount }} agents</span>
+                  <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-light" (click)="clearSelectedUnit()" [disabled]="updating">
+                      Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="updating || isSubmittingSimulation">
+                      {{
+                        updating
+                          ? (isSimulationMode ? 'Application...' : 'Mise a jour...')
+                          : (isSimulationMode ? 'Appliquer au brouillon' : 'Enregistrer les modifications')
+                      }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <ng-template #emptySelection>
+              <div class="card border shadow-none mb-3">
+                <div class="card-body text-muted">
+                  Selectionnez une unite dans l arbre pour voir les details et modifier son rattachement.
                 </div>
               </div>
-              <div class="card-body p-2">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item" *ngFor="let child of node.children">
-                    <div class="d-flex align-items-start justify-content-between">
-                      <div>
-                        <div class="fw-semibold">{{ child.unit.name }}</div>
-                        <div class="text-muted fs-12">
-                          {{ child.unit.head || 'Responsable à définir' }}
-                          <ng-container *ngIf="child.unit.headTitle"> · {{ child.unit.headTitle }}</ng-container>
-                        </div>
-                        <div class="text-muted fs-12">{{ child.unit.staffCount }} agents</div>
-                      </div>
-                      <span class="badge bg-light text-default">Sous-unités: {{ child.children.length }}</span>
-                    </div>
-                    <ul class="mt-2 ps-3 text-muted fs-12" *ngIf="child.children.length">
-                      <li *ngFor="let sub of child.children">
-                        {{ sub.unit.name }} — {{ sub.unit.staffCount }} agents
-                      </li>
-                    </ul>
-                  </li>
-                  <li *ngIf="!node.children.length" class="list-group-item text-muted fs-12">Aucune sous-unité</li>
-                </ul>
+            </ng-template>
+
+            <div class="card border shadow-none">
+              <div class="card-header">
+                <div class="fw-semibold">Historique simulations</div>
+              </div>
+              <div class="card-body">
+                <div class="text-muted fs-12" *ngIf="!snapshots.length">
+                  Aucune simulation enregistree.
+                </div>
+
+                <div class="border rounded p-2 mb-2" *ngFor="let snapshot of snapshots; trackBy: trackSnapshot">
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                    <div class="fw-semibold fs-13">{{ snapshot.label }}</div>
+                    <span class="badge" [class]="snapshotStatusClass(snapshot.status)">
+                      {{ snapshotStatusLabel(snapshot.status) }}
+                    </span>
+                  </div>
+
+                  <div class="text-muted fs-12">{{ snapshot.createdAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+                  <div class="text-muted fs-12">Changements: {{ snapshot.changes.length }}</div>
+                  <div class="text-muted fs-12" *ngIf="snapshot.workflowInstanceId">
+                    Workflow: {{ snapshot.workflowInstanceId }}
+                  </div>
+                  <div class="text-muted fs-12" *ngIf="snapshot.publishedAt">
+                    Publie: {{ snapshot.publishedAt | date: 'dd/MM/yyyy HH:mm' }}
+                  </div>
+
+                  <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      *ngIf="snapshot.status === 'BROUILLON' || snapshot.status === 'REJETE'"
+                      (click)="resumeSnapshot(snapshot.id)"
+                      [disabled]="isSnapshotBusy(snapshot.id) || isSubmittingSimulation"
+                    >
+                      Reprendre
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-success"
+                      *ngIf="snapshot.status === 'SOUMIS'"
+                      (click)="approveSnapshot(snapshot.id)"
+                      [disabled]="isSnapshotBusy(snapshot.id)"
+                    >
+                      Approuver
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      *ngIf="snapshot.status === 'SOUMIS'"
+                      (click)="rejectSnapshot(snapshot.id)"
+                      [disabled]="isSnapshotBusy(snapshot.id)"
+                    >
+                      Rejeter
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-info"
+                      *ngIf="snapshot.status === 'APPROUVE'"
+                      (click)="publishSnapshot(snapshot.id)"
+                      [disabled]="isSnapshotBusy(snapshot.id)"
+                    >
+                      Publier
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      *ngIf="snapshot.status !== 'PUBLIE'"
+                      (click)="deleteSnapshot(snapshot.id)"
+                      [disabled]="isSnapshotBusy(snapshot.id)"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <ng-template #nodeTemplate let-node let-level="level">
+          <div class="card border shadow-none mb-2" [style.margin-left.px]="level * 24">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div class="d-flex align-items-start gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-light px-2 py-0 fs-11"
+                    [disabled]="!node.children.length"
+                    (click)="toggleNode(node.unit.id)"
+                  >
+                    {{ node.children.length ? (isExpanded(node.unit.id) ? '-' : '+') : '·' }}
+                  </button>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-link p-0 fw-semibold text-start text-decoration-none"
+                      (click)="selectUnit(node.unit.id)"
+                    >
+                      {{ node.unit.name }}
+                    </button>
+                    <div class="text-muted fs-12">
+                      {{ node.unit.head || 'Responsable a definir' }}
+                      <ng-container *ngIf="node.unit.headTitle"> · {{ node.unit.headTitle }}</ng-container>
+                    </div>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap justify-content-end">
+                  <span class="badge bg-primary-transparent">{{ node.unit.staffCount }} agents</span>
+                  <span class="badge bg-light text-default">Sous-unites: {{ node.children.length }}</span>
+                  <span class="badge bg-danger-transparent" *ngIf="vacancyCountForStructure(node.unit.name) > 0">
+                    Vacants: {{ vacancyCountForStructure(node.unit.name) }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-2" *ngIf="node.children.length && isExpanded(node.unit.id)">
+                <ng-container *ngFor="let child of node.children; trackBy: trackNode">
+                  <ng-container
+                    *ngTemplateOutlet="nodeTemplate; context: { $implicit: child, level: level + 1 }"
+                  ></ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </ng-template>
       </div>
     </div>
   </div>

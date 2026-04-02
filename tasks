@@ -1,0 +1,429 @@
+# Backlog Recrutement (MVP + V2)
+
+## Conventions
+- `status`: `todo` | `in_progress` | `blocked` | `done`
+- `priority`: `P0` (critique) | `P1` (haute) | `P2` (normale)
+- `effort`: `S` (1-2 j) | `M` (3-5 j) | `L` (6-10 j)
+- `owner`: role responsable principal
+- `depends_on`: liste IDs prerequis
+
+## Owners proposes
+- `owner_product`: Product Owner RH
+- `owner_front`: Lead Frontend
+- `owner_back`: Lead Backend
+- `owner_data`: Data/BI
+- `owner_qa`: QA Lead
+
+## MVP (4 semaines)
+
+### Sprint 1
+
+- id: `REC-MVP-001`
+  title: `Pipeline Kanban candidatures (drag & drop controle)`
+  module: `Candidatures`
+  sprint: `S1`
+  status: `todo`
+  priority: `P0`
+  effort: `M`
+  owner: `owner_front`
+  depends_on: `[]`
+  acceptance:
+  - Drag autorise uniquement selon le workflow
+  - Historique de statut enregistre automatiquement
+  - Message d'erreur explicite si transition invalide
+
+- id: `REC-MVP-002`
+  title: `SLA par etape et alertes de retard`
+  module: `Candidatures`
+  sprint: `S1`
+  status: `todo`
+  priority: `P0`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-001]`
+  acceptance:
+  - Age de candidature visible par etape
+  - Etats visuels: vert/orange/rouge
+  - Compteur des candidatures en retard
+
+- id: `REC-MVP-003`
+  title: `Fiche entretien structuree`
+  module: `Candidatures`
+  sprint: `S1`
+  status: `todo`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-001]`
+  acceptance:
+  - Grille de criteres avec notes
+  - Synthese et recommandation finale
+  - Historique des evaluations conserve
+
+- id: `REC-MVP-004`
+  title: `Dossier candidat 360`
+  module: `Candidatures`
+  sprint: `S1`
+  status: `todo`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-001]`
+  acceptance:
+  - Profil, timeline, commentaires, pieces jointes en une vue
+  - Acces rapide aux actions (statut, commentaire, telechargement PJ)
+  - Donnees chargees sans blocage UI
+
+- id: `REC-MVP-005`
+  title: `Liaison campagne <-> besoin poste`
+  module: `Campagnes`
+  sprint: `S1`
+  status: `done`
+  priority: `P0`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[]`
+  acceptance:
+  - Campagne rattachee a un besoin (quota, delai, owner)
+  - Validation des champs obligatoires
+  - Affichage du besoin sur la fiche campagne
+
+- id: `REC-MVP-006`
+  title: `Source de candidature obligatoire`
+  module: `Campagnes`
+  sprint: `S1`
+  status: `done`
+  priority: `P1`
+  effort: `S`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-005]`
+  acceptance:
+  - Source enregistree a la creation candidature
+  - Filtres par source disponibles
+  - Stats simples par source visibles
+
+### Sprint 2
+
+- id: `REC-MVP-007`
+  title: `Funnel campagne complet`
+  module: `Campagnes`
+  sprint: `S2`
+  status: `done`
+  priority: `P0`
+  effort: `M`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-001, REC-MVP-005, REC-MVP-006]`
+  acceptance:
+  - Volumes par etape du pipeline
+  - Taux de conversion entre etapes
+  - Vue par campagne et global
+
+- id: `REC-MVP-008`
+  title: `KPI operationnels campagne`
+  module: `Campagnes`
+  sprint: `S2`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-007]`
+  acceptance:
+  - Delai moyen de traitement
+  - Volume hebdomadaire
+  - Taux rejet / retenu
+
+- id: `REC-MVP-009`
+  title: `Checklist onboarding dynamique par poste`
+  module: `Integration`
+  sprint: `S2`
+  status: `done`
+  priority: `P0`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[]`
+  acceptance:
+  - Templates de checklist par type de poste
+  - Assignation automatique des taches
+  - Statut de progression par checklist
+
+- id: `REC-MVP-010`
+  title: `Gestion blocages onboarding + escalade`
+  module: `Integration`
+  sprint: `S2`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-009]`
+  acceptance:
+  - Taches bloquees identifiables
+  - Escalade automatique apres delai
+  - Trace des blocages dans l'historique
+
+- id: `REC-MVP-011`
+  title: `Notifications automatiques recrutement`
+  module: `Transversal`
+  sprint: `S2`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-002, REC-MVP-009]`
+  acceptance:
+  - Relances entretiens et validations
+  - Alertes SLA candidature
+  - Journal des notifications envoyees
+
+- id: `REC-MVP-012`
+  title: `Audit, permissions et couverture test`
+  module: `Transversal`
+  sprint: `S2`
+  status: `done`
+  priority: `P0`
+  effort: `L`
+  owner: `owner_qa`
+  depends_on: `[REC-MVP-001, REC-MVP-005, REC-MVP-009]`
+  acceptance:
+  - Audit des actions critiques
+  - Permissions par role validees
+  - Tests unitaires et smoke e2e passes
+
+## V2 (8 semaines)
+
+### Sprint 3
+
+- id: `REC-V2-001`
+  title: `Scoring automatique candidat (regles ponderees)`
+  module: `Candidatures`
+  sprint: `S3`
+  status: `done`
+  priority: `P1`
+  effort: `L`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-004]`
+  acceptance:
+  - Score calcule avec details par critere
+  - Regles configurables (ponderation)
+  - Classement des candidatures disponible
+
+- id: `REC-V2-002`
+  title: `Shortlist assistee (Top N auto)`
+  module: `Candidatures`
+  sprint: `S3`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_front`
+  depends_on: `[REC-V2-001]`
+  acceptance:
+  - Proposition auto des meilleurs profils
+  - Justification visible par score
+  - Validation manuelle obligatoire avant envoi
+
+- id: `REC-V2-003`
+  title: `Dedoublonnage avance candidatures`
+  module: `Candidatures`
+  sprint: `S3`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-004]`
+  acceptance:
+  - Detection email/tel/identite
+  - Alerte au moment de creation candidature
+  - Fusion ou liaison de profils possible
+
+- id: `REC-V2-004`
+  title: `Banque de questions entretien par poste`
+  module: `Candidatures`
+  sprint: `S3`
+  status: `done`
+  priority: `P2`
+  effort: `S`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-003]`
+  acceptance:
+  - Templates de questions par poste
+  - Versionning minimal
+  - Import/export simple CSV/JSON
+
+### Sprint 4
+
+- id: `REC-V2-005`
+  title: `Planification entretiens avec disponibilites`
+  module: `Candidatures`
+  sprint: `S4`
+  status: `done`
+  priority: `P1`
+  effort: `L`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-003]`
+  acceptance:
+  - Reservation de creneau
+  - Panel interviewers associe
+  - Replanification historisee
+
+- id: `REC-V2-006`
+  title: `Evaluation collaborative multi-interviewers`
+  module: `Candidatures`
+  sprint: `S4`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-V2-005]`
+  acceptance:
+  - Saisie de plusieurs evaluations
+  - Consolidation automatique
+  - Traçabilite des avis individuels
+
+- id: `REC-V2-007`
+  title: `Prevision de charge recruteurs`
+  module: `Campagnes`
+  sprint: `S4`
+  status: `done`
+  priority: `P2`
+  effort: `M`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-007]`
+  acceptance:
+  - Charge cible par recruteur
+  - Alertes surcharge/sous-charge
+  - Vue hebdomadaire et mensuelle
+
+- id: `REC-V2-008`
+  title: `Budget campagne + cout par embauche`
+  module: `Campagnes`
+  sprint: `S4`
+  status: `done`
+  priority: `P2`
+  effort: `L`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-008]`
+  acceptance:
+  - Saisie budget et depenses
+  - Cout par candidature/embauche
+  - Comparatif budget vs realise
+
+### Sprint 5
+
+- id: `REC-V2-009`
+  title: `Parcours onboarding 30/60/90 jours`
+  module: `Integration`
+  sprint: `S5`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-009]`
+  acceptance:
+  - Jalons 30/60/90 parametres
+  - Feedback manager et agent
+  - Etat d'avancement global
+
+- id: `REC-V2-010`
+  title: `Score de reussite onboarding`
+  module: `Integration`
+  sprint: `S5`
+  status: `done`
+  priority: `P2`
+  effort: `M`
+  owner: `owner_data`
+  depends_on: `[REC-MVP-010, REC-V2-009]`
+  acceptance:
+  - Score calcule sur completude/delais/incidents
+  - Historique des scores par cohorte
+  - Seuils d'alerte configurables
+
+- id: `REC-V2-011`
+  title: `Sync automatique onboarding -> modules RH`
+  module: `Integration`
+  sprint: `S5`
+  status: `done`
+  priority: `P1`
+  effort: `L`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-009]`
+  acceptance:
+  - Creation dossier agent automatisee
+  - Affectation initiale automatisee
+  - Traçabilite des synchronisations
+
+- id: `REC-V2-012`
+  title: `Moteur de regles no-code recrutement`
+  module: `Transversal`
+  sprint: `S5`
+  status: `done`
+  priority: `P2`
+  effort: `L`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-011]`
+  acceptance:
+  - Regles evenement -> action configurables
+  - Simulation d'une regle avant activation
+  - Journal des executions
+
+### Sprint 6
+
+- id: `REC-V2-013`
+  title: `Control Tower recrutement (vue bout-en-bout)`
+  module: `Transversal`
+  sprint: `S6`
+  status: `done`
+  priority: `P1`
+  effort: `L`
+  owner: `owner_front`
+  depends_on: `[REC-MVP-007, REC-MVP-009, REC-V2-009]`
+  acceptance:
+  - Vue unifiee Campagnes/Candidatures/Integration
+  - Filtres transverses temps reel
+  - Drill-down vers fiches detail
+
+- id: `REC-V2-014`
+  title: `Tableaux de bord direction`
+  module: `Transversal`
+  sprint: `S6`
+  status: `done`
+  priority: `P2`
+  effort: `M`
+  owner: `owner_data`
+  depends_on: `[REC-V2-013]`
+  acceptance:
+  - KPI executifs time-to-hire et conversion
+  - Comparaison periodes/campagnes
+  - Exports PDF/CSV
+
+- id: `REC-V2-015`
+  title: `API export BI recrutement`
+  module: `Transversal`
+  sprint: `S6`
+  status: `done`
+  priority: `P2`
+  effort: `M`
+  owner: `owner_back`
+  depends_on: `[REC-MVP-012]`
+  acceptance:
+  - Endpoint export securise
+  - Schema stable documente
+  - Journal des exports
+
+- id: `REC-V2-016`
+  title: `Qualite, perf et observabilite`
+  module: `Transversal`
+  sprint: `S6`
+  status: `done`
+  priority: `P1`
+  effort: `M`
+  owner: `owner_qa`
+  depends_on: `[REC-V2-013, REC-V2-015]`
+  acceptance:
+  - Tests e2e critiques en CI
+  - Seuils de performance definis
+  - Monitoring erreurs et alerting
+
+## KPI cibles programme
+- `time_to_hire`: `-25%`
+- `conversion_entretien_vers_retenu`: `+15%`
+- `onboarding_completed_on_time`: `>90%`
+- `candidatures_hors_sla`: `<10%`

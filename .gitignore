@@ -31,13 +31,17 @@ yarn-error.log
 # Miscellaneous
 /.angular/cache
 .sass-cache/
+.npm-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log
 testem.log
 /typings
 __screenshots__/
+playwright-report/
+test-results/
 
 # System files
 .DS_Store
 Thumbs.db
+._*

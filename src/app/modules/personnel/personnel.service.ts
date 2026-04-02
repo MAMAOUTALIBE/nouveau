@@ -12,9 +12,116 @@ export interface AgentListItem {
   matricule: string;
   fullName: string;
   direction: string;
+  unit: string;
   position: string;
   status: string;
   manager: string;
+  contractType: string;
+  photoUrl: string;
+}
+
+export interface AgentDuplicateIndexItem {
+  id: string;
+  fullName: string;
+  matricule: string;
+  email: string;
+  identityNumber: string;
+}
+
+export type AgentDuplicateCaseField = 'email' | 'identityNumber' | 'fullName';
+
+export interface AgentDuplicateCaseAgentSummary {
+  id: string;
+  matricule: string;
+  fullName: string;
+  direction: string;
+  unit: string;
+  position: string;
+  status: string;
+  manager: string;
+  email: string;
+  identityNumber: string;
+  phone: string;
+  contractType: string;
+}
+
+export interface AgentDuplicateCase {
+  reference: string;
+  duplicateField: AgentDuplicateCaseField;
+  duplicateValue: string;
+  confidenceScore: number;
+  impactedCount: number;
+  createdAt: string;
+  agents: AgentDuplicateCaseAgentSummary[];
+}
+
+export type AgentMergeFieldSource = 'primary' | 'secondary';
+
+export type AgentMergeField =
+  | 'matricule'
+  | 'fullName'
+  | 'direction'
+  | 'unit'
+  | 'position'
+  | 'status'
+  | 'manager'
+  | 'email'
+  | 'phone'
+  | 'identityNumber'
+  | 'contractType';
+
+export interface MergeDuplicateAgentsPayload {
+  reference?: string;
+  primaryAgentId: string;
+  secondaryAgentId: string;
+  fieldSources?: Partial<Record<AgentMergeField, AgentMergeFieldSource>>;
+  reason?: string;
+}
+
+export interface MergeDuplicateAgentsResult {
+  reference: string;
+  mergedAt: string;
+  mergedBy: string;
+  primaryAgentId: string;
+  secondaryAgentId: string;
+  removedAgentId: string;
+  keptAgentId: string;
+  mergedAgent: AgentDetail;
+  reassignedDossiers: number;
+  reassignedAffectations: number;
+}
+
+export interface AgentMatriculeSuggestion {
+  matricule: string;
+  scopeLabel: string;
+  basedOn: 'Direction+Unite' | 'Direction' | 'Global';
+  nextNumber: number;
+}
+
+export interface PersonnelMatriculeSuggestionAuditItem {
+  reference: string;
+  createdAt: string;
+  username: string;
+  previousMatricule: string;
+  suggestedMatricule: string;
+  direction: string;
+  unit: string;
+  scopeLabel: string;
+  basedOn: 'Direction+Unite' | 'Direction' | 'Global';
+  reason: string;
+}
+
+export interface CreatePersonnelMatriculeSuggestionAuditPayload {
+  reference?: string;
+  createdAt?: string;
+  username?: string;
+  previousMatricule?: string;
+  suggestedMatricule: string;
+  direction?: string;
+  unit?: string;
+  scopeLabel?: string;
+  basedOn?: 'Direction+Unite' | 'Direction' | 'Global';
+  reason?: string;
 }
 
 export interface AgentCareerEvent {
@@ -92,6 +199,43 @@ export interface CreateAgentPayload {
   isDraft?: boolean;
 }
 
+export interface UpdateAgentPayload {
+  matricule?: string;
+  fullName?: string;
+  direction?: string;
+  unit?: string;
+  position?: string;
+  status?: string;
+  manager?: string;
+  email?: string;
+  phone?: string;
+  photoUrl?: string;
+  identity?: Partial<AgentIdentityInfo>;
+  administrative?: Partial<AgentAdministrativeInfo>;
+  educations?: AgentEducation[];
+  careerEvents?: AgentCareerEvent[];
+  documents?: AgentDocument[];
+  auditReason?: string;
+}
+
+export interface AgentAuditFieldChange {
+  field: string;
+  label: string;
+  before: string;
+  after: string;
+}
+
+export interface AgentAuditEvent {
+  reference: string;
+  agentId: string;
+  agentLabel: string;
+  changedAt: string;
+  changedBy: string;
+  source: 'update' | 'merge' | 'system';
+  reason: string;
+  changes: AgentAuditFieldChange[];
+}
+
 export interface PersonnelUploadedFile {
   id: string;
   fileName: string;
@@ -103,6 +247,10 @@ export interface PersonnelUploadedFile {
 export interface AgentListQuery extends CollectionQueryOptions {
   direction?: string;
   status?: string;
+  unit?: string;
+  manager?: string;
+  position?: string;
+  contractType?: string;
 }
 
 export interface PersonnelDossier {
@@ -152,6 +300,22 @@ export interface PersonnelAffectationsQuery extends CollectionQueryOptions {
   toUnit?: string;
 }
 
+export interface PersonnelMatriculeSuggestionAuditQuery extends CollectionQueryOptions {
+  username?: string;
+  reason?: string;
+}
+
+export interface AgentDuplicateCasesQuery extends CollectionQueryOptions {
+  duplicateField?: AgentDuplicateCaseField;
+  minCount?: number;
+}
+
+export interface AgentAuditTrailQuery extends CollectionQueryOptions {
+  changedBy?: string;
+  source?: 'update' | 'merge' | 'system';
+  field?: string;
+}
+
 interface AgentListItemDto {
   id?: string;
   matricule?: string;
@@ -162,6 +326,9 @@ interface AgentListItemDto {
   direction?: string;
   directionName?: string;
   direction_name?: string;
+  unit?: string;
+  unitName?: string;
+  unit_name?: string;
   position?: string;
   positionTitle?: string;
   position_title?: string;
@@ -169,6 +336,125 @@ interface AgentListItemDto {
   manager?: string;
   managerName?: string;
   manager_name?: string;
+  contractType?: string;
+  contract_type?: string;
+  photoUrl?: string;
+  photo_url?: string;
+}
+
+interface AgentDuplicateIndexItemDto {
+  id?: string;
+  fullName?: string;
+  full_name?: string;
+  matricule?: string;
+  email?: string;
+  identityNumber?: string;
+  identity_number?: string;
+}
+
+interface AgentDuplicateCaseAgentSummaryDto {
+  id?: string;
+  matricule?: string;
+  fullName?: string;
+  full_name?: string;
+  direction?: string;
+  unit?: string;
+  position?: string;
+  status?: string;
+  manager?: string;
+  email?: string;
+  identityNumber?: string;
+  identity_number?: string;
+  phone?: string;
+  contractType?: string;
+  contract_type?: string;
+}
+
+interface AgentDuplicateCaseDto {
+  reference?: string;
+  duplicateField?: string;
+  duplicate_field?: string;
+  duplicateValue?: string;
+  duplicate_value?: string;
+  confidenceScore?: number;
+  confidence_score?: number;
+  impactedCount?: number;
+  impacted_count?: number;
+  createdAt?: string;
+  created_at?: string;
+  agents?: AgentDuplicateCaseAgentSummaryDto[];
+}
+
+interface MergeDuplicateAgentsResultDto {
+  reference?: string;
+  mergedAt?: string;
+  merged_at?: string;
+  mergedBy?: string;
+  merged_by?: string;
+  primaryAgentId?: string;
+  primary_agent_id?: string;
+  secondaryAgentId?: string;
+  secondary_agent_id?: string;
+  removedAgentId?: string;
+  removed_agent_id?: string;
+  keptAgentId?: string;
+  kept_agent_id?: string;
+  mergedAgent?: AgentDetailDto;
+  merged_agent?: AgentDetailDto;
+  reassignedDossiers?: number;
+  reassigned_dossiers?: number;
+  reassignedAffectations?: number;
+  reassigned_affectations?: number;
+}
+
+interface AgentMatriculeSuggestionDto {
+  matricule?: string;
+  scopeLabel?: string;
+  scope_label?: string;
+  basedOn?: string;
+  based_on?: string;
+  nextNumber?: number;
+  next_number?: number;
+}
+
+interface PersonnelMatriculeSuggestionAuditItemDto {
+  reference?: string;
+  createdAt?: string;
+  created_at?: string;
+  username?: string;
+  previousMatricule?: string;
+  previous_matricule?: string;
+  suggestedMatricule?: string;
+  suggested_matricule?: string;
+  direction?: string;
+  unit?: string;
+  scopeLabel?: string;
+  scope_label?: string;
+  basedOn?: string;
+  based_on?: string;
+  reason?: string;
+}
+
+interface AgentAuditFieldChangeDto {
+  field?: string;
+  label?: string;
+  before?: string;
+  after?: string;
+}
+
+interface AgentAuditEventDto {
+  reference?: string;
+  agentId?: string;
+  agent_id?: string;
+  agentLabel?: string;
+  agent_label?: string;
+  changedAt?: string;
+  changed_at?: string;
+  changedBy?: string;
+  changed_by?: string;
+  source?: string;
+  reason?: string;
+  changes?: AgentAuditFieldChangeDto[];
 }
 
 interface AgentCareerEventDto {
@@ -269,11 +555,59 @@ interface LocalAgentRecord extends AgentDetail {
   manager: string;
 }
 
+const AGENT_MERGE_FIELDS: readonly AgentMergeField[] = [
+  'matricule',
+  'fullName',
+  'direction',
+  'unit',
+  'position',
+  'status',
+  'manager',
+  'email',
+  'phone',
+  'identityNumber',
+  'contractType',
+];
+
+const AGENT_DUPLICATE_FIELD_CONFIDENCE: Record<AgentDuplicateCaseField, number> = {
+  email: 96,
+  identityNumber: 99,
+  fullName: 72,
+};
+
+const AGENT_AUDIT_FIELD_CONFIG: Array<{
+  field: string;
+  label: string;
+  read: (record: LocalAgentRecord) => string;
+}> = [
+  { field: 'matricule', label: 'Matricule', read: (record) => String(record.matricule || '').trim() },
+  { field: 'fullName', label: 'Nom complet', read: (record) => String(record.fullName || '').trim() },
+  { field: 'direction', label: 'Direction', read: (record) => String(record.direction || '').trim() },
+  { field: 'unit', label: 'Unite', read: (record) => String(record.unit || '').trim() },
+  { field: 'position', label: 'Poste', read: (record) => String(record.position || '').trim() },
+  { field: 'status', label: 'Statut', read: (record) => String(record.status || '').trim() },
+  { field: 'manager', label: 'Manager', read: (record) => String(record.manager || '').trim() },
+  { field: 'email', label: 'Email', read: (record) => String(record.email || '').trim() },
+  { field: 'phone', label: 'Telephone', read: (record) => String(record.phone || '').trim() },
+  {
+    field: 'identityNumber',
+    label: "Numero piece d'identite",
+    read: (record) => String(record.identity?.identityNumber || '').trim(),
+  },
+  {
+    field: 'contractType',
+    label: 'Type contrat',
+    read: (record) => String(record.administrative?.contractType || '').trim(),
+  },
+];
+
 @Injectable({ providedIn: 'root' })
 export class PersonnelService {
   private readonly localStorageKey = 'rh_dev_agents';
   private readonly localDossiersKey = 'rh_dev_personnel_dossiers';
   private readonly localAffectationsKey = 'rh_dev_personnel_affectations';
+  private readonly localMatriculeAuditKey = 'rh_dev_personnel_matricule_audit';
+  private readonly localAgentAuditKey = 'rh_dev_personnel_agent_audit';
   private readonly fallbackEnabled = !!environment.auth?.devFallback?.enabled;
   private readonly apiClient = inject(ApiClientService);
 
@@ -281,6 +615,10 @@ export class PersonnelService {
     const params = buildCollectionQueryParams(query, {
       direction: query?.direction,
       status: query?.status,
+      unit: query?.unit,
+      manager: query?.manager,
+      position: query?.position,
+      contractType: query?.contractType,
     });
 
     return this.apiClient
@@ -296,6 +634,148 @@ export class PersonnelService {
         catchError((error) => {
           if (this.shouldUseLocalFallback(error)) {
             return of(this.applyLocalAgentQuery(this.readLocalAgentList(), query));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAgentDuplicateIndex(): Observable<AgentDuplicateIndexItem[]> {
+    return this.apiClient
+      .get<unknown>(
+        API_ENDPOINTS.personnel.agentDuplicateIndex,
+        undefined,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentDuplicateIndexPayload(payload)),
+        map((items) => this.mergeDuplicateIndex(items, this.readLocalDuplicateIndex())),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.readLocalDuplicateIndex());
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAgentDuplicateCases(query?: AgentDuplicateCasesQuery): Observable<AgentDuplicateCase[]> {
+    const params = buildCollectionQueryParams(query, {
+      duplicateField: query?.duplicateField,
+      minCount: query?.minCount,
+    });
+
+    return this.apiClient
+      .get<unknown>(
+        API_ENDPOINTS.personnel.agentDuplicateCases,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentDuplicateCasesPayload(payload)),
+        map((items) => this.mergeDuplicateCases(items, this.buildLocalDuplicateCases(this.readLocalAgentRecords()))),
+        map((items) => this.applyLocalDuplicateCasesQuery(items, query)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            const localCases = this.buildLocalDuplicateCases(this.readLocalAgentRecords());
+            return of(this.applyLocalDuplicateCasesQuery(localCases, query));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  mergeDuplicateAgents(payload: MergeDuplicateAgentsPayload): Observable<MergeDuplicateAgentsResult> {
+    const normalizedPayload = this.normalizeMergeDuplicatePayload(payload);
+    return this.apiClient
+      .post<MergeDuplicateAgentsResultDto, MergeDuplicateAgentsPayload>(
+        API_ENDPOINTS.personnel.agentMerge,
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeMergeDuplicateResult(dto, normalizedPayload)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.mergeLocalDuplicateAgents(normalizedPayload));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getAgentMatriculeSuggestion(input?: {
+    direction?: string;
+    unit?: string;
+  }): Observable<AgentMatriculeSuggestion> {
+    return this.apiClient
+      .get<unknown>(
+        API_ENDPOINTS.personnel.agentMatriculeSuggestion,
+        {
+          direction: this.normalizeOptionalText(input?.direction),
+          unit: this.normalizeOptionalText(input?.unit),
+        },
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentMatriculeSuggestionPayload(payload)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.buildLocalMatriculeSuggestion(input));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getMatriculeSuggestionAudit(
+    query?: PersonnelMatriculeSuggestionAuditQuery
+  ): Observable<PersonnelMatriculeSuggestionAuditItem[]> {
+    const params = buildCollectionQueryParams(query, {
+      username: query?.username,
+      reason: query?.reason,
+    });
+
+    return this.apiClient
+      .get<PersonnelMatriculeSuggestionAuditItemDto[]>(
+        API_ENDPOINTS.personnel.agentMatriculeSuggestionAudit,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((items) => this.mapMatriculeAudit(items)),
+        map((items) => this.mergeByKey(items, this.readLocalMatriculeAudit(), (item) => item.reference)),
+        map((items) => this.applyLocalMatriculeAuditQuery(items, query)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.applyLocalMatriculeAuditQuery(this.readLocalMatriculeAudit(), query));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  createMatriculeSuggestionAudit(
+    payload: CreatePersonnelMatriculeSuggestionAuditPayload
+  ): Observable<PersonnelMatriculeSuggestionAuditItem> {
+    const normalizedPayload = this.normalizeCreateMatriculeAuditPayload(payload);
+    return this.apiClient
+      .post<PersonnelMatriculeSuggestionAuditItemDto, CreatePersonnelMatriculeSuggestionAuditPayload>(
+        API_ENDPOINTS.personnel.agentMatriculeSuggestionAudit,
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeMatriculeAudit(dto)),
+        map((item) => {
+          if (item.reference && item.suggestedMatricule && item.createdAt) {
+            return item;
+          }
+          return this.appendLocalMatriculeAudit(normalizedPayload);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.appendLocalMatriculeAudit(normalizedPayload));
           }
           return throwError(() => error);
         })
@@ -321,6 +801,35 @@ export class PersonnelService {
       );
   }
 
+  getAgentAuditTrail(
+    agentId: string,
+    query?: AgentAuditTrailQuery
+  ): Observable<AgentAuditEvent[]> {
+    const params = buildCollectionQueryParams(query, {
+      changedBy: query?.changedBy,
+      source: query?.source,
+      field: query?.field,
+    });
+
+    return this.apiClient
+      .get<unknown>(
+        API_ENDPOINTS.personnel.agentAuditTrail(agentId),
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentAuditTrailPayload(payload)),
+        map((items) => this.mergeByKey(items, this.readLocalAgentAudit(agentId), (item) => item.reference)),
+        map((items) => this.applyLocalAgentAuditQuery(items, query)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.applyLocalAgentAuditQuery(this.readLocalAgentAudit(agentId), query));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   createAgent(payload: CreateAgentPayload): Observable<AgentDetail> {
     return this.apiClient
       .post<AgentDetailDto, CreateAgentPayload>(
@@ -334,6 +843,27 @@ export class PersonnelService {
           if (this.shouldUseLocalFallback(error)) {
             const localRecord = this.appendLocalAgent(payload);
             return of(this.toDetail(localRecord));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  updateAgent(id: string, payload: UpdateAgentPayload): Observable<AgentDetail> {
+    return this.apiClient
+      .put<AgentDetailDto, UpdateAgentPayload>(
+        API_ENDPOINTS.personnel.agentDetail(id),
+        payload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => mapAgentDetailDto(dto, id)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            const localRecord = this.updateLocalAgent(id, payload);
+            if (localRecord) {
+              return of(this.toDetail(localRecord));
+            }
           }
           return throwError(() => error);
         })
@@ -451,6 +981,124 @@ export class PersonnelService {
       );
   }
 
+  private mapMatriculeAudit(
+    items: PersonnelMatriculeSuggestionAuditItemDto[]
+  ): PersonnelMatriculeSuggestionAuditItem[] {
+    return (items || [])
+      .map((dto) => this.normalizeMatriculeAudit(dto))
+      .filter((item) => !!item.reference && !!item.suggestedMatricule && !!item.createdAt);
+  }
+
+  private normalizeMatriculeAudit(
+    dto: PersonnelMatriculeSuggestionAuditItemDto
+  ): PersonnelMatriculeSuggestionAuditItem {
+    const basedOnRaw = toStringValue(readField(dto, ['basedOn', 'based_on'], 'Global')).trim();
+    const basedOn: PersonnelMatriculeSuggestionAuditItem['basedOn'] =
+      basedOnRaw === 'Direction+Unite' || basedOnRaw === 'Direction' ? basedOnRaw : 'Global';
+    return {
+      reference: toStringValue(readField(dto, ['reference'], '')).trim(),
+      createdAt: toStringValue(readField(dto, ['createdAt', 'created_at'], '')).trim(),
+      username: toStringValue(readField(dto, ['username'], '')).trim(),
+      previousMatricule: toStringValue(readField(dto, ['previousMatricule', 'previous_matricule'], '')).trim(),
+      suggestedMatricule: toStringValue(readField(dto, ['suggestedMatricule', 'suggested_matricule'], '')).trim(),
+      direction: toStringValue(readField(dto, ['direction'], '')).trim(),
+      unit: toStringValue(readField(dto, ['unit'], '')).trim(),
+      scopeLabel: toStringValue(readField(dto, ['scopeLabel', 'scope_label'], 'Global')).trim() || 'Global',
+      basedOn,
+      reason: toStringValue(readField(dto, ['reason'], 'generation')).trim() || 'generation',
+    };
+  }
+
+  private normalizeCreateMatriculeAuditPayload(
+    payload: CreatePersonnelMatriculeSuggestionAuditPayload
+  ): CreatePersonnelMatriculeSuggestionAuditPayload {
+    const basedOn = payload.basedOn === 'Direction+Unite' || payload.basedOn === 'Direction'
+      ? payload.basedOn
+      : 'Global';
+    const createdAtRaw = String(payload.createdAt || '').trim();
+    const createdAtParsed = Date.parse(createdAtRaw);
+    return {
+      reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
+      createdAt: !createdAtRaw
+        ? new Date().toISOString()
+        : Number.isNaN(createdAtParsed)
+          ? createdAtRaw
+          : new Date(createdAtParsed).toISOString(),
+      username: this.normalizeOptionalText(payload.username) || 'system',
+      previousMatricule: this.normalizeOptionalText(payload.previousMatricule) || '',
+      suggestedMatricule: String(payload.suggestedMatricule || '').trim(),
+      direction: this.normalizeOptionalText(payload.direction) || '',
+      unit: this.normalizeOptionalText(payload.unit) || '',
+      scopeLabel: this.normalizeOptionalText(payload.scopeLabel) || 'Global',
+      basedOn,
+      reason: this.normalizeOptionalText(payload.reason) || 'generation',
+    };
+  }
+
+  private applyLocalMatriculeAuditQuery(
+    items: PersonnelMatriculeSuggestionAuditItem[],
+    query?: PersonnelMatriculeSuggestionAuditQuery
+  ): PersonnelMatriculeSuggestionAuditItem[] {
+    let next = [...items];
+    const username = (query?.username || '').trim().toLowerCase();
+    const reason = (query?.reason || '').trim().toLowerCase();
+    const search = (query?.q || '').trim().toLowerCase();
+
+    if (username) {
+      next = next.filter((item) => item.username.toLowerCase().includes(username));
+    }
+    if (reason) {
+      next = next.filter((item) => item.reason.toLowerCase().includes(reason));
+    }
+    if (search) {
+      next = next.filter((item) => {
+        return (
+          item.reference.toLowerCase().includes(search) ||
+          item.username.toLowerCase().includes(search) ||
+          item.previousMatricule.toLowerCase().includes(search) ||
+          item.suggestedMatricule.toLowerCase().includes(search) ||
+          item.scopeLabel.toLowerCase().includes(search) ||
+          item.reason.toLowerCase().includes(search) ||
+          item.createdAt.toLowerCase().includes(search)
+        );
+      });
+    }
+
+    const sortBy = (query?.sortBy || 'createdAt').trim();
+    const sortOrder = query?.sortOrder === 'asc' ? 'asc' : 'desc';
+    next.sort((left, right) => {
+      const leftValue = this.readMatriculeAuditField(left, sortBy).toLowerCase();
+      const rightValue = this.readMatriculeAuditField(right, sortBy).toLowerCase();
+      if (leftValue === rightValue) return 0;
+      if (leftValue < rightValue) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? 1 : -1;
+    });
+
+    const limit = this.toPositiveInt(query?.limit, 200);
+    const page = this.toPositiveInt(query?.page, 1);
+    const offset = (page - 1) * limit;
+    return next.slice(offset, offset + limit);
+  }
+
+  private readMatriculeAuditField(
+    item: PersonnelMatriculeSuggestionAuditItem,
+    field: string
+  ): string {
+    switch (field) {
+      case 'reference':
+        return item.reference;
+      case 'username':
+        return item.username;
+      case 'reason':
+        return item.reason;
+      case 'suggestedMatricule':
+        return item.suggestedMatricule;
+      case 'createdAt':
+      default:
+        return item.createdAt;
+    }
+  }
+
   private shouldUseLocalFallback(error: unknown): boolean {
     if (!this.fallbackEnabled) {
       return false;
@@ -474,6 +1122,576 @@ export class PersonnelService {
     return Array.from(byId.values());
   }
 
+  private mergeDuplicateIndex(
+    apiItems: AgentDuplicateIndexItem[],
+    localItems: AgentDuplicateIndexItem[]
+  ): AgentDuplicateIndexItem[] {
+    if (!this.fallbackEnabled) {
+      return apiItems;
+    }
+
+    const byId = new Map<string, AgentDuplicateIndexItem>();
+    apiItems.forEach((item) => byId.set(item.id, item));
+    localItems.forEach((item) => byId.set(item.id, item));
+    return Array.from(byId.values());
+  }
+
+  private mergeDuplicateCases(
+    apiItems: AgentDuplicateCase[],
+    localItems: AgentDuplicateCase[]
+  ): AgentDuplicateCase[] {
+    if (!this.fallbackEnabled) {
+      return apiItems;
+    }
+
+    const byKey = new Map<string, AgentDuplicateCase>();
+    [...apiItems, ...localItems].forEach((item) => {
+      const key = `${item.duplicateField}:${this.normalizeTextForMatch(item.duplicateValue)}`;
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, {
+          ...item,
+          agents: [...item.agents],
+          impactedCount: Math.max(item.impactedCount, item.agents.length),
+        });
+        return;
+      }
+
+      const mergedAgents = new Map<string, AgentDuplicateCaseAgentSummary>();
+      [...existing.agents, ...item.agents].forEach((agent) => {
+        if (agent.id) {
+          mergedAgents.set(agent.id, agent);
+        }
+      });
+      const agents = Array.from(mergedAgents.values());
+      const createdAt =
+        Date.parse(existing.createdAt) >= Date.parse(item.createdAt)
+          ? existing.createdAt
+          : item.createdAt;
+
+      byKey.set(key, {
+        ...existing,
+        reference: existing.reference || item.reference,
+        confidenceScore: Math.max(existing.confidenceScore, item.confidenceScore),
+        impactedCount: Math.max(existing.impactedCount, item.impactedCount, agents.length),
+        createdAt,
+        agents,
+      });
+    });
+
+    return Array.from(byKey.values());
+  }
+
+  private applyLocalDuplicateCasesQuery(
+    items: AgentDuplicateCase[],
+    query?: AgentDuplicateCasesQuery
+  ): AgentDuplicateCase[] {
+    let next = [...items];
+    const duplicateField = query?.duplicateField;
+    const minCount = this.toPositiveInt(query?.minCount, 2);
+    const search = (query?.q || '').trim().toLowerCase();
+
+    if (duplicateField) {
+      next = next.filter((item) => item.duplicateField === duplicateField);
+    }
+
+    next = next.filter((item) => item.impactedCount >= minCount);
+
+    if (search) {
+      next = next.filter((item) => {
+        if (
+          item.reference.toLowerCase().includes(search) ||
+          item.duplicateValue.toLowerCase().includes(search) ||
+          item.duplicateField.toLowerCase().includes(search)
+        ) {
+          return true;
+        }
+        return item.agents.some((agent) => {
+          return (
+            agent.id.toLowerCase().includes(search) ||
+            agent.matricule.toLowerCase().includes(search) ||
+            agent.fullName.toLowerCase().includes(search) ||
+            agent.email.toLowerCase().includes(search) ||
+            agent.identityNumber.toLowerCase().includes(search)
+          );
+        });
+      });
+    }
+
+    const sortBy = (query?.sortBy || 'confidenceScore').trim();
+    const sortOrder = query?.sortOrder === 'asc' ? 'asc' : 'desc';
+    next.sort((left, right) => {
+      const leftValue = this.readDuplicateCaseField(left, sortBy);
+      const rightValue = this.readDuplicateCaseField(right, sortBy);
+      if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+        if (leftValue === rightValue) return 0;
+        if (leftValue < rightValue) return sortOrder === 'asc' ? -1 : 1;
+        return sortOrder === 'asc' ? 1 : -1;
+      }
+      const leftString = String(leftValue).toLowerCase();
+      const rightString = String(rightValue).toLowerCase();
+      if (leftString === rightString) return 0;
+      if (leftString < rightString) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? 1 : -1;
+    });
+
+    const limit = this.toPositiveInt(query?.limit, 200);
+    const page = this.toPositiveInt(query?.page, 1);
+    const offset = (page - 1) * limit;
+    return next.slice(offset, offset + limit);
+  }
+
+  private readDuplicateCaseField(item: AgentDuplicateCase, field: string): string | number {
+    switch (field) {
+      case 'reference':
+        return item.reference;
+      case 'duplicateField':
+        return item.duplicateField;
+      case 'duplicateValue':
+        return item.duplicateValue;
+      case 'impactedCount':
+        return item.impactedCount;
+      case 'createdAt':
+        return item.createdAt;
+      case 'confidenceScore':
+      default:
+        return item.confidenceScore;
+    }
+  }
+
+  private buildLocalDuplicateCases(records: LocalAgentRecord[]): AgentDuplicateCase[] {
+    if (!records.length) {
+      return [];
+    }
+
+    const bucketsByField: Record<AgentDuplicateCaseField, Map<string, LocalAgentRecord[]>> = {
+      email: new Map<string, LocalAgentRecord[]>(),
+      identityNumber: new Map<string, LocalAgentRecord[]>(),
+      fullName: new Map<string, LocalAgentRecord[]>(),
+    };
+
+    records.forEach((record) => {
+      const normalizedEmail = this.normalizeTextForMatch(record.email);
+      if (normalizedEmail) {
+        const current = bucketsByField.email.get(normalizedEmail) || [];
+        current.push(record);
+        bucketsByField.email.set(normalizedEmail, current);
+      }
+
+      const normalizedIdentity = this.normalizeTextForMatch(record.identity?.identityNumber || '');
+      if (normalizedIdentity) {
+        const current = bucketsByField.identityNumber.get(normalizedIdentity) || [];
+        current.push(record);
+        bucketsByField.identityNumber.set(normalizedIdentity, current);
+      }
+
+      const normalizedName = this.normalizeTextForMatch(record.fullName || '');
+      if (normalizedName.length >= 4) {
+        const current = bucketsByField.fullName.get(normalizedName) || [];
+        current.push(record);
+        bucketsByField.fullName.set(normalizedName, current);
+      }
+    });
+
+    const duplicateCases: AgentDuplicateCase[] = [];
+    const now = new Date().toISOString();
+    (Object.keys(bucketsByField) as AgentDuplicateCaseField[]).forEach((field) => {
+      bucketsByField[field].forEach((members, key) => {
+        if (members.length < 2) {
+          return;
+        }
+        const created = this.createDuplicateCaseFromBucket(field, key, members, now);
+        if (created) {
+          duplicateCases.push(created);
+        }
+      });
+    });
+
+    duplicateCases.sort((left, right) => {
+      if (left.confidenceScore !== right.confidenceScore) {
+        return right.confidenceScore - left.confidenceScore;
+      }
+      if (left.impactedCount !== right.impactedCount) {
+        return right.impactedCount - left.impactedCount;
+      }
+      return left.duplicateValue.localeCompare(right.duplicateValue);
+    });
+
+    return duplicateCases;
+  }
+
+  private createDuplicateCaseFromBucket(
+    duplicateField: AgentDuplicateCaseField,
+    normalizedBucketKey: string,
+    members: LocalAgentRecord[],
+    createdAt: string
+  ): AgentDuplicateCase | null {
+    if (members.length < 2) {
+      return null;
+    }
+
+    const sortedMembers = [...members].sort((left, right) => {
+      const leftName = `${left.fullName} ${left.matricule}`.toLowerCase();
+      const rightName = `${right.fullName} ${right.matricule}`.toLowerCase();
+      return leftName.localeCompare(rightName);
+    });
+
+    const duplicateValue =
+      duplicateField === 'email'
+        ? String(sortedMembers[0]?.email || '').trim()
+        : duplicateField === 'identityNumber'
+          ? String(sortedMembers[0]?.identity?.identityNumber || '').trim()
+          : String(sortedMembers[0]?.fullName || '').trim();
+
+    if (!duplicateValue) {
+      return null;
+    }
+
+    const fieldCode = duplicateField === 'email' ? 'EML' : duplicateField === 'identityNumber' ? 'IDN' : 'NAM';
+    const compactKey = normalizedBucketKey
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 22)
+      .toUpperCase();
+    const reference = `DUP-${fieldCode}-${compactKey || 'CASE'}-${String(sortedMembers.length).padStart(2, '0')}`;
+
+    return {
+      reference,
+      duplicateField,
+      duplicateValue,
+      confidenceScore: AGENT_DUPLICATE_FIELD_CONFIDENCE[duplicateField],
+      impactedCount: sortedMembers.length,
+      createdAt,
+      agents: sortedMembers.map((record) => this.toDuplicateCaseAgentSummary(record)),
+    };
+  }
+
+  private toDuplicateCaseAgentSummary(record: LocalAgentRecord): AgentDuplicateCaseAgentSummary {
+    return {
+      id: String(record.id || '').trim(),
+      matricule: String(record.matricule || '').trim(),
+      fullName: String(record.fullName || '').trim(),
+      direction: String(record.direction || '').trim(),
+      unit: String(record.unit || '').trim(),
+      position: String(record.position || '').trim(),
+      status: String(record.status || '').trim(),
+      manager: String(record.manager || '').trim(),
+      email: String(record.email || '').trim(),
+      identityNumber: String(record.identity?.identityNumber || '').trim(),
+      phone: String(record.phone || '').trim(),
+      contractType: String(record.administrative?.contractType || '').trim(),
+    };
+  }
+
+  private normalizeMergeDuplicatePayload(payload: MergeDuplicateAgentsPayload): MergeDuplicateAgentsPayload {
+    const normalizedFieldSources: Partial<Record<AgentMergeField, AgentMergeFieldSource>> = {};
+    AGENT_MERGE_FIELDS.forEach((field) => {
+      const normalizedSource = this.normalizeMergeFieldSource(payload.fieldSources?.[field]);
+      if (normalizedSource) {
+        normalizedFieldSources[field] = normalizedSource;
+      }
+    });
+
+    return {
+      reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
+      primaryAgentId: String(payload.primaryAgentId || '').trim(),
+      secondaryAgentId: String(payload.secondaryAgentId || '').trim(),
+      fieldSources: normalizedFieldSources,
+      reason: this.normalizeOptionalText(payload.reason) || 'fusion_doublon',
+    };
+  }
+
+  private normalizeMergeFieldSource(value: unknown): AgentMergeFieldSource | null {
+    if (value === 'primary' || value === 'secondary') {
+      return value;
+    }
+    return null;
+  }
+
+  private normalizeMergeDuplicateResult(
+    dto: MergeDuplicateAgentsResultDto,
+    fallbackPayload: MergeDuplicateAgentsPayload
+  ): MergeDuplicateAgentsResult {
+    const mergedAgentDto = readField(dto, ['mergedAgent', 'merged_agent'], {}) as AgentDetailDto;
+    const mergedAgent = mapAgentDetailDto(mergedAgentDto, fallbackPayload.primaryAgentId);
+
+    const toSafeNumber = (value: unknown): number => {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) {
+        return 0;
+      }
+      return Math.max(0, Math.round(parsed));
+    };
+
+    return {
+      reference:
+        toStringValue(readField(dto, ['reference'], ''), '').trim() ||
+        `AG-MERGE-${Date.now()}`,
+      mergedAt:
+        toStringValue(readField(dto, ['mergedAt', 'merged_at'], ''), '').trim() ||
+        new Date().toISOString(),
+      mergedBy:
+        toStringValue(readField(dto, ['mergedBy', 'merged_by'], ''), '').trim() || 'system',
+      primaryAgentId:
+        toStringValue(readField(dto, ['primaryAgentId', 'primary_agent_id'], ''), '').trim() ||
+        fallbackPayload.primaryAgentId,
+      secondaryAgentId:
+        toStringValue(readField(dto, ['secondaryAgentId', 'secondary_agent_id'], ''), '').trim() ||
+        fallbackPayload.secondaryAgentId,
+      removedAgentId:
+        toStringValue(readField(dto, ['removedAgentId', 'removed_agent_id'], ''), '').trim() ||
+        fallbackPayload.secondaryAgentId,
+      keptAgentId:
+        toStringValue(readField(dto, ['keptAgentId', 'kept_agent_id'], ''), '').trim() ||
+        fallbackPayload.primaryAgentId,
+      mergedAgent,
+      reassignedDossiers: toSafeNumber(readField(dto, ['reassignedDossiers', 'reassigned_dossiers'], 0)),
+      reassignedAffectations: toSafeNumber(
+        readField(dto, ['reassignedAffectations', 'reassigned_affectations'], 0)
+      ),
+    };
+  }
+
+  private mergeLocalDuplicateAgents(payload: MergeDuplicateAgentsPayload): MergeDuplicateAgentsResult {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      throw new Error('Fallback local indisponible');
+    }
+
+    const records = this.readLocalAgentRecords();
+    const primaryIndex = records.findIndex((record) => record.id === payload.primaryAgentId);
+    const secondaryIndex = records.findIndex((record) => record.id === payload.secondaryAgentId);
+    if (primaryIndex < 0 || secondaryIndex < 0) {
+      throw new Error('Agent introuvable pour fusion');
+    }
+    if (primaryIndex === secondaryIndex) {
+      throw new Error('Les agents de fusion doivent etre distincts');
+    }
+
+    const primary = records[primaryIndex];
+    const secondary = records[secondaryIndex];
+
+    const merged: LocalAgentRecord = {
+      ...primary,
+      identity: normalizeIdentityInfo(primary.identity),
+      administrative: normalizeAdministrativeInfo(primary.administrative),
+      educations: normalizeEducations(primary.educations),
+      documents: mapAgentDocuments(primary.documents),
+      careerEvents: Array.isArray(primary.careerEvents) ? [...primary.careerEvents] : [],
+    };
+
+    AGENT_MERGE_FIELDS.forEach((field) => {
+      const selectedSource = payload.fieldSources?.[field] || 'primary';
+      const value = this.resolveMergedFieldValue(field, primary, secondary, selectedSource);
+      switch (field) {
+        case 'identityNumber':
+          merged.identity = normalizeIdentityInfo({
+            ...merged.identity,
+            identityNumber: value,
+          });
+          break;
+        case 'contractType':
+          merged.administrative = normalizeAdministrativeInfo({
+            ...merged.administrative,
+            contractType: value,
+          });
+          break;
+        case 'matricule':
+          merged.matricule = value;
+          break;
+        case 'fullName':
+          merged.fullName = value;
+          break;
+        case 'direction':
+          merged.direction = value;
+          break;
+        case 'unit':
+          merged.unit = value;
+          break;
+        case 'position':
+          merged.position = value;
+          break;
+        case 'status':
+          merged.status = value;
+          break;
+        case 'manager':
+          merged.manager = value;
+          break;
+        case 'email':
+          merged.email = value;
+          break;
+        case 'phone':
+          merged.phone = value;
+          break;
+        default:
+          break;
+      }
+    });
+
+    const mergedEducations = normalizeEducations([...(primary.educations || []), ...(secondary.educations || [])]);
+    const mergedDocuments = mapAgentDocuments([...(primary.documents || []), ...(secondary.documents || [])]);
+    const mergedDocumentByKey = new Map<string, AgentDocument>();
+    mergedDocuments.forEach((doc) => {
+      const key = `${this.normalizeTextForMatch(doc.type)}:${this.normalizeTextForMatch(doc.reference)}`;
+      if (!key || key === ':') {
+        return;
+      }
+      mergedDocumentByKey.set(key, doc);
+    });
+    merged.educations = mergedEducations;
+    merged.documents = Array.from(mergedDocumentByKey.values());
+
+    const mergeDate = new Date().toISOString();
+    const mergeReason = String(payload.reason || 'fusion_doublon').trim();
+    const mergeEvent: AgentCareerEvent = {
+      title: 'Fusion doublon',
+      description: `Fusion de ${secondary.matricule || secondary.id} vers ${primary.matricule || primary.id} (${mergeReason})`,
+      date: mergeDate.slice(0, 10),
+    };
+    const currentPrimaryEvents = Array.isArray(primary.careerEvents) ? primary.careerEvents : [];
+    const currentSecondaryEvents = Array.isArray(secondary.careerEvents) ? secondary.careerEvents : [];
+    merged.careerEvents = [mergeEvent, ...currentPrimaryEvents, ...currentSecondaryEvents]
+      .map((event) => ({
+        title: String(event?.title || '').trim(),
+        description: String(event?.description || '').trim(),
+        date: String(event?.date || '').trim(),
+      }))
+      .filter((event) => event.title || event.description || event.date);
+
+    const mergeAuditChanges = this.buildAgentAuditChanges(primary, merged);
+    mergeAuditChanges.unshift({
+      field: 'merge',
+      label: 'Fusion doublon',
+      before: String(secondary.matricule || secondary.id || '').trim(),
+      after: String(merged.matricule || merged.id || '').trim(),
+    });
+
+    records[primaryIndex] = merged;
+    records.splice(secondaryIndex, 1);
+    window.localStorage.setItem(this.localStorageKey, JSON.stringify(records));
+
+    const changedBy = (this.hasLocalStorage() ? window.localStorage.getItem('rh_username') : '') || 'system';
+    this.appendLocalAgentAudit({
+      agentId: merged.id,
+      agentLabel: merged.fullName,
+      changedBy,
+      source: 'merge',
+      reason: mergeReason || 'fusion_doublon',
+      changedAt: mergeDate,
+      changes: mergeAuditChanges,
+    });
+
+    const normalizedSecondaryAliases = [secondary.id, secondary.matricule, secondary.fullName]
+      .map((value) => this.normalizeTextForMatch(value))
+      .filter((value) => !!value);
+    const matchSecondaryAlias = (candidate: string): boolean => {
+      const normalizedCandidate = this.normalizeTextForMatch(candidate);
+      if (!normalizedCandidate) {
+        return false;
+      }
+      return normalizedSecondaryAliases.some((alias) => {
+        return (
+          normalizedCandidate === alias ||
+          normalizedCandidate.includes(alias) ||
+          alias.includes(normalizedCandidate)
+        );
+      });
+    };
+
+    const currentDossiers = this.readLocalDossiers();
+    let reassignedDossiers = 0;
+    const updatedDossiers = currentDossiers.map((item) => {
+      if (!matchSecondaryAlias(item.agent)) {
+        return item;
+      }
+      reassignedDossiers += 1;
+      return {
+        ...item,
+        agent: merged.fullName,
+        updatedAt: mergeDate,
+      };
+    });
+    if (reassignedDossiers > 0) {
+      this.writeLocalDossiers(updatedDossiers);
+    }
+
+    const currentAffectations = this.readLocalAffectations();
+    let reassignedAffectations = 0;
+    const updatedAffectations = currentAffectations.map((item) => {
+      if (!matchSecondaryAlias(item.agent)) {
+        return item;
+      }
+      reassignedAffectations += 1;
+      return {
+        ...item,
+        agent: merged.fullName,
+      };
+    });
+    if (reassignedAffectations > 0) {
+      this.writeLocalAffectations(updatedAffectations);
+    }
+
+    const reference =
+      this.normalizeOptionalText(payload.reference)?.toUpperCase() ||
+      `AG-MERGE-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}`;
+
+    return {
+      reference,
+      mergedAt: mergeDate,
+      mergedBy: 'local_fallback',
+      primaryAgentId: primary.id,
+      secondaryAgentId: secondary.id,
+      removedAgentId: secondary.id,
+      keptAgentId: merged.id,
+      mergedAgent: this.toDetail(merged),
+      reassignedDossiers,
+      reassignedAffectations,
+    };
+  }
+
+  private resolveMergedFieldValue(
+    field: AgentMergeField,
+    primary: LocalAgentRecord,
+    secondary: LocalAgentRecord,
+    source: AgentMergeFieldSource
+  ): string {
+    const sourceRecord = source === 'secondary' ? secondary : primary;
+    const fallbackRecord = source === 'secondary' ? primary : secondary;
+    const readFromRecord = (record: LocalAgentRecord): string => {
+      switch (field) {
+        case 'matricule':
+          return String(record.matricule || '').trim();
+        case 'fullName':
+          return String(record.fullName || '').trim();
+        case 'direction':
+          return String(record.direction || '').trim();
+        case 'unit':
+          return String(record.unit || '').trim();
+        case 'position':
+          return String(record.position || '').trim();
+        case 'status':
+          return String(record.status || '').trim();
+        case 'manager':
+          return String(record.manager || '').trim();
+        case 'email':
+          return String(record.email || '').trim();
+        case 'phone':
+          return String(record.phone || '').trim();
+        case 'identityNumber':
+          return String(record.identity?.identityNumber || '').trim();
+        case 'contractType':
+          return String(record.administrative?.contractType || '').trim();
+        default:
+          return '';
+      }
+    };
+
+    const preferred = readFromRecord(sourceRecord);
+    if (preferred) {
+      return preferred;
+    }
+    return readFromRecord(fallbackRecord);
+  }
+
   private mergeByKey<T>(apiItems: T[], localItems: T[], getKey: (item: T) => string): T[] {
     if (!this.fallbackEnabled) {
       return apiItems;
@@ -489,6 +1707,10 @@ export class PersonnelService {
     let next = [...items];
     const direction = (query?.direction || '').trim().toLowerCase();
     const status = (query?.status || '').trim().toLowerCase();
+    const unit = (query?.unit || '').trim().toLowerCase();
+    const manager = (query?.manager || '').trim().toLowerCase();
+    const position = (query?.position || '').trim().toLowerCase();
+    const contractType = (query?.contractType || '').trim().toLowerCase();
     const search = (query?.q || '').trim().toLowerCase();
 
     if (direction) {
@@ -499,6 +1721,22 @@ export class PersonnelService {
       next = next.filter((item) => item.status.toLowerCase().includes(status));
     }
 
+    if (unit) {
+      next = next.filter((item) => item.unit.toLowerCase().includes(unit));
+    }
+
+    if (manager) {
+      next = next.filter((item) => item.manager.toLowerCase().includes(manager));
+    }
+
+    if (position) {
+      next = next.filter((item) => item.position.toLowerCase().includes(position));
+    }
+
+    if (contractType) {
+      next = next.filter((item) => item.contractType.toLowerCase().includes(contractType));
+    }
+
     if (search) {
       next = next.filter((item) => {
         return (
@@ -506,9 +1744,11 @@ export class PersonnelService {
           item.matricule.toLowerCase().includes(search) ||
           item.fullName.toLowerCase().includes(search) ||
           item.direction.toLowerCase().includes(search) ||
+          item.unit.toLowerCase().includes(search) ||
           item.position.toLowerCase().includes(search) ||
           item.status.toLowerCase().includes(search) ||
-          item.manager.toLowerCase().includes(search)
+          item.manager.toLowerCase().includes(search) ||
+          item.contractType.toLowerCase().includes(search)
         );
       });
     }
@@ -545,12 +1785,16 @@ export class PersonnelService {
         return agent.matricule;
       case 'direction':
         return agent.direction;
+      case 'unit':
+        return agent.unit;
       case 'position':
         return agent.position;
       case 'status':
         return agent.status;
       case 'manager':
         return agent.manager;
+      case 'contractType':
+        return agent.contractType;
       case 'fullName':
       default:
         return agent.fullName;
@@ -563,10 +1807,88 @@ export class PersonnelService {
       matricule: record.matricule,
       fullName: record.fullName,
       direction: record.direction,
+      unit: record.unit,
       position: record.position,
       status: record.status,
       manager: record.manager,
+      contractType: toStringValue(record.administrative?.contractType, ''),
+      photoUrl: toStringValue(record.photoUrl, './assets/images/faces/profile.jpg'),
     }));
+  }
+
+  private readLocalDuplicateIndex(): AgentDuplicateIndexItem[] {
+    return this.readLocalAgentRecords().map((record) => ({
+      id: record.id,
+      fullName: toStringValue(record.fullName, ''),
+      matricule: toStringValue(record.matricule, ''),
+      email: toStringValue(record.email, ''),
+      identityNumber: toStringValue(record.identity?.identityNumber, ''),
+    }));
+  }
+
+  private buildLocalMatriculeSuggestion(input?: {
+    direction?: string;
+    unit?: string;
+  }): AgentMatriculeSuggestion {
+    const direction = this.normalizeOptionalText(input?.direction) || '';
+    const unit = this.normalizeOptionalText(input?.unit) || '';
+
+    const records = this.readLocalAgentRecords();
+    const normalizedDirection = this.normalizeTextForMatch(direction);
+    const normalizedUnit = this.normalizeTextForMatch(unit);
+
+    const scoped = records.filter((record) => {
+      if (!normalizedDirection) return false;
+      const sameDirection = this.normalizeTextForMatch(record.direction) === normalizedDirection;
+      if (!sameDirection) return false;
+      if (!normalizedUnit) return true;
+      return this.normalizeTextForMatch(record.unit) === normalizedUnit;
+    });
+
+    const scopeRecords = scoped.length > 0 ? scoped : records;
+    const highest = scopeRecords.reduce((max, record) => {
+      const value = this.parseMatriculeNumber(record.matricule);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0);
+
+    const nextNumber = highest + 1;
+    const padded = String(nextNumber).padStart(4, '0');
+    const basedOn: AgentMatriculeSuggestion['basedOn'] =
+      normalizedDirection && normalizedUnit
+        ? 'Direction+Unite'
+        : normalizedDirection
+          ? 'Direction'
+          : 'Global';
+    const scopeLabel =
+      basedOn === 'Direction+Unite'
+        ? `${direction} / ${unit}`
+        : basedOn === 'Direction'
+          ? direction
+          : 'Global';
+
+    return {
+      matricule: `PRM-${padded}`,
+      scopeLabel: scopeLabel || 'Global',
+      basedOn,
+      nextNumber,
+    };
+  }
+
+  private parseMatriculeNumber(value: string): number {
+    const match = /^PRM-(\d{4,8})$/i.exec(String(value || '').trim());
+    if (!match) {
+      return Number.NaN;
+    }
+    const parsed = Number(match[1]);
+    return Number.isFinite(parsed) ? parsed : Number.NaN;
+  }
+
+  private normalizeTextForMatch(value: string): string {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   private mapDossiers(items: PersonnelDossierDto[]): PersonnelDossier[] {
@@ -893,6 +2215,309 @@ export class PersonnelService {
     window.localStorage.setItem(this.localAffectationsKey, JSON.stringify(items));
   }
 
+  private appendLocalMatriculeAudit(
+    payload: CreatePersonnelMatriculeSuggestionAuditPayload
+  ): PersonnelMatriculeSuggestionAuditItem {
+    const current = this.readLocalMatriculeAudit();
+    const created: PersonnelMatriculeSuggestionAuditItem = {
+      reference: this.normalizeOptionalText(payload.reference) || this.generateMatriculeAuditReference(current),
+      createdAt: String(payload.createdAt || new Date().toISOString()).trim(),
+      username: String(payload.username || 'system').trim() || 'system',
+      previousMatricule: String(payload.previousMatricule || '').trim(),
+      suggestedMatricule: String(payload.suggestedMatricule || '').trim(),
+      direction: String(payload.direction || '').trim(),
+      unit: String(payload.unit || '').trim(),
+      scopeLabel: String(payload.scopeLabel || 'Global').trim() || 'Global',
+      basedOn:
+        payload.basedOn === 'Direction+Unite' || payload.basedOn === 'Direction'
+          ? payload.basedOn
+          : 'Global',
+      reason: String(payload.reason || 'generation').trim() || 'generation',
+    };
+    const deduped = current.filter((item) => item.reference !== created.reference);
+    deduped.push(created);
+    this.writeLocalMatriculeAudit(deduped);
+    return created;
+  }
+
+  private generateMatriculeAuditReference(
+    existing: PersonnelMatriculeSuggestionAuditItem[]
+  ): string {
+    const year = new Date().getFullYear();
+    const regex = new RegExp(`^MAT-AUD-${year}-(\\d+)$`);
+    const maxExisting = existing.reduce((max, item) => {
+      const match = regex.exec(item.reference);
+      if (!match) return max;
+      const value = Number(match[1]);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0);
+    return `MAT-AUD-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
+  }
+
+  private readLocalMatriculeAudit(): PersonnelMatriculeSuggestionAuditItem[] {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return [];
+    }
+
+    const raw = window.localStorage.getItem(this.localMatriculeAuditKey);
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      return parsed
+        .map((item) => {
+          const record = item as Partial<PersonnelMatriculeSuggestionAuditItem>;
+          return {
+            reference: String(record.reference || '').trim(),
+            createdAt: String(record.createdAt || '').trim(),
+            username: String(record.username || '').trim(),
+            previousMatricule: String(record.previousMatricule || '').trim(),
+            suggestedMatricule: String(record.suggestedMatricule || '').trim(),
+            direction: String(record.direction || '').trim(),
+            unit: String(record.unit || '').trim(),
+            scopeLabel: String(record.scopeLabel || 'Global').trim() || 'Global',
+            basedOn:
+              record.basedOn === 'Direction+Unite' || record.basedOn === 'Direction'
+                ? record.basedOn
+                : 'Global',
+            reason: String(record.reason || 'generation').trim() || 'generation',
+          } as PersonnelMatriculeSuggestionAuditItem;
+        })
+        .filter((item) => !!item.reference && !!item.createdAt && !!item.suggestedMatricule);
+    } catch {
+      return [];
+    }
+  }
+
+  private writeLocalMatriculeAudit(items: PersonnelMatriculeSuggestionAuditItem[]): void {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return;
+    }
+    window.localStorage.setItem(this.localMatriculeAuditKey, JSON.stringify(items));
+  }
+
+  private applyLocalAgentAuditQuery(items: AgentAuditEvent[], query?: AgentAuditTrailQuery): AgentAuditEvent[] {
+    let next = [...items];
+    const changedBy = (query?.changedBy || '').trim().toLowerCase();
+    const source = (query?.source || '').trim().toLowerCase();
+    const field = (query?.field || '').trim().toLowerCase();
+    const search = (query?.q || '').trim().toLowerCase();
+
+    if (changedBy) {
+      next = next.filter((item) => item.changedBy.toLowerCase().includes(changedBy));
+    }
+    if (source) {
+      next = next.filter((item) => item.source.toLowerCase().includes(source));
+    }
+    if (field) {
+      next = next.filter((item) => {
+        return item.changes.some((change) => {
+          return (
+            change.field.toLowerCase().includes(field) ||
+            change.label.toLowerCase().includes(field)
+          );
+        });
+      });
+    }
+    if (search) {
+      next = next.filter((item) => {
+        if (
+          item.reference.toLowerCase().includes(search) ||
+          item.changedBy.toLowerCase().includes(search) ||
+          item.reason.toLowerCase().includes(search) ||
+          item.source.toLowerCase().includes(search) ||
+          item.changedAt.toLowerCase().includes(search)
+        ) {
+          return true;
+        }
+        return item.changes.some((change) => {
+          return (
+            change.field.toLowerCase().includes(search) ||
+            change.label.toLowerCase().includes(search) ||
+            change.before.toLowerCase().includes(search) ||
+            change.after.toLowerCase().includes(search)
+          );
+        });
+      });
+    }
+
+    const sortBy = (query?.sortBy || 'changedAt').trim();
+    const sortOrder = query?.sortOrder === 'asc' ? 'asc' : 'desc';
+    next.sort((left, right) => {
+      const leftValue = this.readAgentAuditSortField(left, sortBy).toLowerCase();
+      const rightValue = this.readAgentAuditSortField(right, sortBy).toLowerCase();
+      if (leftValue === rightValue) return 0;
+      if (leftValue < rightValue) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? 1 : -1;
+    });
+
+    const limit = this.toPositiveInt(query?.limit, 200);
+    const page = this.toPositiveInt(query?.page, 1);
+    const offset = (page - 1) * limit;
+    return next.slice(offset, offset + limit);
+  }
+
+  private readAgentAuditSortField(item: AgentAuditEvent, field: string): string {
+    switch (field) {
+      case 'reference':
+        return item.reference;
+      case 'changedBy':
+        return item.changedBy;
+      case 'reason':
+        return item.reason;
+      case 'source':
+        return item.source;
+      case 'changedAt':
+      default:
+        return item.changedAt;
+    }
+  }
+
+  private readLocalAgentAudit(agentId?: string): AgentAuditEvent[] {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return [];
+    }
+
+    const raw = window.localStorage.getItem(this.localAgentAuditKey);
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+      const allItems = parsed
+        .map((item) => {
+          const record = item as Partial<AgentAuditEvent>;
+          const source = this.normalizeAuditSource(record.source);
+          const changesRaw = Array.isArray(record.changes) ? record.changes : [];
+          const changes = changesRaw
+            .map((change) => {
+              const safeChange = change as Partial<AgentAuditFieldChange>;
+              return {
+                field: String(safeChange.field || '').trim(),
+                label: String(safeChange.label || '').trim(),
+                before: String(safeChange.before || '').trim(),
+                after: String(safeChange.after || '').trim(),
+              } as AgentAuditFieldChange;
+            })
+            .filter((change) => !!change.field || !!change.before || !!change.after);
+          return {
+            reference: String(record.reference || '').trim(),
+            agentId: String(record.agentId || '').trim(),
+            agentLabel: String(record.agentLabel || '').trim(),
+            changedAt: String(record.changedAt || '').trim(),
+            changedBy: String(record.changedBy || 'system').trim() || 'system',
+            source,
+            reason: String(record.reason || 'mise_a_jour_fiche').trim() || 'mise_a_jour_fiche',
+            changes,
+          } as AgentAuditEvent;
+        })
+        .filter((item) => !!item.reference && !!item.agentId && !!item.changedAt && item.changes.length > 0);
+
+      const expectedAgentId = String(agentId || '').trim();
+      if (!expectedAgentId) {
+        return allItems;
+      }
+      return allItems.filter((item) => item.agentId === expectedAgentId);
+    } catch {
+      return [];
+    }
+  }
+
+  private writeLocalAgentAudit(items: AgentAuditEvent[]): void {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return;
+    }
+    window.localStorage.setItem(this.localAgentAuditKey, JSON.stringify(items));
+  }
+
+  private appendLocalAgentAudit(input: {
+    reference?: string;
+    changedAt?: string;
+    agentId: string;
+    agentLabel?: string;
+    changedBy?: string;
+    source?: 'update' | 'merge' | 'system' | string;
+    reason?: string;
+    changes: AgentAuditFieldChange[];
+  }): AgentAuditEvent {
+    const current = this.readLocalAgentAudit();
+    const createdAtInput = String(input.changedAt || '').trim();
+    const createdAt = createdAtInput || new Date().toISOString();
+    const created: AgentAuditEvent = {
+      reference: this.normalizeOptionalText(input.reference) || this.generateAgentAuditReference(current),
+      agentId: String(input.agentId || '').trim(),
+      agentLabel: String(input.agentLabel || input.agentId || '').trim(),
+      changedAt: createdAt,
+      changedBy: String(input.changedBy || 'system').trim() || 'system',
+      source: this.normalizeAuditSource(input.source),
+      reason: String(input.reason || 'mise_a_jour_fiche').trim() || 'mise_a_jour_fiche',
+      changes: (input.changes || [])
+        .map((change) => ({
+          field: String(change.field || '').trim(),
+          label: String(change.label || '').trim(),
+          before: String(change.before || '').trim(),
+          after: String(change.after || '').trim(),
+        }))
+        .filter((change) => !!change.field || !!change.before || !!change.after),
+    };
+
+    if (!created.agentId || !created.changes.length) {
+      return created;
+    }
+
+    const deduped = current.filter((item) => item.reference !== created.reference);
+    deduped.push(created);
+    this.writeLocalAgentAudit(deduped);
+    return created;
+  }
+
+  private generateAgentAuditReference(existing: AgentAuditEvent[]): string {
+    const year = new Date().getFullYear();
+    const regex = new RegExp(`^AG-AUD-${year}-(\\d+)$`);
+    const maxExisting = existing.reduce((max, item) => {
+      const match = regex.exec(item.reference);
+      if (!match) return max;
+      const value = Number(match[1]);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0);
+    return `AG-AUD-${year}-${String(maxExisting + 1).padStart(4, '0')}`;
+  }
+
+  private normalizeAuditSource(value: unknown): 'update' | 'merge' | 'system' {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'merge') {
+      return 'merge';
+    }
+    if (normalized === 'system') {
+      return 'system';
+    }
+    return 'update';
+  }
+
+  private buildAgentAuditChanges(before: LocalAgentRecord, after: LocalAgentRecord): AgentAuditFieldChange[] {
+    return AGENT_AUDIT_FIELD_CONFIG
+      .map((config) => {
+        const previousValue = String(config.read(before) || '').trim();
+        const nextValue = String(config.read(after) || '').trim();
+        return {
+          field: config.field,
+          label: config.label,
+          before: previousValue,
+          after: nextValue,
+        } as AgentAuditFieldChange;
+      })
+      .filter((change) => change.before !== change.after);
+  }
+
   private appendLocalAgent(payload: CreateAgentPayload): LocalAgentRecord {
     const records = this.readLocalAgentRecords();
     const id = this.generateAgentId();
@@ -923,6 +2548,78 @@ export class PersonnelService {
     records.push(record);
     localStorage.setItem(this.localStorageKey, JSON.stringify(records));
     return record;
+  }
+
+  private updateLocalAgent(id: string, payload: UpdateAgentPayload): LocalAgentRecord | null {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return null;
+    }
+
+    const records = this.readLocalAgentRecords();
+    const index = records.findIndex((record) => record.id === id);
+    if (index < 0) {
+      return null;
+    }
+
+    const current = records[index];
+    const has = (key: keyof UpdateAgentPayload): boolean =>
+      Object.prototype.hasOwnProperty.call(payload, key);
+
+    const nextIdentity = has('identity')
+      ? normalizeIdentityInfo({ ...current.identity, ...(payload.identity || {}) })
+      : normalizeIdentityInfo(current.identity);
+
+    const nextAdministrative = has('administrative')
+      ? normalizeAdministrativeInfo({ ...current.administrative, ...(payload.administrative || {}) })
+      : normalizeAdministrativeInfo(current.administrative);
+
+    const nextEducations = has('educations')
+      ? normalizeEducations(payload.educations)
+      : normalizeEducations(current.educations);
+
+    const nextDocuments = has('documents')
+      ? mapAgentDocuments((payload.documents || []) as AgentDocumentDto[])
+      : mapAgentDocuments((current.documents || []) as AgentDocumentDto[]);
+
+    const updated: LocalAgentRecord = {
+      ...current,
+      matricule: has('matricule') ? String(payload.matricule || '').trim() : current.matricule,
+      fullName: has('fullName') ? String(payload.fullName || '').trim() : current.fullName,
+      direction: has('direction') ? String(payload.direction || '').trim() : current.direction,
+      unit: has('unit') ? String(payload.unit || '').trim() : current.unit,
+      position: has('position') ? String(payload.position || '').trim() : current.position,
+      status: has('status') ? String(payload.status || '').trim() : current.status,
+      manager: has('manager') ? String(payload.manager || '').trim() : current.manager,
+      email: has('email') ? String(payload.email || '').trim() : current.email,
+      phone: has('phone') ? String(payload.phone || '').trim() : current.phone,
+      photoUrl: has('photoUrl') ? String(payload.photoUrl || '').trim() : current.photoUrl,
+      identity: nextIdentity,
+      administrative: nextAdministrative,
+      educations: nextEducations,
+      careerEvents: has('careerEvents')
+        ? (Array.isArray(payload.careerEvents) ? payload.careerEvents : [])
+        : (Array.isArray(current.careerEvents) ? current.careerEvents : []),
+      documents: nextDocuments,
+    };
+
+    const auditChanges = this.buildAgentAuditChanges(current, updated);
+
+    records[index] = updated;
+    window.localStorage.setItem(this.localStorageKey, JSON.stringify(records));
+
+    if (auditChanges.length > 0) {
+      const changedBy = (this.hasLocalStorage() ? window.localStorage.getItem('rh_username') : '') || 'system';
+      this.appendLocalAgentAudit({
+        agentId: updated.id,
+        agentLabel: updated.fullName,
+        changedBy,
+        source: 'update',
+        reason: String(payload.auditReason || 'mise_a_jour_fiche').trim() || 'mise_a_jour_fiche',
+        changes: auditChanges,
+      });
+    }
+
+    return updated;
   }
 
   private readLocalAgentRecords(): LocalAgentRecord[] {
@@ -1078,10 +2775,25 @@ function mapAgentListDtos(items: AgentListItemDto[]): AgentListItem[] {
     matricule: toStringValue(readField(dto, ['matricule', 'employeeId', 'employee_id'], '')),
     fullName: toStringValue(readField(dto, ['fullName', 'full_name'], '')),
     direction: toStringValue(readField(dto, ['direction', 'directionName', 'direction_name'], '')),
+    unit: toStringValue(readField(dto, ['unit', 'unitName', 'unit_name'], '')),
     position: toStringValue(readField(dto, ['position', 'positionTitle', 'position_title'], '')),
     status: toStringValue(readField(dto, ['status'], '')),
     manager: toStringValue(readField(dto, ['manager', 'managerName', 'manager_name'], '')),
+    contractType: toStringValue(readField(dto, ['contractType', 'contract_type'], '')),
+    photoUrl: toStringValue(readField(dto, ['photoUrl', 'photo_url'], './assets/images/faces/profile.jpg')),
   }));
+}
+
+function mapAgentDuplicateIndexDtos(items: AgentDuplicateIndexItemDto[]): AgentDuplicateIndexItem[] {
+  return (items || [])
+    .map((dto) => ({
+      id: toStringValue(readField(dto, ['id', 'matricule'], '')),
+      fullName: toStringValue(readField(dto, ['fullName', 'full_name'], '')),
+      matricule: toStringValue(readField(dto, ['matricule'], '')),
+      email: toStringValue(readField(dto, ['email'], '')),
+      identityNumber: toStringValue(readField(dto, ['identityNumber', 'identity_number'], '')),
+    }))
+    .filter((item) => !!item.id);
 }
 
 function normalizeAgentListPayload(payload: unknown): AgentListItemDto[] {
@@ -1105,6 +2817,230 @@ function normalizeAgentListPayload(payload: unknown): AgentListItemDto[] {
 
   const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
   return Array.isArray(nested) ? (nested as AgentListItemDto[]) : [];
+}
+
+function normalizeAgentDuplicateIndexPayload(payload: unknown): AgentDuplicateIndexItem[] {
+  let raw = payload as any;
+
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    return mapAgentDuplicateIndexDtos(raw as AgentDuplicateIndexItemDto[]);
+  }
+
+  if (!raw || typeof raw !== 'object') {
+    return [];
+  }
+
+  const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
+  if (Array.isArray(nested)) {
+    return mapAgentDuplicateIndexDtos(nested as AgentDuplicateIndexItemDto[]);
+  }
+
+  return [];
+}
+
+function normalizeAgentDuplicateCaseField(value: unknown): AgentDuplicateCaseField {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'email') {
+    return 'email';
+  }
+  if (normalized === 'identitynumber' || normalized === 'identity_number') {
+    return 'identityNumber';
+  }
+  return 'fullName';
+}
+
+function mapAgentDuplicateCaseAgentSummaryDtos(
+  items: AgentDuplicateCaseAgentSummaryDto[]
+): AgentDuplicateCaseAgentSummary[] {
+  return (items || [])
+    .map((dto) => ({
+      id: toStringValue(readField(dto, ['id'], ''), '').trim(),
+      matricule: toStringValue(readField(dto, ['matricule'], ''), '').trim(),
+      fullName: toStringValue(readField(dto, ['fullName', 'full_name'], ''), '').trim(),
+      direction: toStringValue(readField(dto, ['direction'], ''), '').trim(),
+      unit: toStringValue(readField(dto, ['unit'], ''), '').trim(),
+      position: toStringValue(readField(dto, ['position'], ''), '').trim(),
+      status: toStringValue(readField(dto, ['status'], ''), '').trim(),
+      manager: toStringValue(readField(dto, ['manager'], ''), '').trim(),
+      email: toStringValue(readField(dto, ['email'], ''), '').trim(),
+      identityNumber: toStringValue(readField(dto, ['identityNumber', 'identity_number'], ''), '').trim(),
+      phone: toStringValue(readField(dto, ['phone'], ''), '').trim(),
+      contractType: toStringValue(readField(dto, ['contractType', 'contract_type'], ''), '').trim(),
+    }))
+    .filter((item) => !!item.id);
+}
+
+function mapAgentDuplicateCaseDtos(items: AgentDuplicateCaseDto[]): AgentDuplicateCase[] {
+  return (items || [])
+    .map((dto, index) => {
+      const duplicateField = normalizeAgentDuplicateCaseField(
+        readField(dto, ['duplicateField', 'duplicate_field'], '')
+      );
+      const duplicateValue = toStringValue(
+        readField(dto, ['duplicateValue', 'duplicate_value'], ''),
+        ''
+      ).trim();
+      const agents = mapAgentDuplicateCaseAgentSummaryDtos(
+        Array.isArray(readField(dto, ['agents'], []))
+          ? (readField(dto, ['agents'], []) as AgentDuplicateCaseAgentSummaryDto[])
+          : []
+      );
+      const confidenceParsed = Number(readField(dto, ['confidenceScore', 'confidence_score'], 0));
+      const impactedParsed = Number(readField(dto, ['impactedCount', 'impacted_count'], 0));
+      const confidenceScore = Number.isFinite(confidenceParsed) ? Math.max(0, Math.round(confidenceParsed)) : 0;
+      const impactedCount = Number.isFinite(impactedParsed)
+        ? Math.max(agents.length, Math.round(impactedParsed))
+        : agents.length;
+      const reference =
+        toStringValue(readField(dto, ['reference'], ''), '').trim() ||
+        `DUP-${duplicateField}-${index + 1}`;
+      const createdAt =
+        toStringValue(readField(dto, ['createdAt', 'created_at'], ''), '').trim() ||
+        new Date().toISOString();
+      return {
+        reference,
+        duplicateField,
+        duplicateValue,
+        confidenceScore,
+        impactedCount,
+        createdAt,
+        agents,
+      } as AgentDuplicateCase;
+    })
+    .filter((item) => item.agents.length >= 2 && !!item.duplicateValue);
+}
+
+function normalizeAgentDuplicateCasesPayload(payload: unknown): AgentDuplicateCase[] {
+  let raw = payload as any;
+
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    return mapAgentDuplicateCaseDtos(raw as AgentDuplicateCaseDto[]);
+  }
+
+  if (!raw || typeof raw !== 'object') {
+    return [];
+  }
+
+  const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
+  if (Array.isArray(nested)) {
+    return mapAgentDuplicateCaseDtos(nested as AgentDuplicateCaseDto[]);
+  }
+
+  return [];
+}
+
+function normalizeAgentAuditSourceValue(value: unknown): 'update' | 'merge' | 'system' {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized === 'merge') {
+    return 'merge';
+  }
+  if (normalized === 'system') {
+    return 'system';
+  }
+  return 'update';
+}
+
+function mapAgentAuditFieldChangeDtos(items: AgentAuditFieldChangeDto[]): AgentAuditFieldChange[] {
+  return (items || [])
+    .map((dto) => ({
+      field: toStringValue(readField(dto, ['field'], ''), '').trim(),
+      label: toStringValue(readField(dto, ['label'], ''), '').trim(),
+      before: toStringValue(readField(dto, ['before'], ''), '').trim(),
+      after: toStringValue(readField(dto, ['after'], ''), '').trim(),
+    }))
+    .filter((item) => !!item.field || !!item.before || !!item.after);
+}
+
+function mapAgentAuditTrailDtos(items: AgentAuditEventDto[]): AgentAuditEvent[] {
+  return (items || [])
+    .map((dto, index) => {
+      const changes = mapAgentAuditFieldChangeDtos(
+        Array.isArray(readField(dto, ['changes'], []))
+          ? (readField(dto, ['changes'], []) as AgentAuditFieldChangeDto[])
+          : []
+      );
+      const reference =
+        toStringValue(readField(dto, ['reference'], ''), '').trim() ||
+        `AG-AUD-${Date.now()}-${index + 1}`;
+      const changedAt =
+        toStringValue(readField(dto, ['changedAt', 'changed_at'], ''), '').trim() ||
+        new Date().toISOString();
+      return {
+        reference,
+        agentId: toStringValue(readField(dto, ['agentId', 'agent_id'], ''), '').trim(),
+        agentLabel: toStringValue(readField(dto, ['agentLabel', 'agent_label'], ''), '').trim(),
+        changedAt,
+        changedBy: toStringValue(readField(dto, ['changedBy', 'changed_by'], 'system'), 'system').trim() || 'system',
+        source: normalizeAgentAuditSourceValue(readField(dto, ['source'], 'update')),
+        reason: toStringValue(readField(dto, ['reason'], 'mise_a_jour_fiche'), 'mise_a_jour_fiche').trim() || 'mise_a_jour_fiche',
+        changes,
+      } as AgentAuditEvent;
+    })
+    .filter((item) => !!item.reference && !!item.agentId && item.changes.length > 0);
+}
+
+function normalizeAgentAuditTrailPayload(payload: unknown): AgentAuditEvent[] {
+  let raw = payload as any;
+
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    return mapAgentAuditTrailDtos(raw as AgentAuditEventDto[]);
+  }
+
+  if (!raw || typeof raw !== 'object') {
+    return [];
+  }
+
+  const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
+  if (Array.isArray(nested)) {
+    return mapAgentAuditTrailDtos(nested as AgentAuditEventDto[]);
+  }
+
+  return [];
+}
+
+function normalizeAgentMatriculeSuggestionPayload(payload: unknown): AgentMatriculeSuggestion {
+  const dto = (payload && typeof payload === 'object' ? payload : {}) as AgentMatriculeSuggestionDto;
+
+  const nextNumberRaw = Number(readField(dto, ['nextNumber', 'next_number'], 1));
+  const nextNumber = Number.isFinite(nextNumberRaw) && nextNumberRaw > 0 ? Math.round(nextNumberRaw) : 1;
+  const basedOnRaw = toStringValue(readField(dto, ['basedOn', 'based_on'], 'Global'), 'Global').trim();
+  const basedOn: AgentMatriculeSuggestion['basedOn'] =
+    basedOnRaw === 'Direction+Unite' || basedOnRaw === 'Direction' ? basedOnRaw : 'Global';
+  const matricule =
+    toStringValue(readField(dto, ['matricule'], ''), '').trim() ||
+    `PRM-${String(nextNumber).padStart(4, '0')}`;
+  const scopeLabel = toStringValue(readField(dto, ['scopeLabel', 'scope_label'], 'Global'), 'Global').trim() || 'Global';
+
+  return {
+    matricule,
+    scopeLabel,
+    basedOn,
+    nextNumber,
+  };
 }
 
 function mapAgentDetailDto(dto: AgentDetailDto, fallbackId = ''): AgentDetail {

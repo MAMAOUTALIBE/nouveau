@@ -23,8 +23,6 @@ export class Switcher {
     this.appStateService.state$.subscribe(state => {
       this.localdata = state;
     });
-    console.log(this.localdata);
-
   }
 
   updateDirection(direction: string) {

@@ -41,10 +41,12 @@ interface AuthResponse {
   username?: string;
   roles?: string[];
   permissions?: string[];
+  scopes?: string[];
   authorities?: string[];
   access?: {
     roles?: string[];
     permissions?: string[];
+    scopes?: string[];
     expiresIn?: number | string;
     expires_in?: number | string;
     expiresAt?: number | string;
@@ -54,6 +56,7 @@ interface AuthResponse {
     email?: string;
     roles?: string[];
     permissions?: string[];
+    scopes?: string[];
     authorities?: string[];
   };
 }
@@ -91,6 +94,7 @@ export class AuthService {
         const username = response.username || response.user?.username || response.user?.email || email;
         const roles = this.extractRoles(response, username);
         const permissions = this.extractPermissions(response);
+        const scopes = this.extractScopes(response);
         const expirations = this.resolveTokenExpirations(response);
         this.storeSession({
           token,
@@ -98,6 +102,7 @@ export class AuthService {
           username,
           roles,
           permissions,
+          scopes,
           accessTokenExpiresAt: expirations.accessTokenExpiresAt,
           refreshTokenExpiresAt: expirations.refreshTokenExpiresAt,
         });
@@ -127,6 +132,7 @@ export class AuthService {
         username: localStorage.getItem('rh_username') || environment.auth?.devFallback?.username,
         roles: currentAccess.roles,
         permissions: currentAccess.permissions,
+        scopes: currentAccess.scopes,
         accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
         refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
       });
@@ -155,7 +161,9 @@ export class AuthService {
       const currentAccess = this.accessControl.snapshot();
       const roles = this.extractRoles(response, username);
       const responsePermissions = this.extractPermissions(response);
+      const responseScopes = this.extractScopes(response);
       const permissions = responsePermissions.length ? responsePermissions : currentAccess.permissions;
+      const scopes = responseScopes.length ? responseScopes : currentAccess.scopes;
       const expirations = this.resolveTokenExpirations(response);
       this.storeSession({
         token,
@@ -163,6 +171,7 @@ export class AuthService {
         username,
         roles,
         permissions,
+        scopes,
         accessTokenExpiresAt: expirations.accessTokenExpiresAt,
         refreshTokenExpiresAt: expirations.refreshTokenExpiresAt,
       });
@@ -178,6 +187,7 @@ export class AuthService {
           username: localStorage.getItem('rh_username') || environment.auth?.devFallback?.username,
           roles: currentAccess.roles,
           permissions: currentAccess.permissions,
+          scopes: currentAccess.scopes,
           accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
           refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
         });
@@ -216,6 +226,7 @@ export class AuthService {
     username?: string;
     roles?: string[];
     permissions?: string[];
+    scopes?: string[];
     accessTokenExpiresAt?: number;
     refreshTokenExpiresAt?: number;
   }): void {
@@ -229,6 +240,7 @@ export class AuthService {
     this.accessControl.applyAccess({
       roles: session.roles,
       permissions: session.permissions,
+      scopes: session.scopes,
       username: session.username,
     });
 
@@ -292,6 +304,7 @@ export class AuthService {
       username: fallbackUser,
       roles,
       permissions: [],
+      scopes: [],
       accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
       refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
     });
@@ -318,6 +331,14 @@ export class AuthService {
       ...this.toStringArray(response.permissions),
       ...this.toStringArray(response.user?.permissions),
       ...this.toStringArray(response.access?.permissions),
+    ]);
+  }
+
+  private extractScopes(response: AuthResponse): string[] {
+    return this.uniqueStrings([
+      ...this.toStringArray(response.scopes),
+      ...this.toStringArray(response.user?.scopes),
+      ...this.toStringArray(response.access?.scopes),
     ]);
   }
 

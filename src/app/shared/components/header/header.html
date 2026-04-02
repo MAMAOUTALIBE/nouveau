@@ -8,12 +8,12 @@
       <!-- Start::header-element -->
       <div class="header-element">
         <div class="horizontal-logo">
-          <a [routerLink]="['/dashboards/dashboard-1']" class="header-logo">
-            <img src="./assets/images/brand-logos/desktop-logo.png" alt="logo" class="desktop-logo">
+          <a [routerLink]="homePath" class="header-logo">
+            <span class="desktop-logo brand-wordmark">RH-ADMIN</span>
             <img src="./assets/images/brand-logos/toggle-logo.png" alt="logo" class="toggle-logo">
-            <img src="./assets/images/brand-logos/desktop-dark.png" alt="logo" class="desktop-dark">
+            <span class="desktop-dark brand-wordmark">RH-ADMIN</span>
             <img src="./assets/images/brand-logos/toggle-dark.png" alt="logo" class="toggle-dark">
-            <img src="./assets/images/brand-logos/desktop-white.png" alt="logo" class="desktop-white">
+            <span class="desktop-white brand-wordmark">RH-ADMIN</span>
             <img src="./assets/images/brand-logos/toggle-white.png" alt="logo" class="toggle-white">
           </a>
         </div>
@@ -142,89 +142,6 @@
       <!-- End::header-element -->
 
       <!-- Start::header-element -->
-      <div ngbDropdown [autoClose]="'outside'" display="dynamic" class="header-element cart-dropdown">
-        <!-- Start::header-link|dropdown-toggle -->
-        <a ngbDropdownToggle href="javascript:void(0);" class="header-link dropdown-toggle" data-bs-auto-close="outside"
-          data-bs-toggle="dropdown">
-          <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" width="24" height="24" viewBox="0 0 24 24">
-            <path
-              d="M21.822 7.431A1 1 0 0 0 21 7H7.333L6.179 4.23A1.994 1.994 0 0 0 4.333 3H2v2h2.333l4.744 11.385A1 1 0 0 0 10 17h8c.417 0 .79-.259.937-.648l3-8a1 1 0 0 0-.115-.921zM17.307 15h-6.64l-2.5-6h11.39l-2.25 6z" />
-            <circle cx="10.5" cy="19.5" r="1.5" />
-            <circle cx="17.5" cy="19.5" r="1.5" />
-          </svg>
-          <span class="badge bg-warning rounded-pill header-icon-badge" id="cart-icon-badge">{{ cartItemCount }}</span>
-        </a>
-        <!-- End::header-link|dropdown-toggle -->
-        <!-- Start::main-header-dropdown -->
-        <div ngbDropdownMenu class="main-header-dropdown dropdown-menu dropdown-menu-end" data-popper-placement="none">
-          <div class="p-3">
-            <div class="d-flex align-items-center justify-content-between">
-              <p class="mb-0 fs-15 fw-semibold">Shopping Cart</p>
-              <span class="badge bg-indigo" id="cart-data">Items {{cartItemCount}}</span>
-            </div>
-          </div>
-          <div>
-            <hr class="dropdown-divider">
-          </div>
-          <ul (click)="handleCardClick($event)" class="list-unstyled mb-0" id="header-cart-items-scroll">
-            <!-- Inside your ngbDropdownMenu -->
-
-            @for (item of cartItems; track $index) {
-            <li ngbDropdownItem class="dropdown-item" [id]="item.id">
-              <div class="d-flex align-items-start cart-dropdown-item">
-                <img [src]="item.imageUrl" alt="product" class="avatar avatar-rounded br-5 me-3">
-
-                <div class="flex-grow-1">
-                  <div class="d-flex align-items-center justify-content-between mb-0">
-                    <div class="mb-0">
-                      <a class="text-muted fs-13" [routerLink]="['/pages/ecommerce/cart']">
-                        {{ item.name }}
-                      </a>
-                      <div class="fw-semibold text-dark fs-12">
-                        {{ item.quantity }} × ${{ item.price | number:'1.2-2' }}
-                      </div>
-                    </div>
-
-                    <div>
-                      <a href="javascript:void(0);" class="header-cart-remove float-end dropdown-item-close me-2"
-                        (click)="removeRow(item.id)">
-                        <i class="fe fe-trash-2 text-danger"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            }
-          </ul>
-          @if (!isCartEmpty) {
-          <div
-            class="p-2 bg-primary-transparent d-flex justify-content-between align-items-center empty-header-item border-top">
-            <div class="">
-              <a [routerLink]="['/pages/ecommerce/checkout']" class="btn btn-sm btn-primary btn-w-xs">checkout</a>
-            </div>
-            <div>
-              <span class="text-dark fw-semibold">Sub Total : $ 485.93</span>
-            </div>
-          </div>
-          }
-          <div class="p-5 empty-item" [class.d-none]="!isCartEmpty">
-            <div class="text-center">
-              <span class="avatar avatar-xl avatar-rounded bg-warning-transparent">
-                <i class="ri-shopping-cart-2-line fs-2"></i>
-              </span>
-              <h6 class="fw-bold mb-1 mt-3">Your Cart is Empty</h6>
-              <span class="mb-3 fw-normal fs-13 d-block">Add some items to make me happy :)</span>
-              <a [routerLink]="['/pages/ecommerce/shop']" class="btn btn-primary btn-wave btn-sm m-1"
-                data-abc="true">continue shopping <i class="bi bi-arrow-right ms-1"></i></a>
-            </div>
-          </div>
-        </div>
-        <!-- End::main-header-dropdown -->
-      </div>
-      <!-- End::header-element -->
-
-      <!-- Start::header-element -->
       <div ngbDropdown [autoClose]="'outside'" class="header-element notifications-dropdown">
         <!-- Start::header-link|dropdown-toggle -->
         <a ngbDropdownToggle href="javascript:void(0);" class="header-link dropdown-toggle d-xl-block d-none"
@@ -280,7 +197,7 @@
           @if (!isNotifyEmpty) {
           <div class="p-2 empty-header-item1 border-top">
             <div class="d-grid">
-              <a [routerLink]="['/apps/notification']" class="btn btn-primary btn-sm">View All</a>
+              <button type="button" class="btn btn-primary btn-sm" (click)="openNotifications()">Ouvrir le centre</button>
             </div>
           </div>
           }
@@ -297,51 +214,6 @@
       </div>
       <!-- End::header-element -->
 
-      <!-- Start::header-element -->
-      <div ngbDropdown class="header-element header-shortcuts-dropdown d-md-block d-none">
-        <a ngbDropdownToggle href="javascript:void(0);" class="header-link dropdown-toggle" data-bs-toggle="dropdown"
-          data-bs-auto-close="outside" id="notificationDropdown" aria-expanded="false">
-          <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" height="24px" viewBox="0 0 24 24"
-            width="24px" fill="#000000">
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path
-              d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z" />
-          </svg>
-        </a>
-        <!-- Start::main-header-dropdown -->
-        <div ngbDropdownMenu class="main-header-dropdown header-shortcuts-dropdown dropdown-menu pb-0 dropdown-menu-end"
-          aria-labelledby="notificationDropdown">
-          <div class="p-3">
-            <div class="d-flex align-items-center justify-content-between">
-              <p class="mb-0 fs-17 fw-semibold">Related Apps</p>
-            </div>
-          </div>
-          <div class="dropdown-divider mb-0"></div>
-          <div class="main-header-shortcuts p-2" id="header-shortcut-scroll">
-            <div class="row g-2">
-              @for (app of apps; track app.name) {
-              <div class="col-4">
-                <a href="javascript:void(0);">
-                  <div class="text-center p-3 related-app">
-                    <span class="avatar avatar-sm avatar-rounded">
-                      <img [src]="app.iconSrc" [alt]="app.name" />
-                    </span>
-                    <span class="d-block fs-12">{{ app.name }}</span>
-                  </div>
-                </a>
-              </div>
-              }
-            </div>
-          </div>
-          <div class="p-3 border-top">
-            <div class="d-grid">
-              <a href="javascript:void(0);" class="btn btn-primary">View All</a>
-            </div>
-          </div>
-        </div>
-        <!-- End::main-header-dropdown -->
-      </div>
-      <!-- End::header-element -->
       <!-- Start::header-element -->
       <div class="header-element header-fullscreen" appFullscreen>
         <!-- Start::header-link -->
@@ -376,8 +248,8 @@
               <img src="./assets/images/faces/2.jpg" alt="img" width="32" height="32" class="rounded-circle" />
             </div>
             <div class="d-xxl-block d-none">
-              <p class="fw-semibold mb-0 lh-1">Ashton Cox</p>
-              <span class="op-7 fw-normal d-block fs-11">Web Developer</span>
+              <p class="fw-semibold mb-0 lh-1">{{ currentUserDisplayName }}</p>
+              <span class="op-7 fw-normal d-block fs-11">{{ currentUserRoleLabel }}</span>
             </div>
           </div>
         </a>
@@ -386,29 +258,29 @@
           class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end"
           aria-labelledby="mainHeaderProfile">
           <li>
-            <a href="javascript:void(0)" ngbDropdownItem class="dropdown-item d-flex"
-              [routerLink]="['/pages/profile']"><i class="ti ti-user-circle fs-16 me-2 op-7"></i>Profile</a>
+            <a ngbDropdownItem class="dropdown-item d-flex" [routerLink]="homePath">
+              <i class="ti ti-home fs-16 me-2 op-7"></i>Accueil
+            </a>
           </li>
           <li>
-            <a ngbDropdownItem class="dropdown-item d-flex border-block-end" [routerLink]="['/pages/email/chat']"><i
-                class="far fa-smile fs-16 me-2 op-7"></i>Chat</a>
+            <a ngbDropdownItem class="dropdown-item d-flex border-block-end" [routerLink]="['/dashboard']">
+              <i class="ti ti-layout-dashboard fs-16 me-2 op-7"></i>Tableau de bord
+            </a>
           </li>
           <li>
-            <a href="javascript:void(0)" ngbDropdownItem class="dropdown-item d-flex"
-              [routerLink]="['/pages/email/mail']"><i class="far fa-envelope fs-16 me-2 op-7"></i>Inbox
-              <span class="badge bg-success-transparent ms-auto">25</span></a>
+            <button type="button" ngbDropdownItem class="dropdown-item d-flex" (click)="openNotifications()">
+              <i class="far fa-bell fs-16 me-2 op-7"></i>Centre de notifications
+            </button>
           </li>
           <li>
-            <a ngbDropdownItem class="dropdown-item d-flex border-block-end" [routerLink]="['/pages/email/chat']"><i
-                class="far fa-comment-dots fs-16 me-2 op-7"></i>messages</a>
+            <button type="button" ngbDropdownItem class="dropdown-item d-flex border-block-end" (click)="toggleSwitcher()">
+              <i class="far fa-sun fs-16 me-2 op-7"></i>Préférences d'affichage
+            </button>
           </li>
           <li>
-            <a ngbDropdownItem class="dropdown-item d-flex" [routerLink]="['/pages/email/mail-settings']"><i
-                class="far fa-sun fs-16 me-2 op-7"></i>Settings</a>
-          </li>
-          <li>
-            <a ngbDropdownItem class="dropdown-item d-flex" (click)="logout()"><i
-                class="far fa-arrow-alt-circle-left fs-16 me-2 op-7"></i>Log Out</a>
+            <a ngbDropdownItem class="dropdown-item d-flex" (click)="logout()">
+              <i class="far fa-arrow-alt-circle-left fs-16 me-2 op-7"></i>Déconnexion
+            </a>
           </li>
         </ul>
       </div>

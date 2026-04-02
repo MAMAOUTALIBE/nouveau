@@ -69,6 +69,17 @@ export class ApiClientService {
       .pipe(map((response) => this.unwrap(response)));
   }
 
+  put<TResponse, TBody>(path: string, body: TBody, options?: RequestOptions): Observable<TResponse> {
+    return this.withResilience(
+      this.http.put<TResponse | ApiEnvelope<TResponse>>(this.buildUrl(path), body, {
+        context: this.buildContext(options),
+      }),
+      options?.timeoutMs,
+      this.resolveRetryPolicy(options?.retry, this.mutationRetryDefaults)
+    )
+      .pipe(map((response) => this.unwrap(response)));
+  }
+
   private unwrap<T>(response: T | ApiEnvelope<T>): T {
     if (response && typeof response === 'object' && 'data' in (response as ApiEnvelope<T>)) {
       return (response as ApiEnvelope<T>).data;

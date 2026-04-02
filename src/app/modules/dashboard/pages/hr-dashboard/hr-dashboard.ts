@@ -38,7 +38,27 @@ export class HrDashboardPage implements OnInit {
   ];
 
   headcountTrend: ApexOptions = {
-    chart: { type: 'line', height: 320, toolbar: { show: false } },
+    chart: {
+      type: 'line',
+      height: 320,
+      toolbar: {
+        show: false,
+        tools: {
+          zoom: false,
+          zoomin: false,
+          zoomout: false,
+          pan: false,
+          selection: false,
+        },
+      },
+      zoom: {
+        enabled: false,
+        allowMouseWheelZoom: false,
+      },
+      selection: {
+        enabled: false,
+      },
+    },
     series: [
       { name: 'Effectif', data: [1201, 1210, 1216, 1228, 1240, 1255, 1284] },
       { name: 'Sorties', data: [3, 2, 5, 1, 4, 2, 6] },

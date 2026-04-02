@@ -36,7 +36,7 @@
               "quill-delta"
             ],
             "outputPath": {
-              "base": "preview",
+              "base": "dist/nowa-angular-21",
               "browser": ""
             },
             "tsConfig": "tsconfig.app.json",
@@ -49,7 +49,6 @@
               "src/.htaccess"
             ],
             "styles": ["src/styles.scss"],
-          
             "polyfills": ["zone.js", "@angular/localize/init"]
           },
           "configurations": {
@@ -60,16 +59,15 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "baseHref": "/angular/nowa/preview/",
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "5MB",
+                  "maximumWarning": "4MB",
                   "maximumError": "5MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
+                  "maximumWarning": "5kB",
                   "maximumError": "8kB"
                 }
               ],

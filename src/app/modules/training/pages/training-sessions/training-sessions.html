@@ -7,10 +7,75 @@
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Creer une session' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !items.length"
+            (click)="exportSessions()">
+            Exporter
+          </button>
+          <button type="button" class="btn btn-light" [disabled]="isLoading || submitting" (click)="refresh()">
+            {{ isLoading ? 'Chargement...' : 'Rafraichir' }}
+          </button>
         </div>
       </div>
       <div class="card-body">
+        <form class="row g-3 mb-4" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+          <div class="col-lg-4">
+            <label class="form-label">Recherche</label>
+            <input type="text" class="form-control" formControlName="q" placeholder="Code, intitule, lieu..." />
+          </div>
+          <div class="col-lg-4">
+            <label class="form-label">Statut</label>
+            <select class="form-select" formControlName="status">
+              <option *ngFor="let status of statusOptions" [value]="status">
+                {{ status || 'Tous les statuts' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-label">Lieu</label>
+            <input type="text" class="form-control" formControlName="location" placeholder="Filtrer par lieu" />
+          </div>
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-light" [disabled]="isLoading" (click)="resetFilters()">Reset</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">Filtrer</button>
+          </div>
+        </form>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Total</div>
+              <div class="fs-20 fw-semibold">{{ totalSessions }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Ouvertes</div>
+              <div class="fs-20 fw-semibold text-success">{{ openSessions }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Completes</div>
+              <div class="fs-20 fw-semibold text-danger">{{ fullSessions }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Places disponibles</div>
+              <div class="fs-20 fw-semibold text-primary">{{ availableSeats }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card shadow-none border p-3 h-100">
+              <div class="text-muted fs-12 mb-1">Demandes en attente</div>
+              <div class="fs-20 fw-semibold text-warning">{{ totalPendingRequests }}</div>
+            </div>
+          </div>
+        </div>
+
         <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveSession()" class="row g-3">
@@ -70,7 +135,71 @@
           </div>
         </div>
 
+        <div class="text-muted text-center py-3" *ngIf="isLoading">Chargement des sessions...</div>
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
+
+        <div class="table-responsive mt-4">
+          <h6 class="mb-3">Suivi des demandes par session</h6>
+          <table class="table table-bordered align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Occupation</th>
+                <th>Demandes</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isRequestsLoading">
+                <td colspan="5" class="text-center text-muted">Chargement des demandes liees aux sessions...</td>
+              </tr>
+              <tr *ngIf="!isRequestsLoading && !sessionRequestSummaries.length">
+                <td colspan="5" class="text-center text-muted">Aucune session disponible</td>
+              </tr>
+              <tr *ngFor="let summary of sessionRequestSummaries; trackBy: trackBySessionCode">
+                <td>
+                  <div class="fw-semibold">{{ summary.session.code }} - {{ summary.session.title }}</div>
+                  <div class="text-muted fs-11">{{ summary.session.dates }} | {{ summary.session.location }}</div>
+                </td>
+                <td style="min-width: 220px;">
+                  <div class="d-flex justify-content-between fs-12 mb-1">
+                    <span>{{ summary.session.enrolled }} / {{ summary.session.seats }}</span>
+                    <span>{{ summary.fillRate }}%</span>
+                  </div>
+                  <div class="progress progress-xs">
+                    <div
+                      class="progress-bar bg-primary"
+                      role="progressbar"
+                      [style.width.%]="summary.fillRate"
+                      [attr.aria-valuenow]="summary.fillRate"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <div class="text-muted fs-11 mt-1">{{ summary.availableSeats }} places restantes</div>
+                </td>
+                <td>
+                  <div class="text-warning">En attente: {{ summary.pendingCount }}</div>
+                  <div class="text-success">Validees: {{ summary.approvedCount }}</div>
+                  <div class="text-danger">Rejetees: {{ summary.rejectedCount }}</div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="statusBadgeClass(summary.session.status)">
+                    {{ summary.session.status }}
+                  </span>
+                </td>
+                <td>
+                  <a
+                    class="btn btn-sm btn-outline-primary"
+                    [routerLink]="['/formation/demandes']"
+                    [queryParams]="{ sessionCode: summary.session.code, status: summary.pendingCount ? 'Soumise' : null }">
+                    Voir demandes
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

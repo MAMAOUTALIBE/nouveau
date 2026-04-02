@@ -1,0 +1,1 @@
+import"./chunk-MG3ERZGY.js";var e=[{path:"",redirectTo:"bibliotheque",pathMatch:"full"},{path:"bibliotheque",loadComponent:()=>import("./chunk-LJV7ERHP.js").then(t=>t.DocumentLibraryPage),data:{parentTitle:"Pilotage",childTitle:"Documents"}}];export{e as DOCUMENTS_ROUTES};

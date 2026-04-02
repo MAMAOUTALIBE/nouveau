@@ -99,6 +99,40 @@ export interface SignDocumentPayload {
   stampLabel?: string;
 }
 
+export interface DocumentRequest {
+  reference: string;
+  documentType: string;
+  requesterName: string;
+  requesterUsername: string;
+  purpose: string;
+  neededBy: string;
+  status: string;
+  createdAt: string;
+  decidedAt: string;
+  decidedBy: string;
+  decisionComment: string;
+}
+
+export interface CreateDocumentRequestPayload {
+  reference?: string;
+  documentType: string;
+  requesterName: string;
+  requesterUsername?: string;
+  purpose: string;
+  neededBy: string;
+}
+
+export interface DocumentRequestDecisionPayload {
+  action: 'APPROUVER' | 'REJETER';
+  reason?: string;
+}
+
+export interface DocumentRequestsQuery extends CollectionQueryOptions {
+  status?: string;
+  requesterUsername?: string;
+  documentType?: string;
+}
+
 export interface DocumentAuditLogItem {
   id: string;
   reference: string;
@@ -366,6 +400,48 @@ interface NotificationDto {
   is_read?: boolean;
 }
 
+interface DocumentRequestDto {
+  reference?: string;
+  requestRef?: string;
+  request_ref?: string;
+  documentType?: string;
+  document_type?: string;
+  type?: string;
+  requesterName?: string;
+  requester_name?: string;
+  requester?: string;
+  employee?: string;
+  agent?: string;
+  requesterUsername?: string;
+  requester_username?: string;
+  username?: string;
+  purpose?: string;
+  reason?: string;
+  neededBy?: string;
+  needed_by?: string;
+  dueDate?: string;
+  due_date?: string;
+  status?: string;
+  createdAt?: string;
+  created_at?: string;
+  requestedAt?: string;
+  requested_at?: string;
+  decidedAt?: string;
+  decided_at?: string;
+  decisionAt?: string;
+  decision_at?: string;
+  decidedBy?: string;
+  decided_by?: string;
+  managerDecisionBy?: string;
+  manager_decision_by?: string;
+  decisionComment?: string;
+  decision_comment?: string;
+  decisionReason?: string;
+  decision_reason?: string;
+  comment?: string;
+  note?: string;
+}
+
 interface DocumentOverdueDto {
   reference?: string;
   title?: string;
@@ -436,6 +512,7 @@ interface DocumentArchivePurgeDto {
 @Injectable({ providedIn: 'root' })
 export class DocumentsService {
   private readonly localDocumentsKey = 'rh_dev_documents_library';
+  private readonly localDocumentRequestsKey = 'rh_dev_document_requests';
   private readonly fallbackEnabled = !!environment.auth?.devFallback?.enabled;
   private readonly apiClient = inject(ApiClientService);
 
@@ -592,6 +669,97 @@ export class DocumentsService {
         { skipErrorToast: this.fallbackEnabled }
       )
       .pipe(map((dto) => this.normalizeDocument(dto)));
+  }
+
+  getDocumentRequests(query?: DocumentRequestsQuery): Observable<DocumentRequest[]> {
+    const params = buildCollectionQueryParams(query, {
+      status: query?.status,
+      requesterUsername: query?.requesterUsername,
+      documentType: query?.documentType,
+    });
+
+    return this.apiClient
+      .get<DocumentRequestDto[]>(
+        API_ENDPOINTS.documents.requests,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((items) => this.mapDocumentRequests(items)),
+        map((items) => this.mergeByKey(items, this.readLocalDocumentRequests(), (item) => item.reference)),
+        map((items) => this.applyLocalDocumentRequestsQuery(items, query)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.applyLocalDocumentRequestsQuery(this.readLocalDocumentRequests(), query));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  createDocumentRequest(payload: CreateDocumentRequestPayload): Observable<DocumentRequest> {
+    const normalizedPayload = this.normalizeCreateDocumentRequestPayload(payload);
+
+    return this.apiClient
+      .post<DocumentRequestDto, CreateDocumentRequestPayload>(
+        API_ENDPOINTS.documents.requests,
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeDocumentRequest(dto)),
+        map((item) => {
+          if (this.isCompleteDocumentRequest(item)) {
+            this.upsertLocalDocumentRequest(item);
+            return item;
+          }
+          return this.appendLocalDocumentRequest(normalizedPayload);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.appendLocalDocumentRequest(normalizedPayload));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  decideDocumentRequest(reference: string, payload: DocumentRequestDecisionPayload): Observable<DocumentRequest> {
+    const normalizedReference = String(reference || '').trim();
+    const normalizedPayload = this.normalizeDocumentRequestDecisionPayload(payload);
+
+    return this.apiClient
+      .post<DocumentRequestDto, DocumentRequestDecisionPayload>(
+        API_ENDPOINTS.documents.requestDecision(normalizedReference),
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeDocumentRequest(dto)),
+        map((item) => {
+          if (this.isCompleteDocumentRequest(item)) {
+            this.upsertLocalDocumentRequest(item);
+            return item;
+          }
+
+          const localUpdated = this.updateLocalDocumentRequest(normalizedReference, normalizedPayload);
+          if (localUpdated) {
+            return localUpdated;
+          }
+          return item;
+        }),
+        catchError((error) => {
+          if (!this.shouldUseLocalFallback(error)) {
+            return throwError(() => error);
+          }
+
+          const localUpdated = this.updateLocalDocumentRequest(normalizedReference, normalizedPayload);
+          if (!localUpdated) {
+            return throwError(() => error);
+          }
+          return of(localUpdated);
+        })
+      );
   }
 
   getDocumentAuditLogs(query?: DocumentAuditQuery): Observable<DocumentAuditLogItem[]> {
@@ -905,6 +1073,46 @@ export class DocumentsService {
     };
   }
 
+  private mapDocumentRequests(items: DocumentRequestDto[]): DocumentRequest[] {
+    return items
+      .map((dto) => this.normalizeDocumentRequest(dto))
+      .filter((item) => this.isCompleteDocumentRequest(item));
+  }
+
+  private normalizeDocumentRequest(dto: DocumentRequestDto): DocumentRequest {
+    return {
+      reference: toStringValue(readField(dto, ['reference', 'requestRef', 'request_ref'], '')).trim(),
+      documentType: toStringValue(readField(dto, ['documentType', 'document_type', 'type'], '')).trim(),
+      requesterName: toStringValue(
+        readField(dto, ['requesterName', 'requester_name', 'requester', 'employee', 'agent'], '')
+      ).trim(),
+      requesterUsername: toStringValue(
+        readField(dto, ['requesterUsername', 'requester_username', 'username'], '')
+      )
+        .trim()
+        .toLowerCase(),
+      purpose: toStringValue(readField(dto, ['purpose', 'reason'], '')).trim(),
+      neededBy: toStringValue(readField(dto, ['neededBy', 'needed_by', 'dueDate', 'due_date'], '')).trim(),
+      status: toStringValue(readField(dto, ['status'], 'Soumise')).trim() || 'Soumise',
+      createdAt: toStringValue(readField(dto, ['createdAt', 'created_at', 'requestedAt', 'requested_at'], '')).trim(),
+      decidedAt: toStringValue(readField(dto, ['decidedAt', 'decided_at', 'decisionAt', 'decision_at'], '')).trim(),
+      decidedBy: toStringValue(
+        readField(dto, ['decidedBy', 'decided_by', 'managerDecisionBy', 'manager_decision_by'], '')
+      ).trim(),
+      decisionComment: toStringValue(
+        readField(
+          dto,
+          ['decisionComment', 'decision_comment', 'decisionReason', 'decision_reason', 'comment', 'note'],
+          ''
+        )
+      ).trim(),
+    };
+  }
+
+  private isCompleteDocumentRequest(item: DocumentRequest): boolean {
+    return !!item.reference && !!item.documentType && !!item.requesterName && !!item.purpose && !!item.createdAt;
+  }
+
   private normalizeDocumentOverdue(dto: DocumentOverdueDto): DocumentOverdueItem {
     const assignedAt = this.normalizeIsoDateString(
       toStringValue(readField(dto, ['assignedAt', 'assigned_at'], '')).trim(),
@@ -1154,6 +1362,34 @@ export class DocumentsService {
     };
   }
 
+  private normalizeCreateDocumentRequestPayload(
+    payload: CreateDocumentRequestPayload
+  ): CreateDocumentRequestPayload {
+    const normalizedRequesterUsername =
+      this.normalizeOptionalText(payload.requesterUsername)?.toLowerCase() || this.currentUsername();
+
+    return {
+      reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
+      documentType: String(payload.documentType || '').trim(),
+      requesterName: String(payload.requesterName || '').trim(),
+      requesterUsername: normalizedRequesterUsername || undefined,
+      purpose: String(payload.purpose || '').trim(),
+      neededBy: this.normalizeDateOnly(payload.neededBy),
+    };
+  }
+
+  private normalizeDocumentRequestDecisionPayload(
+    payload: DocumentRequestDecisionPayload
+  ): DocumentRequestDecisionPayload {
+    const actionRaw = String(payload.action || '').trim().toUpperCase();
+    const action: 'APPROUVER' | 'REJETER' = actionRaw === 'REJETER' ? 'REJETER' : 'APPROUVER';
+
+    return {
+      action,
+      reason: this.normalizeOptionalText(payload.reason),
+    };
+  }
+
   private normalizeAssignPayload(payload: AssignDocumentPayload): AssignDocumentPayload {
     return {
       employeeId: String(payload.employeeId || '').trim(),
@@ -1285,6 +1521,72 @@ export class DocumentsService {
     return next.slice(offset, offset + limit);
   }
 
+  private applyLocalDocumentRequestsQuery(
+    items: DocumentRequest[],
+    query?: DocumentRequestsQuery
+  ): DocumentRequest[] {
+    let next = [...items];
+
+    const status = (query?.status || '').trim().toLowerCase();
+    const requesterUsername = (query?.requesterUsername || '').trim().toLowerCase();
+    const documentType = (query?.documentType || '').trim().toLowerCase();
+    const search = (query?.q || '').trim().toLowerCase();
+
+    if (status) {
+      next = next.filter((item) => item.status.toLowerCase().includes(status));
+    }
+    if (requesterUsername) {
+      next = next.filter((item) => item.requesterUsername.toLowerCase().includes(requesterUsername));
+    }
+    if (documentType) {
+      next = next.filter((item) => item.documentType.toLowerCase().includes(documentType));
+    }
+    if (search) {
+      next = next.filter((item) => {
+        return (
+          item.reference.toLowerCase().includes(search) ||
+          item.documentType.toLowerCase().includes(search) ||
+          item.requesterName.toLowerCase().includes(search) ||
+          item.requesterUsername.toLowerCase().includes(search) ||
+          item.purpose.toLowerCase().includes(search) ||
+          item.neededBy.toLowerCase().includes(search) ||
+          item.status.toLowerCase().includes(search) ||
+          item.createdAt.toLowerCase().includes(search) ||
+          item.decidedBy.toLowerCase().includes(search) ||
+          item.decisionComment.toLowerCase().includes(search)
+        );
+      });
+    }
+
+    const sortBy = (query?.sortBy || 'createdAt').trim();
+    const sortOrder = query?.sortOrder === 'asc' ? 'asc' : 'desc';
+    next.sort((left, right) => {
+      const leftValue = this.readDocumentRequestField(left, sortBy);
+      const rightValue = this.readDocumentRequestField(right, sortBy);
+
+      if (sortBy === 'createdAt' || sortBy === 'decidedAt') {
+        const leftTime = Date.parse(String(leftValue || ''));
+        const rightTime = Date.parse(String(rightValue || ''));
+        const safeLeft = Number.isNaN(leftTime) ? 0 : leftTime;
+        const safeRight = Number.isNaN(rightTime) ? 0 : rightTime;
+        if (safeLeft === safeRight) return 0;
+        if (safeLeft < safeRight) return sortOrder === 'asc' ? -1 : 1;
+        return sortOrder === 'asc' ? 1 : -1;
+      }
+
+      const leftText = String(leftValue || '').toLowerCase();
+      const rightText = String(rightValue || '').toLowerCase();
+      if (leftText === rightText) return 0;
+      if (leftText < rightText) return sortOrder === 'asc' ? -1 : 1;
+      return sortOrder === 'asc' ? 1 : -1;
+    });
+
+    const limit = this.toStrictPositiveInt(query?.limit, 200);
+    const page = this.toStrictPositiveInt(query?.page, 1);
+    const offset = (page - 1) * limit;
+    return next.slice(offset, offset + limit);
+  }
+
   private readDocumentField(item: DocumentItem, field: string): string {
     switch (field) {
       case 'reference':
@@ -1313,6 +1615,35 @@ export class DocumentsService {
         return item.assignmentDueAt;
       case 'signedAt':
         return item.signedAt;
+      default:
+        return '';
+    }
+  }
+
+  private readDocumentRequestField(item: DocumentRequest, field: string): string {
+    switch (field) {
+      case 'reference':
+        return item.reference;
+      case 'documentType':
+        return item.documentType;
+      case 'requesterName':
+        return item.requesterName;
+      case 'requesterUsername':
+        return item.requesterUsername;
+      case 'purpose':
+        return item.purpose;
+      case 'neededBy':
+        return item.neededBy;
+      case 'status':
+        return item.status;
+      case 'createdAt':
+        return item.createdAt;
+      case 'decidedAt':
+        return item.decidedAt;
+      case 'decidedBy':
+        return item.decidedBy;
+      case 'decisionComment':
+        return item.decisionComment;
       default:
         return '';
     }
@@ -1419,6 +1750,82 @@ export class DocumentsService {
     return updated;
   }
 
+  private appendLocalDocumentRequest(payload: CreateDocumentRequestPayload): DocumentRequest {
+    const current = this.readLocalDocumentRequests();
+    const fallbackRequesterName = this.inferActorName();
+    const normalizedRequesterName = String(payload.requesterName || '').trim() || fallbackRequesterName;
+    const normalizedRequesterUsername =
+      this.normalizeOptionalText(payload.requesterUsername)?.toLowerCase() || this.currentUsername();
+    const createdAt = new Date().toISOString();
+
+    const created: DocumentRequest = {
+      reference: this.normalizeOptionalText(payload.reference) || this.generateDocumentRequestReference(current),
+      documentType: String(payload.documentType || '').trim(),
+      requesterName: normalizedRequesterName,
+      requesterUsername: normalizedRequesterUsername,
+      purpose: String(payload.purpose || '').trim(),
+      neededBy: this.normalizeDateOnly(payload.neededBy),
+      status: 'Soumise',
+      createdAt,
+      decidedAt: '',
+      decidedBy: '',
+      decisionComment: '',
+    };
+
+    this.upsertLocalDocumentRequest(created);
+    return created;
+  }
+
+  private updateLocalDocumentRequest(
+    reference: string,
+    payload: DocumentRequestDecisionPayload
+  ): DocumentRequest | null {
+    const normalizedReference = String(reference || '').trim().toUpperCase();
+    if (!normalizedReference) {
+      return null;
+    }
+
+    const current = this.readLocalDocumentRequests();
+    const index = current.findIndex((item) => item.reference.toUpperCase() === normalizedReference);
+    if (index < 0) {
+      return null;
+    }
+
+    const previous = current[index];
+    if (String(previous.status || '').trim().toLowerCase() !== 'soumise') {
+      return previous;
+    }
+
+    const nextStatus = payload.action === 'REJETER' ? 'Rejetee' : 'Validee';
+    const decidedAt = new Date().toISOString();
+    const decidedBy = this.inferActorName() || this.currentUsername();
+    const decisionComment =
+      this.normalizeOptionalText(payload.reason) ||
+      (nextStatus === 'Rejetee'
+        ? 'Demande de document rejetee par le manager'
+        : 'Demande de document validee par le manager');
+
+    const updated: DocumentRequest = {
+      ...previous,
+      status: nextStatus,
+      decidedAt,
+      decidedBy,
+      decisionComment,
+    };
+
+    const clone = [...current];
+    clone[index] = updated;
+    this.writeLocalDocumentRequests(clone);
+    return updated;
+  }
+
+  private upsertLocalDocumentRequest(item: DocumentRequest): void {
+    const current = this.readLocalDocumentRequests();
+    const deduped = current.filter((entry) => entry.reference.toUpperCase() !== item.reference.toUpperCase());
+    deduped.push(item);
+    this.writeLocalDocumentRequests(deduped);
+  }
+
   private generateDocumentReference(existing: DocumentItem[]): string {
     const year = new Date().getFullYear();
     const regex = new RegExp(`^DOC-${year}-(\\d+)$`);
@@ -1429,6 +1836,18 @@ export class DocumentsService {
       return Number.isFinite(value) ? Math.max(max, value) : max;
     }, 0);
     return `DOC-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
+  }
+
+  private generateDocumentRequestReference(existing: DocumentRequest[]): string {
+    const year = new Date().getFullYear();
+    const regex = new RegExp(`^DOC-REQ-${year}-(\\d+)$`);
+    const maxExisting = existing.reduce((max, item) => {
+      const match = regex.exec(String(item.reference || ''));
+      if (!match) return max;
+      const value = Number(match[1]);
+      return Number.isFinite(value) ? Math.max(max, value) : max;
+    }, 0);
+    return `DOC-REQ-${year}-${String(maxExisting + 1).padStart(3, '0')}`;
   }
 
   private readLocalDocuments(): DocumentItem[] {
@@ -1502,6 +1921,38 @@ export class DocumentsService {
     window.localStorage.setItem(this.localDocumentsKey, JSON.stringify(items));
   }
 
+  private readLocalDocumentRequests(): DocumentRequest[] {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return [];
+    }
+
+    const raw = window.localStorage.getItem(this.localDocumentRequestsKey);
+    if (!raw) {
+      return [];
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed
+        .map((item) => this.normalizeDocumentRequest(item as DocumentRequestDto))
+        .filter((item) => this.isCompleteDocumentRequest(item));
+    } catch {
+      return [];
+    }
+  }
+
+  private writeLocalDocumentRequests(items: DocumentRequest[]): void {
+    if (!this.fallbackEnabled || !this.hasLocalStorage()) {
+      return;
+    }
+
+    window.localStorage.setItem(this.localDocumentRequestsKey, JSON.stringify(items));
+  }
+
   private mergeByKey<T>(apiItems: T[], localItems: T[], getKey: (item: T) => string): T[] {
     if (!this.fallbackEnabled) {
       return apiItems;
@@ -1532,6 +1983,22 @@ export class DocumentsService {
       return '';
     }
     return String(window.localStorage.getItem('rh_username') || '').trim().toLowerCase();
+  }
+
+  private inferActorName(): string {
+    const username = this.currentUsername();
+    if (!username) {
+      return '';
+    }
+
+    const localPart = username.split('@')[0] || username;
+    const words = localPart
+      .split(/[._-]+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length > 0)
+      .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1)}`);
+
+    return words.join(' ');
   }
 
   private hasLocalStorage(): boolean {

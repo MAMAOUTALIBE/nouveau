@@ -1,3 +1,17 @@
+.header-logo .brand-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.header-logo .desktop-white.brand-wordmark {
+  color: #fff;
+}
+
 .cmdk-trigger {
   display: inline-flex;
   align-items: center;

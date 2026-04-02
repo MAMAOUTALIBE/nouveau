@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GridJsAngularComponent } from 'gridjs-angular';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import { downloadCsv } from '../../../../core/utils/csv-export.utils';
 import {
   CreateTrainingCoursePayload,
   TrainingCourse,
@@ -26,6 +27,7 @@ export class TrainingCatalogPage implements OnInit {
   items: TrainingCourse[] = [];
   showCreateForm = false;
   submitting = false;
+  isLoading = false;
 
   gridConfig = {
     columns: ['Code', 'Intitulé', 'Durée', 'Modalité', 'Domaine'],
@@ -43,8 +45,32 @@ export class TrainingCatalogPage implements OnInit {
     domain: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
   });
 
+  filterForm = this.fb.group({
+    q: [''],
+    modality: [''],
+    domain: [''],
+  });
+
+  readonly modalityOptions = ['', 'Presentiel', 'Distanciel', 'Hybride'];
+
   ngOnInit(): void {
     this.loadCatalog();
+  }
+
+  get totalCourses(): number {
+    return this.items.length;
+  }
+
+  get classroomCourses(): number {
+    return this.items.filter((item) => this.normalizeValue(item.modality) === 'presentiel').length;
+  }
+
+  get remoteCourses(): number {
+    return this.items.filter((item) => this.normalizeValue(item.modality) === 'distanciel').length;
+  }
+
+  get hybridCourses(): number {
+    return this.items.filter((item) => this.normalizeValue(item.modality) === 'hybride').length;
   }
 
   fieldError(fieldName: string): string | null {
@@ -72,6 +98,36 @@ export class TrainingCatalogPage implements OnInit {
     this.showCreateForm = false;
     this.resetForm();
     this.cdr.detectChanges();
+  }
+
+  applyFilters(): void {
+    this.loadCatalog();
+  }
+
+  resetFilters(): void {
+    this.filterForm.reset({
+      q: '',
+      modality: '',
+      domain: '',
+    });
+    this.loadCatalog();
+  }
+
+  refresh(): void {
+    this.loadCatalog();
+  }
+
+  exportCatalog(): void {
+    if (!this.items.length) {
+      return;
+    }
+
+    downloadCsv({
+      filename: `training-catalog-${this.exportDateSuffix()}.csv`,
+      headers: ['Code', 'Intitule', 'Duree', 'Modalite', 'Domaine'],
+      rows: this.items.map((item) => [item.code, item.title, item.duration, item.modality, item.domain]),
+      delimiter: ';',
+    });
   }
 
   saveCourse(): void {
@@ -113,25 +169,43 @@ export class TrainingCatalogPage implements OnInit {
   }
 
   private loadCatalog(): void {
-    this.trainingService.getCatalog().subscribe({
-      next: (items) => {
-        this.items = items;
-        this.gridConfig = {
-          ...this.gridConfig,
-          data: items.map((c) => [c.code, c.title, c.duration, c.modality, c.domain]),
-        };
-        this.cdr.detectChanges();
-      },
-      error: (error) => {
-        this.items = [];
-        this.gridConfig = { ...this.gridConfig, data: [] };
-        this.toastr.error(this.resolveError(error), 'Formation', {
-          timeOut: 3500,
-          positionClass: 'toast-top-right',
-        });
-        this.cdr.detectChanges();
-      },
-    });
+    const filters = this.filterForm.getRawValue();
+    this.isLoading = true;
+    this.trainingService
+      .getCatalog({
+        page: 1,
+        limit: 200,
+        sortBy: 'title',
+        sortOrder: 'asc',
+        q: this.normalizeFilter(filters.q),
+        modality: this.normalizeFilter(filters.modality),
+        domain: this.normalizeFilter(filters.domain),
+      })
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (items) => {
+          this.items = items;
+          this.gridConfig = {
+            ...this.gridConfig,
+            data: items.map((c) => [c.code, c.title, c.duration, c.modality, c.domain]),
+          };
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.items = [];
+          this.gridConfig = { ...this.gridConfig, data: [] };
+          this.toastr.error(this.resolveError(error), 'Formation', {
+            timeOut: 3500,
+            positionClass: 'toast-top-right',
+          });
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private resetForm(): void {
@@ -142,6 +216,19 @@ export class TrainingCatalogPage implements OnInit {
       modality: 'Presentiel',
       domain: '',
     });
+  }
+
+  private exportDateSuffix(): string {
+    return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  }
+
+  private normalizeFilter(value: string | null | undefined): string | undefined {
+    const normalized = String(value || '').trim();
+    return normalized.length ? normalized : undefined;
+  }
+
+  private normalizeValue(value: string): string {
+    return String(value || '').trim().toLowerCase();
   }
 
   private resolveError(error: unknown): string {

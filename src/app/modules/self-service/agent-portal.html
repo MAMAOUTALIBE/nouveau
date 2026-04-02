@@ -2,15 +2,147 @@
   <div class="col-xl-12">
     <div class="card custom-card">
       <div class="card-header justify-content-between">
-        <div class="card-title">Portail agent</div>
+        <div class="card-title">Portail employe</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
-            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle demande' }}
+          <button type="button" class="btn btn-outline-primary" (click)="scrollToSection('profile-section')">
+            Mon profil
           </button>
-          <a routerLink="/documents" class="btn btn-outline-primary">Mes documents</a>
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle absence' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleTrainingCreateForm()">
+            {{ showTrainingCreateForm ? 'Fermer inscription formation' : 'Demander une formation' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="toggleDocumentCreateForm()">
+            {{ showDocumentCreateForm ? 'Fermer demande document' : 'Demander un document' }}
+          </button>
+          <button type="button" class="btn btn-outline-primary" (click)="scrollToSection('documents-recues')">
+            Mes documents assignes
+          </button>
         </div>
       </div>
       <div class="card-body">
+        <div class="card border shadow-none mb-4" id="profile-section">
+          <div class="card-body">
+            <div class="d-flex flex-column flex-xl-row gap-4 align-items-start">
+              <div class="text-center">
+                <img
+                  [src]="profilePhotoUrl"
+                  alt="Photo employe"
+                  class="rounded-3 border"
+                  style="width: 140px; height: 140px; object-fit: cover; background: rgba(255, 255, 255, 0.08)" />
+              </div>
+
+              <div class="flex-fill">
+                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                  <div>
+                    <h4 class="mb-1">{{ profileDisplayName }}</h4>
+                    <div class="text-muted mb-2">
+                      {{ agentProfile?.position || 'Employe' }}
+                      <span *ngIf="agentProfile?.unit"> • {{ agentProfile?.unit }}</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      <span class="badge bg-primary-transparent">{{ profileMatricule }}</span>
+                      <span class="badge" [ngClass]="profileStatusBadgeClass(profileStatusLabel)">
+                        {{ profileStatusLabel }}
+                      </span>
+                      <span class="badge bg-info-transparent" *ngIf="agentProfile?.administrative?.contractType">
+                        {{ agentProfile?.administrative?.contractType }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="text-muted fs-12">
+                    <div><span class="fw-semibold">Direction:</span> {{ agentProfile?.direction || '-' }}</div>
+                    <div><span class="fw-semibold">Manager:</span> {{ agentProfile?.manager || '-' }}</div>
+                    <div>
+                      <span class="fw-semibold">Date recrutement:</span>
+                      {{ agentProfile?.administrative?.hireDate || '-' }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row g-3 mt-1">
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Email</div>
+                    <div class="fw-semibold text-break">{{ profileEmail }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Telephone</div>
+                    <div class="fw-semibold">{{ profilePhone }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Structure</div>
+                    <div class="fw-semibold">{{ agentProfile?.unit || '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Fonction</div>
+                    <div class="fw-semibold">{{ agentProfile?.position || '-' }}</div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Piece d'identite</div>
+                    <div class="fw-semibold">
+                      {{ agentProfile?.identity?.identityType || '-' }}
+                      <span *ngIf="agentProfile?.identity?.identityNumber">
+                        • {{ agentProfile?.identity?.identityNumber }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="text-muted fs-12 mb-1">Nationalite</div>
+                    <div class="fw-semibold">{{ agentProfile?.identity?.nationality || '-' }}</div>
+                  </div>
+                </div>
+
+                <div class="text-muted fs-12 mt-3" *ngIf="profileLoading">Chargement du profil...</div>
+                <div class="alert alert-info-transparent mt-3 mb-0" *ngIf="!profileLoading && !agentProfile">
+                  Aucune fiche personnel complete n'est encore rattachee a ce compte. L'espace employe reste
+                  utilisable pour les demandes et le suivi documentaire.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-none border h-100">
+              <div class="card-body">
+                <div class="text-muted fs-12 mb-1">Documents dossier RH</div>
+                <div class="fs-3 fw-semibold">{{ dossierDocumentsCount }}</div>
+                <div class="text-muted fs-12">Documents administratifs lies a la fiche agent</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-none border h-100">
+              <div class="card-body">
+                <div class="text-muted fs-12 mb-1">Documents assignes</div>
+                <div class="fs-3 fw-semibold">{{ assignedDocumentsCount }}</div>
+                <div class="text-muted fs-12">Documents recus dans l'espace employe</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-none border h-100">
+              <div class="card-body">
+                <div class="text-muted fs-12 mb-1">Formations validees</div>
+                <div class="fs-3 fw-semibold">{{ approvedTrainingCount }}</div>
+                <div class="text-muted fs-12">Demandes de formation deja approuvees</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-6 col-xl-3">
+            <div class="card shadow-none border h-100">
+              <div class="card-body">
+                <div class="text-muted fs-12 mb-1">Actions en attente</div>
+                <div class="fs-3 fw-semibold">{{ pendingActionsCount }}</div>
+                <div class="text-muted fs-12">Demandes en attente et notifications non lues</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveRequest()" class="row g-3">
@@ -20,8 +152,8 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Agent</label>
-                <input type="text" class="form-control" formControlName="agent" />
+                <label class="form-label">Employe</label>
+                <input type="text" class="form-control" formControlName="agent" readonly />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
@@ -44,14 +176,6 @@
                 <input type="date" class="form-control" formControlName="endDate" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('endDate') as error">{{ error }}</div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Statut</label>
-                <select class="form-select" formControlName="status">
-                  <option value="En attente">En attente</option>
-                  <option value="En cours">En cours</option>
-                  <option value="Approuve">Approuve</option>
-                </select>
-              </div>
               <div class="col-12 d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
                   Annuler
@@ -64,17 +188,240 @@
           </div>
         </div>
 
+        <div class="card border shadow-none mb-4" *ngIf="showTrainingCreateForm" id="training-request-form">
+          <div class="card-body">
+            <form [formGroup]="trainingForm" (ngSubmit)="saveTrainingRequest()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="trainingFieldError('reference') as error">{{ error }}</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Session de formation</label>
+                <select class="form-select" formControlName="sessionCode">
+                  <option value="" disabled>Selectionner une session</option>
+                  <option *ngFor="let session of trainingSessions" [value]="session.code">
+                    {{ session.code }} - {{ session.title }} ({{ session.dates }})
+                  </option>
+                </select>
+                <div class="text-danger fs-11 mt-1" *ngIf="trainingFieldError('sessionCode') as error">{{ error }}</div>
+                <div class="text-muted fs-11 mt-1" *ngIf="isLoadingTrainingSessions">Chargement des sessions...</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Employe</label>
+                <input type="text" class="form-control" [value]="form.value.agent || ''" readonly />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Motivation</label>
+                <textarea class="form-control" rows="3" formControlName="motivation"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="trainingFieldError('motivation') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  (click)="cancelTrainingCreate()"
+                  [disabled]="submittingTrainingRequest">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submittingTrainingRequest">
+                  {{ submittingTrainingRequest ? 'Enregistrement...' : 'Soumettre la demande de formation' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="showDocumentCreateForm" id="document-request-form">
+          <div class="card-body">
+            <form [formGroup]="documentRequestForm" (ngSubmit)="saveDocumentRequest()" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Reference (optionnel)</label>
+                <input type="text" class="form-control" formControlName="reference" />
+                <div class="text-danger fs-11 mt-1" *ngIf="documentRequestFieldError('reference') as error">
+                  {{ error }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type de document</label>
+                <select class="form-select" formControlName="documentType">
+                  <option *ngFor="let type of documentRequestTypeOptions" [value]="type">{{ type }}</option>
+                </select>
+                <div class="text-danger fs-11 mt-1" *ngIf="documentRequestFieldError('documentType') as error">
+                  {{ error }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Date souhaitee</label>
+                <input type="date" class="form-control" formControlName="neededBy" />
+                <div class="text-danger fs-11 mt-1" *ngIf="documentRequestFieldError('neededBy') as error">
+                  {{ error }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Employe</label>
+                <input type="text" class="form-control" [value]="form.value.agent || ''" readonly />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Motif / usage</label>
+                <textarea class="form-control" rows="3" formControlName="purpose"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="documentRequestFieldError('purpose') as error">
+                  {{ error }}
+                </div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button
+                  type="button"
+                  class="btn btn-light"
+                  (click)="cancelDocumentCreate()"
+                  [disabled]="submittingDocumentRequest">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submittingDocumentRequest">
+                  {{ submittingDocumentRequest ? 'Enregistrement...' : 'Soumettre la demande de document' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <h6 class="mb-3">Acces rapides</h6>
         <div class="row g-3 mb-4">
-          <div class="col-md-4" *ngFor="let item of quick">
+          <div class="col-md-6 col-xl-3" *ngFor="let item of quick">
             <div class="card shadow-none border p-3 h-100">
               <div class="fw-semibold mb-1">{{ item.label }}</div>
               <div class="text-muted fs-12 mb-2">{{ item.desc }}</div>
-              <button type="button" class="btn btn-sm btn-primary-light">{{ item.cta }}</button>
+              <button type="button" class="btn btn-sm btn-primary-light" (click)="runQuickAction(item.action)">
+                {{ item.cta }}
+              </button>
             </div>
           </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive mt-4" id="dossier-documents-section">
+          <h6 class="mb-3">Documents de mon dossier RH</h6>
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Reference</th>
+                <th>Statut</th>
+                <th>Obligatoire</th>
+                <th>Fichier</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="profileLoading">
+                <td colspan="5" class="text-center text-muted">Chargement des documents de la fiche agent...</td>
+              </tr>
+              <tr *ngIf="!profileLoading && !dossierDocuments.length">
+                <td colspan="5" class="text-center text-muted">Aucun document rattache au dossier RH</td>
+              </tr>
+              <tr *ngFor="let item of dossierDocuments">
+                <td>{{ item.type || '-' }}</td>
+                <td>{{ item.reference || '-' }}</td>
+                <td>{{ item.status || '-' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="item.required ? 'bg-info-transparent' : 'bg-light text-dark'">
+                    {{ item.required ? 'Oui' : 'Non' }}
+                  </span>
+                </td>
+                <td>{{ item.fileName || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-4" id="training-requests-section">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+            <h6 class="mb-0">Mes formations et demandes</h6>
+            <div class="text-muted fs-12">
+              {{ approvedTrainingCount }} validee(s) • {{ pendingTrainingCount }} en attente
+            </div>
+          </div>
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Session</th>
+                <th>Date session</th>
+                <th>Lieu</th>
+                <th>Statut</th>
+                <th>Soumise le</th>
+                <th>Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoadingTrainingRequests">
+                <td colspan="7" class="text-center text-muted">Chargement des demandes de formation...</td>
+              </tr>
+              <tr *ngIf="!isLoadingTrainingRequests && !trainingRequests.length">
+                <td colspan="7" class="text-center text-muted">Aucune demande de formation</td>
+              </tr>
+              <tr *ngFor="let request of trainingRequests">
+                <td>{{ request.reference }}</td>
+                <td>{{ request.sessionCode }} - {{ request.sessionTitle }}</td>
+                <td>{{ request.sessionDates || '-' }}</td>
+                <td>{{ request.sessionLocation || '-' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="trainingStatusBadgeClass(request.status)">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td>{{ request.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>
+                  <div class="fw-semibold">{{ request.decidedBy || '-' }}</div>
+                  <div class="text-muted fs-11">{{ request.decisionComment || '-' }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-4">
+          <h6 class="mb-3">Mes demandes de documents</h6>
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Type</th>
+                <th>Date souhaitee</th>
+                <th>Statut</th>
+                <th>Soumise le</th>
+                <th>Decision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoadingDocumentRequests">
+                <td colspan="6" class="text-center text-muted">Chargement des demandes de documents...</td>
+              </tr>
+              <tr *ngIf="!isLoadingDocumentRequests && !documentRequests.length">
+                <td colspan="6" class="text-center text-muted">Aucune demande de document</td>
+              </tr>
+              <tr *ngFor="let request of documentRequests">
+                <td>{{ request.reference }}</td>
+                <td>
+                  <div class="fw-semibold">{{ request.documentType }}</div>
+                  <div class="text-muted fs-11 text-wrap">{{ request.purpose }}</div>
+                </td>
+                <td>{{ request.neededBy || '-' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="documentRequestStatusBadgeClass(request.status)">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td>{{ request.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>
+                  <div class="fw-semibold">{{ request.decidedBy || '-' }}</div>
+                  <div class="text-muted fs-11">{{ request.decisionComment || '-' }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-4">
+          <h6 class="mb-3">Mes demandes d absence</h6>
           <table class="table text-nowrap">
             <thead>
               <tr>
@@ -99,6 +446,111 @@
                 <td>{{ request.endDate }}</td>
                 <td>
                   <span class="badge bg-primary-transparent">{{ request.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-4">
+          <h6 class="mb-3">Notifications documentaires</h6>
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Titre</th>
+                <th>Message</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="notificationLoading">
+                <td colspan="5" class="text-center text-muted">Chargement des notifications...</td>
+              </tr>
+              <tr *ngIf="!notificationLoading && !notifications.length">
+                <td colspan="5" class="text-center text-muted">Aucune notification</td>
+              </tr>
+              <tr *ngFor="let notification of notifications">
+                <td>{{ notification.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>{{ notification.title }}</td>
+                <td>{{ notification.message }}</td>
+                <td>
+                  <span class="badge" [ngClass]="notificationBadgeClass(notification)">
+                    {{ notification.isRead ? 'Lue' : 'Non lue' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="markNotificationRead(notification)"
+                    [disabled]="notification.isRead || notificationUpdatingId === notification.id">
+                    Marquer lue
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-responsive mt-4" id="documents-recues">
+          <h6 class="mb-3">Documents recus dans mon espace</h6>
+          <table class="table table-bordered text-nowrap mb-0">
+            <thead>
+              <tr>
+                <th>Reference</th>
+                <th>Titre</th>
+                <th>Type</th>
+                <th>Date assignation</th>
+                <th>Date limite</th>
+                <th>Signature</th>
+                <th>Statut reception</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="inboxLoading">
+                <td colspan="8" class="text-center text-muted">Chargement des documents recus...</td>
+              </tr>
+              <tr *ngIf="!inboxLoading && !inboxDocuments.length">
+                <td colspan="8" class="text-center text-muted">Aucun document assigne pour le moment</td>
+              </tr>
+              <tr *ngFor="let item of inboxDocuments">
+                <td>{{ item.reference }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.assignedAt ? (item.assignedAt | date:'yyyy-MM-dd HH:mm') : '-' }}</td>
+                <td>{{ item.assignmentDueAt ? (item.assignmentDueAt | date:'yyyy-MM-dd HH:mm') : '-' }}</td>
+                <td>
+                  <span class="badge bg-success-transparent" *ngIf="item.signedAt && item.verificationCode">Signe</span>
+                  <span class="badge bg-danger-transparent" *ngIf="!item.signedAt || !item.verificationCode">Non signe</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="deliveryBadgeClass(item)">
+                    {{ item.deliveryStatus || 'Non assigne' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-dark" (click)="openInboxDocument(item)">
+                      Voir / Imprimer
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-info"
+                      (click)="markInboxRead(item)"
+                      [disabled]="!canMarkRead(item) || inboxUpdatingReference === item.reference">
+                      Marquer lu
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-success"
+                      (click)="acknowledgeInbox(item)"
+                      [disabled]="!canAcknowledge(item) || inboxUpdatingReference === item.reference">
+                      Accuser reception
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
