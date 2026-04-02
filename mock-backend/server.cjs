@@ -12,6 +12,17 @@ const MAX_UPLOAD_BYTES = Number(process.env.MOCK_MAX_UPLOAD_BYTES || 15 * 1024 *
 const PERSONNEL_UPLOAD_DIR = pathModule.join(__dirname, 'uploads');
 const FRONTEND_DIST_DIR = pathModule.join(__dirname, '..', 'dist', 'nowa-angular-21');
 const FRONTEND_INDEX_PATH = pathModule.join(FRONTEND_DIST_DIR, 'index.html');
+const APP_VERSION =
+  String(
+    process.env.RAILWAY_GIT_COMMIT_SHA ||
+      process.env.GITHUB_SHA ||
+      process.env.VERCEL_GIT_COMMIT_SHA ||
+      process.env.RENDER_GIT_COMMIT ||
+      ''
+  ).trim() || 'dev';
+const APP_RELEASE =
+  String(process.env.RAILWAY_DEPLOYMENT_ID || process.env.RENDER_SERVICE_ID || '').trim() || 'local';
+const EXPECTED_DASHBOARD_ROUTES = ['/dashboard', '/dashboard/operations', '/dashboard/pilotage'];
 const ALLOWED_UPLOAD_EXTENSIONS = new Set(['.pdf', '.png', '.jpg', '.jpeg', '.webp']);
 const ALLOWED_UPLOAD_MIME_TYPES = new Set([
   'application/pdf',
@@ -9914,7 +9925,15 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (path === '/health') {
-    sendJson(res, 200, { status: 'ok' });
+    sendJson(res, 200, {
+      status: 'ok',
+      version: APP_VERSION,
+      release: APP_RELEASE,
+      node: process.version,
+      frontendIndexReady: fs.existsSync(FRONTEND_INDEX_PATH),
+      dashboardRoutes: EXPECTED_DASHBOARD_ROUTES,
+      checkedAt: new Date().toISOString(),
+    });
     return;
   }
 
