@@ -92,6 +92,7 @@
     "ngx-toastr": "^19.1.0",
     "nouislider": "^15.8.1",
     "overlayscrollbars-ngx": "^0.5.2",
+    "pg": "^8.20.0",
     "quill": "^2.0.3",
     "rxjs": "~7.8.0",
     "sass": "^1.97.1",

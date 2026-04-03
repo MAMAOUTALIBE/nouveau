@@ -3,6 +3,7 @@ const fs = require('fs');
 const pathModule = require('path');
 const { createHash } = require('crypto');
 const { URL } = require('url');
+const { startPostgresSync } = require('./persistence/postgres-sync.cjs');
 
 const PORT = Number(process.env.PORT || process.env.MOCK_API_PORT || 8080);
 const HOST = process.env.HOST || process.env.MOCK_API_HOST || (process.env.PORT ? '0.0.0.0' : '127.0.0.1');
@@ -1514,6 +1515,21 @@ const ESCALATION_COOLDOWN_MS = 30 * 60 * 1000;
 const NOTIFICATION_COOLDOWN_MS = 15 * 60 * 1000;
 
 let workflowAutomationTimer = null;
+
+const postgresSyncHandle = startPostgresSync({
+  users,
+  adminUsers,
+  adminRoles,
+  adminAuditLogs,
+  agents,
+  documentsLibrary,
+  documentDispatches,
+  documentAuditLogs,
+  workflowDefinitions,
+  workflowInstances,
+  ROLE_PERMISSIONS,
+  APP_SCOPES,
+});
 
 function nowToken(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -9932,6 +9948,7 @@ const server = http.createServer(async (req, res) => {
       node: process.version,
       frontendIndexReady: fs.existsSync(FRONTEND_INDEX_PATH),
       dashboardRoutes: EXPECTED_DASHBOARD_ROUTES,
+      postgresSync: postgresSyncHandle.status,
       checkedAt: new Date().toISOString(),
     });
     return;

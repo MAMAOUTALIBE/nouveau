@@ -69,6 +69,29 @@ npm run build -- --base-href=/mon/sous-chemin/
 - Le quality gate CI exécute `typecheck`, `test:unit` et `build`.
 - La route `/dashboard` pointe désormais vers la page métier `HrDashboardPage`.
 
+## Base de donnees (cible production)
+
+- Strategie et plan de migration:
+  - [strategie-base-donnees-rh.md](/Volumes/Verbatim/GPA-GOUVE/Final/docs/strategie-base-donnees-rh.md)
+- Schema SQL PostgreSQL v1:
+  - [001_init_rh_schema.sql](/Volumes/Verbatim/GPA-GOUVE/Final/db/postgresql/001_init_rh_schema.sql)
+- Guide rapide des migrations:
+  - [db/postgresql/README.md](/Volumes/Verbatim/GPA-GOUVE/Final/db/postgresql/README.md)
+
+## Sync PostgreSQL du mock backend
+
+Le backend `mock-backend/server.cjs` peut synchroniser les données mémoire vers PostgreSQL.
+
+Variables d'environnement principales :
+
+- `DATABASE_URL` : URL de connexion PostgreSQL
+- `DB_SYNC_ENABLED` : active la sync (`true`/`false`)
+- `DB_SYNC_INTERVAL_MS` : fréquence de synchronisation (défaut `15000`)
+- `DB_BOOTSTRAP_SCHEMA` : applique automatiquement `db/postgresql/001_init_rh_schema.sql` au démarrage (`true`/`false`)
+- `DB_SSL_REQUIRE` : active SSL pour la connexion PostgreSQL (`true`/`false`)
+
+Le statut de sync est exposé dans `GET /health` via le champ `postgresSync`.
+
 ## Déploiement en ligne de test
 
 Le dépôt est prêt pour un déploiement simple sur Railway avec un seul service :
