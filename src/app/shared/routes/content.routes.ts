@@ -4,19 +4,11 @@ import { permissionMatchGuard } from '../../core/guards/permission.guard';
 
 export const content: Routes = [
   {
-    path: 'dashboards/dashboard-1',
-    pathMatch: 'full',
-    redirectTo: 'dashboard',
-  },
-  {
-    path: 'dashboards/dashboard-2',
-    pathMatch: 'full',
-    redirectTo: 'dashboard/operations',
-  },
-  {
-    path: 'dashboards/dashboard-3',
-    pathMatch: 'full',
-    redirectTo: 'dashboard/pilotage',
+    path: 'dashboards',
+    canMatch: [permissionMatchGuard],
+    data: { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView] },
+    loadChildren: () =>
+      import('../../modules/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
     path: 'dashboard',

@@ -2,6 +2,21 @@ import { Routes } from '@angular/router';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
+    path: 'dashboard-1',
+    pathMatch: 'full',
+    redirectTo: '',
+  },
+  {
+    path: 'dashboard-2',
+    pathMatch: 'full',
+    redirectTo: 'operations',
+  },
+  {
+    path: 'dashboard-3',
+    pathMatch: 'full',
+    redirectTo: 'pilotage',
+  },
+  {
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
