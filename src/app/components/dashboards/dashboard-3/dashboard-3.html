@@ -6,64 +6,60 @@
   <div class="alert alert-danger-transparent mb-4">{{ errorMessage }}</div>
 }
 
-<div class="d-flex flex-wrap gap-2 mb-4">
-  <a class="btn btn-outline-primary btn-sm" routerLink="/dashboard">Vue generale</a>
-  <a class="btn btn-outline-primary btn-sm" routerLink="/dashboard/operations">Vue operationnelle</a>
-  <a class="btn btn-primary btn-sm" routerLink="/dashboard/pilotage">Vue pilotage</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-semibold mb-1 text-uppercase">Dashboard</h4>
+    <p class="mb-0 text-muted fs-12">Vue pilotage RH alignee sur le template original</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-primary btn-sm" routerLink="/dashboard">Vue generale</a>
+    <a class="btn btn-outline-primary btn-sm" routerLink="/dashboard/operations">Vue operationnelle</a>
+    <a class="btn btn-primary btn-sm" routerLink="/dashboard/pilotage">Vue pilotage</a>
+  </div>
 </div>
 
-<div class="row">
-  <div class="col-xl-7 col-lg-12 col-md-12 col-sm-12">
-    <div class="card primary-custom-card1">
-      <div class="card-body">
-        <div class="row">
-          <div class="col-xl-5 col-lg-6 col-md-12 col-sm-12">
-            <div class="prime-card">
-              <img class="img-fluid" src="./assets/images/png/dashboard8.png" alt="illustration pilotage RH" />
+<div class="row g-3">
+  <div class="col-xl-7">
+    <div class="card custom-card overflow-hidden pilotage-hero-card h-100">
+      <div class="card-body p-4">
+        <div class="row align-items-center g-3">
+          <div class="col-lg-5">
+            <div class="pilotage-hero-illustration-wrap">
+              <img class="img-fluid pilotage-hero-illustration" src="./assets/images/png/dashboard8.png" alt="Pilotage RH" />
             </div>
           </div>
-          <div class="col-xl-7 col-lg-6 col-md-12 col-sm-12">
-            <div class="text-justified align-items-center">
-              <h2 class="text-dark fw-semibold mb-3 mt-2">
-                Bonjour, <span class="text-primary">{{ userDisplayName }}</span>
-              </h2>
-              <p class="text-dark fs-17 mb-2 lh-3">
-                Le pilotage RH consolide aujourd'hui <strong>{{ cards[0]?.value || '0' }}</strong> agents, avec
-                un taux d'activite de <strong>{{ activityRate | number: '1.0-0' }}%</strong>.
-              </p>
-              <p class="fw-semibold fs-12 mb-4">
-                Cette vue priorise la couverture des postes, le portefeuille recrutement et les arbitrages de charge.
-              </p>
-              <a class="btn btn-primary mb-3 shadow" routerLink="/rapports">Ouvrir les rapports RH</a>
-            </div>
+          <div class="col-lg-7">
+            <h2 class="fw-semibold mb-3">Hi, Welcome Back <span class="text-primary">{{ userDisplayName }}</span>!</h2>
+            <p class="fs-17 mb-2 text-dark lh-base">
+              Le pilotage RH consolide <strong>{{ cards[0]?.value || '0' }}</strong> agents avec un taux
+              d'activite de <strong>{{ activityRate | number: '1.0-0' }}%</strong>.
+            </p>
+            <p class="fs-13 text-muted mb-4">
+              Cette vue priorise la couverture des postes, la performance recrutement et les arbitrages de charge.
+            </p>
+            <a class="btn btn-primary shadow-sm" routerLink="/rapports">Ouvrir les rapports RH</a>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-5 col-lg-12 col-md-12 col-sm-12">
-    <div class="row">
+  <div class="col-xl-5">
+    <div class="row g-3">
       @for (card of cards; track card.title) {
-        <div class="col-xl-6 col-lg-6 col-md-6 col-xs-12">
-          <div class="card sales-card circle-image1">
-            <div class="row">
-              <div class="col-8">
-                <div class="ps-4 pt-4 pe-3 pb-4">
-                  <h6 class="mb-2 fs-12">{{ card.title }}</h6>
-                  <div class="d-flex">
-                    <h4 class="fs-20 fw-semibold mb-2">{{ card.value }}</h4>
-                  </div>
-                  <p class="mb-0 fs-12 text-muted">
-                    {{ card.subtitle }}
-                    <span class="badge ms-2 {{ card.badgeClass }}">{{ card.detail }}</span>
-                  </p>
-                </div>
+        <div class="col-sm-6">
+          <div class="card custom-card pilotage-metric-card h-100">
+            <div class="card-body d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="mb-2 fs-14">{{ card.title }}</h6>
+                <h4 class="fw-semibold mb-2">{{ card.value }}</h4>
+                <p class="mb-0 text-muted fs-12">
+                  {{ card.subtitle }}
+                  <span class="d-block mt-1 fw-semibold text-{{ card.iconBg }}">{{ card.detail }}</span>
+                </p>
               </div>
-              <div class="col-4">
-                <div class="circle-icon bg-{{ card.iconBg }}-transparent text-center align-self-center overflow-hidden">
-                  <i class="fe fe-{{ card.icon }} fs-16 text-{{ card.iconBg }}"></i>
-                </div>
+              <div class="pilotage-metric-icon bg-{{ card.iconBg }}-transparent text-{{ card.iconBg }}">
+                <i class="fe fe-{{ card.icon }}"></i>
               </div>
             </div>
           </div>
@@ -73,16 +69,12 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-6">
+<div class="row g-3 mt-1">
+  <div class="col-xxl-6">
     <div class="card custom-card overflow-hidden">
-      <div class="card-header border-bottom-0">
-        <div>
-          <h3 class="card-title mb-2">Equilibre des postes par structure</h3>
-          <span class="d-block fs-12 mb-0 text-muted">
-            Repartition des postes pourvus et vacants sur les structures les plus sollicitees
-          </span>
-        </div>
+      <div class="card-header border-bottom-0 d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0 text-uppercase">Project Budget</h3>
+        <span class="text-muted fs-12">Repartition postes pourvus / vacants</span>
       </div>
       <div class="card-body">
         <spk-apexcharts id="dashboard3-structure-balance" [chartOptions]="structureBalanceChart"></spk-apexcharts>
@@ -90,28 +82,23 @@
     </div>
   </div>
 
-  <div class="col-sm-12 col-lg-12 col-xl-6 col-xxl-3">
-    <div class="card overflow-hidden">
-      <div class="card-header pb-0">
-        <h3 class="card-title mb-0">Agents recents</h3>
+  <div class="col-xxl-3 col-xl-6">
+    <div class="card custom-card overflow-hidden">
+      <div class="card-header border-bottom-0">
+        <h3 class="card-title mb-0 text-uppercase">Recent Agents</h3>
       </div>
       <div class="card-body p-0 customers">
-        <div class="list-group list-lg-group list-group-flush">
+        <div class="list-group list-group-flush">
           @for (agent of recentAgents; track agent.id) {
-            <div class="list-group-item list-group-item-action p-3 border-0">
-              <div class="media mt-0">
-                <div class="dashboard-avatar me-3 my-auto shadow-sm">{{ getAgentInitials(agent.fullName) }}</div>
-                <div class="media-body flex-fill">
-                  <div class="d-flex align-items-center">
-                    <div class="mt-0">
-                      <h5 class="mb-1 fs-13 font-weight-sembold text-dark">{{ agent.fullName }}</h5>
-                      <p class="mb-0 fs-12 text-muted">{{ agent.position }} - {{ agent.direction }}</p>
-                    </div>
-                    <span class="ms-auto fs-14 flex-shrink-0">
-                      <span class="badge" [ngClass]="getStatusBadgeClass(agent.status)">{{ agent.status }}</span>
-                    </span>
-                  </div>
+            <div class="list-group-item border-0 px-3 py-2">
+              <div class="d-flex align-items-center gap-2">
+                <div class="dashboard-avatar flex-shrink-0">{{ getAgentInitials(agent.fullName) }}</div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fs-14 fw-semibold">{{ agent.fullName }}</h6>
+                  <p class="mb-0 text-muted fs-12">{{ agent.position }} · {{ agent.direction }}</p>
+                  <p class="mb-0 text-muted fs-11">ID: {{ agent.id }}</p>
                 </div>
+                <span class="badge" [ngClass]="getStatusBadgeClass(agent.status)">{{ agent.status }}</span>
               </div>
             </div>
           }
@@ -120,30 +107,23 @@
     </div>
   </div>
 
-  <div class="col-lg-12 col-xl-6 col-xxl-3">
-    <div class="card overflow-hidden">
-      <div class="card-header pb-2">
-        <div class="card-title mb-2">Programmes prioritaires</div>
+  <div class="col-xxl-3 col-xl-6">
+    <div class="card custom-card overflow-hidden">
+      <div class="card-header border-bottom-0">
+        <h3 class="card-title mb-0 text-uppercase">Warehouse Operating Costs</h3>
       </div>
       <div class="card-body p-0">
-        <div class="list-group projects-list border-0">
+        <div class="list-group list-group-flush">
           @for (initiative of strategicInitiatives; track initiative.title) {
-            <div class="list-group-item list-group-item-action flex-column align-items-start border-0">
+            <div class="list-group-item border-0 px-3 py-3">
               <div class="d-flex w-100 justify-content-between">
-                <p class="fs-13 mb-2 fw-semibold text-dark">{{ initiative.title }}</p>
-                <h4 class="text-dark mb-1 fw-semibold fs-18">{{ initiative.value }}</h4>
+                <h6 class="mb-1 fw-semibold fs-14">{{ initiative.title }}</h6>
+                <h4 class="mb-0 fw-semibold fs-18">{{ initiative.value }}</h4>
               </div>
-              <div class="d-flex w-100 justify-content-between">
+              <div class="d-flex w-100 justify-content-between align-items-center mt-1">
                 <span class="text-muted fs-12">
-                  <i
-                    [class]="
-                      'me-2 bx bx-caret-' + (initiative.trend === 'up' ? 'up text-success' : 'down text-danger')
-                    "
-                  ></i>
-                  <span
-                    [class.text-success]="initiative.trend === 'up'"
-                    [class.text-danger]="initiative.trend === 'down'"
-                  >
+                  <i [class]="'bx bx-caret-' + (initiative.trend === 'up' ? 'up text-success' : 'down text-danger')"></i>
+                  <span [class.text-success]="initiative.trend === 'up'" [class.text-danger]="initiative.trend === 'down'">
                     {{ initiative.percent }}
                   </span>
                   {{ initiative.lastMonthLabel }}
@@ -152,182 +132,6 @@
               </div>
             </div>
           }
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row row-sm">
-  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
-    <div class="card">
-      <div class="card-header bg-transparent pb-0">
-        <div>
-          <h3 class="card-title mb-2">Chronologie pilotage</h3>
-        </div>
-      </div>
-      <div class="card-body mt-0">
-        <div class="latest-timelines mt-4">
-          <ul class="timelines mb-0">
-            @for (event of timelineEvents; track $index; let last = $last) {
-              <li>
-                <div [class]="event.iconClass">
-                  <i class="fas fa-{{ event.iconState }}"></i>
-                </div>
-              </li>
-              <li [class]="last ? 'mt-0 activity border br-5 p-2 mb-3' : 'mt-0 activity border br-5 p-2'">
-                <div>
-                  <span class="fs-11 text-muted float-end">{{ event.date }}</span>
-                </div>
-                <a href="javascript:void(0);" class="fs-12 text-dark">
-                  <p class="mb-1 fw-semibold text-dark fs-13">{{ event.name }}</p>
-                </a>
-                <p class="text-muted mt-0 mb-0 fs-12">{{ event.description }}</p>
-              </li>
-            }
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
-    <div class="card">
-      <div class="card-header pb-1">
-        <h3 class="card-title mb-2">Arbitrages a lancer</h3>
-      </div>
-      <div class="card-body p-0 customers mt-1">
-        <div>
-          @for (item of checklistItems; track $index) {
-            <label class="p-2 d-flex">
-              <span class="form-check mb-0 ms-2">
-                <input class="form-check-input" type="checkbox" [checked]="item.checked" />
-              </span>
-              <span class="mx-3 my-auto">{{ item.label }}</span>
-              @if (item.badgeText) {
-                <span class="ms-auto">
-                  <span class="badge fw-semibold px-2 py-1 fs-11 me-2 bg-{{ item.badgeColor }}">
-                    {{ item.badgeText }}
-                  </span>
-                </span>
-              }
-            </label>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm-12 col-xl-6 col-lg-12 col-xxl-3">
-    <div class="card">
-      <div class="card-header pb-3">
-        <h3 class="card-title mb-2">Structures sous tension</h3>
-      </div>
-      <div class="card-body p-0 customers mt-1">
-        <div class="country-card pt-1">
-          @for (item of structureItems; track item.structure) {
-            <div class="mb-4">
-              <div class="d-flex">
-                <span class="fs-13 fw-semibold">{{ item.structure }}</span>
-                <div class="ms-auto">
-                  <span class="mx-1 {{ item.trendColor }}">
-                    <i [class]="item.trendIcon"></i>
-                  </span>
-                  <span class="number-fontcountry">{{ item.value }}</span> ({{ item.percentage }})
-                </div>
-              </div>
-              <div class="progress ht-5 br-5 mt-2">
-                <div
-                  class="progress-bar {{ item.progressStriped }} progress-bar-animated {{ item.progressBarColor }}"
-                  [style.width]="item.progressWidth"
-                ></div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-xxl-3 col-xl-6 col-md-12 col-lg-12">
-    <div class="card">
-      <div class="card-header pb-0">
-        <h3 class="card-title mb-2">Cadence hebdomadaire</h3>
-      </div>
-      <div class="card-body pb-0">
-        <div class="row mb-5">
-          <div class="col-6">
-            <div class="text-muted fs-12 text-center mb-2">Candidatures</div>
-            <div class="d-flex justify-content-center align-items-center">
-              <span class="me-3 fs-26 fw-semibold">{{ cards[2]?.detail || '0' }}</span>
-              <span class="text-info fw-semibold">pipeline</span>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="text-muted fs-12 text-center mb-2">Activite RH</div>
-            <div class="d-flex justify-content-center align-items-center">
-              <span class="me-3 fs-26 fw-semibold">{{ cards[1]?.value || '0%' }}</span>
-              <span class="text-success fw-semibold">actifs</span>
-            </div>
-          </div>
-        </div>
-
-        <spk-apexcharts id="dashboard3-weekly-pilotage" [chartOptions]="weeklyPilotageChart"></spk-apexcharts>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-12 col-sm-12">
-    <div class="card">
-      <div class="card-header">
-        <h4 class="card-title">Portefeuille campagnes</h4>
-      </div>
-      <div class="card-body pt-0">
-        <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
-          <div>
-            <input
-              class="form-control form-control-sm"
-              type="text"
-              placeholder="Rechercher une campagne"
-              aria-label="Recherche campagne"
-              (input)="onSearch($event)"
-            />
-          </div>
-          <div class="text-muted fs-12 my-auto">
-            {{ filteredCampaigns().length }} campagne(s)
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-bordered text-nowrap mb-0">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Campagne</th>
-                <th>Departement</th>
-                <th>Ouvertures</th>
-                <th>Demarrage</th>
-                <th>Cloture</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (campaign of filteredCampaigns(); track campaign.code) {
-                <tr>
-                  <td>{{ campaign.code }}</td>
-                  <td>{{ campaign.title }}</td>
-                  <td>{{ campaign.department }}</td>
-                  <td>{{ campaign.openings }}</td>
-                  <td>{{ formatDateLabel(campaign.startDate) }}</td>
-                  <td>{{ formatDateLabel(campaign.endDate) }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="getStatusBadgeClass(campaign.status)">{{ campaign.status }}</span>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
