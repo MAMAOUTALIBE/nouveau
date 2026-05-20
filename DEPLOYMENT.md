@@ -41,7 +41,7 @@ Vérifier : `docker --version` et `docker compose version`.
 
 ```bash
 git clone https://github.com/MAMAOUTALIBE/nouveau.git
-cd nouveau/Final
+cd nouveau
 ```
 
 ## Étape 3 — Configurer les variables d'environnement
