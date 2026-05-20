@@ -84,6 +84,14 @@ services:
       - backend
     ports:
       - "${HTTP_PORT:-80}:80"
+    # Routage du domaine via le Traefik de Hostinger (HTTPS auto Let's Encrypt).
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rhgn.entrypoints=websecure"
+      - "traefik.http.routers.rhgn.rule=Host(`rhgn.cloud`)"
+      - "traefik.http.routers.rhgn.tls=true"
+      - "traefik.http.routers.rhgn.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rhgn.loadbalancer.server.port=80"
 
 volumes:
   rh_postgres_data:
