@@ -18,10 +18,14 @@ const SECTION_ICONS = {
   portails: sectionIcon(
     'M12 2C6.48 2 2 6.48 2 12c0 5.52 4.48 10 10 10 1.49 0 2.9-.33 4.18-.91-.42-.9-1.58-1.59-3.06-1.92-.34.4-.85.65-1.42.65-1.04 0-1.88-.84-1.88-1.88S10.66 16 11.7 16c.57 0 1.08.26 1.43.66 1.86.41 3.36 1.34 4.09 2.57C19.54 17.45 21 14.89 21 12c0-5.52-4.48-10-9-10z'
   ),
+  webApps: sectionIcon('M3 3h7v7H3zM10 3h7v7h-7zM3 10h7v7H3zM10 10h7v7h-7z'),
 } as const;
 
 const MENU_ICONS = {
   dashboard: menuIcon('M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'),
+  modernisation: menuIcon(
+    'M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.32L12 14.19 7.22 16.7l.91-5.32L4.27 7.62l5.34-.78L12 2zm-7 17h14v2H5v-2z'
+  ),
   personnel: menuIcon(
     'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'
   ),
@@ -51,11 +55,14 @@ const MENU_ICONS = {
   postesVacants: menuIcon('M5 4h14v2H5V4zm2 4h10v12H7V8zm2 2v8h6v-8H9z'),
   candidatures: menuIcon('M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4zm-7 8c0-2.76 3.58-5 8-5s8 2.24 8 5H5z'),
   campagnes: menuIcon('M3 5h18v2H3V5zm2 4h14v10H5V9zm3 2v6h8v-6H8z'),
+  commissions: menuIcon('M7 3h10v2H7V3zm-2 4h14v14H5V7zm3 3v2h8v-2H8zm0 4v2h5v-2H8z'),
   integration: menuIcon('M12 2l4 4h-3v7h-2V6H8l4-4zm-7 13h14v7H5v-7z'),
+  portailCandidat: menuIcon('M12 2a7 7 0 0 0-7 7v2c0 2.2 1.02 4.16 2.61 5.44L6 22l6-2 6 2-1.61-5.56A6.98 6.98 0 0 0 19 11V9a7 7 0 0 0-7-7zm0 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V9a5 5 0 0 1 5-5zm-2 5h4v2h-4V9zm0 4h4v2h-4v-2z'),
   avancements: menuIcon('M4 18h16v2H4v-2zm3-2 3-4 2 2 4-6 1.7 1.1L12.2 17 10 15l-1.6 2H7z'),
   mutations: menuIcon('M7 7h10v2H7V7zm0 8h10v2H7v-2zm-4-4h14v2H3v-2z'),
   detachements: menuIcon('M12 2l4 4h-3v5h-2V6H8l4-4zm-7 11h14v9H5v-9zm2 2v5h10v-5H7z'),
   promotions: menuIcon('M12 2l2.09 4.26L19 7l-3.5 3.41.83 4.84L12 13l-4.33 2.25.83-4.84L5 7l4.91-.74L12 2z'),
+  departs: menuIcon('M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z'),
   demandes: menuIcon('M6 4h12v2H6V4zm0 4h12v2H6V8zm0 4h8v2H6v-2zm0 4h5v2H6v-2z'),
   calendrier: menuIcon('M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14h18V6c0-1.1-.9-2-2-2zm0 14H5V9h14v9z'),
   soldes: menuIcon('M12 3C7.03 3 3 7.03 3 12s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm1 14h-2v-2h2v2zm1.9-7.5-.9.92c-.72.73-1 1.33-1 2.58h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.95 2.25z'),
@@ -67,9 +74,11 @@ const MENU_ICONS = {
   portailManager: menuIcon(
     'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h8v-2.5c0-.85.33-1.66.88-2.31C9.12 13.44 8.44 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'
   ),
+  primAssistant: menuIcon('M12 3a7 7 0 0 0-7 7v3c0 1.1.9 2 2 2h1v-5H7a5 5 0 0 1 10 0h-1v5h1c1.1 0 2-.9 2-2v-3a7 7 0 0 0-7-7zm-3 9h2v2H9v-2zm4 0h2v2h-2v-2zm-5 6h8v2H8v-2z'),
   administration: menuIcon(
     'M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.14 7.14 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 13.89 2h-3.78a.5.5 0 0 0-.49.42l-.36 2.54c-.58.23-1.12.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.72 8.48a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.07.63-.07.95s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.13.22.39.31.62.22l2.39-.96c.5.4 1.05.72 1.63.94l.36 2.54c.05.24.25.42.49.42h3.78c.24 0 .44-.18.49-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96c.23.09.49 0 .62-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.01-1.58zM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5z'
   ),
+  webapps: menuIcon('M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z'),
 } as const;
 
 // Menu
@@ -147,6 +156,14 @@ export class NavService implements OnDestroy {
       ],
     },
     {
+      path: '/modernisation-rh',
+      title: 'Modernisation RH',
+      icon: MENU_ICONS.modernisation,
+      type: 'link',
+      dirchange: false,
+      requiredAnyPermissions: [APP_PERMISSIONS.dashboardView, APP_PERMISSIONS.reportsView],
+    },
+    {
       title: 'Personnel',
       icon: MENU_ICONS.personnel,
       type: 'sub',
@@ -156,6 +173,7 @@ export class NavService implements OnDestroy {
         { path: '/personnel/agents', title: 'Liste des agents', icon: MENU_ICONS.agents, type: 'link', dirchange: false },
         { path: '/personnel/dossiers', title: 'Dossiers administratifs', icon: MENU_ICONS.dossiers, type: 'link', dirchange: false },
         { path: '/personnel/affectations', title: 'Affectations', icon: MENU_ICONS.affectations, type: 'link', dirchange: false },
+        { path: '/personnel/risques-turnover', title: 'Risques turn-over', icon: MENU_ICONS.rapports, type: 'link', dirchange: false },
       ],
     },
     {
@@ -177,8 +195,10 @@ export class NavService implements OnDestroy {
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.recruitmentView],
       children: [
+        { path: '/recrutement/portail-candidat', title: 'Portail candidat', icon: MENU_ICONS.portailCandidat, type: 'link', dirchange: false },
         { path: '/recrutement/candidatures', title: 'Candidatures', icon: MENU_ICONS.candidatures, type: 'link', dirchange: false },
         { path: '/recrutement/campagnes', title: 'Campagnes', icon: MENU_ICONS.campagnes, type: 'link', dirchange: false },
+        { path: '/recrutement/commissions', title: 'Commissions', icon: MENU_ICONS.commissions, type: 'link', dirchange: false },
         { path: '/recrutement/integration', title: 'Integration', icon: MENU_ICONS.integration, type: 'link', dirchange: false },
       ],
     },
@@ -193,6 +213,7 @@ export class NavService implements OnDestroy {
         { path: '/carriere/mutations', title: 'Mutations', icon: MENU_ICONS.mutations, type: 'link', dirchange: false },
         { path: '/carriere/detachements', title: 'Detachements', icon: MENU_ICONS.detachements, type: 'link', dirchange: false },
         { path: '/carriere/promotions', title: 'Promotions', icon: MENU_ICONS.promotions, type: 'link', dirchange: false },
+        { path: '/carriere/departs', title: 'Departs & Retraites', icon: MENU_ICONS.departs, type: 'link', dirchange: false },
       ],
     },
     {
@@ -260,7 +281,30 @@ export class NavService implements OnDestroy {
       dirchange: false,
       requiredAnyPermissions: [APP_PERMISSIONS.reportsView],
     },
+    { headTitle: 'Web Apps', headIcon: SECTION_ICONS.webApps },
+    {
+      title: 'Apps',
+      icon: MENU_ICONS.webapps,
+      type: 'sub',
+      dirchange: false,
+      children: [
+        { path: '/apps/fullcalendar', title: 'Full Calendar', icon: MENU_ICONS.calendrier, type: 'link', dirchange: false },
+        { path: '/apps/contacts', title: 'Contacts', icon: MENU_ICONS.personnel, type: 'link', dirchange: false },
+      ],
+    },
     { headTitle: 'Portails', headIcon: SECTION_ICONS.portails },
+    {
+      path: '/prim-assistant',
+      title: "Prim'Assistant",
+      icon: MENU_ICONS.primAssistant,
+      type: 'link',
+      dirchange: false,
+      requiredAnyPermissions: [
+        APP_PERMISSIONS.dashboardView,
+        APP_PERMISSIONS.portalAgent,
+        APP_PERMISSIONS.portalManager,
+      ],
+    },
     {
       path: '/portail-agent',
       title: 'Portail employe',
@@ -293,6 +337,15 @@ export class NavService implements OnDestroy {
 
   private readonly employeeMenuItems: Menu[] = [
     { headTitle: 'Mon espace', headIcon: SECTION_ICONS.portails },
+    {
+      path: '/prim-assistant',
+      title: "Prim'Assistant",
+      icon: MENU_ICONS.primAssistant,
+      type: 'link',
+      dirchange: false,
+      requiredAnyPermissions: [APP_PERMISSIONS.portalAgent],
+      requiredAnyScopes: [APP_SCOPES.self, APP_SCOPES.global],
+    },
     {
       path: '/portail-agent',
       title: 'Portail employe',

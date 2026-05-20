@@ -9,6 +9,7 @@ export interface DashboardSummary {
   active: number;
   absences: number;
   vacancies: number;
+  departures: number;
 }
 
 export interface DashboardPendingRequest {
@@ -24,15 +25,21 @@ interface DashboardSummaryDto {
   headcount?: number | string;
   totalHeadcount?: number | string;
   total_headcount?: number | string;
+  employees_total?: number | string;
   active?: number | string;
   activeAgents?: number | string;
   active_agents?: number | string;
+  employees_active?: number | string;
   absences?: number | string;
   runningAbsences?: number | string;
   running_absences?: number | string;
+  employees_on_leave?: number | string;
   vacancies?: number | string;
   vacantPositions?: number | string;
   vacant_positions?: number | string;
+  positions_vacant?: number | string;
+  departures?: number | string;
+  departures_next_12m?: number | string;
 }
 
 interface DashboardPendingRequestDto {
@@ -67,6 +74,7 @@ export class DashboardService {
           active: 0,
           absences: 0,
           vacancies: 0,
+          departures: 0,
         })
       ),
       map(mapSummaryDto)
@@ -85,10 +93,21 @@ export class DashboardService {
 
 function mapSummaryDto(dto: DashboardSummaryDto): DashboardSummary {
   return {
-    headcount: toNumberValue(readField(dto, ['headcount', 'totalHeadcount', 'total_headcount'], 0)),
-    active: toNumberValue(readField(dto, ['active', 'activeAgents', 'active_agents'], 0)),
-    absences: toNumberValue(readField(dto, ['absences', 'runningAbsences', 'running_absences'], 0)),
-    vacancies: toNumberValue(readField(dto, ['vacancies', 'vacantPositions', 'vacant_positions'], 0)),
+    headcount: toNumberValue(
+      readField(dto, ['headcount', 'totalHeadcount', 'total_headcount', 'employees_total'], 0)
+    ),
+    active: toNumberValue(
+      readField(dto, ['active', 'activeAgents', 'active_agents', 'employees_active'], 0)
+    ),
+    absences: toNumberValue(
+      readField(dto, ['absences', 'runningAbsences', 'running_absences', 'employees_on_leave'], 0)
+    ),
+    vacancies: toNumberValue(
+      readField(dto, ['vacancies', 'vacantPositions', 'vacant_positions', 'positions_vacant'], 0)
+    ),
+    departures: toNumberValue(
+      readField(dto, ['departures', 'departures_next_12m', 'departuresNext12m'], 0)
+    ),
   };
 }
 

@@ -36,10 +36,18 @@ export interface CreateAdminUserPayload {
   status?: string;
 }
 
+export interface UpdateAdminUserPayload extends Partial<CreateAdminUserPayload> {
+  username: string; // key
+}
+
 export interface CreateAdminRolePayload {
   name: string;
   description: string;
   permissions: number;
+}
+
+export interface UpdateAdminRolePayload extends Partial<CreateAdminRolePayload> {
+  name: string; // key
 }
 
 export interface AdminUsersQuery extends CollectionQueryOptions {
@@ -53,6 +61,8 @@ export interface AdminRolesQuery extends CollectionQueryOptions {}
 export interface AdminAuditQuery extends CollectionQueryOptions {
   user?: string;
   action?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 interface AdminUserDto {
@@ -63,6 +73,7 @@ interface AdminUserDto {
   role?: string;
   roleName?: string;
   role_name?: string;
+  roles?: unknown;
   direction?: string;
   directionName?: string;
   direction_name?: string;
@@ -81,12 +92,15 @@ interface AdminRoleDto {
 interface AuditLogDto {
   date?: string;
   timestamp?: string;
+  occurred_at?: string;
   user?: string;
   username?: string;
+  user_id?: string;
   action?: string;
   event?: string;
   target?: string;
   resource?: string;
+  target_type?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -149,6 +163,54 @@ export class AdminService {
       );
   }
 
+  updateUser(payload: UpdateAdminUserPayload): Observable<AdminUser> {
+    const normalizedPayload = this.normalizeCreateUserPayload(payload as CreateAdminUserPayload);
+    return this.apiClient
+      .put<AdminUserDto, Partial<CreateAdminUserPayload>>(
+        `${API_ENDPOINTS.admin.users}/${encodeURIComponent(payload.username)}`,
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeUser(dto)),
+        map((item) => {
+          if (item.username) {
+            this.writeUserToLocal(item);
+            return item;
+          }
+          return this.appendLocalUser(normalizedPayload as CreateAdminUserPayload);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(
+              this.appendLocalUser(normalizedPayload as CreateAdminUserPayload)
+            );
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteUser(username: string): Observable<void> {
+    return this.apiClient
+      .delete<void>(
+        `${API_ENDPOINTS.admin.users}/${encodeURIComponent(username)}`,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map(() => {
+          this.deleteLocalUser(username);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            this.deleteLocalUser(username);
+            return of(void 0);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getRoles(query?: AdminRolesQuery): Observable<AdminRole[]> {
     const params = buildCollectionQueryParams(query);
 
@@ -198,10 +260,56 @@ export class AdminService {
       );
   }
 
+  updateRole(payload: UpdateAdminRolePayload): Observable<AdminRole> {
+    const normalizedPayload = this.normalizeCreateRolePayload(payload as CreateAdminRolePayload);
+    return this.apiClient
+      .put<AdminRoleDto, Partial<CreateAdminRolePayload>>(
+        `${API_ENDPOINTS.admin.roles}/${encodeURIComponent(payload.name)}`,
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeRole(dto)),
+        map((item) => {
+          if (item.name) {
+            this.writeRoleToLocal(item);
+            return item;
+          }
+          return this.appendLocalRole(normalizedPayload);
+        }),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of(this.appendLocalRole(normalizedPayload));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  deleteRole(name: string): Observable<void> {
+    return this.apiClient
+      .delete<void>(
+        `${API_ENDPOINTS.admin.roles}/${encodeURIComponent(name)}`,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map(() => this.deleteLocalRole(name)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            this.deleteLocalRole(name);
+            return of(void 0);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
   getAudit(query?: AdminAuditQuery): Observable<AuditLogItem[]> {
     const params = buildCollectionQueryParams(query, {
       user: query?.user,
       action: query?.action,
+      dateFrom: query?.dateFrom,
+      dateTo: query?.dateTo,
     });
 
     return this.apiClient
@@ -213,10 +321,10 @@ export class AdminService {
       .pipe(
         map((items) =>
           items.map((dto) => ({
-            date: toStringValue(readField(dto, ['date', 'timestamp'], '')).trim(),
-            user: toStringValue(readField(dto, ['user', 'username'], '')).trim(),
+            date: toStringValue(readField(dto, ['date', 'timestamp', 'occurred_at'], '')).trim(),
+            user: toStringValue(readField(dto, ['user', 'username', 'user_id'], '')).trim(),
             action: toStringValue(readField(dto, ['action', 'event'], '')).trim(),
-            target: toStringValue(readField(dto, ['target', 'resource'], '')).trim(),
+            target: toStringValue(readField(dto, ['target', 'resource', 'target_type'], '')).trim(),
           }))
         ),
         catchError((error) => {
@@ -240,6 +348,13 @@ export class AdminService {
     return error.status === 0 || error.status >= 500 || error.status === 404;
   }
 
+  private deleteLocalUser(username: string): void {
+    const users = this.readLocalUsers().filter(
+      (u) => u.username.toLowerCase() !== username.toLowerCase()
+    );
+    localStorage.setItem(this.localUsersKey, JSON.stringify(users));
+  }
+
   private mapUsers(items: AdminUserDto[]): AdminUser[] {
     return items
       .map((dto) => this.normalizeUser(dto))
@@ -250,10 +365,25 @@ export class AdminService {
     return {
       username: toStringValue(readField(dto, ['username', 'login'], '')).trim().toLowerCase(),
       fullName: toStringValue(readField(dto, ['fullName', 'full_name'], '')).trim(),
-      role: toStringValue(readField(dto, ['role', 'roleName', 'role_name'], '')).trim(),
+      role: this.resolveUserRole(dto),
       direction: toStringValue(readField(dto, ['direction', 'directionName', 'direction_name'], '')).trim(),
       status: toStringValue(readField(dto, ['status'], 'Actif')).trim() || 'Actif',
     };
+  }
+
+  /**
+   * Le backend Python renvoie `roles` (tableau de codes). On retombe sur les
+   * variantes `role` / `role_name` pour compatibilité avec le mock-backend.
+   */
+  private resolveUserRole(dto: AdminUserDto): string {
+    const rawRoles = readField<unknown>(dto, ['roles'], undefined);
+    if (Array.isArray(rawRoles)) {
+      const roles = rawRoles.map((role) => toStringValue(role).trim()).filter((role) => !!role);
+      if (roles.length) {
+        return roles.join(', ');
+      }
+    }
+    return toStringValue(readField(dto, ['role', 'roleName', 'role_name'], '')).trim();
   }
 
   private normalizeCreateUserPayload(payload: CreateAdminUserPayload): CreateAdminUserPayload {
@@ -328,11 +458,12 @@ export class AdminService {
     }
   }
 
-  private writeUserToLocal(item: AdminUser): void {
+  private writeUserToLocal(item: AdminUser): AdminUser {
     const current = this.readLocalUsers();
     const byUsername = new Map(current.map((entry) => [entry.username.toLowerCase(), entry]));
     byUsername.set(item.username.toLowerCase(), item);
     this.writeLocalUsers(Array.from(byUsername.values()));
+    return item;
   }
 
   private appendLocalUser(payload: CreateAdminUserPayload): AdminUser {
@@ -503,6 +634,11 @@ export class AdminService {
       return;
     }
     window.localStorage.setItem(this.localRolesKey, JSON.stringify(items));
+  }
+
+  private deleteLocalRole(name: string): void {
+    const next = this.readLocalRoles().filter((r) => r.name.toLowerCase() !== name.toLowerCase());
+    this.writeLocalRoles(next);
   }
 
   private mergeByKey<T>(apiItems: T[], localItems: T[], getKey: (item: T) => string): T[] {

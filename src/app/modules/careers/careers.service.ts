@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { API_ENDPOINTS } from '../../core/config/api-endpoints';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { CollectionQueryOptions, buildCollectionQueryParams } from '../../core/utils/collection-query.utils';
-import { readField, toStringValue } from '../../core/utils/dto.utils';
+import { readField, toNumberValue, toStringValue } from '../../core/utils/dto.utils';
 
 export interface CareerMove {
   reference: string;
@@ -52,6 +52,51 @@ interface CareerMoveDto {
   effective_date?: string;
   status?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Anticipation des départs (retraites + fins de contrat)
+// ---------------------------------------------------------------------------
+export type DepartureType = 'RETRAITE' | 'FIN_CONTRAT';
+export type DepartureHorizon = 'DEPASSE' | 'URGENT' | 'A_ANTICIPER' | 'A_PLANIFIER' | 'VISIBLE';
+export type DepartureDecision = 'A_DECIDER' | 'A_RENOUVELER' | 'A_LIBERER' | 'RECRUTEMENT_LANCE';
+
+export interface DepartureItem {
+  employeeId: string;
+  matricule: string;
+  fullName: string;
+  directionName: string;
+  unitName: string;
+  positionTitle: string;
+  contractType: string;
+  departureType: DepartureType;
+  departureDate: string;
+  daysUntil: number;
+  ageAtDeparture: number | null;
+  horizon: DepartureHorizon;
+  decision: DepartureDecision;
+}
+
+export interface DeparturesSummary {
+  retirementAge: number;
+  totalUpcoming: number;
+  overdue: number;
+  urgent: number;
+  next6Months: number;
+  next12Months: number;
+  retirements12m: number;
+  contracts12m: number;
+}
+
+export interface DeparturesResult {
+  summary: DeparturesSummary;
+  items: DepartureItem[];
+}
+
+interface DeparturesDto {
+  summary?: Record<string, unknown>;
+  items?: unknown[];
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class CareersService {
@@ -109,6 +154,94 @@ export class CareersService {
           return throwError(() => error);
         })
       );
+  }
+
+  // -------------------------------------------------------------------------
+  // Anticipation des départs
+  // -------------------------------------------------------------------------
+  getDepartures(): Observable<DeparturesResult> {
+    return this.apiClient
+      .get<DeparturesDto>(API_ENDPOINTS.careers.departures)
+      .pipe(map((dto) => this.mapDepartures(dto)));
+  }
+
+  setRetirementAge(retirementAge: number): Observable<DeparturesResult> {
+    return this.apiClient
+      .put<DeparturesDto, { retirement_age: number }>(API_ENDPOINTS.careers.retirementAge, {
+        retirement_age: retirementAge,
+      })
+      .pipe(map((dto) => this.mapDepartures(dto)));
+  }
+
+  setDepartureDecision(
+    employeeId: string,
+    decision: DepartureDecision
+  ): Observable<DeparturesResult> {
+    return this.apiClient
+      .patch<DeparturesDto, { decision: DepartureDecision }>(
+        API_ENDPOINTS.careers.departureDecision(employeeId),
+        { decision }
+      )
+      .pipe(map((dto) => this.mapDepartures(dto)));
+  }
+
+  private mapDepartures(dto: DeparturesDto): DeparturesResult {
+    const summaryRaw = (dto?.summary ?? {}) as Record<string, unknown>;
+    const itemsRaw = Array.isArray(dto?.items) ? dto.items : [];
+    return {
+      summary: {
+        retirementAge: toNumberValue(readField(summaryRaw, ['retirement_age', 'retirementAge'], 60)),
+        totalUpcoming: toNumberValue(readField(summaryRaw, ['total_upcoming', 'totalUpcoming'], 0)),
+        overdue: toNumberValue(readField(summaryRaw, ['overdue'], 0)),
+        urgent: toNumberValue(readField(summaryRaw, ['urgent'], 0)),
+        next6Months: toNumberValue(readField(summaryRaw, ['next_6_months', 'next6Months'], 0)),
+        next12Months: toNumberValue(readField(summaryRaw, ['next_12_months', 'next12Months'], 0)),
+        retirements12m: toNumberValue(readField(summaryRaw, ['retirements_12m', 'retirements12m'], 0)),
+        contracts12m: toNumberValue(readField(summaryRaw, ['contracts_12m', 'contracts12m'], 0)),
+      },
+      items: itemsRaw.map((raw) => this.mapDepartureItem(raw as Record<string, unknown>)),
+    };
+  }
+
+  private mapDepartureItem(raw: Record<string, unknown>): DepartureItem {
+    const ageRaw = readField<unknown>(raw, ['age_at_departure', 'ageAtDeparture'], null);
+    return {
+      employeeId: toStringValue(readField(raw, ['employee_id', 'employeeId'], '')),
+      matricule: toStringValue(readField(raw, ['matricule'], '')),
+      fullName: toStringValue(readField(raw, ['full_name', 'fullName'], '')),
+      directionName: toStringValue(readField(raw, ['direction_name', 'directionName'], '')),
+      unitName: toStringValue(readField(raw, ['unit_name', 'unitName'], '')),
+      positionTitle: toStringValue(readField(raw, ['position_title', 'positionTitle'], '')),
+      contractType: toStringValue(readField(raw, ['contract_type', 'contractType'], '')),
+      departureType: this.normalizeDepartureType(
+        readField(raw, ['departure_type', 'departureType'], 'RETRAITE')
+      ),
+      departureDate: toStringValue(readField(raw, ['departure_date', 'departureDate'], '')),
+      daysUntil: toNumberValue(readField(raw, ['days_until', 'daysUntil'], 0)),
+      ageAtDeparture: ageRaw === null || ageRaw === undefined ? null : toNumberValue(ageRaw),
+      horizon: this.normalizeHorizon(readField(raw, ['horizon'], 'VISIBLE')),
+      decision: this.normalizeDecision(readField(raw, ['decision'], 'A_DECIDER')),
+    };
+  }
+
+  private normalizeDepartureType(value: unknown): DepartureType {
+    return String(value).toUpperCase() === 'FIN_CONTRAT' ? 'FIN_CONTRAT' : 'RETRAITE';
+  }
+
+  private normalizeHorizon(value: unknown): DepartureHorizon {
+    const v = String(value).toUpperCase();
+    if (v === 'DEPASSE' || v === 'URGENT' || v === 'A_ANTICIPER' || v === 'A_PLANIFIER' || v === 'VISIBLE') {
+      return v;
+    }
+    return 'VISIBLE';
+  }
+
+  private normalizeDecision(value: unknown): DepartureDecision {
+    const v = String(value).toUpperCase();
+    if (v === 'A_RENOUVELER' || v === 'A_LIBERER' || v === 'RECRUTEMENT_LANCE') {
+      return v;
+    }
+    return 'A_DECIDER';
   }
 
   private shouldUseLocalFallback(error: unknown): boolean {

@@ -18,7 +18,19 @@ import {
   PersonnelDossier,
   PersonnelService,
 } from '../../personnel.service';
+import {
+  AgentDocumentComplianceSummary,
+  summarizeDocumentCompliance,
+} from '../../personnel-document-compliance';
 import { AccessControlService } from '../../../../core/security/access-control.service';
+
+interface AgentHrDeadline {
+  label: string;
+  dueDate: string;
+  severity: 'Critique' | 'Moyen' | 'Info';
+  overdue: boolean;
+  daysRemaining: number | null;
+}
 
 interface AgentRiskProfile {
   qualityScore: number;
@@ -26,6 +38,10 @@ interface AgentRiskProfile {
   issues: string[];
   hasDossier: boolean;
   assignmentCount: number;
+  documentSummary: AgentDocumentComplianceSummary;
+  nextDeadline: AgentHrDeadline | null;
+  deadlineCount: number;
+  hasDocumentData: boolean;
 }
 
 type AgentListViewItem = AgentListItem & AgentRiskProfile;
@@ -35,6 +51,7 @@ const MATRICULE_PATTERN = /^PRM-\d{4,8}$/;
   selector: 'app-agent-list',
   standalone: true,
   imports: [SpkNgSelect, FormsModule, RouterLink, NgClass],
+  styleUrls: ['./agent-list.scss'],
   templateUrl: './agent-list.html',
 })
 export class AgentListPage implements OnInit, OnDestroy {
@@ -42,7 +59,7 @@ export class AgentListPage implements OnInit, OnDestroy {
   private toastr = inject(ToastrService);
   private accessControl = inject(AccessControlService);
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
-  readonly fallbackPhotoUrl = './assets/images/faces/profile.jpg';
+  private readonly fallbackPhoto = './assets/images/faces/profile.jpg';
   readonly mergeFields: AgentMergeField[] = [
     'fullName',
     'matricule',
@@ -72,29 +89,18 @@ export class AgentListPage implements OnInit, OnDestroy {
 
   directions = [
     { value: 'all', label: 'Toutes les directions' },
-    { value: 'Direction des Ressources Humaines', label: 'Direction des Ressources Humaines' },
-    { value: 'Direction Administrative', label: 'Direction Administrative' },
   ];
 
   statuses = [
     { value: 'all', label: 'Tous les statuts' },
-    { value: 'Actif', label: 'Actif' },
-    { value: 'En absence', label: 'En absence' },
-    { value: 'Inactif', label: 'Inactif' },
   ];
 
   units = [
     { value: 'all', label: 'Toutes les unités' },
-    { value: 'Gestion administrative', label: 'Gestion administrative' },
-    { value: 'Service Paie', label: 'Service Paie' },
-    { value: 'Cabinet', label: 'Cabinet' },
   ];
 
   contractTypes = [
     { value: 'all', label: 'Tous les contrats' },
-    { value: 'Fonctionnaire', label: 'Fonctionnaire' },
-    { value: 'Contractuel', label: 'Contractuel' },
-    { value: 'Stagiaire', label: 'Stagiaire' },
   ];
 
   riskLevels = [
@@ -115,11 +121,19 @@ export class AgentListPage implements OnInit, OnDestroy {
   isLoading = false;
   allAgents: AgentListViewItem[] = [];
   currentAgents: AgentListViewItem[] = [];
+  pageIndex = 1;
+  pageSize = 10;
+  readonly pageSizeOptions = [10, 25, 50, 100];
+  // Sections repliées par défaut pour laisser la liste visible sans défilement.
+  showFilters = false;
+  showDuplicates = false;
   kpiTotalAgents = 0;
   kpiCriticalRisk = 0;
   kpiMediumRisk = 0;
   kpiMissingManager = 0;
   kpiWithoutDossier = 0;
+  kpiCriticalDocuments = 0;
+  kpiDeadlinesThisWeek = 0;
   loadingDuplicateCases = false;
   duplicateCases: AgentDuplicateCase[] = [];
   selectedDuplicateCase: AgentDuplicateCase | null = null;
@@ -132,6 +146,7 @@ export class AgentListPage implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.canMergeDuplicates = this.accessControl.hasAnyRole(['super_admin', 'hr_manager']);
+    this.loadFilterCatalog();
     this.loadAgents();
     this.loadDuplicateCases();
   }
@@ -145,26 +160,31 @@ export class AgentListPage implements OnInit, OnDestroy {
 
   onDirectionSelected(value: unknown): void {
     this.selectedDirection = this.normalizeSelectValue(value, 'all');
+    this.pageIndex = 1;
     this.loadAgents();
   }
 
   onStatusSelected(value: unknown): void {
     this.selectedStatus = this.normalizeSelectValue(value, 'all');
+    this.pageIndex = 1;
     this.loadAgents();
   }
 
   onUnitSelected(value: unknown): void {
     this.selectedUnit = this.normalizeSelectValue(value, 'all');
+    this.pageIndex = 1;
     this.loadAgents();
   }
 
   onContractTypeSelected(value: unknown): void {
     this.selectedContractType = this.normalizeSelectValue(value, 'all');
+    this.pageIndex = 1;
     this.loadAgents();
   }
 
   onRiskSelected(value: unknown): void {
     this.selectedRiskLevel = this.normalizeSelectValue(value, 'all');
+    this.pageIndex = 1;
     this.currentAgents = this.applyRiskFilter(this.allAgents);
   }
 
@@ -181,6 +201,103 @@ export class AgentListPage implements OnInit, OnDestroy {
   onPositionInput(value: string): void {
     this.positionTerm = value;
     this.scheduleReload();
+  }
+
+  resetFilters(): void {
+    this.selectedDirection = 'all';
+    this.selectedStatus = 'all';
+    this.selectedUnit = 'all';
+    this.selectedContractType = 'all';
+    this.selectedRiskLevel = 'all';
+    this.searchTerm = '';
+    this.managerTerm = '';
+    this.positionTerm = '';
+    this.pageIndex = 1;
+    this.loadAgents();
+  }
+
+  /** Nombre de filtres avancés actifs — affiché sur le bouton quand ils sont repliés. */
+  activeFilterCount(): number {
+    let count = 0;
+    if (this.selectedDirection !== 'all') count += 1;
+    if (this.selectedStatus !== 'all') count += 1;
+    if (this.selectedUnit !== 'all') count += 1;
+    if (this.selectedContractType !== 'all') count += 1;
+    if (this.selectedRiskLevel !== 'all') count += 1;
+    if (this.positionTerm.trim()) count += 1;
+    if (this.managerTerm.trim()) count += 1;
+    return count;
+  }
+
+  agentPhoto(agent: AgentListViewItem): string {
+    return String(agent.photoUrl || '').trim() || this.fallbackPhoto;
+  }
+
+  documentSummaryLabel(agent: AgentListViewItem): string {
+    if (!agent.hasDocumentData) {
+      return 'Non calculé';
+    }
+
+    const { documentSummary } = agent;
+    if (!documentSummary.hasAlerts) {
+      return `${documentSummary.compliantCount}/${documentSummary.requiredCount} conformes`;
+    }
+
+    const parts: string[] = [];
+    if (documentSummary.missingCount > 0) {
+      parts.push(`${documentSummary.missingCount} manq.`);
+    }
+    if (documentSummary.expiredCount > 0) {
+      parts.push(`${documentSummary.expiredCount} expir.`);
+    }
+    if (documentSummary.expiringSoonCount > 0) {
+      parts.push(`${documentSummary.expiringSoonCount} à renouv.`);
+    }
+    return parts.join(' · ');
+  }
+
+  documentBadgeClass(agent: AgentListViewItem): string {
+    if (!agent.hasDocumentData) return 'bg-light text-muted';
+    if (agent.documentSummary.missingCount > 0 || agent.documentSummary.expiredCount > 0) {
+      return 'bg-danger-transparent text-danger';
+    }
+    if (agent.documentSummary.expiringSoonCount > 0) {
+      return 'bg-warning-transparent text-warning';
+    }
+    return 'bg-success-transparent text-success';
+  }
+
+  documentSummaryTooltip(agent: AgentListViewItem): string {
+    if (!agent.hasDocumentData) {
+      return 'Synthèse documentaire indisponible depuis la source.';
+    }
+    return agent.documentSummary.alertMessages.join(' | ') || 'Toutes les pièces obligatoires sont conformes.';
+  }
+
+  deadlineBadgeClass(deadline: AgentHrDeadline | null): string {
+    if (!deadline) return 'bg-success-transparent text-success';
+    if (deadline.severity === 'Critique') return 'bg-danger-transparent text-danger';
+    if (deadline.severity === 'Moyen') return 'bg-warning-transparent text-warning';
+    return 'bg-info-transparent text-info';
+  }
+
+  deadlineDueLabel(deadline: AgentHrDeadline | null): string {
+    if (!deadline) {
+      return 'Aucune échéance';
+    }
+    if (!deadline.dueDate) {
+      return 'À planifier';
+    }
+    if (deadline.overdue) {
+      return `En retard depuis ${deadline.dueDate}`;
+    }
+    if (deadline.daysRemaining === 0) {
+      return `À traiter aujourd'hui (${deadline.dueDate})`;
+    }
+    if (deadline.daysRemaining !== null) {
+      return `J-${deadline.daysRemaining} (${deadline.dueDate})`;
+    }
+    return deadline.dueDate;
   }
 
   private scheduleReload(): void {
@@ -209,6 +326,7 @@ export class AgentListPage implements OnInit, OnDestroy {
           const enriched = agents.map((agent) => this.buildRiskProfile(agent, dossiers, affectations));
           this.allAgents = enriched;
           this.currentAgents = this.applyRiskFilter(enriched);
+          this.goToPage(this.pageIndex);
           this.updateKpis(enriched);
         },
         error: () => {
@@ -217,6 +335,36 @@ export class AgentListPage implements OnInit, OnDestroy {
           this.updateKpis([]);
         },
       });
+  }
+
+  private loadFilterCatalog(): void {
+    this.personnelService
+      .getAgents({
+        page: 1,
+        limit: 500,
+        sortBy: 'fullName',
+        sortOrder: 'asc',
+      })
+      .subscribe({
+        next: (agents) => {
+          this.directions = this.buildFilterOptions(agents.map((agent) => agent.direction), 'Toutes les directions');
+          this.statuses = this.buildFilterOptions(agents.map((agent) => agent.status), 'Tous les statuts');
+          this.units = this.buildFilterOptions(agents.map((agent) => agent.unit), 'Toutes les unités');
+          this.contractTypes = this.buildFilterOptions(agents.map((agent) => agent.contractType), 'Tous les contrats');
+        },
+      });
+  }
+
+  private buildFilterOptions(values: string[], allLabel: string): Array<{ value: string; label: string }> {
+    const uniqueValues = Array.from(
+      new Set(
+        (values || [])
+          .map((value) => String(value || '').trim())
+          .filter((value) => !!value)
+      )
+    ).sort((left, right) => left.localeCompare(right, 'fr', { sensitivity: 'base' }));
+
+    return [{ value: 'all', label: allLabel }, ...uniqueValues.map((value) => ({ value, label: value }))];
   }
 
   exportAgents(): void {
@@ -241,7 +389,7 @@ export class AgentListPage implements OnInit, OnDestroy {
       return;
     }
     image.dataset['fallbackApplied'] = 'true';
-    image.src = this.fallbackPhotoUrl;
+    image.src = this.fallbackPhoto;
   }
 
   loadDuplicateCases(): void {
@@ -430,8 +578,18 @@ export class AgentListPage implements OnInit, OnDestroy {
     dossiers: PersonnelDossier[],
     affectations: PersonnelAffectation[]
   ): AgentListViewItem {
-    const linkedDossiers = dossiers.filter((item) => this.matchesAgent(item.agent, agent));
-    const linkedAffectations = affectations.filter((item) => this.matchesAgent(item.agent, agent));
+    const linkedDossiers = dossiers.filter((item) => this.matchesAgent(item.agentId, item.agent, agent));
+    const linkedAffectations = affectations.filter((item) => this.matchesAgent(item.agentId, item.agent, agent));
+    const hasDocumentData =
+      Array.isArray(agent.documents) &&
+      (agent.documents.length > 0 ||
+        !!String(agent.contractType || '').trim() ||
+        !!String(agent.hireDate || '').trim());
+    const documentSummary = hasDocumentData
+      ? summarizeDocumentCompliance(agent.documents || [], agent.contractType || '')
+      : this.emptyDocumentSummary();
+    const deadlines = this.buildHrDeadlines(agent, linkedDossiers.length, linkedAffectations.length, documentSummary);
+    const nextDeadline = deadlines[0] || null;
 
     const checks: Array<{
       ok: boolean;
@@ -453,6 +611,26 @@ export class AgentListPage implements OnInit, OnDestroy {
         severity: 'critical',
         issue: 'Unité non renseignée',
       },
+      ...(hasDocumentData
+        ? [
+            {
+              ok: documentSummary.missingCount === 0,
+              severity: 'critical' as const,
+              issue:
+                documentSummary.missingCount > 0
+                  ? `${documentSummary.missingCount} pièce(s) obligatoire(s) manquante(s)`
+                  : 'Pièces obligatoires présentes',
+            },
+            {
+              ok: documentSummary.expiredCount === 0,
+              severity: 'critical' as const,
+              issue:
+                documentSummary.expiredCount > 0
+                  ? `${documentSummary.expiredCount} pièce(s) expirée(s)`
+                  : 'Aucune pièce expirée',
+            },
+          ]
+        : []),
       {
         ok: String(agent.manager || '').trim().length >= 3,
         severity: 'warning',
@@ -473,6 +651,18 @@ export class AgentListPage implements OnInit, OnDestroy {
         severity: 'warning',
         issue: 'Aucune affectation historisée',
       },
+      ...(hasDocumentData
+        ? [
+            {
+              ok: documentSummary.expiringSoonCount === 0,
+              severity: 'warning' as const,
+              issue:
+                documentSummary.expiringSoonCount > 0
+                  ? `${documentSummary.expiringSoonCount} pièce(s) à renouveler sous 30 jours`
+                  : 'Aucune pièce à renouveler',
+            },
+          ]
+        : []),
     ];
 
     const totalChecks = checks.length;
@@ -492,18 +682,202 @@ export class AgentListPage implements OnInit, OnDestroy {
       issues: checks.filter((check) => !check.ok).map((check) => check.issue),
       hasDossier: linkedDossiers.length > 0,
       assignmentCount: linkedAffectations.length,
+      documentSummary,
+      nextDeadline,
+      deadlineCount: deadlines.length,
+      hasDocumentData,
     };
   }
 
-  private matchesAgent(candidate: string, agent: AgentListItem): boolean {
-    const normalizedCandidate = this.normalizeText(candidate);
-    if (!normalizedCandidate) {
+  private emptyDocumentSummary(): AgentDocumentComplianceSummary {
+    return {
+      items: [],
+      requiredCount: 0,
+      compliantCount: 0,
+      missingCount: 0,
+      expiredCount: 0,
+      expiringSoonCount: 0,
+      hasAlerts: false,
+      alertMessages: [],
+    };
+  }
+
+  private buildHrDeadlines(
+    agent: AgentListItem,
+    dossierCount: number,
+    affectationCount: number,
+    documentSummary: AgentDocumentComplianceSummary
+  ): AgentHrDeadline[] {
+    const deadlines: AgentHrDeadline[] = [];
+
+    documentSummary.items
+      .filter((item) => item.required && item.status !== 'conforme')
+      .forEach((item) => {
+        const dueDate = this.normalizeIsoDate(item.document?.expiresAt) || this.todayIsoDate();
+        deadlines.push(
+          this.createDeadline(
+            item.status === 'manquant' ? `Téléverser ${item.label}` : `Régulariser ${item.label}`,
+            dueDate,
+            item.status === 'a_renouveler' ? 'Moyen' : 'Critique'
+          )
+        );
+      });
+
+    const hireDate = this.normalizeIsoDate(agent.hireDate);
+    if (dossierCount === 0 && hireDate) {
+      deadlines.push(
+        this.createDeadline(
+          'Compléter le dossier administratif',
+          this.addDaysToIsoDate(hireDate, 7),
+          'Moyen'
+        )
+      );
+    }
+
+    if (affectationCount === 0 && hireDate) {
+      deadlines.push(
+        this.createDeadline(
+          'Historiser la première affectation',
+          this.addDaysToIsoDate(hireDate, 3),
+          'Moyen'
+        )
+      );
+    }
+
+    // Départ à la retraite — alerte dès que l'échéance est à moins d'un an.
+    const retirementDate = this.normalizeIsoDate(agent.retirementDate);
+    if (retirementDate) {
+      const daysToRetirement = this.daysUntilIsoDate(retirementDate);
+      if (daysToRetirement !== null && daysToRetirement <= 365) {
+        deadlines.push(
+          this.createDeadline(
+            'Départ à la retraite',
+            retirementDate,
+            daysToRetirement <= 90 ? 'Critique' : 'Moyen'
+          )
+        );
+      }
+    }
+
+    // Fin de contrat — alerte à moins de 6 mois (décision renouvellement / libération).
+    const contractEndDate = this.normalizeIsoDate(agent.contractEndDate);
+    if (contractEndDate) {
+      const daysToContractEnd = this.daysUntilIsoDate(contractEndDate);
+      if (daysToContractEnd !== null && daysToContractEnd <= 180) {
+        deadlines.push(
+          this.createDeadline(
+            'Fin de contrat',
+            contractEndDate,
+            daysToContractEnd <= 60 ? 'Critique' : 'Moyen'
+          )
+        );
+      }
+    }
+
+    return deadlines.sort((left, right) => {
+      // Les départs (retraite, fin de contrat) priment : ce sont des échéances
+      // métier dures, prioritaires sur les rappels de qualité de données.
+      const leftDeparture = this.isDepartureDeadline(left.label);
+      const rightDeparture = this.isDepartureDeadline(right.label);
+      if (leftDeparture !== rightDeparture) {
+        return leftDeparture ? -1 : 1;
+      }
+      const severityGap = this.deadlineSeverityRank(left.severity) - this.deadlineSeverityRank(right.severity);
+      if (severityGap !== 0) {
+        return severityGap;
+      }
+      const leftTime = Date.parse(left.dueDate || '') || Number.MAX_SAFE_INTEGER;
+      const rightTime = Date.parse(right.dueDate || '') || Number.MAX_SAFE_INTEGER;
+      return leftTime - rightTime;
+    });
+  }
+
+  private isDepartureDeadline(label: string): boolean {
+    return label === 'Départ à la retraite' || label === 'Fin de contrat';
+  }
+
+  private createDeadline(label: string, dueDate: string, severity: AgentHrDeadline['severity']): AgentHrDeadline {
+    const normalizedDueDate = this.normalizeIsoDate(dueDate) || dueDate;
+    const parsed = Date.parse(normalizedDueDate || '');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = Number.isNaN(parsed) ? null : new Date(parsed);
+    if (due) {
+      due.setHours(0, 0, 0, 0);
+    }
+    const daysRemaining = due ? Math.floor((due.getTime() - today.getTime()) / (24 * 60 * 60 * 1000)) : null;
+    const overdue = daysRemaining !== null && daysRemaining < 0;
+
+    return {
+      label,
+      dueDate: normalizedDueDate || '',
+      severity: overdue && severity !== 'Info' ? 'Critique' : severity,
+      overdue,
+      daysRemaining,
+    };
+  }
+
+  private daysUntilIsoDate(isoDate: string): number | null {
+    const parsed = Date.parse(this.normalizeIsoDate(isoDate) || isoDate);
+    if (Number.isNaN(parsed)) {
+      return null;
+    }
+    const due = new Date(parsed);
+    due.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.floor((due.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+  }
+
+  private deadlineSeverityRank(severity: AgentHrDeadline['severity']): number {
+    if (severity === 'Critique') return 0;
+    if (severity === 'Moyen') return 1;
+    return 2;
+  }
+
+  private normalizeIsoDate(value: string | undefined): string {
+    const raw = String(value || '').trim();
+    if (!raw) {
+      return '';
+    }
+    const parsed = Date.parse(raw);
+    if (Number.isNaN(parsed)) {
+      return raw;
+    }
+    return new Date(parsed).toISOString().slice(0, 10);
+  }
+
+  private addDaysToIsoDate(value: string, days: number): string {
+    const parsed = Date.parse(value);
+    if (Number.isNaN(parsed)) {
+      return this.todayIsoDate();
+    }
+    const date = new Date(parsed);
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.toISOString().slice(0, 10);
+  }
+
+  private todayIsoDate(): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today.toISOString().slice(0, 10);
+  }
+
+  private matchesAgent(agentId: string, candidateLabel: string, agent: AgentListItem): boolean {
+    const normalizedAgentId = this.normalizeText(agentId);
+    if (normalizedAgentId && normalizedAgentId === this.normalizeText(agent.id)) {
+      return true;
+    }
+
+    const normalizedCandidateLabel = this.normalizeText(candidateLabel);
+    if (!normalizedCandidateLabel) {
       return false;
     }
-    const aliases = [agent.id, agent.matricule, agent.fullName]
+
+    return [agent.id, agent.matricule, agent.fullName]
       .map((value) => this.normalizeText(value))
-      .filter((value) => !!value);
-    return aliases.some((alias) => normalizedCandidate.includes(alias) || alias.includes(normalizedCandidate));
+      .some((value) => !!value && value === normalizedCandidateLabel);
   }
 
   private normalizeText(value: string): string {
@@ -521,12 +895,38 @@ export class AgentListPage implements OnInit, OnDestroy {
     return items.filter((item) => item.riskLevel === this.selectedRiskLevel);
   }
 
+  displayedAgents(): AgentListViewItem[] {
+    const start = (this.pageIndex - 1) * this.pageSize;
+    return this.currentAgents.slice(start, start + this.pageSize);
+  }
+
+  totalPages(): number {
+    return Math.max(1, Math.ceil(this.currentAgents.length / this.pageSize));
+  }
+
+  goToPage(page: number): void {
+    const total = this.totalPages();
+    this.pageIndex = Math.min(Math.max(1, page), total);
+  }
+
+  changePageSize(value: string | number): void {
+    const numeric = Number(value) || 25;
+    this.pageSize = this.pageSizeOptions.includes(numeric) ? numeric : 25;
+    this.pageIndex = 1;
+  }
+
   private updateKpis(items: AgentListViewItem[]): void {
     this.kpiTotalAgents = items.length;
     this.kpiCriticalRisk = items.filter((item) => item.riskLevel === 'Critique').length;
     this.kpiMediumRisk = items.filter((item) => item.riskLevel === 'Moyen').length;
     this.kpiMissingManager = items.filter((item) => String(item.manager || '').trim().length < 3).length;
     this.kpiWithoutDossier = items.filter((item) => !item.hasDossier).length;
+    this.kpiCriticalDocuments = items.filter(
+      (item) => item.hasDocumentData && (item.documentSummary.missingCount > 0 || item.documentSummary.expiredCount > 0)
+    ).length;
+    this.kpiDeadlinesThisWeek = items.filter(
+      (item) => !!item.nextDeadline && item.nextDeadline.daysRemaining !== null && item.nextDeadline.daysRemaining <= 7
+    ).length;
   }
 
   riskBadgeClass(level: AgentRiskProfile['riskLevel']): string {
@@ -547,6 +947,8 @@ export class AgentListPage implements OnInit, OnDestroy {
         'Contrat',
         'Statut',
         'Manager',
+        'Documents',
+        'EcheanceRH',
         'QualiteScore',
         'NiveauRisque',
         'Anomalies',
@@ -560,6 +962,8 @@ export class AgentListPage implements OnInit, OnDestroy {
         agent.contractType,
         agent.status,
         agent.manager,
+        this.documentSummaryLabel(agent),
+        agent.nextDeadline ? `${agent.nextDeadline.label} (${this.deadlineDueLabel(agent.nextDeadline)})` : 'Aucune',
         String(agent.qualityScore),
         agent.riskLevel,
         agent.issues.join(' | '),

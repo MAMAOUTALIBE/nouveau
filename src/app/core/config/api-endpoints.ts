@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
     summary: '/dashboard/summary',
     pendingRequests: '/dashboard/pending-requests',
   },
+  modernization: {
+    summary: '/modernization/summary',
+  },
   personnel: {
     agents: '/personnel/agents',
     agentDuplicateIndex: '/personnel/agents/duplicate-index',
@@ -15,8 +18,12 @@ export const API_ENDPOINTS = {
     agentMatriculeSuggestion: '/personnel/agents/matricule-suggestion',
     agentMatriculeSuggestionAudit: '/personnel/agents/matricule-suggestion-audit',
     agentDetail: (id: string) => `/personnel/agents/${id}`,
+    agentDigitalBadge: (id: string) => `/personnel/agents/${id}/digital-badge`,
+    agentDossierExport: (id: string) => `/personnel/agents/${id}/export-pdf`,
+    agentDocumentCompliance: (id: string) => `/personnel/agents/${id}/document-compliance`,
     agentAuditTrail: (id: string) => `/personnel/agents/${id}/audit-trail`,
     upload: '/personnel/uploads',
+    turnoverRisk: '/personnel/turnover-risk',
     dossiers: '/personnel/dossiers',
     affectations: '/personnel/affectations',
   },
@@ -75,6 +82,10 @@ export const API_ENDPOINTS = {
   },
   careers: {
     moves: '/careers/movements',
+    departures: '/careers/departures',
+    retirementAge: '/careers/departures/retirement-age',
+    departureDecision: (employeeId: string) =>
+      `/careers/departures/${encodeURIComponent(employeeId)}/decision`,
   },
   performance: {
     campaigns: '/performance/campaigns',
@@ -91,8 +102,14 @@ export const API_ENDPOINTS = {
     cases: '/discipline/cases',
   },
   documents: {
+    types: '/documents/types',
+    requirements: '/documents/requirements',
     library: '/documents/library',
     item: (reference: string) => `/documents/library/${encodeURIComponent(reference)}`,
+    analyze: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/analyze`,
+    analysis: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/analysis`,
+    analysisField: (reference: string, runId: string, fieldName: string) =>
+      `/documents/library/${encodeURIComponent(reference)}/analysis/${encodeURIComponent(runId)}/fields/${encodeURIComponent(fieldName)}`,
     sign: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/sign`,
     assign: (reference: string) => `/documents/library/${encodeURIComponent(reference)}/assign`,
     requests: '/documents/requests',
@@ -103,6 +120,7 @@ export const API_ENDPOINTS = {
     overdue: '/documents/overdue',
     archiveRun: '/documents/archive-run',
     purgeArchives: '/documents/purge-archives',
+    processingQueue: '/documents/processing-queue',
     inbox: '/documents/inbox',
     inboxRead: (reference: string) => `/documents/inbox/${encodeURIComponent(reference)}/read`,
     inboxAcknowledge: (reference: string) => `/documents/inbox/${encodeURIComponent(reference)}/acknowledge`,

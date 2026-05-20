@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Dossier administratif — {{ employee.matricule }}</title>
+  <style>
+    @page { size: A4; margin: 2cm; }
+    body { font-family: "Helvetica", "Arial", sans-serif; color: #1a1a1a; }
+    h1 { color: #003366; font-size: 18pt; margin-bottom: 4pt; }
+    h2 { color: #003366; font-size: 13pt; margin-top: 18pt; }
+    .subtitle { color: #555; font-size: 10pt; }
+    .meta { display: table; margin-top: 16pt; font-size: 10pt; }
+    .meta .row { display: table-row; }
+    .meta .label { display: table-cell; padding: 3pt 12pt 3pt 0; color: #666; }
+    .meta .value { display: table-cell; padding: 3pt 0; font-weight: bold; }
+    .footer { position: fixed; bottom: 1.5cm; left: 2cm; right: 2cm; font-size: 8pt; color: #888; text-align: center; border-top: 1px solid #ddd; padding-top: 4pt; }
+  </style>
+</head>
+<body>
+  <h1>République de Guinée — Primature</h1>
+  <div class="subtitle">Dossier administratif individuel</div>
+
+  <h2>Identification</h2>
+  <div class="meta">
+    <div class="row"><div class="label">Matricule</div><div class="value">{{ employee.matricule }}</div></div>
+    <div class="row"><div class="label">Nom complet</div><div class="value">{{ employee.full_name }}</div></div>
+    <div class="row"><div class="label">Statut</div><div class="value">{{ employee.employment_status }}</div></div>
+    {% if employee.email %}<div class="row"><div class="label">Email</div><div class="value">{{ employee.email }}</div></div>{% endif %}
+    {% if employee.phone %}<div class="row"><div class="label">Téléphone</div><div class="value">{{ employee.phone }}</div></div>{% endif %}
+    {% if employee.contract_type %}<div class="row"><div class="label">Type de contrat</div><div class="value">{{ employee.contract_type }}</div></div>{% endif %}
+    {% if employee.hire_date %}<div class="row"><div class="label">Date d'embauche</div><div class="value">{{ employee.hire_date }}</div></div>{% endif %}
+  </div>
+
+  {% if assignments %}
+  <h2>Affectations</h2>
+  <ul>
+    {% for a in assignments %}
+    <li>{{ a.effective_start }} — {{ a.assignment_status }}{% if a.position_id %} (poste {{ a.position_id }}){% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div class="footer">
+    Document généré le {{ generated_at }} · Vérification : {{ verification_code }}
+  </div>
+</body>
+</html>

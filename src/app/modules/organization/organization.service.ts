@@ -101,6 +101,8 @@ interface OrgUnitDto {
   staff_count?: number | string;
   agentsCount?: number | string;
   agents_count?: number | string;
+  employeeCount?: number | string;
+  employee_count?: number | string;
 }
 
 interface BudgetedPositionDto {
@@ -353,7 +355,13 @@ export class OrganizationService {
       parentId,
       head,
       headTitle,
-      staffCount: toNumberValue(readField(dto, ['staffCount', 'staff_count', 'agentsCount', 'agents_count'], 0)),
+      staffCount: toNumberValue(
+        readField(
+          dto,
+          ['staffCount', 'staff_count', 'agentsCount', 'agents_count', 'employeeCount', 'employee_count'],
+          0
+        )
+      ),
     };
   }
 

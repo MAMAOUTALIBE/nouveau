@@ -1,6 +1,13 @@
 <div class="row row-sm">
   <div class="col-xl-12">
     <div class="card custom-card">
+      @if (isLoading) {
+        <div class="agents-loading-overlay">
+          <div class="spinner-border text-white" role="status" aria-label="Chargement"></div>
+          <div class="mt-2 fw-semibold">Chargement des agents…</div>
+        </div>
+      }
+
       <div class="card-header justify-content-between">
         <div class="card-title">Liste des agents</div>
         <div class="btn-list">
@@ -22,277 +29,319 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="row g-3 mb-4">
-          <div class="col-xl-2 col-md-4 col-6">
-            <div class="p-3 border rounded-2 h-100">
-              <div class="text-muted fs-11">Effectif filtré</div>
-              <div class="fw-semibold fs-20">{{ currentAgents.length }}</div>
-              <div class="text-muted fs-11">sur {{ kpiTotalAgents }} agents</div>
+        <!-- Indicateurs synthétiques : bande compacte (remplace 7 grandes cartes) -->
+        <div class="agent-kpi-strip mb-3">
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Effectif filtré</div>
+            <div class="agent-kpi-value">
+              {{ currentAgents.length }}
+              <span class="text-muted fs-11 fw-normal">/ {{ kpiTotalAgents }}</span>
             </div>
           </div>
-          <div class="col-xl-2 col-md-4 col-6">
-            <div class="p-3 border rounded-2 h-100">
-              <div class="text-muted fs-11">Risque critique</div>
-              <div class="fw-semibold fs-20 text-danger">{{ kpiCriticalRisk }}</div>
-              <div class="text-muted fs-11">actions prioritaires</div>
-            </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Risque critique</div>
+            <div class="agent-kpi-value text-danger">{{ kpiCriticalRisk }}</div>
           </div>
-          <div class="col-xl-2 col-md-4 col-6">
-            <div class="p-3 border rounded-2 h-100">
-              <div class="text-muted fs-11">Risque moyen</div>
-              <div class="fw-semibold fs-20 text-warning">{{ kpiMediumRisk }}</div>
-              <div class="text-muted fs-11">à corriger rapidement</div>
-            </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Documents critiques</div>
+            <div class="agent-kpi-value text-danger">{{ kpiCriticalDocuments }}</div>
           </div>
-          <div class="col-xl-3 col-md-6 col-6">
-            <div class="p-3 border rounded-2 h-100">
-              <div class="text-muted fs-11">Sans manager valide</div>
-              <div class="fw-semibold fs-20">{{ kpiMissingManager }}</div>
-              <div class="text-muted fs-11">risque de pilotage</div>
-            </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Échéances ≤ 7 j</div>
+            <div class="agent-kpi-value text-warning">{{ kpiDeadlinesThisWeek }}</div>
           </div>
-          <div class="col-xl-3 col-md-6 col-12">
-            <div class="p-3 border rounded-2 h-100">
-              <div class="text-muted fs-11">Sans dossier rattaché</div>
-              <div class="fw-semibold fs-20">{{ kpiWithoutDossier }}</div>
-              <div class="text-muted fs-11">conformité documentaire</div>
-            </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Risque moyen</div>
+            <div class="agent-kpi-value text-warning">{{ kpiMediumRisk }}</div>
+          </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Sans manager</div>
+            <div class="agent-kpi-value">{{ kpiMissingManager }}</div>
+          </div>
+          <div class="agent-kpi border rounded-2">
+            <div class="text-muted fs-11">Sans dossier</div>
+            <div class="agent-kpi-value">{{ kpiWithoutDossier }}</div>
           </div>
         </div>
 
-        <div class="row g-3 mb-3">
-          <div class="col-xl-3">
-            <spk-ng-select
-              [options]="directions"
-              [bindLabel]="'label'"
-              [bindValue]="'value'"
-              [defaultValue]="selectedDirection"
-              [placeholder]="'Direction'"
-              (selectedChange)="onDirectionSelected($event)" />
-          </div>
-          <div class="col-xl-3">
-            <spk-ng-select
-              [options]="statuses"
-              [bindLabel]="'label'"
-              [bindValue]="'value'"
-              [defaultValue]="selectedStatus"
-              [placeholder]="'Statut'"
-              (selectedChange)="onStatusSelected($event)" />
-          </div>
-          <div class="col-xl-3">
-            <spk-ng-select
-              [options]="units"
-              [bindLabel]="'label'"
-              [bindValue]="'value'"
-              [defaultValue]="selectedUnit"
-              [placeholder]="'Unité'"
-              (selectedChange)="onUnitSelected($event)" />
-          </div>
-          <div class="col-xl-3">
-            <spk-ng-select
-              [options]="contractTypes"
-              [bindLabel]="'label'"
-              [bindValue]="'value'"
-              [defaultValue]="selectedContractType"
-              [placeholder]="'Type contrat'"
-              (selectedChange)="onContractTypeSelected($event)" />
-          </div>
-          <div class="col-xl-3">
-            <spk-ng-select
-              [options]="riskLevels"
-              [bindLabel]="'label'"
-              [bindValue]="'value'"
-              [defaultValue]="selectedRiskLevel"
-              [placeholder]="'Risque'"
-              (selectedChange)="onRiskSelected($event)" />
-          </div>
-          <div class="col-xl-3">
-            <input
-              type="text"
-              class="form-control"
-              [value]="positionTerm"
-              placeholder="Filtre poste..."
-              (input)="onPositionInput(($any($event.target)).value)" />
-          </div>
-          <div class="col-xl-3">
-            <input
-              type="text"
-              class="form-control"
-              [value]="managerTerm"
-              placeholder="Filtre manager..."
-              (input)="onManagerInput(($any($event.target)).value)" />
-          </div>
-          <div class="col-xl-6">
+        <!-- Barre d'outils : recherche globale toujours visible + accès aux filtres -->
+        <div class="row g-2 mb-3">
+          <div class="col-lg-6">
             <input
               type="text"
               class="form-control"
               [value]="searchTerm"
-              placeholder="Recherche globale: matricule, nom, poste, manager..."
+              placeholder="Recherche : matricule, nom, poste, manager..."
               (input)="onSearchInput(($any($event.target)).value)" />
           </div>
+          <div class="col-lg-6">
+            <div class="d-flex gap-2 justify-content-lg-end">
+              <button type="button" class="btn btn-outline-primary" (click)="showFilters = !showFilters">
+                {{ showFilters ? 'Masquer les filtres' : 'Filtres avancés' }}
+                @if (activeFilterCount() > 0) {
+                  <span class="badge bg-primary ms-1">{{ activeFilterCount() }}</span>
+                }
+              </button>
+              <button type="button" class="btn btn-outline-secondary" (click)="resetFilters()">
+                Réinitialiser
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div class="border rounded-2 p-3 mb-4">
-          <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
-            <div>
-              <h6 class="fw-semibold mb-1">Doublons potentiels</h6>
-              <div class="text-muted fs-12">Detection automatique des fiches agents a fusionner</div>
+        <!-- Filtres avancés : repliés par défaut -->
+        @if (showFilters) {
+          <div class="row g-3 mb-3">
+            <div class="col-xl-3 col-md-6">
+              <spk-ng-select
+                [options]="directions"
+                [bindLabel]="'label'"
+                [bindValue]="'value'"
+                [defaultValue]="selectedDirection"
+                [placeholder]="'Direction'"
+                (selectedChange)="onDirectionSelected($event)" />
             </div>
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary"
-              [disabled]="loadingDuplicateCases"
-              (click)="loadDuplicateCases()">
-              Rafraichir
-            </button>
+            <div class="col-xl-3 col-md-6">
+              <spk-ng-select
+                [options]="statuses"
+                [bindLabel]="'label'"
+                [bindValue]="'value'"
+                [defaultValue]="selectedStatus"
+                [placeholder]="'Statut'"
+                (selectedChange)="onStatusSelected($event)" />
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <spk-ng-select
+                [options]="units"
+                [bindLabel]="'label'"
+                [bindValue]="'value'"
+                [defaultValue]="selectedUnit"
+                [placeholder]="'Unité'"
+                (selectedChange)="onUnitSelected($event)" />
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <spk-ng-select
+                [options]="contractTypes"
+                [bindLabel]="'label'"
+                [bindValue]="'value'"
+                [defaultValue]="selectedContractType"
+                [placeholder]="'Type contrat'"
+                (selectedChange)="onContractTypeSelected($event)" />
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <spk-ng-select
+                [options]="riskLevels"
+                [bindLabel]="'label'"
+                [bindValue]="'value'"
+                [defaultValue]="selectedRiskLevel"
+                [placeholder]="'Risque'"
+                (selectedChange)="onRiskSelected($event)" />
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <input
+                type="text"
+                class="form-control"
+                [value]="positionTerm"
+                placeholder="Filtre poste..."
+                (input)="onPositionInput(($any($event.target)).value)" />
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <input
+                type="text"
+                class="form-control"
+                [value]="managerTerm"
+                placeholder="Filtre manager..."
+                (input)="onManagerInput(($any($event.target)).value)" />
+            </div>
           </div>
+        }
 
-          @if (loadingDuplicateCases) {
-            <div class="text-muted fs-12">Analyse des doublons en cours...</div>
-          } @else {
-            <div class="table-responsive">
-              <table class="table text-nowrap align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>Reference</th>
-                    <th>Champ</th>
-                    <th>Valeur</th>
-                    <th>Impact</th>
-                    <th>Confiance</th>
-                    <th class="text-end">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @if (!duplicateCases.length) {
-                    <tr>
-                      <td colspan="6" class="text-center text-muted">Aucun doublon detecte</td>
-                    </tr>
-                  } @else {
-                    @for (item of duplicateCases; track item.reference) {
-                      <tr>
-                        <td class="fw-semibold">{{ item.reference }}</td>
-                        <td>{{ duplicateFieldLabel(item.duplicateField) }}</td>
-                        <td>{{ item.duplicateValue }}</td>
-                        <td>{{ item.impactedCount }} agents</td>
-                        <td>
-                          <span class="badge" [ngClass]="duplicateCaseBadgeClass(item)">
-                            {{ item.confidenceScore }}%
-                          </span>
-                        </td>
-                        <td class="text-end">
-                          <button
-                            type="button"
-                            class="btn btn-sm btn-primary-light"
-                            [disabled]="!canMergeDuplicates"
-                            (click)="openDuplicateMergeAssistant(item)">
-                            Preparer fusion
-                          </button>
-                        </td>
-                      </tr>
-                    }
-                  }
-                </tbody>
-              </table>
-            </div>
-            @if (!canMergeDuplicates) {
-              <div class="text-warning fs-12 mt-2">
-                Votre role ne permet pas l'execution de fusion de doublons.
-              </div>
-            }
-          }
+        @if (isLoading) {
+          <div class="d-flex align-items-center gap-2 mb-3 text-muted">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Chargement des agents...</span>
+          </div>
+        }
 
-          @if (selectedDuplicateCase; as mergeCase) {
-            <div class="border-top mt-3 pt-3">
-              <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
-                <h6 class="fw-semibold mb-0">Assistant de fusion: {{ mergeCase.reference }}</h6>
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="closeDuplicateMergeAssistant()">
-                  Fermer
-                </button>
-              </div>
+        <!-- Doublons potentiels : rangé dans les filtres avancés, replié par défaut -->
+        @if (showFilters) {
+        <div class="border rounded-2 mb-3">
+          <button
+            type="button"
+            class="agent-collapse-toggle"
+            [attr.aria-expanded]="showDuplicates"
+            (click)="showDuplicates = !showDuplicates">
+            <span class="d-flex align-items-center gap-2">
+              <span class="fw-semibold">Doublons potentiels</span>
+              @if (duplicateCases.length) {
+                <span class="badge bg-danger">{{ duplicateCases.length }} à traiter</span>
+              }
+            </span>
+            <span class="text-muted fs-12">{{ showDuplicates ? 'Masquer ▲' : 'Afficher ▼' }}</span>
+          </button>
 
-              <div class="row g-3 mb-3">
-                <div class="col-xl-4 col-md-6">
-                  <label class="form-label">Agent maitre</label>
-                  <select
-                    class="form-select"
-                    [ngModel]="selectedPrimaryAgentId"
-                    (ngModelChange)="onPrimaryAgentChange($event)">
-                    @for (candidate of mergeCase.agents; track candidate.id) {
-                      <option [ngValue]="candidate.id">
-                        {{ candidate.fullName }} ({{ candidate.matricule || candidate.id }})
-                      </option>
-                    }
-                  </select>
-                </div>
-                <div class="col-xl-4 col-md-6">
-                  <label class="form-label">Agent doublon</label>
-                  <select
-                    class="form-select"
-                    [ngModel]="selectedSecondaryAgentId"
-                    (ngModelChange)="onSecondaryAgentChange($event)">
-                    @for (candidate of availableSecondaryCandidates(); track candidate.id) {
-                      <option [ngValue]="candidate.id">
-                        {{ candidate.fullName }} ({{ candidate.matricule || candidate.id }})
-                      </option>
-                    }
-                  </select>
-                </div>
-                <div class="col-xl-4 col-md-12">
-                  <label class="form-label">Motif fusion</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [ngModel]="mergeReason"
-                    (ngModelChange)="mergeReason = $event"
-                    placeholder="fusion_doublon" />
-                </div>
-              </div>
-
-              <div class="table-responsive mb-3">
-                <table class="table table-bordered table-sm align-middle mb-0">
-                  <thead>
-                    <tr>
-                      <th>Champ</th>
-                      <th>Valeur maitre</th>
-                      <th>Valeur doublon</th>
-                      <th>Source retenue</th>
-                      <th>Resultat</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (field of mergeFields; track field) {
-                      <tr>
-                        <td class="fw-semibold">{{ mergeFieldLabels[field] }}</td>
-                        <td>{{ mergeFieldPreviewValue(field, 'primary') }}</td>
-                        <td>{{ mergeFieldPreviewValue(field, 'secondary') }}</td>
-                        <td>
-                          <select
-                            class="form-select form-select-sm"
-                            [ngModel]="mergeSourceFor(field)"
-                            (ngModelChange)="setMergeSource(field, $event)">
-                            <option value="primary">Maitre</option>
-                            <option value="secondary">Doublon</option>
-                          </select>
-                        </td>
-                        <td class="fw-semibold">{{ mergeFieldPreviewValue(field, mergeSourceFor(field)) }}</td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="d-flex justify-content-end">
+          @if (showDuplicates) {
+            <div class="p-3 pt-1">
+              <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+                <div class="text-muted fs-12">Detection automatique des fiches agents a fusionner</div>
                 <button
                   type="button"
-                  class="btn btn-danger"
-                  [disabled]="mergingDuplicates || !canMergeDuplicates || !selectedPrimaryAgentId || !selectedSecondaryAgentId"
-                  (click)="executeDuplicateMerge()">
-                  {{ mergingDuplicates ? 'Fusion en cours...' : 'Executer fusion' }}
+                  class="btn btn-sm btn-outline-primary"
+                  [disabled]="loadingDuplicateCases"
+                  (click)="loadDuplicateCases()">
+                  Rafraichir
                 </button>
               </div>
+
+              @if (loadingDuplicateCases) {
+                <div class="text-muted fs-12">Analyse des doublons en cours...</div>
+              } @else {
+                <div class="table-responsive">
+                  <table class="table text-nowrap align-middle mb-0 agents-table">
+                    <thead>
+                      <tr>
+                        <th>Reference</th>
+                        <th>Champ</th>
+                        <th>Valeur</th>
+                        <th>Impact</th>
+                        <th>Confiance</th>
+                        <th class="text-end">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @if (!duplicateCases.length) {
+                        <tr>
+                          <td colspan="6" class="text-center text-muted">Aucun doublon detecte</td>
+                        </tr>
+                      } @else {
+                        @for (item of duplicateCases; track item.reference) {
+                          <tr>
+                            <td class="fw-semibold">{{ item.reference }}</td>
+                            <td>{{ duplicateFieldLabel(item.duplicateField) }}</td>
+                            <td>{{ item.duplicateValue }}</td>
+                            <td>{{ item.impactedCount }} agents</td>
+                            <td>
+                              <span class="badge" [ngClass]="duplicateCaseBadgeClass(item)">
+                                {{ item.confidenceScore }}%
+                              </span>
+                            </td>
+                            <td class="text-end">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-primary-light"
+                                [disabled]="!canMergeDuplicates"
+                                (click)="openDuplicateMergeAssistant(item)">
+                                Preparer fusion
+                              </button>
+                            </td>
+                          </tr>
+                        }
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (!canMergeDuplicates) {
+                  <div class="text-warning fs-12 mt-2">
+                    Votre role ne permet pas l'execution de fusion de doublons.
+                  </div>
+                }
+              }
+
+              @if (selectedDuplicateCase; as mergeCase) {
+                <div class="border-top mt-3 pt-3">
+                  <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+                    <h6 class="fw-semibold mb-0">Assistant de fusion: {{ mergeCase.reference }}</h6>
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="closeDuplicateMergeAssistant()">
+                      Fermer
+                    </button>
+                  </div>
+
+                  <div class="row g-3 mb-3">
+                    <div class="col-xl-4 col-md-6">
+                      <label class="form-label">Agent maitre</label>
+                      <select
+                        class="form-select"
+                        [ngModel]="selectedPrimaryAgentId"
+                        (ngModelChange)="onPrimaryAgentChange($event)">
+                        @for (candidate of mergeCase.agents; track candidate.id) {
+                          <option [ngValue]="candidate.id">
+                            {{ candidate.fullName }} ({{ candidate.matricule || candidate.id }})
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                      <label class="form-label">Agent doublon</label>
+                      <select
+                        class="form-select"
+                        [ngModel]="selectedSecondaryAgentId"
+                        (ngModelChange)="onSecondaryAgentChange($event)">
+                        @for (candidate of availableSecondaryCandidates(); track candidate.id) {
+                          <option [ngValue]="candidate.id">
+                            {{ candidate.fullName }} ({{ candidate.matricule || candidate.id }})
+                          </option>
+                        }
+                      </select>
+                    </div>
+                    <div class="col-xl-4 col-md-12">
+                      <label class="form-label">Motif fusion</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        [ngModel]="mergeReason"
+                        (ngModelChange)="mergeReason = $event"
+                        placeholder="fusion_doublon" />
+                    </div>
+                  </div>
+
+                  <div class="table-responsive mb-3">
+                    <table class="table table-bordered table-sm align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th>Champ</th>
+                          <th>Valeur maitre</th>
+                          <th>Valeur doublon</th>
+                          <th>Source retenue</th>
+                          <th>Resultat</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (field of mergeFields; track field) {
+                          <tr>
+                            <td class="fw-semibold">{{ mergeFieldLabels[field] }}</td>
+                            <td>{{ mergeFieldPreviewValue(field, 'primary') }}</td>
+                            <td>{{ mergeFieldPreviewValue(field, 'secondary') }}</td>
+                            <td>
+                              <select
+                                class="form-select form-select-sm"
+                                [ngModel]="mergeSourceFor(field)"
+                                (ngModelChange)="setMergeSource(field, $event)">
+                                <option value="primary">Maitre</option>
+                                <option value="secondary">Doublon</option>
+                              </select>
+                            </td>
+                            <td class="fw-semibold">{{ mergeFieldPreviewValue(field, mergeSourceFor(field)) }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="d-flex justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-danger"
+                      [disabled]="mergingDuplicates || !canMergeDuplicates || !selectedPrimaryAgentId || !selectedSecondaryAgentId"
+                      (click)="executeDuplicateMerge()">
+                      {{ mergingDuplicates ? 'Fusion en cours...' : 'Executer fusion' }}
+                    </button>
+                  </div>
+                </div>
+              }
             </div>
           }
         </div>
+        }
 
         <div class="table-responsive">
           <table class="table text-nowrap">
@@ -305,7 +354,8 @@
                 <th>Poste</th>
                 <th>Contrat</th>
                 <th>Statut</th>
-                <th>Manager</th>
+                <th>Documents</th>
+                <th>Échéance RH</th>
                 <th>Qualité</th>
                 <th>Anomalies</th>
                 <th class="text-end">Action</th>
@@ -314,22 +364,25 @@
             <tbody>
               @if (!currentAgents.length) {
                 <tr>
-                  <td colspan="11" class="text-center text-muted">Aucun agent trouvé</td>
+                  <td colspan="12" class="text-center text-muted">Aucun agent trouvé</td>
                 </tr>
               } @else {
-                @for (agent of currentAgents; track agent.id) {
-                  <tr [class.table-danger]="agent.riskLevel === 'Critique'" [class.table-warning]="agent.riskLevel === 'Moyen'">
+                @for (agent of displayedAgents(); track agent.id) {
+                  <tr>
                     <td>{{ agent.matricule }}</td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
                         <span class="avatar avatar-sm avatar-rounded">
                           <img
-                            [src]="agent.photoUrl || fallbackPhotoUrl"
+                            [src]="agentPhoto(agent)"
                             [alt]="'Photo de ' + agent.fullName"
                             class="object-fit-cover"
                             (error)="onPhotoError($event)" />
                         </span>
-                        <span>{{ agent.fullName }}</span>
+                        <div>
+                          <div>{{ agent.fullName }}</div>
+                          <div class="text-muted fs-11">Manager: {{ agent.manager || '—' }}</div>
+                        </div>
                       </div>
                     </td>
                     <td>{{ agent.direction }}</td>
@@ -337,7 +390,30 @@
                     <td>{{ agent.position }}</td>
                     <td>{{ agent.contractType || '—' }}</td>
                     <td>{{ agent.status }}</td>
-                    <td>{{ agent.manager }}</td>
+                    <td>
+                      <div class="d-flex flex-column gap-1" [attr.title]="documentSummaryTooltip(agent)">
+                        <span class="badge align-self-start agent-document-badge" [ngClass]="documentBadgeClass(agent)">
+                          {{ documentSummaryLabel(agent) }}
+                        </span>
+                        @if (agent.hasDocumentData) {
+                          <div class="text-muted fs-11">{{ agent.documentSummary.requiredCount }} pièce(s) suivie(s)</div>
+                        } @else {
+                          <div class="text-muted fs-11">Source non enrichie</div>
+                        }
+                      </div>
+                    </td>
+                    <td>
+                      @if (!agent.nextDeadline) {
+                        <span class="text-success fs-12">Aucune</span>
+                      } @else {
+                        <div class="d-flex flex-column gap-1">
+                          <span class="badge align-self-start agent-deadline-badge" [ngClass]="deadlineBadgeClass(agent.nextDeadline)">
+                            {{ agent.nextDeadline.label }}
+                          </span>
+                          <div class="text-muted fs-11">{{ deadlineDueLabel(agent.nextDeadline) }}</div>
+                        </div>
+                      }
+                    </td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
                         <span class="badge" [ngClass]="riskBadgeClass(agent.riskLevel)">
@@ -366,6 +442,31 @@
               }
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goToPage(pageIndex - 1)" [disabled]="pageIndex <= 1">
+            Précédent
+          </button>
+          <div class="fw-semibold">Page {{ pageIndex }} / {{ totalPages() }}</div>
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            (click)="goToPage(pageIndex + 1)"
+            [disabled]="pageIndex >= totalPages()">
+            Suivant
+          </button>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="text-muted fs-12 mb-0">Éléments par page</label>
+          <select class="form-select form-select-sm" [value]="pageSize" (change)="changePageSize(($any($event.target)).value)">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+          <div class="text-muted fs-12">Total : {{ currentAgents.length }}</div>
         </div>
       </div>
     </div>

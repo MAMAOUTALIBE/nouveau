@@ -1,0 +1,159 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div class="card-title">Anticipation des départs</div>
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="isLoading" (click)="loadDepartures()">
+          Actualiser
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="text-muted fs-12 mb-3">
+          Retraites et fins de contrat prévues sur les 24 prochains mois — pour anticiper les
+          recrutements et décider des renouvellements ou libérations de poste.
+        </p>
+
+        @if (summary) {
+          <div class="dep-kpi-strip mb-3">
+            <div class="dep-kpi border rounded-2">
+              <div class="text-muted fs-11">Départs à venir (24 mois)</div>
+              <div class="dep-kpi-value">{{ summary.totalUpcoming }}</div>
+            </div>
+            <div class="dep-kpi border rounded-2">
+              <div class="text-muted fs-11">Départs dépassés</div>
+              <div class="dep-kpi-value text-danger">{{ summary.overdue }}</div>
+            </div>
+            <div class="dep-kpi border rounded-2">
+              <div class="text-muted fs-11">Urgents (≤ 3 mois)</div>
+              <div class="dep-kpi-value text-warning">{{ summary.urgent }}</div>
+            </div>
+            <div class="dep-kpi border rounded-2">
+              <div class="text-muted fs-11">Retraites (12 mois)</div>
+              <div class="dep-kpi-value">{{ summary.retirements12m }}</div>
+            </div>
+            <div class="dep-kpi border rounded-2">
+              <div class="text-muted fs-11">Fins de contrat (12 mois)</div>
+              <div class="dep-kpi-value">{{ summary.contracts12m }}</div>
+            </div>
+          </div>
+        }
+
+        <div class="row g-2 mb-3 align-items-end">
+          <div class="col-xl-3 col-md-6">
+            <label class="form-label fs-12 text-muted mb-1">Âge légal de départ</label>
+            <div class="input-group">
+              <input
+                type="number"
+                class="form-control"
+                min="45"
+                max="80"
+                [(ngModel)]="retirementAgeInput" />
+              <span class="input-group-text">ans</span>
+              <button type="button" class="btn btn-primary" [disabled]="savingAge" (click)="saveRetirementAge()">
+                {{ savingAge ? '…' : 'Enregistrer' }}
+              </button>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <label class="form-label fs-12 text-muted mb-1">Type de départ</label>
+            <select class="form-select" [(ngModel)]="typeFilter">
+              <option value="all">Tous les types</option>
+              <option value="RETRAITE">Retraite</option>
+              <option value="FIN_CONTRAT">Fin de contrat</option>
+            </select>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <label class="form-label fs-12 text-muted mb-1">Horizon</label>
+            <select class="form-select" [(ngModel)]="horizonFilter">
+              <option value="all">Tous les horizons</option>
+              @for (horizon of horizonOptions; track horizon) {
+                <option [value]="horizon">{{ horizonLabels[horizon] }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <label class="form-label fs-12 text-muted mb-1">Recherche</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Agent, direction, poste..."
+              [(ngModel)]="searchTerm" />
+          </div>
+        </div>
+
+        @if (isLoading) {
+          <div class="text-muted d-flex align-items-center gap-2 mb-3">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Chargement des départs...</span>
+          </div>
+        }
+
+        <div class="table-responsive">
+          <table class="table text-nowrap align-middle">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Type</th>
+                <th>Direction / Poste</th>
+                <th>Date prévue</th>
+                <th>Échéance</th>
+                <th>Horizon</th>
+                <th>Décision RH</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (!filteredItems().length) {
+                <tr>
+                  <td colspan="7" class="text-center text-muted">
+                    Aucun départ à anticiper sur la période sélectionnée.
+                  </td>
+                </tr>
+              } @else {
+                @for (item of filteredItems(); track item.employeeId) {
+                  <tr>
+                    <td>
+                      <a [routerLink]="['/personnel/agents', item.employeeId]" class="fw-semibold">
+                        {{ item.fullName }}
+                      </a>
+                      <div class="text-muted fs-11">
+                        {{ item.matricule }} · {{ item.contractType || 'Contrat n.c.' }}
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="typeBadgeClass(item.departureType)">
+                        {{ departureTypeLabel(item.departureType) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div>{{ item.directionName || '—' }}</div>
+                      <div class="text-muted fs-11">{{ item.positionTitle || 'Poste non défini' }}</div>
+                    </td>
+                    <td>{{ item.departureDate }}</td>
+                    <td [class.text-danger]="item.daysUntil < 0" [class.fw-semibold]="item.daysUntil <= 90">
+                      {{ deadlineLabel(item) }}
+                    </td>
+                    <td>
+                      <span class="badge" [ngClass]="horizonBadgeClass(item.horizon)">
+                        {{ horizonLabels[item.horizon] }}
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        class="form-select form-select-sm dep-decision"
+                        [ngModel]="item.decision"
+                        (ngModelChange)="onDecisionChange(item, $event)">
+                        @for (decision of decisionOptions; track decision) {
+                          <option [value]="decision">{{ decisionLabels[decision] }}</option>
+                        }
+                      </select>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -175,6 +175,7 @@ export class Dashboard2 implements OnInit {
       active: 0,
       absences: 0,
       vacancies: 0,
+      departures: 0,
     };
 
     forkJoin({

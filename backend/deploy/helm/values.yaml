@@ -1,0 +1,87 @@
+# Values par défaut pour le déploiement K8s.
+# Surcharger via `helm install -f values-prod.yaml`.
+
+image:
+  repository: rh-primature-backend
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+replicas: 2
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: rh.primature.gov.gn
+      paths:
+        - path: /api
+          pathType: Prefix
+  tls:
+    - secretName: rh-primature-tls
+      hosts:
+        - rh.primature.gov.gn
+
+env:
+  ENV: prod
+  LOG_LEVEL: INFO
+  RUN_MIGRATIONS_ON_STARTUP: "true"
+  ALLOWED_ORIGINS: "https://rh.primature.gov.gn"
+
+  # Adapters — recommandations souveraines
+  OCR_PROVIDER: tesseract
+  SIGNATURE_PROVIDER: endesive
+  EMAIL_PROVIDER: smtp
+  STORAGE_PROVIDER: minio
+  LLM_PROVIDER: ollama
+  BPMN_PROVIDER: spiff
+
+  TESSERACT_LANG: "fra+eng"
+  S3_BUCKET: "rh-primature"
+  TOTP_ISSUER: "RH Primature"
+  TOTP_REQUIRED_FOR_ROLES: "super_admin,hr_manager"
+
+# Secrets — à créer séparément avec `kubectl create secret generic rh-primature-secrets ...`
+secretsRef:
+  name: rh-primature-secrets
+  # Clés attendues : DATABASE_URL, JWT_SECRET_KEY, SMTP_PASSWORD,
+  # S3_SECRET_KEY, ENDESIVE_P12_PASSWORD, SENTRY_DSN, ANTHROPIC_API_KEY
+
+# Probes Kubernetes
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+# Postgres : déployé séparément (chart bitnami/postgresql ou DB managée).
+# Ne PAS déployer Postgres en sidecar dans ce chart.
+postgresql:
+  external: true
+  host: postgresql.rh-primature.svc.cluster.local
+  port: 5432
+
+# MinIO : déployé séparément (chart bitnami/minio recommandé)
+minio:
+  external: true
+  endpoint: http://minio.rh-primature.svc.cluster.local:9000

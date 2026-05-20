@@ -25,5 +25,11 @@ export const CAREERS_ROUTES: Routes = [
       import('./pages/promotions/promotions').then((m) => m.PromotionsPage),
     data: { parentTitle: 'Carrière', childTitle: 'Promotions' },
   },
+  {
+    path: 'departs',
+    loadComponent: () =>
+      import('./pages/departures/departures').then((m) => m.DeparturesPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Départs & Retraites' },
+  },
   { path: '', pathMatch: 'full', redirectTo: 'avancements' },
 ];

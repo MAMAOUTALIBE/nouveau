@@ -35,6 +35,7 @@ export class HrDashboardPage implements OnInit {
     { title: 'Agents actifs', value: '1 173', lastWeek: 'Aujourd’hui', trendIcon: 'up', trendClass: 'text-success', trendValue: '+1.4%', cardClass: 'bg-success-gradient', iconClass: 'user-check' },
     { title: 'Absences en cours', value: '47', lastWeek: 'En attente', trendIcon: 'up', trendClass: 'text-warning', trendValue: '12 urgentes', cardClass: 'bg-warning-gradient', iconClass: 'calendar' },
     { title: 'Postes vacants', value: '23', lastWeek: 'Priorité', trendIcon: 'down', trendClass: 'text-danger', trendValue: '5 critiques', cardClass: 'bg-danger-gradient', iconClass: 'briefcase' },
+    { title: 'Départs à anticiper', value: '0', lastWeek: '12 mois', trendIcon: 'down', trendClass: 'text-warning', trendValue: 'Retraites + contrats', cardClass: 'bg-info-gradient', iconClass: 'calendar' },
   ];
 
   headcountTrend: ApexOptions = {
@@ -89,6 +90,7 @@ export class HrDashboardPage implements OnInit {
           { ...this.kpis[1], value: summary.active.toLocaleString('fr-FR') },
           { ...this.kpis[2], value: String(summary.absences) },
           { ...this.kpis[3], value: String(summary.vacancies) },
+          { ...this.kpis[4], value: String(summary.departures) },
         ];
       });
     });

@@ -80,9 +80,47 @@ export class ApiClientService {
       .pipe(map((response) => this.unwrap(response)));
   }
 
+  patch<TResponse, TBody>(path: string, body: TBody, options?: RequestOptions): Observable<TResponse> {
+    return this.withResilience(
+      this.http.patch<TResponse | ApiEnvelope<TResponse>>(this.buildUrl(path), body, {
+        context: this.buildContext(options),
+      }),
+      options?.timeoutMs,
+      this.resolveRetryPolicy(options?.retry, this.mutationRetryDefaults)
+    )
+      .pipe(map((response) => this.unwrap(response)));
+  }
+
+  delete<TResponse>(path: string, options?: RequestOptions): Observable<TResponse> {
+    return this.withResilience(
+      this.http.delete<TResponse | ApiEnvelope<TResponse>>(this.buildUrl(path), {
+        context: this.buildContext(options),
+      }),
+      options?.timeoutMs,
+      this.resolveRetryPolicy(options?.retry, this.mutationRetryDefaults)
+    ).pipe(map((response) => this.unwrap(response)));
+  }
+
   private unwrap<T>(response: T | ApiEnvelope<T>): T {
-    if (response && typeof response === 'object' && 'data' in (response as ApiEnvelope<T>)) {
-      return (response as ApiEnvelope<T>).data;
+    if (response && typeof response === 'object') {
+      const record = response as Record<string, unknown>;
+
+      // Enveloppe applicative { data: T }.
+      if ('data' in record) {
+        return record['data'] as T;
+      }
+
+      // Enveloppe de pagination du backend Python (schéma Page[T]) :
+      // { items, total, page, page_size }. Les services frontend consomment
+      // une liste — on extrait `items`. `page_size` sert de discriminant
+      // précis pour ne pas confondre avec un objet métier portant un `items`.
+      if (
+        Array.isArray(record['items']) &&
+        'page_size' in record &&
+        'total' in record
+      ) {
+        return record['items'] as T;
+      }
     }
 
     return response as T;

@@ -1,0 +1,23 @@
+/* Bande d'indicateurs compacte — page Anticipation des départs */
+.dep-kpi-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dep-kpi {
+  flex: 1 1 150px;
+  min-width: 130px;
+  padding: 0.45rem 0.7rem;
+}
+
+.dep-kpi .dep-kpi-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Sélecteur de décision RH dans le tableau */
+.dep-decision {
+  min-width: 168px;
+}

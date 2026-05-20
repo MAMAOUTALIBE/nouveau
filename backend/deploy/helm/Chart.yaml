@@ -1,0 +1,14 @@
+apiVersion: v2
+name: rh-primature-backend
+description: Backend RH de la Primature de Guinée — FastAPI + PostgreSQL
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: Primature de Guinée
+    email: contact@gmd2025.org
+keywords:
+  - fastapi
+  - hr
+  - government
+  - guinea

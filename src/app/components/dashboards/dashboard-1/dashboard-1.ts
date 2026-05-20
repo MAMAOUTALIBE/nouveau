@@ -100,6 +100,7 @@ export class Dashboard1 implements OnInit {
     active: 0,
     absences: 0,
     vacancies: 0,
+    departures: 0,
   };
 
   metrics: DashboardMetric[] = [];
@@ -269,6 +270,14 @@ export class Dashboard1 implements OnInit {
         detail: `${this.formatNumber(activeCampaignCount)} / ${this.formatNumber(openedBudgetedCount)}`,
         icon: 'user-plus',
         color: 'success',
+      },
+      {
+        title: 'Départs à anticiper',
+        value: this.formatNumber(this.summary.departures),
+        subtitle: 'Retraites + fins de contrat',
+        detail: 'sous 12 mois',
+        icon: 'clock',
+        color: 'info',
       },
     ];
   }

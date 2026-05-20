@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/config/api-endpoints';
@@ -6,6 +6,7 @@ import { ApiClientService } from '../../core/services/api-client.service';
 import { CollectionQueryOptions, buildCollectionQueryParams } from '../../core/utils/collection-query.utils';
 import { readField, toStringValue } from '../../core/utils/dto.utils';
 import { environment } from '../../../environments/environment';
+import { summarizeDocumentCompliance } from './personnel-document-compliance';
 
 export interface AgentListItem {
   id: string;
@@ -18,6 +19,10 @@ export interface AgentListItem {
   manager: string;
   contractType: string;
   photoUrl: string;
+  hireDate?: string;
+  contractEndDate?: string;
+  retirementDate?: string;
+  documents?: AgentDocument[];
 }
 
 export interface AgentDuplicateIndexItem {
@@ -135,6 +140,7 @@ export interface AgentDocument {
   reference: string;
   status: string;
   required?: boolean;
+  expiresAt?: string;
   fileName?: string;
   fileDataUrl?: string;
 }
@@ -144,6 +150,24 @@ export interface AgentEducation {
   field: string;
   institution: string;
   graduationYear: string;
+}
+
+export interface AgentCompetency {
+  id: string;
+  label: string;
+  category: string;
+  level: 'Debutant' | 'Intermediaire' | 'Avance' | 'Expert';
+  lastAssessedAt: string;
+}
+
+export interface AgentDependent {
+  id: string;
+  fullName: string;
+  relationship: string;
+  birthDate: string;
+  coverageType: string;
+  coverageStatus: 'Actif' | 'Suspendu' | 'Expire';
+  phone: string;
 }
 
 export interface AgentIdentityInfo {
@@ -177,6 +201,8 @@ export interface AgentDetail {
   identity: AgentIdentityInfo;
   administrative: AgentAdministrativeInfo;
   educations: AgentEducation[];
+  competencies: AgentCompetency[];
+  dependents: AgentDependent[];
   careerEvents: AgentCareerEvent[];
   documents: AgentDocument[];
 }
@@ -195,6 +221,8 @@ export interface CreateAgentPayload {
   identity?: Partial<AgentIdentityInfo>;
   administrative?: Partial<AgentAdministrativeInfo>;
   educations?: AgentEducation[];
+  competencies?: AgentCompetency[];
+  dependents?: AgentDependent[];
   documents?: AgentDocument[];
   isDraft?: boolean;
 }
@@ -213,6 +241,8 @@ export interface UpdateAgentPayload {
   identity?: Partial<AgentIdentityInfo>;
   administrative?: Partial<AgentAdministrativeInfo>;
   educations?: AgentEducation[];
+  competencies?: AgentCompetency[];
+  dependents?: AgentDependent[];
   careerEvents?: AgentCareerEvent[];
   documents?: AgentDocument[];
   auditReason?: string;
@@ -236,12 +266,71 @@ export interface AgentAuditEvent {
   changes: AgentAuditFieldChange[];
 }
 
+export type AgentDocumentComplianceStatusApi =
+  | 'COMPLIANT'
+  | 'EXPIRING_SOON'
+  | 'EXPIRED'
+  | 'MISSING'
+  | 'PENDING_VALIDATION';
+
+export interface AgentDocumentComplianceItemApi {
+  documentTypeCode: string;
+  documentTypeLabel: string;
+  requirementScope: string;
+  complianceStatus: AgentDocumentComplianceStatusApi;
+  documentReference: string;
+  expiresOn: string;
+  dueOn: string;
+}
+
+export interface AgentDocumentComplianceSummaryApi {
+  employeeId: string;
+  summary: {
+    requiredCount: number;
+    compliantCount: number;
+    missingCount: number;
+    expiredCount: number;
+    expiringSoonCount: number;
+  };
+  items: AgentDocumentComplianceItemApi[];
+}
+
 export interface PersonnelUploadedFile {
   id: string;
   fileName: string;
   mimeType: string;
   size: number;
   url: string;
+}
+
+export interface AgentDigitalBadge {
+  agentId: string;
+  badgeId: string;
+  issuedAt: string;
+  expiresAt: string;
+  status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
+  verificationCode: string;
+  signatureHash: string;
+  qrPayload: string;
+}
+
+export type PersonnelTurnoverRiskLevel = 'Faible' | 'Modere' | 'Eleve' | 'Critique';
+
+export interface PersonnelTurnoverRiskItem {
+  agentId: string;
+  matricule: string;
+  fullName: string;
+  direction: string;
+  unit: string;
+  position: string;
+  riskScore: number;
+  riskLevel: PersonnelTurnoverRiskLevel;
+  factors: string[];
+  recommendedAction: string;
+  modelName: string;
+  generatedAt: string;
+  reviewedAt: string;
+  reviewDecision: string;
 }
 
 export interface AgentListQuery extends CollectionQueryOptions {
@@ -255,6 +344,7 @@ export interface AgentListQuery extends CollectionQueryOptions {
 
 export interface PersonnelDossier {
   reference: string;
+  agentId: string;
   agent: string;
   type: string;
   status: string;
@@ -263,6 +353,7 @@ export interface PersonnelDossier {
 
 export interface CreatePersonnelDossierPayload {
   reference?: string;
+  agentId?: string;
   agent: string;
   type: string;
   status?: string;
@@ -271,6 +362,7 @@ export interface CreatePersonnelDossierPayload {
 
 export interface PersonnelAffectation {
   reference: string;
+  agentId: string;
   agent: string;
   fromUnit: string;
   toUnit: string;
@@ -280,6 +372,7 @@ export interface PersonnelAffectation {
 
 export interface CreatePersonnelAffectationPayload {
   reference?: string;
+  agentId?: string;
   agent: string;
   fromUnit: string;
   toUnit: string;
@@ -291,11 +384,13 @@ export interface PersonnelDossiersQuery extends CollectionQueryOptions {
   status?: string;
   type?: string;
   agent?: string;
+  agentId?: string;
 }
 
 export interface PersonnelAffectationsQuery extends CollectionQueryOptions {
   status?: string;
   agent?: string;
+  agentId?: string;
   fromUnit?: string;
   toUnit?: string;
 }
@@ -303,6 +398,13 @@ export interface PersonnelAffectationsQuery extends CollectionQueryOptions {
 export interface PersonnelMatriculeSuggestionAuditQuery extends CollectionQueryOptions {
   username?: string;
   reason?: string;
+}
+
+export interface PersonnelTurnoverRiskQuery extends CollectionQueryOptions {
+  direction?: string;
+  unit?: string;
+  riskLevel?: PersonnelTurnoverRiskLevel | string;
+  minScore?: number;
 }
 
 export interface AgentDuplicateCasesQuery extends CollectionQueryOptions {
@@ -340,6 +442,13 @@ interface AgentListItemDto {
   contract_type?: string;
   photoUrl?: string;
   photo_url?: string;
+  hireDate?: string;
+  hire_date?: string;
+  contractEndDate?: string;
+  contract_end_date?: string;
+  retirementDate?: string;
+  retirement_date?: string;
+  documents?: AgentDocumentDto[];
 }
 
 interface AgentDuplicateIndexItemDto {
@@ -457,6 +566,30 @@ interface AgentAuditEventDto {
   changes?: AgentAuditFieldChangeDto[];
 }
 
+interface AgentDocumentComplianceItemDto {
+  documentTypeCode?: string;
+  document_type_code?: string;
+  documentTypeLabel?: string;
+  document_type_label?: string;
+  requirementScope?: string;
+  requirement_scope?: string;
+  complianceStatus?: string;
+  compliance_status?: string;
+  documentReference?: string;
+  document_reference?: string;
+  expiresOn?: string;
+  expires_on?: string;
+  dueOn?: string;
+  due_on?: string;
+}
+
+interface AgentDocumentComplianceSummaryDto {
+  employeeId?: string;
+  employee_id?: string;
+  summary?: Record<string, unknown>;
+  items?: AgentDocumentComplianceItemDto[];
+}
+
 interface AgentCareerEventDto {
   title?: string;
   label?: string;
@@ -474,6 +607,10 @@ interface AgentDocumentDto {
   ref?: string;
   status?: string;
   required?: boolean;
+  expiresAt?: string;
+  expires_at?: string;
+  expirationDate?: string;
+  expiration_date?: string;
   fileName?: string;
   file_name?: string;
   fileDataUrl?: string;
@@ -481,6 +618,76 @@ interface AgentDocumentDto {
   dataUrl?: string;
   data_url?: string;
   url?: string;
+}
+
+interface AgentCompetencyDto {
+  id?: string;
+  label?: string;
+  name?: string;
+  category?: string;
+  level?: string;
+  lastAssessedAt?: string;
+  last_assessed_at?: string;
+}
+
+interface AgentDependentDto {
+  id?: string;
+  fullName?: string;
+  full_name?: string;
+  name?: string;
+  relationship?: string;
+  lien?: string;
+  birthDate?: string;
+  birth_date?: string;
+  coverageType?: string;
+  coverage_type?: string;
+  coverageStatus?: string;
+  coverage_status?: string;
+  phone?: string;
+}
+
+interface AgentDigitalBadgeDto {
+  agentId?: string;
+  agent_id?: string;
+  badgeId?: string;
+  badge_id?: string;
+  issuedAt?: string;
+  issued_at?: string;
+  expiresAt?: string;
+  expires_at?: string;
+  status?: string;
+  verificationCode?: string;
+  verification_code?: string;
+  signatureHash?: string;
+  signature_hash?: string;
+  qrPayload?: string;
+  qr_payload?: string;
+}
+
+interface PersonnelTurnoverRiskItemDto {
+  agentId?: string;
+  agent_id?: string;
+  matricule?: string;
+  fullName?: string;
+  full_name?: string;
+  direction?: string;
+  unit?: string;
+  position?: string;
+  riskScore?: number;
+  risk_score?: number;
+  riskLevel?: string;
+  risk_level?: string;
+  factors?: unknown;
+  recommendedAction?: string;
+  recommended_action?: string;
+  modelName?: string;
+  model_name?: string;
+  generatedAt?: string;
+  generated_at?: string;
+  reviewedAt?: string;
+  reviewed_at?: string;
+  reviewDecision?: string;
+  review_decision?: string;
 }
 
 interface AgentDetailDto {
@@ -513,6 +720,10 @@ interface AgentDetailDto {
   educations?: Partial<AgentEducation>[];
   educationHistory?: Partial<AgentEducation>[];
   education_history?: Partial<AgentEducation>[];
+  competencies?: AgentCompetencyDto[];
+  skills?: AgentCompetencyDto[];
+  dependents?: AgentDependentDto[];
+  beneficiaries?: AgentDependentDto[];
   careerEvents?: AgentCareerEventDto[];
   career_events?: AgentCareerEventDto[];
   documents?: AgentDocumentDto[];
@@ -522,6 +733,8 @@ interface PersonnelDossierDto {
   reference?: string;
   dossierRef?: string;
   dossier_ref?: string;
+  agentId?: string;
+  agent_id?: string;
   agent?: string;
   agentName?: string;
   agent_name?: string;
@@ -537,6 +750,8 @@ interface PersonnelAffectationDto {
   reference?: string;
   assignmentRef?: string;
   assignment_ref?: string;
+  agentId?: string;
+  agent_id?: string;
   agent?: string;
   agentName?: string;
   agent_name?: string;
@@ -599,6 +814,16 @@ const AGENT_AUDIT_FIELD_CONFIG: Array<{
     label: 'Type contrat',
     read: (record) => String(record.administrative?.contractType || '').trim(),
   },
+  {
+    field: 'competencies',
+    label: 'Competences',
+    read: (record) => normalizeCompetencies(record.competencies).map((item) => item.label).join(', '),
+  },
+  {
+    field: 'dependents',
+    label: 'Ayants droit',
+    read: (record) => normalizeDependents(record.dependents).map((item) => item.fullName).join(', '),
+  },
 ];
 
 @Injectable({ providedIn: 'root' })
@@ -609,6 +834,7 @@ export class PersonnelService {
   private readonly localMatriculeAuditKey = 'rh_dev_personnel_matricule_audit';
   private readonly localAgentAuditKey = 'rh_dev_personnel_agent_audit';
   private readonly fallbackEnabled = !!environment.auth?.devFallback?.enabled;
+  private readonly http = inject(HttpClient);
   private readonly apiClient = inject(ApiClientService);
 
   getAgents(query?: AgentListQuery): Observable<AgentListItem[]> {
@@ -830,6 +1056,130 @@ export class PersonnelService {
       );
   }
 
+  getAgentDocumentCompliance(agentId: string): Observable<AgentDocumentComplianceSummaryApi> {
+    return this.apiClient
+      .get<AgentDocumentComplianceSummaryDto>(
+        API_ENDPOINTS.personnel.agentDocumentCompliance(agentId),
+        undefined,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentDocumentComplianceApiPayload(payload, agentId)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            const localAgent = this.readLocalAgentRecords().find((agent) => agent.id === agentId);
+            return of(this.buildLocalAgentDocumentCompliance(localAgent, agentId));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  private buildLocalAgentDocumentCompliance(
+    agent: LocalAgentRecord | undefined,
+    fallbackAgentId: string
+  ): AgentDocumentComplianceSummaryApi {
+    if (!agent) {
+      return {
+        employeeId: String(fallbackAgentId || '').trim(),
+        summary: {
+          requiredCount: 0,
+          compliantCount: 0,
+          missingCount: 0,
+          expiredCount: 0,
+          expiringSoonCount: 0,
+        },
+        items: [],
+      };
+    }
+
+    const compliance = summarizeDocumentCompliance(
+      mapAgentDocuments(agent.documents || []),
+      toStringValue(agent.administrative?.contractType, '')
+    );
+    const hireDate = toStringValue(agent.administrative?.hireDate, '').trim();
+    const dueOnFromHireDate = (() => {
+      if (!hireDate) {
+        return '';
+      }
+      const parsed = Date.parse(hireDate);
+      if (Number.isNaN(parsed)) {
+        return hireDate;
+      }
+      const dueDate = new Date(parsed);
+      dueDate.setUTCDate(dueDate.getUTCDate() + 7);
+      return dueDate.toISOString().slice(0, 10);
+    })();
+
+    return {
+      employeeId: String(agent.id || fallbackAgentId || '').trim(),
+      summary: {
+        requiredCount: compliance.requiredCount,
+        compliantCount: compliance.compliantCount,
+        missingCount: compliance.missingCount,
+        expiredCount: compliance.expiredCount,
+        expiringSoonCount: compliance.expiringSoonCount,
+      },
+      items: compliance.items.map((item) => {
+        const expiresOn = toStringValue(item.document?.expiresAt, '').trim();
+        return {
+          documentTypeCode: this.buildComplianceDocumentTypeCode(item.type),
+          documentTypeLabel: String(item.label || item.type || '').trim(),
+          requirementScope: 'LOCAL_FALLBACK',
+          complianceStatus: this.mapLocalComplianceStatus(item.status),
+          documentReference: toStringValue(item.document?.reference, '').trim(),
+          expiresOn,
+          dueOn: expiresOn || dueOnFromHireDate,
+        };
+      }),
+    };
+  }
+
+  private mapLocalComplianceStatus(
+    status: 'conforme' | 'a_renouveler' | 'expire' | 'manquant'
+  ): AgentDocumentComplianceStatusApi {
+    switch (status) {
+      case 'a_renouveler':
+        return 'EXPIRING_SOON';
+      case 'expire':
+        return 'EXPIRED';
+      case 'manquant':
+        return 'MISSING';
+      case 'conforme':
+      default:
+        return 'COMPLIANT';
+    }
+  }
+
+  private buildComplianceDocumentTypeCode(value: string): string {
+    const normalized = this.normalizeTextForMatch(value);
+    if (normalized.includes('piece') && normalized.includes('identite')) {
+      return 'PIECE_IDENTITE';
+    }
+    if (normalized === 'cv') {
+      return 'CV';
+    }
+    if (normalized.includes('diplome')) {
+      return 'DIPLOME_PRINCIPAL';
+    }
+    if (normalized.includes('nomination')) {
+      return 'ARRETE_NOMINATION';
+    }
+    if (normalized.includes('contrat')) {
+      return 'CONTRAT_TRAVAIL';
+    }
+
+    return (
+      String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .replace(/_+/g, '_') || 'DOCUMENT'
+    );
+  }
+
   createAgent(payload: CreateAgentPayload): Observable<AgentDetail> {
     return this.apiClient
       .post<AgentDetailDto, CreateAgentPayload>(
@@ -870,10 +1220,71 @@ export class PersonnelService {
       );
   }
 
+  getAgentDigitalBadge(id: string): Observable<AgentDigitalBadge> {
+    return this.apiClient
+      .get<AgentDigitalBadgeDto>(
+        API_ENDPOINTS.personnel.agentDigitalBadge(id),
+        undefined,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeAgentDigitalBadgePayload(payload, id)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            const agent = this.readLocalAgentRecords().find((record) => record.id === id);
+            return of(this.buildLocalDigitalBadge(agent, id));
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  exportAgentDossierPdf(id: string): Observable<Blob> {
+    return this.http.get(this.buildApiUrl(API_ENDPOINTS.personnel.agentDossierExport(id)), {
+      responseType: 'blob',
+    });
+  }
+
   uploadAgentFile(file: File): Observable<PersonnelUploadedFile> {
     const formData = new FormData();
     formData.append('file', file, file.name);
     return this.apiClient.post<PersonnelUploadedFile, FormData>(API_ENDPOINTS.personnel.upload, formData);
+  }
+
+  downloadAgentFile(url: string): Observable<Blob> {
+    const normalized = String(url || '').trim();
+    if (!normalized || normalized.startsWith('blob:')) {
+      return throwError(() => new Error('URL de téléchargement invalide'));
+    }
+
+    const requestUrl = /^https?:\/\//i.test(normalized) ? normalized : normalized.startsWith('/') ? normalized : `/${normalized}`;
+    return this.http.get(requestUrl, { responseType: 'blob' });
+  }
+
+  getTurnoverRisks(query?: PersonnelTurnoverRiskQuery): Observable<PersonnelTurnoverRiskItem[]> {
+    const params = buildCollectionQueryParams(query, {
+      direction: query?.direction,
+      unit: query?.unit,
+      riskLevel: query?.riskLevel,
+      minScore: query?.minScore,
+    });
+
+    return this.apiClient
+      .get<unknown>(
+        API_ENDPOINTS.personnel.turnoverRisk,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((payload) => normalizeTurnoverRiskPayload(payload)),
+        map((items) => items.map((dto) => this.normalizeTurnoverRiskItem(dto)).filter((item) => !!item.agentId)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of([]);
+          }
+          return throwError(() => error);
+        })
+      );
   }
 
   getDossiers(query?: PersonnelDossiersQuery): Observable<PersonnelDossier[]> {
@@ -881,6 +1292,7 @@ export class PersonnelService {
       status: query?.status,
       type: query?.type,
       agent: query?.agent,
+      agentId: query?.agentId,
     });
 
     return this.apiClient
@@ -932,6 +1344,7 @@ export class PersonnelService {
     const params = buildCollectionQueryParams(query, {
       status: query?.status,
       agent: query?.agent,
+      agentId: query?.agentId,
       fromUnit: query?.fromUnit,
       toUnit: query?.toUnit,
     });
@@ -979,6 +1392,62 @@ export class PersonnelService {
           return throwError(() => error);
         })
       );
+  }
+
+  private normalizeTurnoverRiskItem(dto: PersonnelTurnoverRiskItemDto): PersonnelTurnoverRiskItem {
+    const rawScore = Number(readField(dto, ['riskScore', 'risk_score'], 0));
+    const riskScore = Number.isFinite(rawScore) ? Math.max(0, Math.min(100, Math.round(rawScore))) : 0;
+    return {
+      agentId: toStringValue(readField(dto, ['agentId', 'agent_id'], '')).trim(),
+      matricule: toStringValue(readField(dto, ['matricule'], '')).trim(),
+      fullName: toStringValue(readField(dto, ['fullName', 'full_name'], '')).trim(),
+      direction: toStringValue(readField(dto, ['direction'], '')).trim(),
+      unit: toStringValue(readField(dto, ['unit'], '')).trim(),
+      position: toStringValue(readField(dto, ['position'], '')).trim(),
+      riskScore,
+      riskLevel: this.normalizeTurnoverRiskLevel(readField(dto, ['riskLevel', 'risk_level'], 'Faible')),
+      factors: this.normalizeStringArray(readField(dto, ['factors'], [])),
+      recommendedAction: toStringValue(readField(dto, ['recommendedAction', 'recommended_action'], '')).trim(),
+      modelName: toStringValue(readField(dto, ['modelName', 'model_name'], 'rules-v1')).trim() || 'rules-v1',
+      generatedAt: toStringValue(readField(dto, ['generatedAt', 'generated_at'], '')).trim(),
+      reviewedAt: toStringValue(readField(dto, ['reviewedAt', 'reviewed_at'], '')).trim(),
+      reviewDecision: toStringValue(readField(dto, ['reviewDecision', 'review_decision'], '')).trim(),
+    };
+  }
+
+  private normalizeTurnoverRiskLevel(value: unknown): PersonnelTurnoverRiskLevel {
+    const normalized = this.normalizeTextForMatch(String(value || ''));
+    if (normalized === 'critique') return 'Critique';
+    if (normalized === 'eleve' || normalized === 'elevee') return 'Eleve';
+    if (normalized === 'modere' || normalized === 'moyen') return 'Modere';
+    return 'Faible';
+  }
+
+  private normalizeStringArray(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value.map((entry) => String(entry || '').trim()).filter((entry) => entry.length > 0);
+    }
+
+    if (typeof value === 'string') {
+      const raw = value.trim();
+      if (!raw) {
+        return [];
+      }
+      try {
+        const parsed = JSON.parse(raw) as unknown;
+        if (Array.isArray(parsed)) {
+          return parsed.map((entry) => String(entry || '').trim()).filter((entry) => entry.length > 0);
+        }
+      } catch {
+        // Les exports CSV ou certains adaptateurs peuvent renvoyer une chaine simple.
+      }
+      return raw
+        .split(/[|,;]/)
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
+    }
+
+    return [];
   }
 
   private mapMatriculeAudit(
@@ -1813,6 +2282,8 @@ export class PersonnelService {
       manager: record.manager,
       contractType: toStringValue(record.administrative?.contractType, ''),
       photoUrl: toStringValue(record.photoUrl, './assets/images/faces/profile.jpg'),
+      hireDate: toStringValue(record.administrative?.hireDate, '') || undefined,
+      documents: mapAgentDocuments(record.documents || []),
     }));
   }
 
@@ -1891,6 +2362,49 @@ export class PersonnelService {
       .trim();
   }
 
+  private resolveLocalAgentReference(agentIdInput?: string, agentLabelInput?: string): {
+    agentId: string;
+    agent: string;
+  } {
+    const agentId = String(agentIdInput || '').trim();
+    const agentLabel = String(agentLabelInput || '').trim();
+    const directMatch = agentId ? this.findLocalAgentRecordByReference(agentId) : null;
+    if (directMatch) {
+      return {
+        agentId: directMatch.id,
+        agent: String(directMatch.fullName || '').trim(),
+      };
+    }
+
+    const labelMatch = agentLabel ? this.findLocalAgentRecordByReference(agentLabel) : null;
+    if (labelMatch) {
+      return {
+        agentId: labelMatch.id,
+        agent: String(labelMatch.fullName || '').trim(),
+      };
+    }
+
+    return {
+      agentId,
+      agent: agentLabel,
+    };
+  }
+
+  private findLocalAgentRecordByReference(candidate: string): LocalAgentRecord | null {
+    const normalizedCandidate = this.normalizeTextForMatch(candidate);
+    if (!normalizedCandidate) {
+      return null;
+    }
+
+    return (
+      this.readLocalAgentRecords().find((record) => {
+        return [record.id, record.matricule, record.fullName]
+          .map((value) => this.normalizeTextForMatch(value))
+          .some((value) => !!value && value === normalizedCandidate);
+      }) || null
+    );
+  }
+
   private mapDossiers(items: PersonnelDossierDto[]): PersonnelDossier[] {
     return (items || [])
       .map((dto) => this.normalizeDossier(dto))
@@ -1898,9 +2412,14 @@ export class PersonnelService {
   }
 
   private normalizeDossier(dto: PersonnelDossierDto): PersonnelDossier {
+    const resolvedAgent = this.resolveLocalAgentReference(
+      toStringValue(readField(dto, ['agentId', 'agent_id'], '')).trim(),
+      toStringValue(readField(dto, ['agent', 'agentName', 'agent_name'], '')).trim()
+    );
     return {
       reference: toStringValue(readField(dto, ['reference', 'dossierRef', 'dossier_ref'], '')).trim(),
-      agent: toStringValue(readField(dto, ['agent', 'agentName', 'agent_name'], '')).trim(),
+      agentId: resolvedAgent.agentId,
+      agent: resolvedAgent.agent,
       type: toStringValue(readField(dto, ['type', 'dossierType', 'dossier_type'], '')).trim(),
       status: toStringValue(readField(dto, ['status'], 'Actif')).trim() || 'Actif',
       updatedAt: toStringValue(readField(dto, ['updatedAt', 'updated_at'], '')).trim(),
@@ -1910,10 +2429,12 @@ export class PersonnelService {
   private normalizeCreateDossierPayload(payload: CreatePersonnelDossierPayload): CreatePersonnelDossierPayload {
     const rawUpdatedAt = String(payload.updatedAt || '').trim();
     const parsed = Date.parse(rawUpdatedAt);
+    const resolvedAgent = this.resolveLocalAgentReference(payload.agentId, payload.agent);
 
     return {
       reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
-      agent: String(payload.agent || '').trim(),
+      agentId: resolvedAgent.agentId || undefined,
+      agent: resolvedAgent.agent,
       type: String(payload.type || '').trim(),
       status: this.normalizeOptionalText(payload.status) || 'Actif',
       updatedAt: !rawUpdatedAt
@@ -1930,6 +2451,7 @@ export class PersonnelService {
     const status = (query?.status || '').trim().toLowerCase();
     const type = (query?.type || '').trim().toLowerCase();
     const agent = (query?.agent || '').trim().toLowerCase();
+    const agentId = (query?.agentId || '').trim().toLowerCase();
     const search = (query?.q || '').trim().toLowerCase();
 
     if (status) {
@@ -1941,10 +2463,14 @@ export class PersonnelService {
     if (agent) {
       next = next.filter((item) => item.agent.toLowerCase().includes(agent));
     }
+    if (agentId) {
+      next = next.filter((item) => item.agentId.toLowerCase().includes(agentId));
+    }
     if (search) {
       next = next.filter((item) => {
         return (
           item.reference.toLowerCase().includes(search) ||
+          item.agentId.toLowerCase().includes(search) ||
           item.agent.toLowerCase().includes(search) ||
           item.type.toLowerCase().includes(search) ||
           item.status.toLowerCase().includes(search) ||
@@ -1973,6 +2499,8 @@ export class PersonnelService {
     switch (field) {
       case 'reference':
         return item.reference;
+      case 'agentId':
+        return item.agentId;
       case 'agent':
         return item.agent;
       case 'type':
@@ -1987,9 +2515,11 @@ export class PersonnelService {
 
   private appendLocalDossier(payload: CreatePersonnelDossierPayload): PersonnelDossier {
     const current = this.readLocalDossiers();
+    const resolvedAgent = this.resolveLocalAgentReference(payload.agentId, payload.agent);
     const created: PersonnelDossier = {
       reference: this.normalizeOptionalText(payload.reference) || this.generateDossierReference(current),
-      agent: String(payload.agent || '').trim(),
+      agentId: resolvedAgent.agentId,
+      agent: resolvedAgent.agent,
       type: String(payload.type || '').trim(),
       status: this.normalizeOptionalText(payload.status) || 'Actif',
       updatedAt: String(payload.updatedAt || new Date().toISOString()).trim(),
@@ -2030,9 +2560,11 @@ export class PersonnelService {
       return parsed
         .map((item) => {
           const record = item as Partial<PersonnelDossier>;
+          const resolvedAgent = this.resolveLocalAgentReference(record.agentId, record.agent);
           return {
             reference: String(record.reference || '').trim(),
-            agent: String(record.agent || '').trim(),
+            agentId: resolvedAgent.agentId,
+            agent: resolvedAgent.agent,
             type: String(record.type || '').trim(),
             status: String(record.status || 'Actif').trim() || 'Actif',
             updatedAt: String(record.updatedAt || '').trim(),
@@ -2058,9 +2590,14 @@ export class PersonnelService {
   }
 
   private normalizeAffectation(dto: PersonnelAffectationDto): PersonnelAffectation {
+    const resolvedAgent = this.resolveLocalAgentReference(
+      toStringValue(readField(dto, ['agentId', 'agent_id'], '')).trim(),
+      toStringValue(readField(dto, ['agent', 'agentName', 'agent_name'], '')).trim()
+    );
     return {
       reference: toStringValue(readField(dto, ['reference', 'assignmentRef', 'assignment_ref'], '')).trim(),
-      agent: toStringValue(readField(dto, ['agent', 'agentName', 'agent_name'], '')).trim(),
+      agentId: resolvedAgent.agentId,
+      agent: resolvedAgent.agent,
       fromUnit: toStringValue(readField(dto, ['fromUnit', 'from_unit'], '')).trim(),
       toUnit: toStringValue(readField(dto, ['toUnit', 'to_unit'], '')).trim(),
       effectiveDate: toStringValue(readField(dto, ['effectiveDate', 'effective_date'], '')).trim(),
@@ -2069,9 +2606,11 @@ export class PersonnelService {
   }
 
   private normalizeCreateAffectationPayload(payload: CreatePersonnelAffectationPayload): CreatePersonnelAffectationPayload {
+    const resolvedAgent = this.resolveLocalAgentReference(payload.agentId, payload.agent);
     return {
       reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
-      agent: String(payload.agent || '').trim(),
+      agentId: resolvedAgent.agentId || undefined,
+      agent: resolvedAgent.agent,
       fromUnit: String(payload.fromUnit || '').trim(),
       toUnit: String(payload.toUnit || '').trim(),
       effectiveDate: String(payload.effectiveDate || '').trim(),
@@ -2084,6 +2623,7 @@ export class PersonnelService {
 
     const status = (query?.status || '').trim().toLowerCase();
     const agent = (query?.agent || '').trim().toLowerCase();
+    const agentId = (query?.agentId || '').trim().toLowerCase();
     const fromUnit = (query?.fromUnit || '').trim().toLowerCase();
     const toUnit = (query?.toUnit || '').trim().toLowerCase();
     const search = (query?.q || '').trim().toLowerCase();
@@ -2093,6 +2633,9 @@ export class PersonnelService {
     }
     if (agent) {
       next = next.filter((item) => item.agent.toLowerCase().includes(agent));
+    }
+    if (agentId) {
+      next = next.filter((item) => item.agentId.toLowerCase().includes(agentId));
     }
     if (fromUnit) {
       next = next.filter((item) => item.fromUnit.toLowerCase().includes(fromUnit));
@@ -2104,6 +2647,7 @@ export class PersonnelService {
       next = next.filter((item) => {
         return (
           item.reference.toLowerCase().includes(search) ||
+          item.agentId.toLowerCase().includes(search) ||
           item.agent.toLowerCase().includes(search) ||
           item.fromUnit.toLowerCase().includes(search) ||
           item.toUnit.toLowerCase().includes(search) ||
@@ -2133,6 +2677,8 @@ export class PersonnelService {
     switch (field) {
       case 'reference':
         return item.reference;
+      case 'agentId':
+        return item.agentId;
       case 'agent':
         return item.agent;
       case 'fromUnit':
@@ -2149,9 +2695,11 @@ export class PersonnelService {
 
   private appendLocalAffectation(payload: CreatePersonnelAffectationPayload): PersonnelAffectation {
     const current = this.readLocalAffectations();
+    const resolvedAgent = this.resolveLocalAgentReference(payload.agentId, payload.agent);
     const created: PersonnelAffectation = {
       reference: this.normalizeOptionalText(payload.reference) || this.generateAffectationReference(current),
-      agent: String(payload.agent || '').trim(),
+      agentId: resolvedAgent.agentId,
+      agent: resolvedAgent.agent,
       fromUnit: String(payload.fromUnit || '').trim(),
       toUnit: String(payload.toUnit || '').trim(),
       effectiveDate: String(payload.effectiveDate || '').trim(),
@@ -2193,9 +2741,11 @@ export class PersonnelService {
       return parsed
         .map((item) => {
           const record = item as Partial<PersonnelAffectation>;
+          const resolvedAgent = this.resolveLocalAgentReference(record.agentId, record.agent);
           return {
             reference: String(record.reference || '').trim(),
-            agent: String(record.agent || '').trim(),
+            agentId: resolvedAgent.agentId,
+            agent: resolvedAgent.agent,
             fromUnit: String(record.fromUnit || '').trim(),
             toUnit: String(record.toUnit || '').trim(),
             effectiveDate: String(record.effectiveDate || '').trim(),
@@ -2525,6 +3075,8 @@ export class PersonnelService {
     const identity = normalizeIdentityInfo(payload.identity);
     const administrative = normalizeAdministrativeInfo(payload.administrative);
     const educations = normalizeEducations(payload.educations);
+    const competencies = normalizeCompetencies(payload.competencies);
+    const dependents = normalizeDependents(payload.dependents);
     const documents = mapAgentDocuments((payload.documents || []) as AgentDocumentDto[]);
     const record: LocalAgentRecord = {
       id,
@@ -2541,6 +3093,8 @@ export class PersonnelService {
       identity,
       administrative,
       educations,
+      competencies,
+      dependents,
       careerEvents: [],
       documents,
     };
@@ -2581,6 +3135,14 @@ export class PersonnelService {
       ? mapAgentDocuments((payload.documents || []) as AgentDocumentDto[])
       : mapAgentDocuments((current.documents || []) as AgentDocumentDto[]);
 
+    const nextCompetencies = has('competencies')
+      ? normalizeCompetencies(payload.competencies)
+      : normalizeCompetencies(current.competencies);
+
+    const nextDependents = has('dependents')
+      ? normalizeDependents(payload.dependents)
+      : normalizeDependents(current.dependents);
+
     const updated: LocalAgentRecord = {
       ...current,
       matricule: has('matricule') ? String(payload.matricule || '').trim() : current.matricule,
@@ -2596,6 +3158,8 @@ export class PersonnelService {
       identity: nextIdentity,
       administrative: nextAdministrative,
       educations: nextEducations,
+      competencies: nextCompetencies,
+      dependents: nextDependents,
       careerEvents: has('careerEvents')
         ? (Array.isArray(payload.careerEvents) ? payload.careerEvents : [])
         : (Array.isArray(current.careerEvents) ? current.careerEvents : []),
@@ -2664,6 +3228,8 @@ export class PersonnelService {
       identity: normalizeIdentityInfo(record.identity),
       administrative: normalizeAdministrativeInfo(record.administrative),
       educations: normalizeEducations(record.educations),
+      competencies: normalizeCompetencies(record.competencies),
+      dependents: normalizeDependents(record.dependents),
       careerEvents: Array.isArray(record.careerEvents) ? record.careerEvents : [],
       documents: mapAgentDocuments(Array.isArray(record.documents) ? record.documents : []),
     };
@@ -2685,6 +3251,8 @@ export class PersonnelService {
       identity: normalizeIdentityInfo(record.identity),
       administrative: normalizeAdministrativeInfo(record.administrative),
       educations: normalizeEducations(record.educations),
+      competencies: normalizeCompetencies(record.competencies),
+      dependents: normalizeDependents(record.dependents),
       careerEvents: record.careerEvents || [],
       documents: mapAgentDocuments(record.documents || []),
     };
@@ -2702,6 +3270,55 @@ export class PersonnelService {
   private normalizeOptionalText(value: unknown): string | undefined {
     const normalized = String(value || '').trim();
     return normalized.length ? normalized : undefined;
+  }
+
+  private buildLocalDigitalBadge(agent: LocalAgentRecord | undefined, fallbackAgentId: string): AgentDigitalBadge {
+    const issuedAt = new Date().toISOString();
+    const expiresAtDate = new Date();
+    expiresAtDate.setFullYear(expiresAtDate.getFullYear() + 1);
+    const agentId = String(agent?.id || fallbackAgentId || '').trim();
+    const badgeId = `BADGE-${String(agent?.matricule || agentId || 'AGENT').replace(/[^A-Z0-9-]/gi, '').toUpperCase()}`;
+    const verificationCode = this.simpleHash(`${agentId}:${agent?.fullName || ''}:${issuedAt}`).slice(0, 12).toUpperCase();
+    const signatureHash = this.simpleHash(
+      [badgeId, agentId, agent?.matricule || '', agent?.fullName || '', issuedAt, expiresAtDate.toISOString()].join('|')
+    );
+    const qrPayload = JSON.stringify({
+      type: 'GPA-GOUVE-BADGE',
+      agentId,
+      matricule: agent?.matricule || '',
+      fullName: agent?.fullName || '',
+      direction: agent?.direction || '',
+      badgeId,
+      verificationCode,
+      signatureHash,
+    });
+
+    return {
+      agentId,
+      badgeId,
+      issuedAt,
+      expiresAt: expiresAtDate.toISOString(),
+      status: 'ACTIVE',
+      verificationCode,
+      signatureHash,
+      qrPayload,
+    };
+  }
+
+  private simpleHash(value: string): string {
+    let hash = 0;
+    const input = String(value || '');
+    for (let index = 0; index < input.length; index += 1) {
+      hash = (hash << 5) - hash + input.charCodeAt(index);
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(16).padStart(8, '0');
+  }
+
+  private buildApiUrl(path: string): string {
+    const base = environment.api.baseUrl.replace(/\/+$/, '');
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${normalizedPath}`;
   }
 
   private hasLocalStorage(): boolean {
@@ -2723,6 +3340,10 @@ function mapAgentDocuments(documents: AgentDocumentDto[]): AgentDocument[] {
     reference: toStringValue(readField(doc, ['reference', 'ref'], '')),
     status: toStringValue(readField(doc, ['status'], '')),
     required: Boolean(readField(doc, ['required'], false)),
+    expiresAt: toStringValue(
+      readField(doc, ['expiresAt', 'expires_at', 'expirationDate', 'expiration_date'], ''),
+      ''
+    ),
     fileName: toStringValue(readField(doc, ['fileName', 'file_name'], '')),
     fileDataUrl: toStringValue(
       readField(doc, ['fileDataUrl', 'file_data_url', 'dataUrl', 'data_url', 'url'], ''),
@@ -2769,6 +3390,74 @@ function normalizeEducations(raw: any): AgentEducation[] {
     .filter((item) => item.degree || item.institution || item.field || item.graduationYear);
 }
 
+function normalizeCompetencyLevel(value: unknown): AgentCompetency['level'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized.includes('expert')) {
+    return 'Expert';
+  }
+  if (normalized.includes('avance') || normalized.includes('avancé') || normalized.includes('senior')) {
+    return 'Avance';
+  }
+  if (normalized.includes('inter')) {
+    return 'Intermediaire';
+  }
+  return 'Debutant';
+}
+
+function normalizeCompetencies(raw: any): AgentCompetency[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw
+    .map((item, index) => {
+      const label = toStringValue(readField(item, ['label', 'name'], ''), '').trim();
+      return {
+        id: toStringValue(readField(item, ['id'], ''), '').trim() || `skill-${index + 1}`,
+        label,
+        category: toStringValue(readField(item, ['category'], ''), '').trim() || 'Metier',
+        level: normalizeCompetencyLevel(readField(item, ['level'], 'Debutant')),
+        lastAssessedAt: toStringValue(
+          readField(item, ['lastAssessedAt', 'last_assessed_at'], ''),
+          ''
+        ).trim(),
+      } as AgentCompetency;
+    })
+    .filter((item) => !!item.label);
+}
+
+function normalizeDependentStatus(value: unknown): AgentDependent['coverageStatus'] {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (normalized.includes('suspend')) {
+    return 'Suspendu';
+  }
+  if (normalized.includes('expir')) {
+    return 'Expire';
+  }
+  return 'Actif';
+}
+
+function normalizeDependents(raw: any): AgentDependent[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw
+    .map((item, index) => {
+      const fullName = toStringValue(readField(item, ['fullName', 'full_name', 'name'], ''), '').trim();
+      return {
+        id: toStringValue(readField(item, ['id'], ''), '').trim() || `dep-${index + 1}`,
+        fullName,
+        relationship: toStringValue(readField(item, ['relationship', 'lien'], ''), '').trim(),
+        birthDate: toStringValue(readField(item, ['birthDate', 'birth_date'], ''), '').trim(),
+        coverageType: toStringValue(readField(item, ['coverageType', 'coverage_type'], ''), '').trim() || 'Sociale',
+        coverageStatus: normalizeDependentStatus(readField(item, ['coverageStatus', 'coverage_status'], 'Actif')),
+        phone: toStringValue(readField(item, ['phone'], ''), '').trim(),
+      } as AgentDependent;
+    })
+    .filter((item) => !!item.fullName);
+}
+
 function mapAgentListDtos(items: AgentListItemDto[]): AgentListItem[] {
   return items.map((dto) => ({
     id: toStringValue(readField(dto, ['id', 'matricule', 'employeeId', 'employee_id'], '')),
@@ -2781,6 +3470,14 @@ function mapAgentListDtos(items: AgentListItemDto[]): AgentListItem[] {
     manager: toStringValue(readField(dto, ['manager', 'managerName', 'manager_name'], '')),
     contractType: toStringValue(readField(dto, ['contractType', 'contract_type'], '')),
     photoUrl: toStringValue(readField(dto, ['photoUrl', 'photo_url'], './assets/images/faces/profile.jpg')),
+    hireDate: toStringValue(readField(dto, ['hireDate', 'hire_date'], ''), '') || undefined,
+    contractEndDate:
+      toStringValue(readField(dto, ['contractEndDate', 'contract_end_date'], ''), '') || undefined,
+    retirementDate:
+      toStringValue(readField(dto, ['retirementDate', 'retirement_date'], ''), '') || undefined,
+    documents: Array.isArray((dto as { documents?: unknown }).documents)
+      ? mapAgentDocuments(readField(dto, ['documents'], []))
+      : undefined,
   }));
 }
 
@@ -2817,6 +3514,29 @@ function normalizeAgentListPayload(payload: unknown): AgentListItemDto[] {
 
   const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
   return Array.isArray(nested) ? (nested as AgentListItemDto[]) : [];
+}
+
+function normalizeTurnoverRiskPayload(payload: unknown): PersonnelTurnoverRiskItemDto[] {
+  let raw = payload as any;
+
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  if (Array.isArray(raw)) {
+    return raw as PersonnelTurnoverRiskItemDto[];
+  }
+
+  if (!raw || typeof raw !== 'object') {
+    return [];
+  }
+
+  const nested = readField(raw as Record<string, unknown>, ['items', 'data', 'results', 'records'], []);
+  return Array.isArray(nested) ? (nested as PersonnelTurnoverRiskItemDto[]) : [];
 }
 
 function normalizeAgentDuplicateIndexPayload(payload: unknown): AgentDuplicateIndexItem[] {
@@ -3022,6 +3742,137 @@ function normalizeAgentAuditTrailPayload(payload: unknown): AgentAuditEvent[] {
   return [];
 }
 
+function normalizeAgentDocumentComplianceStatus(
+  value: unknown
+): AgentDocumentComplianceStatusApi {
+  const normalized = String(value || '').trim().toUpperCase();
+  if (normalized === 'EXPIRING_SOON' || normalized === 'WARNING') {
+    return 'EXPIRING_SOON';
+  }
+  if (normalized === 'EXPIRED') {
+    return 'EXPIRED';
+  }
+  if (normalized === 'MISSING') {
+    return 'MISSING';
+  }
+  if (normalized === 'PENDING_VALIDATION' || normalized === 'REVIEW_REQUIRED') {
+    return 'PENDING_VALIDATION';
+  }
+  return 'COMPLIANT';
+}
+
+function normalizeAgentDocumentComplianceApiPayload(
+  payload: AgentDocumentComplianceSummaryDto,
+  fallbackAgentId = ''
+): AgentDocumentComplianceSummaryApi {
+  let raw = payload as unknown;
+
+  if (typeof raw === 'string') {
+    try {
+      raw = JSON.parse(raw);
+    } catch {
+      raw = {};
+    }
+  }
+
+  const dto = (raw && typeof raw === 'object' ? raw : {}) as AgentDocumentComplianceSummaryDto;
+  const summaryRaw = readField(dto, ['summary'], {});
+  const summarySource =
+    summaryRaw && typeof summaryRaw === 'object' && !Array.isArray(summaryRaw)
+      ? (summaryRaw as Record<string, unknown>)
+      : {};
+
+  const itemsRaw = readField(dto, ['items'], []);
+  const items = Array.isArray(itemsRaw)
+    ? itemsRaw.map((item) => {
+      const row = item as AgentDocumentComplianceItemDto;
+      return {
+        documentTypeCode: toStringValue(
+          readField(row, ['documentTypeCode', 'document_type_code'], ''),
+          ''
+        ).trim(),
+        documentTypeLabel: toStringValue(
+          readField(row, ['documentTypeLabel', 'document_type_label'], ''),
+          ''
+        ).trim(),
+        requirementScope: toStringValue(
+          readField(row, ['requirementScope', 'requirement_scope'], 'GLOBAL'),
+          'GLOBAL'
+        ).trim() || 'GLOBAL',
+        complianceStatus: normalizeAgentDocumentComplianceStatus(
+          readField(row, ['complianceStatus', 'compliance_status'], 'COMPLIANT')
+        ),
+        documentReference: toStringValue(
+          readField(row, ['documentReference', 'document_reference'], ''),
+          ''
+        ).trim(),
+        expiresOn: toStringValue(readField(row, ['expiresOn', 'expires_on'], ''), '').trim(),
+        dueOn: toStringValue(readField(row, ['dueOn', 'due_on'], ''), '').trim(),
+      };
+    })
+    : [];
+
+  const countOf = (key: string, fallback: number): number => {
+    const parsed = Number(summarySource[key]);
+    return Number.isFinite(parsed) ? Math.max(0, Math.round(parsed)) : fallback;
+  };
+
+  return {
+    employeeId: toStringValue(readField(dto, ['employeeId', 'employee_id'], fallbackAgentId), fallbackAgentId).trim(),
+    summary: {
+      requiredCount: countOf('requiredCount', items.length),
+      compliantCount: countOf(
+        'compliantCount',
+        items.filter((item) => item.complianceStatus === 'COMPLIANT').length
+      ),
+      missingCount: countOf(
+        'missingCount',
+        items.filter((item) => item.complianceStatus === 'MISSING').length
+      ),
+      expiredCount: countOf(
+        'expiredCount',
+        items.filter((item) => item.complianceStatus === 'EXPIRED').length
+      ),
+      expiringSoonCount: countOf(
+        'expiringSoonCount',
+        items.filter((item) => item.complianceStatus === 'EXPIRING_SOON').length
+      ),
+    },
+    items,
+  };
+}
+
+function normalizeAgentDigitalBadgeStatus(value: unknown): AgentDigitalBadge['status'] {
+  const normalized = String(value || '').trim().toUpperCase();
+  if (normalized === 'SUSPENDED') {
+    return 'SUSPENDED';
+  }
+  if (normalized === 'EXPIRED') {
+    return 'EXPIRED';
+  }
+  return 'ACTIVE';
+}
+
+function normalizeAgentDigitalBadgePayload(
+  payload: AgentDigitalBadgeDto,
+  fallbackAgentId = ''
+): AgentDigitalBadge {
+  const dto = (payload && typeof payload === 'object' ? payload : {}) as AgentDigitalBadgeDto;
+  return {
+    agentId: toStringValue(readField(dto, ['agentId', 'agent_id'], fallbackAgentId), fallbackAgentId).trim(),
+    badgeId: toStringValue(readField(dto, ['badgeId', 'badge_id'], ''), '').trim(),
+    issuedAt: toStringValue(readField(dto, ['issuedAt', 'issued_at'], ''), '').trim(),
+    expiresAt: toStringValue(readField(dto, ['expiresAt', 'expires_at'], ''), '').trim(),
+    status: normalizeAgentDigitalBadgeStatus(readField(dto, ['status'], 'ACTIVE')),
+    verificationCode: toStringValue(
+      readField(dto, ['verificationCode', 'verification_code'], ''),
+      ''
+    ).trim(),
+    signatureHash: toStringValue(readField(dto, ['signatureHash', 'signature_hash'], ''), '').trim(),
+    qrPayload: toStringValue(readField(dto, ['qrPayload', 'qr_payload'], ''), '').trim(),
+  };
+}
+
 function normalizeAgentMatriculeSuggestionPayload(payload: unknown): AgentMatriculeSuggestion {
   const dto = (payload && typeof payload === 'object' ? payload : {}) as AgentMatriculeSuggestionDto;
 
@@ -3061,6 +3912,8 @@ function mapAgentDetailDto(dto: AgentDetailDto, fallbackId = ''): AgentDetail {
     educations: normalizeEducations(
       readField(dto, ['educations', 'educationHistory', 'education_history'], [])
     ),
+    competencies: normalizeCompetencies(readField(dto, ['competencies', 'skills'], [])),
+    dependents: normalizeDependents(readField(dto, ['dependents', 'beneficiaries'], [])),
     careerEvents: mapAgentCareerEvents(readField(dto, ['careerEvents', 'career_events'], [])),
     documents: mapAgentDocuments(readField(dto, ['documents'], [])),
   };
