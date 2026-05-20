@@ -23,7 +23,7 @@ export const errorInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next:
         const message = apiError.requestId
           ? `${apiError.userMessage} (Ref: ${apiError.requestId})`
           : apiError.userMessage;
-        toastr.error(message, 'Primature RH', {
+        toastr.error(message, 'DRH', {
           timeOut: 5000,
           positionClass: 'toast-top-right',
         });

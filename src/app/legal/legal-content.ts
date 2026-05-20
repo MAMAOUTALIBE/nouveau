@@ -34,12 +34,12 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
     status: 'draft-juridique',
     intro:
       "Conformément aux exigences de transparence d'un service public, le présent " +
-      "site (« GPA-GOUVE ») est édité par la Primature de la République de Guinée.",
+      "site (« GPA-GOUVE ») est édité par la DRH de la République de Guinée.",
     sections: [
       {
         heading: 'Éditeur',
         html:
-          '<p><strong>Primature de la République de Guinée</strong><br />' +
+          '<p><strong>DRH de la République de Guinée</strong><br />' +
           'Adresse : à compléter<br />' +
           'Téléphone : à compléter<br />' +
           'Adresse électronique : <code>contact@prim.gov.gn</code></p>',
@@ -106,7 +106,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
         html:
           '<p>L’éditeur s’efforce d’assurer une disponibilité de niveau service ' +
           'public. Le contrat de service détaillé (SLA) est disponible sur ' +
-          'demande à la DSI Primature.</p>',
+          'demande à la DSI DRH.</p>',
       },
       {
         heading: 'Limitations de responsabilité',
@@ -127,7 +127,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
     lastUpdated: '2026-05-11',
     status: 'draft-juridique',
     intro:
-      "La Primature s'engage à traiter les données personnelles des agents et " +
+      "La DRH s'engage à traiter les données personnelles des agents et " +
       "candidats avec rigueur et transparence, conformément à la loi " +
       "037/AN/2016 du 24 octobre 2016 relative à la cyber-sécurité et la " +
       "protection des données à caractère personnel.",
@@ -135,7 +135,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
       {
         heading: 'Responsable de traitement',
         html:
-          '<p>La Primature de la République de Guinée est responsable du ' +
+          '<p>La DRH de la République de Guinée est responsable du ' +
           'traitement des données collectées et traitées par GPA-GOUVE.</p>',
       },
       {
@@ -198,7 +198,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
       },
     ],
     contactBlock:
-      "DPO Primature : <code>dpo@prim.gov.gn</code>. Vous pouvez également " +
+      "DPO DRH : <code>dpo@prim.gov.gn</code>. Vous pouvez également " +
       "saisir l'autorité nationale (CNPDP-GN) en cas de désaccord persistant.",
   },
 
@@ -255,7 +255,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
     lastUpdated: '2026-05-11',
     status: 'draft-juridique',
     intro:
-      "La Primature s'engage à rendre le site GPA-GOUVE accessible à toutes " +
+      "La DRH s'engage à rendre le site GPA-GOUVE accessible à toutes " +
       "et à tous, conformément aux principes du RGAA 4.1 et de la norme " +
       "internationale WCAG 2.1 AA.",
     sections: [
@@ -302,7 +302,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
     lastUpdated: '2026-05-11',
     status: 'draft-juridique',
     intro:
-      "La Primature accueille les rapports de chercheurs en sécurité ayant " +
+      "La DRH accueille les rapports de chercheurs en sécurité ayant " +
       "identifié de bonne foi des vulnérabilités sur GPA-GOUVE.",
     sections: [
       {
@@ -332,7 +332,7 @@ export const LEGAL_CONTENT: Readonly<Record<string, LegalPageContent>> = {
       {
         heading: 'Pas de poursuites',
         html:
-          '<p>La Primature s’engage à ne pas poursuivre les chercheurs ' +
+          '<p>La DRH s’engage à ne pas poursuivre les chercheurs ' +
           'respectant la présente politique.</p>',
       },
     ],

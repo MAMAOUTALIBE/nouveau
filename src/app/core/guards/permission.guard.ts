@@ -19,7 +19,7 @@ function checkRouteAccess(route: Route): boolean {
     return true;
   }
 
-  toastr.warning("Acces refuse pour cette fonctionnalite.", 'Primature RH', {
+  toastr.warning("Acces refuse pour cette fonctionnalite.", 'DRH', {
     timeOut: 3000,
     positionClass: 'toast-top-right',
   });

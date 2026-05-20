@@ -60,7 +60,7 @@ export class Login implements OnInit, OnDestroy {
     if (this.validateForm(email, password)) {
       this.authenticate(email, password);
     } else {
-      this.toastr.error('Identifiants invalides', 'Primature RH', {
+      this.toastr.error('Identifiants invalides', 'DRH', {
         timeOut: 3000,
         positionClass: 'toast-top-right',
       });
@@ -105,14 +105,14 @@ export class Login implements OnInit, OnDestroy {
       .loginWithEmail(email, password)
       .then(() => {
         this.router.navigateByUrl(this.navService.getDefaultPath());
-        this.toastr.success('Connexion réussie', 'Primature RH', {
+        this.toastr.success('Connexion réussie', 'DRH', {
           timeOut: 3000,
           positionClass: 'toast-top-right',
         });
       })
       .catch((error: any) => {
         this.authError = error;
-        this.toastr.error(this.resolveAuthErrorMessage(error), 'Primature RH', {
+        this.toastr.error(this.resolveAuthErrorMessage(error), 'DRH', {
           timeOut: 3000,
           positionClass: 'toast-top-right',
         });

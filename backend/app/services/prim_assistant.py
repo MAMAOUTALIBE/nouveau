@@ -59,7 +59,7 @@ class AssistantTurn:
     sources: list[str] = field(default_factory=list)
 
 
-_INTENT_SYSTEM_PROMPT = """Tu es Prim'Assistant, l'assistant RH de la Primature de \
+_INTENT_SYSTEM_PROMPT = """Tu es Prim'Assistant, l'assistant RH de la DRH de \
 la République de Guinée. Tu aides les agents et managers à effectuer des \
 opérations RH simples.
 

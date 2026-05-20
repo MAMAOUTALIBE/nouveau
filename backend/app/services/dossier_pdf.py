@@ -86,7 +86,7 @@ async def generate_signed_dossier(
     signature = await signer.sign_document(
         document_bytes=pdf_bytes,
         document_reference=f"DOSSIER-{employee.matricule}",
-        signer_full_name="Service RH Primature",
+        signer_full_name="Service DRH",
         reason=f"Génération dossier administratif — {employee.full_name}",
     )
 

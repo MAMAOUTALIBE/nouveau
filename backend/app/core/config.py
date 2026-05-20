@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     otel_exporter_otlp_endpoint: str | None = None
 
     # ---------------- 2FA TOTP (Vague 8) ----------------
-    totp_issuer: str = "RH Primature"
+    totp_issuer: str = "DRH"
     totp_required_for_roles: str = "super_admin,hr_manager"  # CSV
 
     # ---------------- Adapters externes ----------------

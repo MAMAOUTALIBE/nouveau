@@ -67,7 +67,7 @@ class MinimalPdfRenderer(PdfRenderer):
 
     def render(self, *, template_name: str, context: dict[str, Any]) -> bytes:
         # Sérialise simplement le contexte en texte
-        title = str(context.get("title", "Document RH Primature"))
+        title = str(context.get("title", "Document DRH"))
         lines = [title, "=" * 60, ""]
         for key, value in sorted(context.items()):
             if key == "title":

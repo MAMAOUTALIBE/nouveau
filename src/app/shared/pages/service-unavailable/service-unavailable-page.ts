@@ -79,7 +79,7 @@ export class ServiceUnavailablePage implements OnInit, OnDestroy {
         details: 'Service indisponible',
       });
       if (options.source !== 'auto') {
-        this.toastr.warning('Le service est toujours indisponible. Reessayez dans quelques instants.', 'Primature RH', {
+        this.toastr.warning('Le service est toujours indisponible. Reessayez dans quelques instants.', 'DRH', {
           timeOut: 3000,
           positionClass: 'toast-top-right',
         });
@@ -89,7 +89,7 @@ export class ServiceUnavailablePage implements OnInit, OnDestroy {
     }
 
     if (options.source !== 'auto') {
-      this.toastr.success('Service retabli. Relance en cours.', 'Primature RH', {
+      this.toastr.success('Service retabli. Relance en cours.', 'DRH', {
         timeOut: 2500,
         positionClass: 'toast-top-right',
       });

@@ -74,10 +74,10 @@ def create_app() -> FastAPI:
     setup_sentry(settings)
 
     app = FastAPI(
-        title="RH Primature — Backend API",
+        title="DRH — Backend API",
         description=(
             "API REST de l'application de gestion des ressources humaines "
-            "de la Primature de la République de Guinée."
+            "de la DRH de la République de Guinée."
         ),
         version=__version__,
         docs_url="/docs" if not settings.is_prod else None,

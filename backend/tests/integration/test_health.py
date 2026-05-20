@@ -48,7 +48,7 @@ async def test_openapi_schema_available_in_dev() -> None:
 
     assert response.status_code == 200
     schema = response.json()
-    assert schema["info"]["title"].startswith("RH Primature")
+    assert schema["info"]["title"].startswith("DRH")
 
 
 @pytest.mark.asyncio

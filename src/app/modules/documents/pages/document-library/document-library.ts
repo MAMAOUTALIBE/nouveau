@@ -1280,7 +1280,7 @@ export class DocumentLibraryPage implements OnInit, OnDestroy {
 
     const payload: SignDocumentPayload = {
       signatoryName: String(item.approver || '').trim() || undefined,
-      stampLabel: 'CACHET RH PRIMATURE',
+      stampLabel: 'CACHET DRH',
     };
 
     this.signing = true;
@@ -2567,7 +2567,7 @@ export class DocumentLibraryPage implements OnInit, OnDestroy {
     const verificationCode = item.verificationCode || '-';
     const signatureHash = item.signatureHash || '-';
 
-    lines.push('REPUBLIQUE DE GUINEE - PRIMATURE');
+    lines.push('REPUBLIQUE DE GUINEE - DRH');
     lines.push('DIRECTION DES RESSOURCES HUMAINES');
     lines.push('');
     this.appendPdfFieldLine(lines, 'Document', item.title || item.type || 'Document RH');
@@ -2708,7 +2708,7 @@ export class DocumentLibraryPage implements OnInit, OnDestroy {
     <div class="header">
       <div class="brand">
         <h1>République de Guinée</h1>
-        <h2>Primature · Ressources Humaines</h2>
+        <h2>DRH · Ressources Humaines</h2>
         <p>Conakry · ${today}</p>
       </div>
       <div class="flag"><div class="red"></div><div class="yellow"></div><div class="green"></div></div>
@@ -2866,7 +2866,7 @@ export class DocumentLibraryPage implements OnInit, OnDestroy {
     <div class="watermark">DOCUMENT OFFICIEL</div>
     <div class="header">
       <div class="country">Republique de Guinee</div>
-      <div class="ministry">Primature - Direction des Ressources Humaines</div>
+      <div class="ministry">DRH - Direction des Ressources Humaines</div>
       <div class="service">Service proprietaire: ${owner}</div>
     </div>
 
@@ -2903,7 +2903,7 @@ export class DocumentLibraryPage implements OnInit, OnDestroy {
         <div>Pour validation</div>
         <div class="signature-line">${approver}</div>
       </div>
-      <div class="stamp">CACHE T RH<br/>PRIMATURE</div>
+      <div class="stamp">CACHE T RH<br/>DRH</div>
     </div>
 
     <div class="note">Ce document est genere depuis le SIRH. Verification possible via le code ${verificationCode}.</div>

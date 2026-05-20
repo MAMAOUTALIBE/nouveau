@@ -17,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !isAuthRequest) {
         if (!token) {
-          toastr.warning('Authentification requise. Veuillez vous reconnecter.', 'Primature RH', {
+          toastr.warning('Authentification requise. Veuillez vous reconnecter.', 'DRH', {
             timeOut: 4000,
             positionClass: 'toast-top-right',
           });
@@ -31,7 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
             return next(retryReq);
           }),
           catchError((err) => {
-            toastr.error('Session expiree. Veuillez vous reconnecter.', 'Primature RH', {
+            toastr.error('Session expiree. Veuillez vous reconnecter.', 'DRH', {
               timeOut: 4000,
               positionClass: 'toast-top-right',
             });
