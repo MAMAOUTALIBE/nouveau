@@ -1,0 +1,22 @@
+# Contexte de build du frontend — on exclut tout ce qui est inutile au build Angular.
+node_modules
+dist
+.angular
+.git
+.github
+.vscode
+backend
+mock-backend
+preview
+tests
+test-results
+playwright-report
+bpmn
+db
+docs
+*.log
+.env
+.env.*
+Dockerfile
+docker-compose*.yml
+DEPLOYMENT.md
