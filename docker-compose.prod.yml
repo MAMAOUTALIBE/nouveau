@@ -37,6 +37,11 @@ services:
       ENV: prod
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY requis dans .env (>=32 caracteres)}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-rh_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rh_primature}
+    # La migration baseline 0001 rejoue les fichiers SQL de db/postgresql/,
+    # qui ne sont pas dans l'image backend (hors contexte de build) : on les
+    # monte là où la migration les cherche.
+    volumes:
+      - ./db/postgresql:/app/db/postgresql:ro
     depends_on:
       postgres:
         condition: service_healthy
