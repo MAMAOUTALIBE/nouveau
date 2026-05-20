@@ -95,6 +95,80 @@
               (input)="onSearchInput(($any($event.target)).value)" />
           </div>
         </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-xl-4">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Auto-approbation</h6>
+                <div class="text-muted fs-12">Absences courtes candidates a validation automatique</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ autoApprovalCandidates.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="autoApprovalCandidates.length > 0; else noAutoApproval">
+                  <li class="d-flex justify-content-between mb-2" *ngFor="let request of autoApprovalCandidates">
+                    <span>{{ request.agent }}</span>
+                    <span class="badge bg-success-transparent text-success">{{ request.reference }}</span>
+                  </li>
+                </ul>
+                <ng-template #noAutoApproval>
+                  <div class="text-muted fs-12">Aucune demande eligible dans la vue courante.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Detection d'anomalies</h6>
+                <div class="text-muted fs-12">Absences longues, repetitions et retards de traitement</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ absenceAnomalies.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="absenceAnomalies.length > 0; else noAnomaly">
+                  <li class="mb-2" *ngFor="let anomaly of absenceAnomalies">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ anomaly.agent }}</span>
+                      <span
+                        class="badge"
+                        [ngClass]="anomaly.severity === 'Critique' ? 'bg-danger-transparent text-danger' : 'bg-warning-transparent text-warning'"
+                      >
+                        {{ anomaly.severity }}
+                      </span>
+                    </div>
+                    <div class="text-muted fs-12">{{ anomaly.detail }}</div>
+                  </li>
+                </ul>
+                <ng-template #noAnomaly>
+                  <div class="text-muted fs-12">Aucune anomalie detectee dans la vue courante.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Continuite de service</h6>
+                <div class="text-muted fs-12">Periodes avec concentration d'absences</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ continuityRisks.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="continuityRisks.length > 0; else noContinuityRisk">
+                  <li class="mb-2" *ngFor="let risk of continuityRisks">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ risk.period }}</span>
+                      <span class="badge bg-primary-transparent">{{ risk.count }} demande(s)</span>
+                    </div>
+                    <div class="text-muted fs-12">{{ risk.recommendation }}</div>
+                  </li>
+                </ul>
+                <ng-template #noContinuityRisk>
+                  <div class="text-muted fs-12">Aucun risque de concentration detecte.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

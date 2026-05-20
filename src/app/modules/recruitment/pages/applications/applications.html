@@ -7,7 +7,7 @@
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageRecruitment()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle candidature' }}
           </button>
-          <button type="button" class="btn btn-outline-primary" (click)="exportApplications()">
+          <button type="button" class="btn btn-outline-primary" (click)="exportApplications()" [disabled]="!canManageRecruitment()">
             Exporter
           </button>
         </div>
@@ -103,7 +103,7 @@
                     <div class="btn-list">
                       <a
                         class="btn btn-sm btn-outline-info"
-                        [attr.href]="previewAttachmentHref(attachment)"
+                        [href]="previewAttachmentUrl(attachment)"
                         target="_blank"
                         rel="noopener"
                       >
@@ -111,8 +111,9 @@
                       </a>
                       <a
                         class="btn btn-sm btn-outline-primary"
-                        [attr.href]="downloadAttachmentHref(attachment)"
-                        [attr.download]="attachment.fileName || 'piece-jointe'"
+                        [href]="downloadAttachmentUrl(attachment)"
+                        target="_blank"
+                        rel="noopener"
                       >
                         Telecharger
                       </a>
@@ -739,8 +740,8 @@
               <div class="text-muted fs-12">Templates par poste, versionning minimal, import/export CSV/JSON</div>
             </div>
             <div class="btn-list">
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('json')">Export JSON</button>
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('csv')">Export CSV</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('json')" [disabled]="!canManageRecruitment()">Export JSON</button>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="exportQuestionBank('csv')" [disabled]="!canManageRecruitment()">Export CSV</button>
             </div>
           </div>
           <div class="card-body">
@@ -1140,7 +1141,7 @@
                     <div class="btn-list">
                       <a
                         class="btn btn-sm btn-outline-info"
-                        [attr.href]="previewAttachmentHref(attachment)"
+                        [href]="previewAttachmentUrl(attachment)"
                         target="_blank"
                         rel="noopener"
                       >
@@ -1148,8 +1149,9 @@
                       </a>
                       <a
                         class="btn btn-sm btn-outline-primary"
-                        [attr.href]="downloadAttachmentHref(attachment)"
-                        [attr.download]="attachment.fileName || 'piece-jointe'"
+                        [href]="downloadAttachmentUrl(attachment)"
+                        target="_blank"
+                        rel="noopener"
                       >
                         Telecharger
                       </a>

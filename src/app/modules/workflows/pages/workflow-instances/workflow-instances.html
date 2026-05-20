@@ -4,14 +4,14 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Pilotage des instances workflow</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageWorkflows()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Nouvelle instance' }}
           </button>
           <button
             type="button"
             class="btn btn-danger"
             (click)="launchEmergencyPlan()"
-            [disabled]="isApplyingEmergencyPlan || isLoading || !priorityQueue.length"
+            [disabled]="isApplyingEmergencyPlan || isLoading || !priorityQueue.length || !canManageWorkflows()"
           >
             {{ isApplyingEmergencyPlan ? 'Execution...' : "Plan d'urgence (Top 3)" }}
           </button>
@@ -112,7 +112,7 @@
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="isCreatingInstance">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="isCreatingInstance">
+                <button type="submit" class="btn btn-primary" [disabled]="isCreatingInstance || !canManageWorkflows()">
                   {{ isCreatingInstance ? 'Enregistrement...' : 'Enregistrer l instance' }}
                 </button>
               </div>
@@ -137,6 +137,7 @@
                   id="workflowAutomationToggle"
                   [(ngModel)]="automationEnabled"
                   (change)="toggleAutomation()"
+                  [disabled]="!canManageWorkflows()"
                 />
                 <label class="form-check-label fs-12" for="workflowAutomationToggle">
                   {{ automationEnabled ? 'Actif' : 'Inactif' }}
@@ -146,7 +147,7 @@
                 class="form-select form-select-sm automation-interval"
                 [(ngModel)]="automationIntervalSeconds"
                 (change)="onAutomationIntervalChange()"
-                [disabled]="!automationEnabled"
+                [disabled]="!automationEnabled || !canManageWorkflows()"
               >
                 <option [ngValue]="30">30s</option>
                 <option [ngValue]="45">45s</option>
@@ -156,11 +157,11 @@
               <button
                 class="btn btn-sm btn-outline-primary"
                 (click)="runAutomationCycle()"
-                [disabled]="isRunningAutomationCycle || isLoading"
+                [disabled]="isRunningAutomationCycle || isLoading || !canManageWorkflows()"
               >
                 {{ isRunningAutomationCycle ? 'Execution...' : 'Cycle manuel' }}
               </button>
-              <button class="btn btn-sm btn-outline-secondary" (click)="clearAutomationEvents()" [disabled]="!automationEvents.length">
+              <button class="btn btn-sm btn-outline-secondary" (click)="clearAutomationEvents()" [disabled]="!automationEvents.length || !canManageWorkflows()">
                 Vider journal
               </button>
             </div>
@@ -239,7 +240,7 @@
             </div>
 
             <div class="channel-actions">
-              <button class="btn btn-sm btn-outline-success" (click)="saveNotificationChannels()" [disabled]="isSavingChannels">
+              <button class="btn btn-sm btn-outline-success" (click)="saveNotificationChannels()" [disabled]="isSavingChannels || !canManageWorkflows()">
                 {{ isSavingChannels ? 'Enregistrement...' : 'Enregistrer canaux' }}
               </button>
               <button class="btn btn-sm btn-outline-secondary" (click)="refreshAutomationData()">
@@ -333,7 +334,7 @@
             </div>
 
             <div class="matrix-actions">
-              <button class="btn btn-sm btn-outline-danger" (click)="saveEscalationMatrix()" [disabled]="isSavingMatrix">
+              <button class="btn btn-sm btn-outline-danger" (click)="saveEscalationMatrix()" [disabled]="isSavingMatrix || !canManageWorkflows()">
                 {{ isSavingMatrix ? 'Enregistrement...' : 'Enregistrer matrice' }}
               </button>
             </div>
@@ -364,7 +365,7 @@
               <button
                 class="btn btn-sm btn-outline-danger"
                 (click)="applySimulationBatch()"
-                [disabled]="isApplyingSimulationBatch || !simulationResult"
+                [disabled]="isApplyingSimulationBatch || !simulationResult || !canManageWorkflows()"
               >
                 {{ isApplyingSimulationBatch ? 'Execution...' : 'Appliquer batch escalade' }}
               </button>
@@ -573,7 +574,7 @@
                 <button
                   class="btn btn-sm btn-outline-primary"
                   (click)="applyRecommendation(instance)"
-                  [disabled]="!hasRecommendation(instance)"
+                  [disabled]="!hasRecommendation(instance) || !canManageWorkflows()"
                 >
                   Appliquer reco
                 </button>
@@ -659,28 +660,28 @@
                     <button
                       class="btn btn-success-light"
                       (click)="performAction(instance, 'APPROUVER')"
-                      [disabled]="!canApprove(instance)"
+                      [disabled]="!canApprove(instance) || !canManageWorkflows()"
                     >
                       Approuver
                     </button>
                     <button
                       class="btn btn-danger-light"
                       (click)="performAction(instance, 'REJETER')"
-                      [disabled]="!canReject(instance)"
+                      [disabled]="!canReject(instance) || !canManageWorkflows()"
                     >
                       Rejeter
                     </button>
                     <button
                       class="btn btn-warning-light"
                       (click)="performAction(instance, 'ESCALADER')"
-                      [disabled]="!canEscalate(instance)"
+                      [disabled]="!canEscalate(instance) || !canManageWorkflows()"
                     >
                       Escalader
                     </button>
                     <button
                       class="btn btn-primary-light"
                       (click)="applyRecommendation(instance)"
-                      [disabled]="!hasRecommendation(instance)"
+                      [disabled]="!hasRecommendation(instance) || !canManageWorkflows()"
                     >
                       Reco
                     </button>

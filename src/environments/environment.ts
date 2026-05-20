@@ -9,9 +9,9 @@ export const environment = {
   },
   auth: {
     devFallback: {
-      enabled: true,
-      username: 'spruko@admin.com',
-      password: 'sprukoadmin',
+      enabled: false,
+      username: '',
+      password: '',
     },
   },
   firebase: {

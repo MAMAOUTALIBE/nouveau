@@ -57,6 +57,43 @@ function shortHash(value) {
     .slice(0, 10);
 }
 
+function normalizeForHash(value) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => normalizeForHash(entry));
+  }
+  if (value && typeof value === 'object' && !(value instanceof Date)) {
+    return Object.keys(value)
+      .sort()
+      .reduce((accumulator, key) => {
+        const normalizedValue = normalizeForHash(value[key]);
+        if (normalizedValue !== undefined) {
+          accumulator[key] = normalizedValue;
+        }
+        return accumulator;
+      }, {});
+  }
+  return value;
+}
+
+function computeSnapshotHash(context) {
+  const snapshot = {
+    adminAuditLogs: Array.isArray(context.adminAuditLogs) ? context.adminAuditLogs : [],
+    adminRoles: Array.isArray(context.adminRoles) ? context.adminRoles : [],
+    adminUsers: Array.isArray(context.adminUsers) ? context.adminUsers : [],
+    agents: Array.isArray(context.agents) ? context.agents : [],
+    appScopes: context.APP_SCOPES || {},
+    documentAuditLogs: Array.isArray(context.documentAuditLogs) ? context.documentAuditLogs : [],
+    documentDispatches: Array.isArray(context.documentDispatches) ? context.documentDispatches : [],
+    documentsLibrary: Array.isArray(context.documentsLibrary) ? context.documentsLibrary : [],
+    rolePermissions: context.ROLE_PERMISSIONS || {},
+    users: Array.isArray(context.users) ? context.users : [],
+    workflowDefinitions: Array.isArray(context.workflowDefinitions) ? context.workflowDefinitions : [],
+    workflowInstances: Array.isArray(context.workflowInstances) ? context.workflowInstances : [],
+  };
+
+  return createHash('sha256').update(JSON.stringify(normalizeForHash(snapshot))).digest('hex');
+}
+
 function uniqueStrings(values) {
   return Array.from(
     new Set(
@@ -299,8 +336,21 @@ function mapRoleStatusFromDb(value) {
   }
 }
 
-function resolveSchemaPath() {
-  return pathModule.join(__dirname, '..', '..', 'db', 'postgresql', '001_init_rh_schema.sql');
+function resolveMigrationsDirectory() {
+  return pathModule.join(__dirname, '..', '..', 'db', 'postgresql');
+}
+
+function listMigrationPaths() {
+  const migrationsDirectory = resolveMigrationsDirectory();
+  if (!fs.existsSync(migrationsDirectory)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(migrationsDirectory)
+    .filter((fileName) => /^\d+.*\.sql$/i.test(fileName))
+    .sort((left, right) => left.localeCompare(right, 'en', { numeric: true }))
+    .map((fileName) => pathModule.join(migrationsDirectory, fileName));
 }
 
 async function bootstrapSchema(client, status) {
@@ -309,15 +359,19 @@ async function bootstrapSchema(client, status) {
     return;
   }
 
-  const schemaPath = resolveSchemaPath();
-  if (!fs.existsSync(schemaPath)) {
-    status.schemaBootstrap = `missing:${schemaPath}`;
+  const migrationPaths = listMigrationPaths();
+  if (migrationPaths.length === 0) {
+    status.schemaBootstrap = `missing:${resolveMigrationsDirectory()}`;
     return;
   }
 
-  const sql = fs.readFileSync(schemaPath, 'utf8');
-  await client.query(sql);
-  status.schemaBootstrap = 'applied';
+  const appliedMigrations = [];
+  for (const migrationPath of migrationPaths) {
+    const sql = fs.readFileSync(migrationPath, 'utf8');
+    await client.query(sql);
+    appliedMigrations.push(pathModule.basename(migrationPath));
+  }
+  status.schemaBootstrap = `applied:${appliedMigrations.join(',')}`;
 }
 
 async function ensureOrganization(client) {
@@ -338,20 +392,15 @@ async function hasPersistedData(client) {
   const result = await client.query(
     `
       select
-        (select count(*)::int from hr.users) as users_count,
-        (select count(*)::int from hr.employees) as employees_count,
-        (select count(*)::int from hr.documents) as documents_count,
-        (select count(*)::int from hr.workflow_instances) as workflows_count
+        exists(select 1 from hr.users limit 1) as has_users,
+        exists(select 1 from hr.employees limit 1) as has_employees,
+        exists(select 1 from hr.documents limit 1) as has_documents,
+        exists(select 1 from hr.workflow_instances limit 1) as has_workflows
     `
   );
 
   const row = result.rows[0] || {};
-  return (
-    Number(row.users_count || 0) > 0 ||
-    Number(row.employees_count || 0) > 0 ||
-    Number(row.documents_count || 0) > 0 ||
-    Number(row.workflows_count || 0) > 0
-  );
+  return Boolean(row.has_users || row.has_employees || row.has_documents || row.has_workflows);
 }
 
 async function hydrateFromDatabase(client, context) {
@@ -1419,8 +1468,19 @@ async function persistSnapshot(client, context) {
 
 }
 
-async function runSyncCycle(pool, status, context, reason) {
+async function runSyncCycle(pool, status, context, reason, snapshotState) {
   if (status.inProgress) {
+    return;
+  }
+
+  const snapshotHash = computeSnapshotHash(context);
+  if (snapshotState.lastSuccessfulHash && snapshotState.lastSuccessfulHash === snapshotHash) {
+    status.lastSkipAt = new Date().toISOString();
+    status.lastSkipReason = reason;
+    status.lastSnapshotHash = snapshotHash;
+    status.skipCount += 1;
+    status.lastError = null;
+    status.lastErrorAt = null;
     return;
   }
 
@@ -1431,11 +1491,14 @@ async function runSyncCycle(pool, status, context, reason) {
     await client.query('begin');
     await persistSnapshot(client, context);
     await client.query('commit');
+    snapshotState.lastSuccessfulHash = snapshotHash;
     status.lastSyncAt = new Date().toISOString();
     status.lastSyncReason = reason;
+    status.lastSnapshotHash = snapshotHash;
     status.syncCount += 1;
     status.lastDurationMs = Date.now() - startedAt;
     status.lastError = null;
+    status.lastErrorAt = null;
   } catch (error) {
     await client.query('rollback');
     status.lastError = error instanceof Error ? error.message : String(error);
@@ -1460,6 +1523,10 @@ function startPostgresSync(context) {
     lastDurationMs: null,
     lastError: null,
     lastErrorAt: null,
+    lastSkipAt: null,
+    lastSkipReason: null,
+    lastSnapshotHash: null,
+    skipCount: 0,
     intervalMs: DB_SYNC_INTERVAL_MS,
   };
 
@@ -1500,9 +1567,13 @@ function startPostgresSync(context) {
   });
 
   status.enabled = true;
+  const snapshotState = {
+    lastSuccessfulHash: null,
+  };
 
   let timer = null;
-  const triggerSync = async (reason = 'manual') => runSyncCycle(pool, status, context, reason);
+  const triggerSync = async (reason = 'manual') =>
+    runSyncCycle(pool, status, context, reason, snapshotState);
   const stop = () => {
     if (timer) {
       clearInterval(timer);
@@ -1522,6 +1593,8 @@ function startPostgresSync(context) {
         await hydrateFromDatabase(client, context);
         status.hydrated = true;
         status.lastHydrateAt = new Date().toISOString();
+        snapshotState.lastSuccessfulHash = computeSnapshotHash(context);
+        status.lastSnapshotHash = snapshotState.lastSuccessfulHash;
       }
     } catch (error) {
       status.lastError = error instanceof Error ? error.message : String(error);

@@ -61,15 +61,14 @@ describe('AuthService', () => {
     expect(service.showLoader).toBe(false);
   });
 
-  it('uses dev fallback when API is unreachable and default credentials are provided', async () => {
+  it('rejects login when API is unreachable and development fallback is disabled', async () => {
     const loginPromise = service.loginWithEmail('spruko@admin.com', 'sprukoadmin');
     const req = httpMock.expectOne(`${environment.api.baseUrl}${API_ENDPOINTS.auth.login}`);
     req.error(new ProgressEvent('NetworkError'), { status: 0, statusText: 'Unknown Error' });
 
-    const result = await loginPromise;
-    expect(result.token.startsWith('dev-fallback-')).toBe(true);
-    expect(localStorage.getItem('rh_token')?.startsWith('dev-fallback-')).toBe(true);
-    expect(localStorage.getItem('rh_username')).toBe('spruko@admin.com');
+    await expect(loginPromise).rejects.toThrow('Serveur API indisponible');
+    expect(localStorage.getItem('rh_token')).toBeNull();
+    expect(localStorage.getItem('rh_username')).toBeNull();
   });
 
   it('refreshes token using refresh endpoint', async () => {

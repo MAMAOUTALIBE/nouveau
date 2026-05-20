@@ -45,6 +45,9 @@ export class LeaveRequestsPage implements OnInit, OnDestroy {
   showCreateForm = false;
   submitting = false;
   currentRequests: LeaveRequest[] = [];
+  autoApprovalCandidates: LeaveRequest[] = [];
+  absenceAnomalies: Array<{ agent: string; detail: string; severity: 'Alerte' | 'Critique' }> = [];
+  continuityRisks: Array<{ period: string; count: number; agents: string[]; recommendation: string }> = [];
 
   gridConfig = {
     columns: ['Référence', 'Agent', 'Type', 'Début', 'Fin', 'Statut'],
@@ -182,6 +185,7 @@ export class LeaveRequestsPage implements OnInit, OnDestroy {
       .subscribe({
         next: (rows) => {
           this.currentRequests = rows;
+          this.recomputeLeaveInsights(rows);
           this.gridConfig = {
             ...this.gridConfig,
             data: rows.map((r) => [r.reference, r.agent, r.type, r.startDate, r.endDate, r.status]),
@@ -190,6 +194,9 @@ export class LeaveRequestsPage implements OnInit, OnDestroy {
         },
         error: (error) => {
           this.currentRequests = [];
+          this.autoApprovalCandidates = [];
+          this.absenceAnomalies = [];
+          this.continuityRisks = [];
           this.gridConfig = { ...this.gridConfig, data: [] };
           this.toastr.error(this.resolveError(error), 'Absences', {
             timeOut: 3500,
@@ -247,5 +254,91 @@ export class LeaveRequestsPage implements OnInit, OnDestroy {
     }
 
     return 'Operation impossible pour le moment';
+  }
+
+  private recomputeLeaveInsights(rows: LeaveRequest[]): void {
+    this.autoApprovalCandidates = rows
+      .filter((request) => request.status === 'En attente')
+      .filter((request) => this.durationDays(request) <= 2)
+      .filter((request) => request.type !== 'Conge sans solde')
+      .slice(0, 8);
+
+    this.absenceAnomalies = this.buildAbsenceAnomalies(rows);
+    this.continuityRisks = this.buildContinuityRisks(rows);
+  }
+
+  private buildAbsenceAnomalies(rows: LeaveRequest[]): Array<{ agent: string; detail: string; severity: 'Alerte' | 'Critique' }> {
+    const byAgent = new Map<string, LeaveRequest[]>();
+    rows.forEach((request) => {
+      const current = byAgent.get(request.agent) || [];
+      current.push(request);
+      byAgent.set(request.agent, current);
+    });
+
+    const anomalies: Array<{ agent: string; detail: string; severity: 'Alerte' | 'Critique' }> = [];
+    byAgent.forEach((items, agent) => {
+      const longAbsences = items.filter((request) => this.durationDays(request) >= 15);
+      const illnessCount = items.filter((request) => request.type === 'Maladie').length;
+      const pendingCount = items.filter((request) => request.status === 'En attente').length;
+
+      if (longAbsences.length > 0) {
+        anomalies.push({
+          agent,
+          detail: `${longAbsences.length} absence(s) longue(s) detectee(s)`,
+          severity: 'Critique',
+        });
+      }
+      if (illnessCount >= 3) {
+        anomalies.push({
+          agent,
+          detail: `${illnessCount} absence(s) maladie sur la periode filtree`,
+          severity: 'Alerte',
+        });
+      }
+      if (pendingCount >= 3) {
+        anomalies.push({
+          agent,
+          detail: `${pendingCount} demande(s) en attente a traiter`,
+          severity: 'Alerte',
+        });
+      }
+    });
+
+    return anomalies.slice(0, 8);
+  }
+
+  private buildContinuityRisks(rows: LeaveRequest[]): Array<{ period: string; count: number; agents: string[]; recommendation: string }> {
+    const byPeriod = new Map<string, LeaveRequest[]>();
+    rows
+      .filter((request) => request.status !== 'Rejete')
+      .forEach((request) => {
+        const period = String(request.startDate || '').slice(0, 7) || 'n/a';
+        const current = byPeriod.get(period) || [];
+        current.push(request);
+        byPeriod.set(period, current);
+      });
+
+    return Array.from(byPeriod.entries())
+      .map(([period, items]) => ({
+        period,
+        count: items.length,
+        agents: Array.from(new Set(items.map((item) => item.agent))).slice(0, 4),
+        recommendation:
+          items.length >= 5
+            ? 'Risque de rupture de service: repartir les absences ou renforcer l equipe.'
+            : 'Charge acceptable: conserver une surveillance calendrier.',
+      }))
+      .filter((item) => item.count >= 3)
+      .sort((left, right) => right.count - left.count)
+      .slice(0, 6);
+  }
+
+  private durationDays(request: LeaveRequest): number {
+    const start = Date.parse(request.startDate);
+    const end = Date.parse(request.endDate);
+    if (Number.isNaN(start) || Number.isNaN(end) || end < start) {
+      return 0;
+    }
+    return Math.floor((end - start) / 86_400_000) + 1;
   }
 }

@@ -51,6 +51,14 @@ interface AuthResponse {
     expires_in?: number | string;
     expiresAt?: number | string;
   };
+  // Backend Python (FastAPI) — enveloppe { user, tokens }
+  tokens?: {
+    access_token?: string;
+    refresh_token?: string;
+    token_type?: string;
+    access_expires_at?: string;
+    refresh_expires_at?: string;
+  };
   user?: {
     username?: string;
     email?: string;
@@ -90,7 +98,7 @@ export class AuthService {
           throw new AuthError('INVALID_AUTH_RESPONSE', 'Token absent dans la réponse de login');
         }
 
-        const refreshToken = response.refreshToken || '';
+        const refreshToken = this.extractRefreshToken(response);
         const username = response.username || response.user?.username || response.user?.email || email;
         const roles = this.extractRoles(response, username);
         const permissions = this.extractPermissions(response);
@@ -148,7 +156,7 @@ export class AuthService {
     return firstValueFrom(
       this.http.post<AuthResponse>(
         this.buildUrl(API_ENDPOINTS.auth.refresh),
-        { refreshToken },
+        { refreshToken, refresh_token: refreshToken },
         { context }
       )
     ).then((response) => {
@@ -156,7 +164,7 @@ export class AuthService {
       if (!token) {
         throw new AuthError('INVALID_AUTH_RESPONSE', 'Token absent dans la réponse de refresh');
       }
-      const nextRefresh = response.refreshToken || refreshToken;
+      const nextRefresh = this.extractRefreshToken(response) || refreshToken;
       const username = localStorage.getItem('rh_username') || response.username || response.user?.username || '';
       const currentAccess = this.accessControl.snapshot();
       const roles = this.extractRoles(response, username);
@@ -267,7 +275,11 @@ export class AuthService {
   }
 
   private extractAccessToken(response: AuthResponse): string | null {
-    return response.accessToken || response.token || null;
+    return response.accessToken || response.token || response.tokens?.access_token || null;
+  }
+
+  private extractRefreshToken(response: AuthResponse): string {
+    return response.refreshToken || response.tokens?.refresh_token || '';
   }
 
   private buildUrl(path: string): string {
@@ -405,12 +417,12 @@ export class AuthService {
     const now = Date.now();
     return {
       accessTokenExpiresAt: this.resolveAbsoluteExpiry(
-        [response.expiresAt, response.access?.expiresAt],
+        [response.expiresAt, response.access?.expiresAt, response.tokens?.access_expires_at],
         [response.expiresIn, response.expires_in, response.access?.expiresIn, response.access?.expires_in],
         now + this.defaultAccessTokenTtlMs
       ),
       refreshTokenExpiresAt: this.resolveAbsoluteExpiry(
-        [response.refreshExpiresAt],
+        [response.refreshExpiresAt, response.tokens?.refresh_expires_at],
         [response.refreshExpiresIn, response.refresh_expires_in],
         now + this.defaultRefreshTokenTtlMs
       ),

@@ -59,6 +59,106 @@
           </div>
         </div>
 
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Plans de succession</h6>
+                <div class="text-muted fs-12">Agents a haut potentiel</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ successionPlans.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="successionPlans.length > 0; else noSuccession">
+                  <li class="mb-2" *ngFor="let plan of successionPlans">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ plan.agent }}</span>
+                      <span class="badge bg-success-transparent text-success">{{ plan.score }}</span>
+                    </div>
+                    <div class="text-muted fs-12">{{ plan.readiness }} - {{ plan.targetRole }}</div>
+                  </li>
+                </ul>
+                <ng-template #noSuccession>
+                  <div class="text-muted fs-12">Aucun profil prioritaire dans la vue courante.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Analyse de sentiment</h6>
+                <div class="text-muted fs-12">Signaux calcules par ecart de scores</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ sentimentSignals.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="sentimentSignals.length > 0; else noSentiment">
+                  <li class="mb-2" *ngFor="let signal of sentimentSignals">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ signal.agent }}</span>
+                      <span
+                        class="badge"
+                        [ngClass]="signal.severity === 'Critique' ? 'bg-danger-transparent text-danger' : 'bg-warning-transparent text-warning'"
+                      >
+                        {{ signal.severity }}
+                      </span>
+                    </div>
+                    <div class="text-muted fs-12">{{ signal.signal }}</div>
+                  </li>
+                </ul>
+                <ng-template #noSentiment>
+                  <div class="text-muted fs-12">Aucun signal sensible detecte.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Mobilite interne</h6>
+                <div class="text-muted fs-12">Recommandations basees sur la performance</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ mobilityRecommendations.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="mobilityRecommendations.length > 0; else noMobility">
+                  <li class="mb-2" *ngFor="let item of mobilityRecommendations">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ item.agent }}</span>
+                      <span class="badge bg-primary-transparent">{{ item.score }}</span>
+                    </div>
+                    <div class="text-muted fs-12">{{ item.recommendation }}</div>
+                  </li>
+                </ul>
+                <ng-template #noMobility>
+                  <div class="text-muted fs-12">Aucune recommandation disponible.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">GPEC</h6>
+                <div class="text-muted fs-12">Cartographie par direction</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ skillsMatrix.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="skillsMatrix.length > 0; else noSkills">
+                  <li class="mb-2" *ngFor="let row of skillsMatrix">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ row.direction }}</span>
+                      <span class="badge bg-light text-dark">{{ row.averageScore | number: '1.0-1' }}</span>
+                    </div>
+                    <div class="text-muted fs-12">{{ row.level }} - {{ row.population }} agent(s)</div>
+                  </li>
+                </ul>
+                <ng-template #noSkills>
+                  <div class="text-muted fs-12">Aucune donnee GPEC disponible.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
     </div>

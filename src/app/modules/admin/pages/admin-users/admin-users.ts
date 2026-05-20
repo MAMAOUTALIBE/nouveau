@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GridJsAngularComponent } from 'gridjs-angular';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import { downloadCsv } from '../../../../core/utils/csv-export.utils';
 import {
   AdminService,
   AdminUser,
@@ -26,6 +27,8 @@ export class AdminUsersPage implements OnInit {
   items: AdminUser[] = [];
   showCreateForm = false;
   submitting = false;
+  deleting = false;
+  editingUsername: string | null = null;
 
   gridConfig = {
     columns: ['Utilisateur', 'Nom', 'Rôle', 'Direction', 'Statut'],
@@ -61,15 +64,15 @@ export class AdminUsersPage implements OnInit {
   }
 
   toggleCreateForm(): void {
+    this.editingUsername = null;
     this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) {
-      this.resetForm();
-    }
+    this.resetForm();
     this.cdr.detectChanges();
   }
 
   cancelCreate(): void {
     this.showCreateForm = false;
+    this.editingUsername = null;
     this.resetForm();
     this.cdr.detectChanges();
   }
@@ -89,16 +92,21 @@ export class AdminUsersPage implements OnInit {
     };
 
     this.submitting = true;
-    this.adminService
-      .createUser(payload)
+    const action$ = this.editingUsername
+      ? this.adminService.updateUser({ ...payload, username: this.editingUsername })
+      : this.adminService.createUser(payload);
+
+    action$
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
-          this.toastr.success('Utilisateur cree avec succes', 'Administration', {
-            timeOut: 2400,
-            positionClass: 'toast-top-right',
-          });
+          this.toastr.success(
+            this.editingUsername ? 'Utilisateur mis à jour' : 'Utilisateur créé',
+            'Administration',
+            { timeOut: 2400, positionClass: 'toast-top-right' }
+          );
           this.showCreateForm = false;
+          this.editingUsername = null;
           this.resetForm();
           this.loadUsers();
           this.cdr.detectChanges();
@@ -130,6 +138,59 @@ export class AdminUsersPage implements OnInit {
           positionClass: 'toast-top-right',
         });
         this.cdr.detectChanges();
+      },
+    });
+  }
+
+  startEdit(user: AdminUser): void {
+    if (this.submitting) return;
+    this.editingUsername = user.username;
+    this.showCreateForm = true;
+    this.form.patchValue({
+      username: user.username,
+      fullName: user.fullName,
+      role: user.role,
+      direction: user.direction,
+      status: user.status,
+    });
+    this.cdr.detectChanges();
+  }
+
+  deleteUser(user: AdminUser): void {
+    if (this.deleting || !confirm(`Supprimer ${user.username} ?`)) return;
+    this.deleting = true;
+    this.adminService
+      .deleteUser(user.username)
+      .pipe(finalize(() => (this.deleting = false)))
+      .subscribe({
+        next: () => {
+          this.toastr.success('Utilisateur supprimé', 'Administration', { timeOut: 2200 });
+          this.loadUsers();
+        },
+        error: (error) => {
+          this.toastr.error(this.resolveError(error), 'Administration', { timeOut: 3500 });
+        },
+      });
+  }
+
+  exportCsv(): void {
+    this.adminService.getUsers().subscribe({
+      next: (items) => {
+        downloadCsv({
+          filename: 'admin-users.csv',
+          delimiter: ';',
+          headers: ['username', 'fullName', 'role', 'direction', 'status'],
+          rows: items.map((user) => [
+            user.username,
+            user.fullName,
+            user.role,
+            user.direction,
+            user.status,
+          ]),
+        });
+      },
+      error: (error) => {
+        this.toastr.error(this.resolveError(error), 'Export CSV', { timeOut: 3000 });
       },
     });
   }

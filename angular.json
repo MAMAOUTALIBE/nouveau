@@ -23,6 +23,7 @@
           "builder": "@angular/build:application",
           "options": {
             "browser": "src/main.ts",
+            "index": "src/index.html",
             "allowedCommonJsDependencies": [
               "sweetalert2",
               "leaflet",
@@ -33,7 +34,8 @@
               "dayjs",
               "dropzone",
               "inputmask",
-              "quill-delta"
+              "quill-delta",
+              "qrcode"
             ],
             "outputPath": {
               "base": "dist/nowa-angular-21",

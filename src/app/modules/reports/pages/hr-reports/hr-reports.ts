@@ -34,6 +34,7 @@ export class HrReportsPage implements OnInit {
     { id: 'direction', name: 'Effectifs par direction', format: 'CSV' },
     { id: 'leave_type', name: 'Absences par type', format: 'CSV' },
     { id: 'workflow_status', name: 'Workflows par statut', format: 'CSV' },
+    { id: 'turnover_risk', name: 'Risque turn-over', format: 'CSV' },
   ];
 
   ngOnInit(): void {
@@ -119,6 +120,22 @@ export class HrReportsPage implements OnInit {
           this.snapshot.workflowByStatus
         );
         return;
+      case 'turnover_risk':
+        downloadCsv({
+          filename: `risque-turnover-${this.exportDateSuffix()}.csv`,
+          delimiter: ';',
+          headers: ['Matricule', 'Agent', 'Direction', 'Score', 'Niveau', 'Facteurs', 'Action recommandee'],
+          rows: this.snapshot.turnoverRiskItems.map((item) => [
+            item.matricule,
+            item.fullName,
+            item.direction,
+            item.riskScore,
+            item.riskLevel,
+            item.factors.join(' | '),
+            item.recommendedAction,
+          ]),
+        });
+        return;
       default:
         return;
     }
@@ -126,6 +143,19 @@ export class HrReportsPage implements OnInit {
 
   asNumber(value: number | string): number {
     return Number(value) || 0;
+  }
+
+  riskLevelBadgeClass(level: string): string {
+    switch (level) {
+      case 'Critique':
+        return 'bg-danger';
+      case 'Eleve':
+        return 'bg-danger-transparent text-danger';
+      case 'Modere':
+        return 'bg-warning-transparent text-warning';
+      default:
+        return 'bg-success-transparent text-success';
+    }
   }
 
   private refreshDirectionOptions(snapshot: HrReportSnapshot): void {
@@ -185,6 +215,11 @@ export class HrReportsPage implements OnInit {
       rows.push(['Risques workflow', item.instanceId, item.score]);
     });
 
+    rows.push(['', '', '']);
+    snapshot.turnoverRiskItems.forEach((item) => {
+      rows.push(['Risque turn-over', item.fullName, `${item.riskScore} - ${item.riskLevel}`]);
+    });
+
     return rows;
   }
 
@@ -212,6 +247,17 @@ export class HrReportsPage implements OnInit {
           `<tr><td>${this.escapeHtml(item.instanceId)}</td><td>${this.escapeHtml(item.definition)}</td><td>${this.escapeHtml(
             item.status
           )}</td><td>${this.escapeHtml(item.slaState)}</td><td style="text-align:right">${item.score}</td></tr>`
+      )
+      .join('');
+
+    const turnoverRows = snapshot.turnoverRiskItems
+      .map(
+        (item) =>
+          `<tr><td>${this.escapeHtml(item.matricule)}</td><td>${this.escapeHtml(item.fullName)}</td><td>${this.escapeHtml(
+            item.riskLevel
+          )}</td><td style="text-align:right">${item.riskScore}</td><td>${this.escapeHtml(
+            item.factors.join(' | ')
+          )}</td></tr>`
       )
       .join('');
 
@@ -243,6 +289,11 @@ export class HrReportsPage implements OnInit {
   <table>
     <thead><tr><th>ID</th><th>Workflow</th><th>Statut</th><th>SLA</th><th>Score</th></tr></thead>
     <tbody>${riskRows}</tbody>
+  </table>
+  <h2>Risque turn-over</h2>
+  <table>
+    <thead><tr><th>Matricule</th><th>Agent</th><th>Niveau</th><th>Score</th><th>Facteurs</th></tr></thead>
+    <tbody>${turnoverRows}</tbody>
   </table>
 </body>
 </html>`;

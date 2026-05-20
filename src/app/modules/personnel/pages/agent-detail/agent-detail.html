@@ -31,11 +31,25 @@
               <p class="text-muted ms-md-4 mb-2">
                 <i class="fa fa-sitemap me-2"></i>{{ agent.direction || '—' }}
               </p>
-              <p class="ms-md-4 mb-2">
+              <p class="ms-md-4 mb-2 d-flex align-items-center gap-2 flex-wrap">
                 <span class="badge bg-info-transparent text-info">
                   Qualité dossier: {{ qualityReport.score }}% ({{ qualityReport.completedChecks }}/{{ qualityReport.totalChecks }})
                 </span>
+                <span class="badge" [ngClass]="hasDocumentAlerts() ? 'bg-warning-transparent text-warning' : 'bg-success-transparent text-success'">
+                  Documents: {{ documentSummaryLabel() }}
+                </span>
               </p>
+              @if (hasDocumentAlerts()) {
+                <div class="ms-md-4 mb-2 d-flex align-items-center gap-2 flex-wrap">
+                  <span class="text-warning fs-12">
+                    {{ missingRequiredDocumentsCount() }} manquante(s), {{ expiredDocumentCount() }} expirée(s),
+                    {{ expiringSoonDocumentCount() }} à renouveler.
+                  </span>
+                  <button type="button" class="btn btn-sm btn-outline-warning" (click)="regularizeDocuments()">
+                    Régulariser les pièces
+                  </button>
+                </div>
+              }
               <p class="text-muted ms-md-4 mb-2"><i class="fa fa-envelope me-2"></i>{{ agent.email || '—' }}</p>
               <p class="text-muted ms-md-4 mb-0"><i class="fa fa-phone me-2"></i>{{ agent.phone || '—' }}</p>
             } @else {
@@ -116,6 +130,9 @@
 
           <div class="d-flex justify-content-end gap-2 pt-3 px-3">
             @if (!editMode) {
+              <button type="button" class="btn btn-outline-primary" (click)="exportDossierPdf()" [disabled]="exportingDossier">
+                {{ exportingDossier ? 'Export...' : 'Exporter PDF sécurisé' }}
+              </button>
               <button type="button" class="btn btn-primary" (click)="toggleEdit()">Modifier la fiche</button>
             } @else {
               <button type="button" class="btn btn-light" (click)="cancelEdit()" [disabled]="saving || uploadingPhoto">
@@ -127,8 +144,13 @@
             }
           </div>
 
-          <nav ngbNav #nav="ngbNav" class="main-nav-line p-0 tabs-menu profile-nav-line border-0 br-5 mb-0">
-            <ng-container ngbNavItem>
+          <nav
+            ngbNav
+            #nav="ngbNav"
+            [(activeId)]="activeTabId"
+            class="main-nav-line p-0 tabs-menu profile-nav-line border-0 br-5 mb-0"
+          >
+            <ng-container ngbNavItem="identity">
               <a ngbNavLink class="mb-2 mt-2">État civil</a>
               <ng-template ngbNavContent>
                 <div class="p-4">
@@ -210,7 +232,7 @@
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="diplomas">
             <a ngbNavLink class="mb-2 mt-2">Diplômes</a>
             <ng-template ngbNavContent>
               <div class="p-4 table-responsive">
@@ -240,7 +262,262 @@
             </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="competencies">
+              <a ngbNavLink class="mb-2 mt-2">Compétences</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  @if (editMode) {
+                    <div class="row g-2 align-items-end mb-4">
+                      <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Compétence</label>
+                        <input class="form-control" type="text" [(ngModel)]="competencyDraft.label" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Catégorie</label>
+                        <input class="form-control" type="text" [(ngModel)]="competencyDraft.category" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Niveau</label>
+                        <select class="form-select" [(ngModel)]="competencyDraft.level" [ngModelOptions]="{ standalone: true }">
+                          @for (level of competencyLevels; track level) {
+                            <option [value]="level">{{ level }}</option>
+                          }
+                        </select>
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Évaluée le</label>
+                        <input class="form-control" type="date" [(ngModel)]="competencyDraft.lastAssessedAt" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-12">
+                        <button type="button" class="btn btn-outline-primary w-100" (click)="addCompetency()">Ajouter</button>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="table-responsive">
+                    <table class="table text-nowrap">
+                      <thead>
+                        <tr>
+                          <th>Compétence</th>
+                          <th>Catégorie</th>
+                          <th>Niveau</th>
+                          <th>Dernière évaluation</th>
+                          @if (editMode) {
+                            <th>Action</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (skill of competencies; track skill.id) {
+                          <tr>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="skill.label" (input)="updateCompetencyField(skill.id, 'label', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ skill.label }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="skill.category" (input)="updateCompetencyField(skill.id, 'category', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ skill.category || '—' }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <select class="form-select form-select-sm" [value]="skill.level" (change)="updateCompetencyField(skill.id, 'level', ($any($event.target).value || '').trim())">
+                                  @for (level of competencyLevels; track level) {
+                                    <option [value]="level">{{ level }}</option>
+                                  }
+                                </select>
+                              } @else {
+                                <span class="badge bg-primary-transparent text-primary">{{ skill.level }}</span>
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" type="date" [value]="skill.lastAssessedAt" (input)="updateCompetencyField(skill.id, 'lastAssessedAt', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ skill.lastAssessedAt || '—' }}
+                              }
+                            </td>
+                            @if (editMode) {
+                              <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCompetency(skill.id)">Retirer</button>
+                              </td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                    @if (!competencies.length) {
+                      <div class="text-muted fs-12 mt-2">Aucune compétence renseignée.</div>
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="dependents">
+              <a ngbNavLink class="mb-2 mt-2">Ayants droit</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  @if (editMode) {
+                    <div class="row g-2 align-items-end mb-4">
+                      <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Nom complet</label>
+                        <input class="form-control" type="text" [(ngModel)]="dependentDraft.fullName" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Lien</label>
+                        <input class="form-control" type="text" [(ngModel)]="dependentDraft.relationship" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Naissance</label>
+                        <input class="form-control" type="date" [(ngModel)]="dependentDraft.birthDate" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Couverture</label>
+                        <input class="form-control" type="text" [(ngModel)]="dependentDraft.coverageType" [ngModelOptions]="{ standalone: true }" />
+                      </div>
+                      <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Statut</label>
+                        <select class="form-select" [(ngModel)]="dependentDraft.coverageStatus" [ngModelOptions]="{ standalone: true }">
+                          @for (status of dependentStatuses; track status) {
+                            <option [value]="status">{{ status }}</option>
+                          }
+                        </select>
+                      </div>
+                      <div class="col-lg-1 col-md-6">
+                        <button type="button" class="btn btn-outline-primary w-100" (click)="addDependent()">Ajouter</button>
+                      </div>
+                    </div>
+                  }
+
+                  <div class="table-responsive">
+                    <table class="table text-nowrap">
+                      <thead>
+                        <tr>
+                          <th>Nom</th>
+                          <th>Lien</th>
+                          <th>Naissance</th>
+                          <th>Couverture</th>
+                          <th>Statut</th>
+                          <th>Téléphone</th>
+                          @if (editMode) {
+                            <th>Action</th>
+                          }
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (dependent of dependents; track dependent.id) {
+                          <tr>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="dependent.fullName" (input)="updateDependentField(dependent.id, 'fullName', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ dependent.fullName }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="dependent.relationship" (input)="updateDependentField(dependent.id, 'relationship', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ dependent.relationship || '—' }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" type="date" [value]="dependent.birthDate" (input)="updateDependentField(dependent.id, 'birthDate', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ dependent.birthDate || '—' }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="dependent.coverageType" (input)="updateDependentField(dependent.id, 'coverageType', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ dependent.coverageType || '—' }}
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <select class="form-select form-select-sm" [value]="dependent.coverageStatus" (change)="updateDependentField(dependent.id, 'coverageStatus', ($any($event.target).value || '').trim())">
+                                  @for (status of dependentStatuses; track status) {
+                                    <option [value]="status">{{ status }}</option>
+                                  }
+                                </select>
+                              } @else {
+                                <span class="badge" [ngClass]="dependentStatusBadgeClass(dependent.coverageStatus)">{{ dependent.coverageStatus }}</span>
+                              }
+                            </td>
+                            <td>
+                              @if (editMode) {
+                                <input class="form-control form-control-sm" [value]="dependent.phone" (input)="updateDependentField(dependent.id, 'phone', ($any($event.target).value || '').trim())" />
+                              } @else {
+                                {{ dependent.phone || '—' }}
+                              }
+                            </td>
+                            @if (editMode) {
+                              <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeDependent(dependent.id)">Retirer</button>
+                              </td>
+                            }
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                    @if (!dependents.length) {
+                      <div class="text-muted fs-12 mt-2">Aucun ayant droit renseigné.</div>
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="badge">
+              <a ngbNavLink class="mb-2 mt-2">Badge numérique</a>
+              <ng-template ngbNavContent>
+                <div class="p-4">
+                  <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap mb-3">
+                    <div>
+                      <div class="fw-semibold">Badge d’accès</div>
+                      <div class="text-muted fs-12">{{ digitalBadge?.badgeId || 'Non généré' }}</div>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" (click)="refreshDigitalBadge()" [disabled]="loadingBadge">
+                      {{ loadingBadge ? 'Génération...' : 'Regénérer' }}
+                    </button>
+                  </div>
+
+                  <div class="row g-4 align-items-start">
+                    <div class="col-md-4">
+                      <div class="border rounded p-3 text-center">
+                        @if (badgeQrDataUrl) {
+                          <img [src]="badgeQrDataUrl" alt="QR badge" class="img-fluid" style="max-width: 184px" />
+                        } @else {
+                          <div class="text-muted py-5">QR code indisponible</div>
+                        }
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="row g-3">
+                        <div class="col-md-6"><strong>Statut</strong><div>{{ digitalBadge?.status || '—' }}</div></div>
+                        <div class="col-md-6"><strong>Code vérification</strong><div>{{ digitalBadge?.verificationCode || '—' }}</div></div>
+                        <div class="col-md-6"><strong>Émis le</strong><div>{{ digitalBadge?.issuedAt || '—' }}</div></div>
+                        <div class="col-md-6"><strong>Expire le</strong><div>{{ digitalBadge?.expiresAt || '—' }}</div></div>
+                        <div class="col-12">
+                          <strong>Signature</strong>
+                          <div class="text-muted fs-12 text-break">{{ digitalBadge?.signatureHash || '—' }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="quality">
               <a ngbNavLink class="mb-2 mt-2">Qualité dossier</a>
               <ng-template ngbNavContent>
                 <div class="p-4">
@@ -259,6 +536,49 @@
                   <div class="progress ht-8 mb-4">
                     <div class="progress-bar bg-primary" [style.width.%]="qualityReport.score"></div>
                   </div>
+
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-3 col-sm-6">
+                      <div class="border rounded p-3 h-100">
+                        <div class="text-muted fs-12">Pièces conformes</div>
+                        <div class="fw-semibold fs-18">{{ documentSummaryLabel() }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                      <div class="border rounded p-3 h-100">
+                        <div class="text-muted fs-12">Pièces manquantes</div>
+                        <div class="fw-semibold fs-18 text-danger">{{ missingRequiredDocumentsCount() }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                      <div class="border rounded p-3 h-100">
+                        <div class="text-muted fs-12">Pièces expirées</div>
+                        <div class="fw-semibold fs-18 text-danger">{{ expiredDocumentCount() }}</div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                      <div class="border rounded p-3 h-100">
+                        <div class="text-muted fs-12">À renouveler</div>
+                        <div class="fw-semibold fs-18 text-warning">{{ expiringSoonDocumentCount() }}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  @if (qualityReport.documentAlerts.length) {
+                    <div class="alert alert-warning d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
+                      <div>
+                        <div class="fw-semibold mb-1">Régularisation documentaire requise</div>
+                        <ul class="mb-0 ps-3">
+                          @for (item of qualityReport.documentAlerts; track item) {
+                            <li class="fs-12">{{ item }}</li>
+                          }
+                        </ul>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-warning" (click)="regularizeDocuments()">
+                        Ouvrir les documents
+                      </button>
+                    </div>
+                  }
 
                   <div class="row g-3">
                     <div class="col-md-6">
@@ -290,7 +610,7 @@
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="assignments">
               <a ngbNavLink class="mb-2 mt-2">Affectations</a>
               <ng-template ngbNavContent>
                 <div class="p-4 table-responsive">
@@ -325,7 +645,39 @@
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="discipline">
+              <a ngbNavLink class="mb-2 mt-2">Discipline</a>
+              <ng-template ngbNavContent>
+                <div class="p-4 table-responsive">
+                  <spk-reusable-tables
+                    [tableClass]="'table text-nowrap'"
+                    [columns]="[
+                      { header: 'Référence' },
+                      { header: 'Catégorie' },
+                      { header: 'Gravité' },
+                      { header: 'Statut' },
+                      { header: 'Ouverture' }
+                    ]"
+                    [data]="disciplineCases"
+                  >
+                    @for (item of disciplineCases; track item.reference) {
+                      <tr>
+                        <td>{{ item.reference }}</td>
+                        <td>{{ item.category }}</td>
+                        <td><span class="badge" [ngClass]="disciplineSeverityBadgeClass(item.severity)">{{ item.severity }}</span></td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.openedOn || item.incidentOn }}</td>
+                      </tr>
+                    }
+                  </spk-reusable-tables>
+                  @if (!disciplineCases.length) {
+                    <div class="text-muted fs-12 mt-2">Aucun dossier disciplinaire rattaché à cet agent.</div>
+                  }
+                </div>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="career">
             <a ngbNavLink class="mb-2 mt-2">Carrière</a>
             <ng-template ngbNavContent>
               <div class="p-4">
@@ -340,7 +692,7 @@
             </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="timeline">
               <a ngbNavLink class="mb-2 mt-2">Chronologie 360</a>
               <ng-template ngbNavContent>
                 <div class="p-4">
@@ -365,7 +717,7 @@
             </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="history">
               <a ngbNavLink class="mb-2 mt-2">Historique modifs</a>
               <ng-template ngbNavContent>
                 <div class="p-4">
@@ -417,49 +769,210 @@
               </ng-template>
             </ng-container>
 
-            <ng-container ngbNavItem>
+            <ng-container ngbNavItem="documents">
             <a ngbNavLink class="mb-2 mt-2">Documents</a>
             <ng-template ngbNavContent>
-              <div class="p-4 table-responsive">
-                <spk-reusable-tables
-                  [tableClass]="'table text-nowrap'"
-                  [columns]="[
-                    { header: 'Type' },
-                    { header: 'Référence' },
-                    { header: 'Statut' },
-                    { header: 'Obligatoire' },
-                    { header: 'Fichier' },
-                    { header: 'Action' }
-                  ]"
-                  [data]="documents"
-                >
-                  @for (doc of documents; track doc.reference) {
-                    <tr>
-                      <td>{{ doc.type }}</td>
-                      <td>{{ doc.reference }}</td>
-                      <td><span class="badge bg-success-transparent text-success">{{ doc.status }}</span></td>
-                      <td>
-                        <span class="badge" [ngClass]="doc.required ? 'bg-info-transparent text-info' : 'bg-light text-muted'">
-                          {{ doc.required ? 'Oui' : 'Non' }}
-                        </span>
-                      </td>
-                      <td>{{ doc.fileName || '—' }}</td>
-                      <td>
-                        @if (doc.fileDataUrl) {
-                          <a
-                            class="btn btn-sm btn-outline-primary"
-                            [href]="doc.fileDataUrl"
-                            [attr.download]="doc.fileName || (doc.reference + '.pdf')"
-                          >
-                            Télécharger
-                          </a>
-                        } @else {
-                          <span class="text-muted fs-12">Non disponible</span>
-                        }
-                      </td>
-                    </tr>
+              <div class="p-4">
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+                  <div>
+                    <div class="fw-semibold">Conformité documentaire</div>
+                    <div class="text-muted fs-12">{{ documentSummaryLabel() }}</div>
+                  </div>
+                  @if (hasDocumentAlerts()) {
+                    <button type="button" class="btn btn-sm btn-outline-warning" (click)="regularizeDocuments()">
+                      Prioriser la régularisation
+                    </button>
                   }
-                </spk-reusable-tables>
+                </div>
+                @if (latestAnalysisRun) {
+                  <div class="alert alert-info py-2 mb-3">
+                    OCR {{ latestAnalysisRun.analysisStatus }} - {{ latestAnalysisRun.fields.length }} champ(s) extrait(s),
+                    confiance {{ latestAnalysisRun.confidenceScore || 0 }}%.
+                  </div>
+                }
+
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4 col-sm-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-12">Pièces manquantes</div>
+                      <div class="fw-semibold fs-18 text-danger">{{ missingRequiredDocumentsCount() }}</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-12">Pièces expirées</div>
+                      <div class="fw-semibold fs-18 text-danger">{{ expiredDocumentCount() }}</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-12">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-12">À renouveler sous 30 jours</div>
+                      <div class="fw-semibold fs-18 text-warning">{{ expiringSoonDocumentCount() }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                  @for (definition of requiredDocumentDefinitions(); track definition.type) {
+                    @if (complianceForType(definition.type); as compliance) {
+                      <div class="col-xl-6">
+                        <div class="border rounded p-3 h-100">
+                          <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-3">
+                            <div>
+                              <div class="fw-semibold">{{ definition.type }}</div>
+                              <div class="text-muted fs-12">{{ definition.helpText }}</div>
+                            </div>
+                            <span class="badge" [ngClass]="compliance.badgeClass">
+                              {{ compliance.status === 'conforme' ? 'Conforme' : compliance.status === 'a_renouveler' ? 'À renouveler' : compliance.status === 'expire' ? 'Expiré' : 'Manquant' }}
+                            </span>
+                          </div>
+
+                          @if (!editMode) {
+                            <div class="row g-3">
+                              <div class="col-md-6">
+                                <div class="text-muted fs-12">Référence</div>
+                                <div>{{ requiredDocumentRecord(definition.type)?.reference || '—' }}</div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="text-muted fs-12">Statut métier</div>
+                                <div>{{ requiredDocumentRecord(definition.type)?.status || 'Non renseigné' }}</div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="text-muted fs-12">Expiration</div>
+                                <div>{{ requiredDocumentExpiryLabel(definition.type) }}</div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="text-muted fs-12">Fichier</div>
+                                <div>{{ requiredDocumentFileLabel(definition.type) || 'Non téléversé' }}</div>
+                              </div>
+                            </div>
+                          } @else {
+                            <div class="row g-3">
+                              <div class="col-md-6">
+                                <label class="form-label">Référence</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  [value]="requiredDocumentRecord(definition.type)?.reference || ''"
+                                  (input)="updateRequiredDocumentField(definition.type, 'reference', ($any($event.target).value || '').trim())"
+                                />
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label">Statut</label>
+                                <select
+                                  class="form-select"
+                                  [value]="requiredDocumentRecord(definition.type)?.status || 'Valide'"
+                                  (change)="updateRequiredDocumentField(definition.type, 'status', ($any($event.target).value || '').trim())"
+                                >
+                                  <option value="Valide">Valide</option>
+                                  <option value="A renouveler">A renouveler</option>
+                                  <option value="Expiré">Expiré</option>
+                                </select>
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label">Date d'expiration</label>
+                                <input
+                                  type="date"
+                                  class="form-control"
+                                  [value]="requiredDocumentExpiryValue(definition.type)"
+                                  (input)="updateRequiredDocumentField(definition.type, 'expiresAt', ($any($event.target).value || '').trim())"
+                                />
+                              </div>
+                              <div class="col-md-6">
+                                <label class="form-label">Fichier (PDF/JPG/PNG/WebP)</label>
+                                <input
+                                  type="file"
+                                  class="form-control"
+                                  accept=".pdf,.png,.jpg,.jpeg,.webp"
+                                  (change)="onRequiredDocumentFileSelected(definition.type, $event)"
+                                />
+                                <div class="text-muted fs-11 mt-1">
+                                  {{ requiredDocumentFileLabel(definition.type) || 'Aucun fichier téléversé' }}
+                                </div>
+                              </div>
+                            </div>
+                          }
+
+                          <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-3">
+                            <span class="fs-12" [ngClass]="compliance.status === 'conforme' ? 'text-success' : 'text-warning'">
+                              {{ compliance.message }}
+                            </span>
+                            <div class="btn-list">
+                              <button
+                                type="button"
+                                class="btn btn-sm btn-outline-info"
+                                (click)="analyzeRequiredDocument(definition.type)"
+                                [disabled]="analyzingDocumentType === definition.type"
+                              >
+                                {{ analyzingDocumentType === definition.type ? 'Analyse...' : 'OCR' }}
+                              </button>
+                              @if (requiredDocumentRecord(definition.type)?.fileDataUrl) {
+                                <button
+                                  type="button"
+                                  class="btn btn-sm btn-outline-primary"
+                                  (click)="downloadDocument(requiredDocumentRecord(definition.type), definition.type + '.pdf')"
+                                >
+                                  Télécharger
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  }
+                </div>
+
+                <div class="table-responsive">
+                  <spk-reusable-tables
+                    [tableClass]="'table text-nowrap'"
+                    [columns]="[
+                      { header: 'Type' },
+                      { header: 'Référence' },
+                      { header: 'Conformité' },
+                      { header: 'Expiration' },
+                      { header: 'Obligatoire' },
+                      { header: 'Fichier' },
+                      { header: 'Action' }
+                    ]"
+                    [data]="documents"
+                  >
+                    @for (doc of documents; track doc.type + '-' + doc.reference + '-' + doc.fileName) {
+                      <tr>
+                        <td>{{ doc.type }}</td>
+                        <td>{{ doc.reference || '—' }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="documentStatusBadgeClass(doc)" [title]="documentStatusLabel(doc)">
+                            {{ documentStatusBadgeLabel(doc) }}
+                          </span>
+                        </td>
+                        <td>{{ documentExpiryLabel(doc) }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="isDocumentRequired(doc) ? 'bg-info-transparent text-info' : 'bg-light text-muted'">
+                            {{ isDocumentRequired(doc) ? 'Oui' : 'Non' }}
+                          </span>
+                        </td>
+                        <td>{{ doc.fileName || '—' }}</td>
+                        <td>
+                          @if (doc.fileDataUrl) {
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-primary"
+                              (click)="downloadDocument(doc, doc.reference + '.pdf')"
+                            >
+                              Télécharger
+                            </button>
+                          } @else {
+                            <span class="text-muted fs-12">Non disponible</span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </spk-reusable-tables>
+                </div>
+                @if (!documents.length) {
+                  <div class="text-muted fs-12 mt-2">Aucun document n’est encore enregistré pour cet agent.</div>
+                }
               </div>
             </ng-template>
             </ng-container>

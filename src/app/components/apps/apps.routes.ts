@@ -2,12 +2,14 @@ import { Routes } from '@angular/router';
 
 export const appsRoutingModule: Routes = [
   {
-    path: 'apps', children: [
+    path: '', children: [
+      { path: '', pathMatch: 'full', redirectTo: 'fullcalendar' },
+      { path: 'fullcalender', pathMatch: 'full', redirectTo: 'fullcalendar' },
       {
-        path: 'fullcalender',
+        path: 'fullcalendar',
         loadComponent: () => import('./fullcalendar/fullcalendar').then((m) => m.Fullcalendar),
-        title: 'Nowa - Full Calender',
-        data: { parentTitle: 'Apps', subParentTitle: '', childTitle: 'Full Calender' }
+        title: 'Nowa - Full Calendar',
+        data: { parentTitle: 'Apps', subParentTitle: '', childTitle: 'Full Calendar' }
       },
       {
         path: 'contacts',

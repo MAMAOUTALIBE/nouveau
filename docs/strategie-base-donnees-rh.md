@@ -86,6 +86,7 @@ Le script est fourni ici:
 - Ajouter migrations versionnees (001, 002, 003...).
 - Ajouter tests d'integrite SQL + tests de non-regression API.
 - Activer supervision DB (temps de reponse, erreurs, saturation).
+- Eviter les resynchronisations completes quand le snapshot memoire n'a pas change et prioriser des index composites par organisation/statut/date.
 
 ## 7) Capacite et evolutivite
 

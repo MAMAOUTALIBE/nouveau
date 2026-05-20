@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+    xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+    xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+    id="leave_request_definitions"
+    targetNamespace="http://primature.gov.gn/bpmn/leave"
+    exporter="manual"
+    exporterVersion="1.0">
+
+  <bpmn:process id="LEAVE_REQUEST_V1" name="Demande de congé — validation" isExecutable="true">
+
+    <bpmn:startEvent id="wf_start" name="Demande soumise">
+      <bpmn:outgoing>flow_start_to_n1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="wf_n1_review" name="Validation N+1">
+      <bpmn:incoming>flow_start_to_n1</bpmn:incoming>
+      <bpmn:outgoing>flow_n1_to_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="wf_gateway_n1_decision" name="Décision N+1">
+      <bpmn:incoming>flow_n1_to_gateway</bpmn:incoming>
+      <bpmn:outgoing>flow_n1_rejected</bpmn:outgoing>
+      <bpmn:outgoing>flow_n1_approved_short</bpmn:outgoing>
+      <bpmn:outgoing>flow_n1_approved_long</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="wf_drh_review" name="Validation DRH (si &gt; 5 jours)">
+      <bpmn:incoming>flow_n1_approved_long</bpmn:incoming>
+      <bpmn:outgoing>flow_drh_to_gateway</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="wf_gateway_drh_decision" name="Décision DRH">
+      <bpmn:incoming>flow_drh_to_gateway</bpmn:incoming>
+      <bpmn:outgoing>flow_drh_rejected</bpmn:outgoing>
+      <bpmn:outgoing>flow_drh_approved</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="wf_end_approved" name="Congé approuvé">
+      <bpmn:incoming>flow_n1_approved_short</bpmn:incoming>
+      <bpmn:incoming>flow_drh_approved</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="wf_end_rejected" name="Congé refusé">
+      <bpmn:incoming>flow_n1_rejected</bpmn:incoming>
+      <bpmn:incoming>flow_drh_rejected</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_start_to_n1"
+        sourceRef="wf_start" targetRef="wf_n1_review" />
+
+    <bpmn:sequenceFlow id="flow_n1_to_gateway"
+        sourceRef="wf_n1_review" targetRef="wf_gateway_n1_decision" />
+
+    <bpmn:sequenceFlow id="flow_n1_rejected"
+        sourceRef="wf_gateway_n1_decision" targetRef="wf_end_rejected"
+        name="Rejet">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">decision == "REJECT"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_n1_approved_short"
+        sourceRef="wf_gateway_n1_decision" targetRef="wf_end_approved"
+        name="Approbation directe (≤ 5j)">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">decision == "APPROVE" and duration_days &lt;= 5</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_n1_approved_long"
+        sourceRef="wf_gateway_n1_decision" targetRef="wf_drh_review"
+        name="Approbation N+1 mais &gt; 5j → DRH">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">decision == "APPROVE" and duration_days &gt; 5</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_drh_to_gateway"
+        sourceRef="wf_drh_review" targetRef="wf_gateway_drh_decision" />
+
+    <bpmn:sequenceFlow id="flow_drh_rejected"
+        sourceRef="wf_gateway_drh_decision" targetRef="wf_end_rejected"
+        name="Rejet DRH">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">decision == "REJECT"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_drh_approved"
+        sourceRef="wf_gateway_drh_decision" targetRef="wf_end_approved"
+        name="Approbation DRH">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">decision == "APPROVE"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+
+</bpmn:definitions>

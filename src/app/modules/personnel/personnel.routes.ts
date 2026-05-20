@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { permissionActivateGuard } from '../../core/guards/permission.guard';
+import { APP_PERMISSIONS } from '../../core/security/access-control.service';
 
 export const PERSONNEL_ROUTES: Routes = [
   {
@@ -9,9 +11,15 @@ export const PERSONNEL_ROUTES: Routes = [
   },
   {
     path: 'agents/nouveau',
+    canActivate: [permissionActivateGuard],
     loadComponent: () =>
       import('./pages/agent-create/agent-create').then((m) => m.AgentCreatePage),
-    data: { parentTitle: 'Personnel', subParentTitle: 'Agents', childTitle: 'Nouvel agent' },
+    data: {
+      parentTitle: 'Personnel',
+      subParentTitle: 'Agents',
+      childTitle: 'Nouvel agent',
+      requiredAllPermissions: [APP_PERMISSIONS.personnelManage],
+    },
   },
   {
     path: 'agents/:id',
@@ -30,6 +38,12 @@ export const PERSONNEL_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/personnel-affectations/personnel-affectations').then((m) => m.PersonnelAffectationsPage),
     data: { parentTitle: 'Personnel', childTitle: 'Affectations' },
+  },
+  {
+    path: 'risques-turnover',
+    loadComponent: () =>
+      import('./pages/personnel-turnover-risk/personnel-turnover-risk').then((m) => m.PersonnelTurnoverRiskPage),
+    data: { parentTitle: 'Personnel', childTitle: 'Risques turn-over' },
   },
   { path: '', pathMatch: 'full', redirectTo: 'agents' },
 ];

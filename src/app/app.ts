@@ -4,12 +4,13 @@ import { SharedModule } from './shared/shared.module';
 import { AppStateService } from './shared/services/app-state.service';
 import { filter } from 'rxjs';
 import { writeLastHealthyRoute } from './core/recovery/route-recovery';
+import { CookieBanner } from './legal/cookie-banner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,SharedModule],
+  imports: [RouterOutlet, SharedModule, CookieBanner],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
   protected readonly title = signal('RH-ADMIN');

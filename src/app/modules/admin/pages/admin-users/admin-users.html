@@ -7,7 +7,7 @@
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Creer' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary" (click)="exportCsv()">Exporter CSV</button>
         </div>
       </div>
       <div class="card-body">
@@ -59,6 +59,41 @@
         </div>
 
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
+
+        <div class="table-responsive mt-4">
+          <table class="table table-bordered mb-0">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Nom</th>
+                <th>Rôle</th>
+                <th>Direction</th>
+                <th>Statut</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of items">
+                <td>{{ user.username }}</td>
+                <td>{{ user.fullName }}</td>
+                <td>{{ user.role }}</td>
+                <td>{{ user.direction }}</td>
+                <td>{{ user.status }}</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-primary me-2" (click)="startEdit(user)" [disabled]="submitting">
+                    Éditer
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteUser(user)" [disabled]="deleting">
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!items.length">
+                <td colspan="6" class="text-center text-muted">Aucun utilisateur</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

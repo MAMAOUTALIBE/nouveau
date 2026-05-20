@@ -1,1 +1,0 @@
-import"./chunk-MG3ERZGY.js";var o=[{path:"",loadComponent:()=>import("./chunk-D2IW2MDS.js").then(t=>t.Dashboard1),data:{parentTitle:"Tableau de bord",childTitle:"RH"},title:"Nowa - tableau-de-bord-rh"}];export{o as DASHBOARD_ROUTES};

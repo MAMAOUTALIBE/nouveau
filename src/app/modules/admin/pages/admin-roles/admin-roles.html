@@ -7,7 +7,7 @@
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Creer un role' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary" (click)="exportCsv()">Exporter CSV</button>
         </div>
       </div>
       <div class="card-body">
@@ -24,9 +24,16 @@
                 <input type="text" class="form-control" formControlName="description" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('description') as error">{{ error }}</div>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-12">
                 <label class="form-label">Permissions</label>
-                <input type="number" class="form-control" formControlName="permissions" min="1" max="200" />
+                <div class="d-flex flex-wrap gap-2">
+                  <label *ngFor="let p of permissionOptions" class="badge bg-light border text-secondary px-3 py-2 cursor-pointer">
+                    <input type="checkbox" class="form-check-input me-1" [checked]="selectedPermissions.has(p.key)"
+                      (change)="togglePermission(p, $any($event.target).checked)">
+                    {{ p.label }}
+                  </label>
+                </div>
+                <small class="text-muted">Total sélectionné : {{ displayedPermissionCount() }}</small>
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('permissions') as error">{{ error }}</div>
               </div>
               <div class="col-12 d-flex justify-content-end gap-2">
@@ -42,6 +49,37 @@
         </div>
 
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
+
+        <div class="table-responsive mt-4">
+          <table class="table table-bordered mb-0">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Permissions</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let role of items">
+                <td>{{ role.name }}</td>
+                <td>{{ role.description }}</td>
+                <td><span class="badge bg-primary-transparent text-primary border border-primary">{{ permissionLabel(role.permissions) }}</span></td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-primary me-2" (click)="startEdit(role)" [disabled]="submitting">
+                    Éditer
+                  </button>
+                  <button class="btn btn-sm btn-danger" (click)="deleteRole(role)" [disabled]="deleting">
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!items.length">
+                <td colspan="4" class="text-center text-muted">Aucun rôle</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

@@ -73,6 +73,8 @@ Le front supporte les variantes `camelCase` et `snake_case` sur les payloads de 
 ### Documents
 - `GET /documents/library`
   - Query: `q`, `status`, `type`, `owner`, `page`, `limit`, `sortBy`, `sortOrder`
+- Voir aussi le contrat cible unifie:
+  - [api-contrat-documents-unifies.md](/Volumes/Sans titre 2/GPA-GOUVE/Final/docs/api-contrat-documents-unifies.md)
 
 ### Workflows
 - `GET /workflows/definitions`

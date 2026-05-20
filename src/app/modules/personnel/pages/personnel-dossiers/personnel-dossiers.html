@@ -27,8 +27,20 @@
               </div>
               <div class="col-md-4">
                 <label class="form-label">Agent</label>
-                <input type="text" class="form-control" formControlName="agent" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
+                <input
+                  type="search"
+                  class="form-control"
+                  [value]="agentLookupValue"
+                  [attr.list]="'personnel-dossier-agents'"
+                  placeholder="Rechercher un agent par nom ou matricule"
+                  (input)="onAgentLookupInput(($any($event.target)).value)"
+                  (blur)="onAgentLookupBlur()" />
+                <datalist id="personnel-dossier-agents">
+                  <option *ngFor="let agent of agents" [value]="agentLookupLabel(agent)"></option>
+                </datalist>
+                <div class="text-muted fs-11 mt-1" *ngIf="loadingAgents">Chargement du referentiel agents...</div>
+                <div class="text-muted fs-11 mt-1" *ngIf="selectedAgentSummary()">{{ selectedAgentSummary() }}</div>
+                <div class="text-danger fs-11 mt-1" *ngIf="agentSelectionError() as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Type</label>

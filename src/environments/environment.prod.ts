@@ -7,8 +7,8 @@ export const environment = {
   auth: {
     devFallback: {
       enabled: false,
-      username: 'spruko@admin.com',
-      password: 'sprukoadmin',
+      username: '',
+      password: '',
     },
   },
   firebase: {

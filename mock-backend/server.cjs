@@ -61,6 +61,29 @@ const STATIC_MIME_BY_EXTENSION = {
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
 };
+const LOCAL_ALLOWED_CORS_ORIGINS = ['http://127.0.0.1:4200', 'http://localhost:4200'];
+const ALLOWED_CORS_ORIGINS = new Set(
+  [
+    ...LOCAL_ALLOWED_CORS_ORIGINS,
+    ...String(process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map((value) => value.trim())
+      .filter((value) => value.length > 0),
+  ].filter(Boolean)
+);
+const API_SECURITY_HEADERS = Object.freeze({
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+});
+const FRONTEND_SECURITY_HEADERS = Object.freeze({
+  ...API_SECURITY_HEADERS,
+  'Cross-Origin-Resource-Policy': 'same-origin',
+  'Content-Security-Policy':
+    "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'",
+});
 
 if (!fs.existsSync(PERSONNEL_UPLOAD_DIR)) {
   fs.mkdirSync(PERSONNEL_UPLOAD_DIR, { recursive: true });
@@ -259,6 +282,42 @@ const agents = [
     email: 'aminata.diallo@gouv.gn',
     phone: '+224 620000001',
     photoUrl: './assets/images/faces/5.jpg',
+    competencies: [
+      {
+        id: 'COMP-PRM-0001-1',
+        label: 'Administration du personnel',
+        category: 'Metier RH',
+        level: 'Expert',
+        lastAssessedAt: '2026-01-15',
+      },
+      {
+        id: 'COMP-PRM-0001-2',
+        label: 'Gestion documentaire',
+        category: 'Conformite',
+        level: 'Avance',
+        lastAssessedAt: '2026-02-05',
+      },
+    ],
+    dependents: [
+      {
+        id: 'DEP-PRM-0001-1',
+        fullName: 'Moussa Diallo',
+        relationship: 'Conjoint',
+        birthDate: '1990-06-12',
+        coverageType: 'Protection sociale',
+        coverageStatus: 'Actif',
+        phone: '+224 620100001',
+      },
+      {
+        id: 'DEP-PRM-0001-2',
+        fullName: 'Hadja Diallo',
+        relationship: 'Enfant',
+        birthDate: '2018-09-21',
+        coverageType: 'Protection sociale',
+        coverageStatus: 'Actif',
+        phone: '',
+      },
+    ],
     careerEvents: [
       {
         title: 'Prise de fonction',
@@ -268,9 +327,36 @@ const agents = [
     ],
     documents: [
       {
+        type: "Pièce d'identité (CNI/Passeport)",
+        reference: 'CNI-AD-2023-001',
+        status: 'Valide',
+        required: true,
+        expiresAt: '2026-05-10',
+      },
+      {
+        type: 'CV',
+        reference: 'CV-AD-2024-001',
+        status: 'Valide',
+        required: true,
+      },
+      {
+        type: 'Diplôme principal',
+        reference: 'DIP-AD-2019-001',
+        status: 'Valide',
+        required: true,
+      },
+      {
+        type: 'Acte/Arrêté de nomination',
+        reference: 'ARR-AD-2024-001',
+        status: 'Valide',
+        required: true,
+      },
+      {
         type: 'Contrat',
         reference: 'CTR-2024-001',
-        status: 'Valide',
+        status: 'A renouveler',
+        required: true,
+        expiresAt: '2026-04-10',
       },
     ],
   },
@@ -289,11 +375,762 @@ const agents = [
     careerEvents: [],
     documents: [],
   },
+  {
+    id: 'PRM-0003',
+    matricule: 'PRM-0003',
+    fullName: 'Mamadou Diallo',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mamadou.diallo@gouv.gn',
+    phone: '+224 620000003',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0004',
+    matricule: 'PRM-0004',
+    fullName: 'Fatoumata Camara',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'fatoumata.camara@gouv.gn',
+    phone: '+224 620000004',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0005',
+    matricule: 'PRM-0005',
+    fullName: 'Ibrahima Bah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'ibrahima.bah@gouv.gn',
+    phone: '+224 620000005',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0006',
+    matricule: 'PRM-0006',
+    fullName: 'Aissatou Barry',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'aissatou.barry@gouv.gn',
+    phone: '+224 620000006',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0007',
+    matricule: 'PRM-0007',
+    fullName: 'Ousmane Soumah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'ousmane.soumah@gouv.gn',
+    phone: '+224 620000007',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0008',
+    matricule: 'PRM-0008',
+    fullName: 'Mariama Condé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mariama.conde@gouv.gn',
+    phone: '+224 620000008',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0009',
+    matricule: 'PRM-0009',
+    fullName: 'Abdoulaye Sylla',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'abdoulaye.sylla@gouv.gn',
+    phone: '+224 620000009',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0010',
+    matricule: 'PRM-0010',
+    fullName: 'Kadiatou Bangoura',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'kadiatou.bangoura@gouv.gn',
+    phone: '+224 620000010',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0011',
+    matricule: 'PRM-0011',
+    fullName: 'Amadou Keïta',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'amadou.keita@gouv.gn',
+    phone: '+224 620000011',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0012',
+    matricule: 'PRM-0012',
+    fullName: 'Néné Traoré',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'nene.traore@gouv.gn',
+    phone: '+224 620000012',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0013',
+    matricule: 'PRM-0013',
+    fullName: 'Mohamed Sangaré',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mohamed.sangare@gouv.gn',
+    phone: '+224 620000013',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0014',
+    matricule: 'PRM-0014',
+    fullName: 'M’mahawa Cissé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mmahawa.cisse@gouv.gn',
+    phone: '+224 620000014',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0015',
+    matricule: 'PRM-0015',
+    fullName: 'Souleymane Baldé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'souleymane.balde@gouv.gn',
+    phone: '+224 620000015',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0016',
+    matricule: 'PRM-0016',
+    fullName: 'Nafiou Kourouma',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'nafiou.kourouma@gouv.gn',
+    phone: '+224 620000016',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0017',
+    matricule: 'PRM-0017',
+    fullName: 'Fanta Fofana',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'fanta.fofana@gouv.gn',
+    phone: '+224 620000017',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0018',
+    matricule: 'PRM-0018',
+    fullName: 'Thierno Diallo',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'thierno.diallo@gouv.gn',
+    phone: '+224 620000018',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0019',
+    matricule: 'PRM-0019',
+    fullName: 'Ramatoulaye Diallo',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'ramatoulaye.diallo@gouv.gn',
+    phone: '+224 620000019',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0020',
+    matricule: 'PRM-0020',
+    fullName: 'Alpha Oumar Sow',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'alpha.sow@gouv.gn',
+    phone: '+224 620000020',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0021',
+    matricule: 'PRM-0021',
+    fullName: 'Hadja Binta Barry',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'hadja.barry@gouv.gn',
+    phone: '+224 620000021',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0022',
+    matricule: 'PRM-0022',
+    fullName: 'Moussa Camara',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'moussa.camara@gouv.gn',
+    phone: '+224 620000022',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0023',
+    matricule: 'PRM-0023',
+    fullName: 'Safiatou Bah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'safiatou.bah@gouv.gn',
+    phone: '+224 620000023',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0024',
+    matricule: 'PRM-0024',
+    fullName: 'Aboubacar Fofana',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'aboubacar.fofana@gouv.gn',
+    phone: '+224 620000024',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0025',
+    matricule: 'PRM-0025',
+    fullName: 'Hawa Keïta',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'hawa.keita@gouv.gn',
+    phone: '+224 620000025',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0026',
+    matricule: 'PRM-0026',
+    fullName: 'Sékouba Condé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'sekouba.conde@gouv.gn',
+    phone: '+224 620000026',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0027',
+    matricule: 'PRM-0027',
+    fullName: 'Oumou Sow',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'oumou.sow@gouv.gn',
+    phone: '+224 620000027',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0028',
+    matricule: 'PRM-0028',
+    fullName: 'Yagouba Diallo',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'yagouba.diallo@gouv.gn',
+    phone: '+224 620000028',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0029',
+    matricule: 'PRM-0029',
+    fullName: 'Diariatou Touré',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'diariatou.toure@gouv.gn',
+    phone: '+224 620000029',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0030',
+    matricule: 'PRM-0030',
+    fullName: 'Lamine Bangoura',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'lamine.bangoura@gouv.gn',
+    phone: '+224 620000030',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0031',
+    matricule: 'PRM-0031',
+    fullName: 'Maimouna Cissé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'maimouna.cisse@gouv.gn',
+    phone: '+224 620000031',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0032',
+    matricule: 'PRM-0032',
+    fullName: 'Ibrahima Sory Bah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'ibrahima.sory.bah@gouv.gn',
+    phone: '+224 620000032',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0033',
+    matricule: 'PRM-0033',
+    fullName: 'Djenabou Camara',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'djenabou.camara@gouv.gn',
+    phone: '+224 620000033',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0034',
+    matricule: 'PRM-0034',
+    fullName: 'Mamadi Keïta',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mamadi.keita@gouv.gn',
+    phone: '+224 620000034',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0035',
+    matricule: 'PRM-0035',
+    fullName: 'Hadiatou Cissé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'hadiatou.cisse@gouv.gn',
+    phone: '+224 620000035',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0036',
+    matricule: 'PRM-0036',
+    fullName: 'Alhassane Baldé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'alhassane.balde@gouv.gn',
+    phone: '+224 620000036',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0037',
+    matricule: 'PRM-0037',
+    fullName: 'Kadidiatou Soumah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'kadidiatou.soumah@gouv.gn',
+    phone: '+224 620000037',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0038',
+    matricule: 'PRM-0038',
+    fullName: 'Fodé Camara',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'fode.camara@gouv.gn',
+    phone: '+224 620000038',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0039',
+    matricule: 'PRM-0039',
+    fullName: 'M’Ballou Bah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mballou.bah@gouv.gn',
+    phone: '+224 620000039',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0040',
+    matricule: 'PRM-0040',
+    fullName: 'Abdourahmane Barry',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'abdourahmane.barry@gouv.gn',
+    phone: '+224 620000040',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0041',
+    matricule: 'PRM-0041',
+    fullName: 'Haby Sylla',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'haby.sylla@gouv.gn',
+    phone: '+224 620000041',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0042',
+    matricule: 'PRM-0042',
+    fullName: 'Oumar Traoré',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'oumar.traore@gouv.gn',
+    phone: '+224 620000042',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0043',
+    matricule: 'PRM-0043',
+    fullName: 'Saran Condé',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'saran.conde@gouv.gn',
+    phone: '+224 620000043',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0044',
+    matricule: 'PRM-0044',
+    fullName: 'Lansana Diallo',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'lansana.diallo@gouv.gn',
+    phone: '+224 620000044',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0045',
+    matricule: 'PRM-0045',
+    fullName: 'Zeinab Bangoura',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'zeinab.bangoura@gouv.gn',
+    phone: '+224 620000045',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0046',
+    matricule: 'PRM-0046',
+    fullName: 'Djibril Sow',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'djibril.sow@gouv.gn',
+    phone: '+224 620000046',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0047',
+    matricule: 'PRM-0047',
+    fullName: 'Salimatou Fofana',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'salimatou.fofana@gouv.gn',
+    phone: '+224 620000047',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0048',
+    matricule: 'PRM-0048',
+    fullName: 'Morlaye Keïta',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'morlaye.keita@gouv.gn',
+    phone: '+224 620000048',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0049',
+    matricule: 'PRM-0049',
+    fullName: 'Néné Camara',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'nene.camara@gouv.gn',
+    phone: '+224 620000049',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0050',
+    matricule: 'PRM-0050',
+    fullName: 'Mohamed Lamine Bah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'mohamed.lamine.bah@gouv.gn',
+    phone: '+224 620000050',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0051',
+    matricule: 'PRM-0051',
+    fullName: 'Fanta Traoré',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'fanta.traore@gouv.gn',
+    phone: '+224 620000051',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
+  {
+    id: 'PRM-0052',
+    matricule: 'PRM-0052',
+    fullName: 'Soryba Soumah',
+    direction: 'Direction des Ressources Humaines',
+    unit: 'Gestion administrative',
+    position: 'Agent',
+    status: 'Actif',
+    manager: 'Responsable RH',
+    email: 'soryba.soumah@gouv.gn',
+    phone: '+224 620000052',
+    photoUrl: './assets/images/faces/profile.jpg',
+    careerEvents: [],
+    documents: [],
+  },
 ];
 
 const personnelDossiers = [
   {
     reference: 'DOS-2026-001',
+    agentId: 'PRM-0001',
     agent: 'Aminata Diallo',
     type: 'Arrete nomination',
     status: 'Actif',
@@ -301,6 +1138,7 @@ const personnelDossiers = [
   },
   {
     reference: 'DOS-2026-002',
+    agentId: 'PRM-0002',
     agent: 'Mamadou Camara',
     type: 'Contrat de travail',
     status: 'En revue',
@@ -308,6 +1146,7 @@ const personnelDossiers = [
   },
   {
     reference: 'DOS-2026-003',
+    agentId: '',
     agent: 'Saran Bah',
     type: 'Decision administrative',
     status: 'Archive',
@@ -318,6 +1157,7 @@ const personnelDossiers = [
 const personnelAffectations = [
   {
     reference: 'AFF-2026-001',
+    agentId: 'PRM-0002',
     agent: 'Mamadou Camara',
     fromUnit: 'Gestion administrative',
     toUnit: 'Service Paie',
@@ -326,6 +1166,7 @@ const personnelAffectations = [
   },
   {
     reference: 'AFF-2026-002',
+    agentId: 'PRM-0001',
     agent: 'Aminata Diallo',
     fromUnit: 'Direction des Ressources Humaines',
     toUnit: 'Cabinet',
@@ -334,6 +1175,7 @@ const personnelAffectations = [
   },
   {
     reference: 'AFF-2026-003',
+    agentId: '',
     agent: 'Ibrahima Conde',
     fromUnit: 'Direction Administrative',
     toUnit: 'Direction des Ressources Humaines',
@@ -431,6 +1273,21 @@ const leaveRequests = [
     startDate: '2026-04-05',
     endDate: '2026-04-20',
     status: 'En attente',
+  },
+];
+
+const documentRequests = [
+  {
+    reference: 'DOC-REQ-2026-001',
+    agent: 'Aminata Diallo',
+    type: 'Attestation de travail',
+    desiredDate: '2026-04-10',
+    reason: 'Dossier visa',
+    status: 'En attente',
+    decisionReason: '',
+    workflow: 'DocRequest',
+    step: 'Validation RH',
+    owner: 'Responsable RH',
   },
 ];
 
@@ -1335,6 +2192,265 @@ let notificationSequence = 1;
 
 const DOCUMENT_ARCHIVE_DEFAULT_DAYS = 30;
 const DOCUMENT_PURGE_DEFAULT_RETENTION_DAYS = 120;
+const PERSONNEL_DOCUMENT_EXPIRY_WARNING_DAYS = 30;
+
+const UNIFIED_DOCUMENT_TYPES = Object.freeze([
+  {
+    id: 'DTYPE-PIECE-IDENTITE',
+    code: 'PIECE_IDENTITE',
+    label: "Piece d'identite (CNI/Passeport)",
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: true,
+    requiresSignature: false,
+    requiresDispatch: false,
+    isSensitive: true,
+    defaultValidityDays: 3650,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-CV',
+    code: 'CV',
+    label: 'CV',
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: false,
+    requiresDispatch: false,
+    isSensitive: false,
+    defaultValidityDays: null,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-DIPLOME-PRINCIPAL',
+    code: 'DIPLOME_PRINCIPAL',
+    label: 'Diplome principal',
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: false,
+    requiresDispatch: false,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-ARRETE-NOMINATION',
+    code: 'ARRETE_NOMINATION',
+    label: 'Acte/Arrete de nomination',
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: false,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-CONTRAT-TRAVAIL',
+    code: 'CONTRAT_TRAVAIL',
+    label: 'Contrat',
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: true,
+    requiresSignature: true,
+    requiresDispatch: false,
+    isSensitive: true,
+    defaultValidityDays: 1095,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-ORDRE-MISSION',
+    code: 'ORDRE_MISSION',
+    label: 'Ordre de mission',
+    moduleScope: 'DOCUMENTS',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: false,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-CERTIFICAT-ABSENCE',
+    code: 'CERTIFICAT_ABSENCE',
+    label: "Certificat d'absence",
+    moduleScope: 'LEAVE',
+    ownerEntityType: 'LEAVE_REQUEST',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-AUTORISATION-ABSENCE',
+    code: 'AUTORISATION_ABSENCE',
+    label: "Autorisation d'absence",
+    moduleScope: 'LEAVE',
+    ownerEntityType: 'LEAVE_REQUEST',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-ATTESTATION-TRAVAIL',
+    code: 'ATTESTATION_TRAVAIL',
+    label: 'Attestation de travail',
+    moduleScope: 'DOCUMENTS',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: false,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-ATTESTATION-SALAIRE',
+    code: 'ATTESTATION_SALAIRE',
+    label: 'Attestation de salaire',
+    moduleScope: 'DOCUMENTS',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-DECISION-AFFECTATION',
+    code: 'DECISION_AFFECTATION',
+    label: "Decision d'affectation",
+    moduleScope: 'PERSONNEL',
+    ownerEntityType: 'ASSIGNMENT',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: false,
+    defaultValidityDays: null,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-NOTIFICATION-DISCIPLINAIRE',
+    code: 'NOTIFICATION_DISCIPLINAIRE',
+    label: 'Notification disciplinaire',
+    moduleScope: 'DISCIPLINE',
+    ownerEntityType: 'DISCIPLINE_CASE',
+    requiresExpiry: false,
+    requiresSignature: true,
+    requiresDispatch: true,
+    isSensitive: true,
+    defaultValidityDays: null,
+    retentionDays: 3650,
+    isActive: true,
+  },
+  {
+    id: 'DTYPE-RAPPORT-MISSION',
+    code: 'RAPPORT_MISSION',
+    label: 'Rapport de mission',
+    moduleScope: 'DOCUMENTS',
+    ownerEntityType: 'EMPLOYEE',
+    requiresExpiry: false,
+    requiresSignature: false,
+    requiresDispatch: false,
+    isSensitive: false,
+    defaultValidityDays: null,
+    retentionDays: 1825,
+    isActive: true,
+  },
+]);
+
+const UNIFIED_DOCUMENT_REQUIREMENTS = Object.freeze([
+  {
+    id: 'DREQ-PIECE-IDENTITE-GLOBAL',
+    requirementCode: 'REQ_PIECE_IDENTITE_GLOBAL',
+    documentTypeCode: 'PIECE_IDENTITE',
+    requirementScope: 'GLOBAL',
+    contractType: '',
+    isMandatory: true,
+    warningOffsetDays: 45,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+  {
+    id: 'DREQ-CV-GLOBAL',
+    requirementCode: 'REQ_CV_GLOBAL',
+    documentTypeCode: 'CV',
+    requirementScope: 'GLOBAL',
+    contractType: '',
+    isMandatory: true,
+    warningOffsetDays: 30,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+  {
+    id: 'DREQ-DIPLOME-GLOBAL',
+    requirementCode: 'REQ_DIPLOME_PRINCIPAL_GLOBAL',
+    documentTypeCode: 'DIPLOME_PRINCIPAL',
+    requirementScope: 'GLOBAL',
+    contractType: '',
+    isMandatory: true,
+    warningOffsetDays: 30,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+  {
+    id: 'DREQ-ARRETE-FONCTIONNAIRE',
+    requirementCode: 'REQ_ARRETE_NOMINATION_FONCTIONNAIRE',
+    documentTypeCode: 'ARRETE_NOMINATION',
+    requirementScope: 'CONTRACT_TYPE',
+    contractType: 'Fonctionnaire',
+    isMandatory: true,
+    warningOffsetDays: 30,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+  {
+    id: 'DREQ-CONTRAT-CONTRACTUEL',
+    requirementCode: 'REQ_CONTRAT_TRAVAIL_CONTRACTUEL',
+    documentTypeCode: 'CONTRAT_TRAVAIL',
+    requirementScope: 'CONTRACT_TYPE',
+    contractType: 'Contractuel',
+    isMandatory: true,
+    warningOffsetDays: 30,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+  {
+    id: 'DREQ-CONTRAT-STAGIAIRE',
+    requirementCode: 'REQ_CONTRAT_TRAVAIL_STAGIAIRE',
+    documentTypeCode: 'CONTRAT_TRAVAIL',
+    requirementScope: 'CONTRACT_TYPE',
+    contractType: 'Stagiaire',
+    isMandatory: true,
+    warningOffsetDays: 30,
+    dueOffsetDays: 7,
+    isActive: true,
+  },
+]);
+
+const documentLinksRegistry = [];
+const documentAnalysisRuns = [];
+let documentAnalysisRunSequence = 1;
 
 const adminUsers = [
   { username: 'spruko@admin.com', fullName: 'Admin RH', role: 'super_admin', direction: 'Cabinet', status: 'Actif' },
@@ -1638,6 +2754,105 @@ function buildScopeAssignments(source, scopes) {
   return assignments;
 }
 
+function normalizeOrganizationValue(value) {
+  const normalized = normalizeText(value).replace(/[^a-z0-9]+/g, '');
+  if (!normalized) {
+    return '';
+  }
+  if (normalized === 'directionrh' || normalized === 'directiondesressourceshumaines') {
+    return 'rh';
+  }
+  return normalized;
+}
+
+function findAgentByUsername(username) {
+  const expected = normalizeText(username);
+  if (!expected) {
+    return null;
+  }
+
+  return agents.find((item) => normalizeText(item.email) === expected) || null;
+}
+
+function resolveScopedRecordContext(record) {
+  const username =
+    String(record?.username || record?.applicantUsername || record?.recipientUsername || '').trim().toLowerCase() || '';
+  const employeeId = String(record?.employeeId || record?.assignedEmployeeId || '').trim();
+  const agent = findAgentByEmployeeId(employeeId) || findAgentByUsername(username);
+  const portalUser = findPortalUserByUsername(username);
+
+  return {
+    username: username || String(agent?.email || '').trim().toLowerCase(),
+    direction: String(record?.direction || agent?.direction || portalUser?.direction || '').trim(),
+    unit: String(record?.unit || agent?.unit || portalUser?.unit || '').trim(),
+    manager: String(record?.manager || agent?.manager || '').trim(),
+    confidentialityLevel: String(record?.confidentialityLevel || '').trim(),
+  };
+}
+
+function matchesScopeAssignment(assignment, target) {
+  const scope = String(assignment?.scope || '').trim().toUpperCase();
+  if (scope === APP_SCOPES.GLOBAL) {
+    return true;
+  }
+
+  if (scope === APP_SCOPES.SELF) {
+    return normalizeText(assignment?.username) !== '' && normalizeText(assignment?.username) === normalizeText(target.username);
+  }
+
+  const assignmentDirection = normalizeOrganizationValue(assignment?.direction);
+  const assignmentUnit = normalizeOrganizationValue(assignment?.unit);
+  const targetDirection = normalizeOrganizationValue(target.direction);
+  const targetUnit = normalizeOrganizationValue(target.unit);
+
+  if (scope === APP_SCOPES.TEAM) {
+    const assignmentManager = normalizeText(assignment?.manager);
+    const targetManager = normalizeText(target.manager);
+    if (assignmentManager && targetManager && assignmentManager === targetManager) {
+      return true;
+    }
+    return !!assignmentUnit && assignmentUnit === targetUnit && (!assignmentDirection || !targetDirection || assignmentDirection === targetDirection);
+  }
+
+  if (scope === APP_SCOPES.UNIT) {
+    return !!assignmentUnit && assignmentUnit === targetUnit && (!assignmentDirection || !targetDirection || assignmentDirection === targetDirection);
+  }
+
+  if (scope === APP_SCOPES.DIRECTION) {
+    return !!assignmentDirection && assignmentDirection === targetDirection;
+  }
+
+  return false;
+}
+
+function canAccessScopedRecord(session, record) {
+  const scopes = normalizeScopes(session?.scopes);
+  if (scopes.includes(APP_SCOPES.GLOBAL)) {
+    return true;
+  }
+
+  const assignments = Array.isArray(session?.scopeAssignments) ? session.scopeAssignments : buildScopeAssignments(session, scopes);
+  if (!assignments.length) {
+    return false;
+  }
+
+  const target = resolveScopedRecordContext(record);
+  return assignments.some((assignment) => matchesScopeAssignment(assignment, target));
+}
+
+function canReadDocumentRecord(session, document) {
+  if (!canAccessScopedRecord(session, document)) {
+    return false;
+  }
+
+  const confidentiality = normalizeText(document?.confidentialityLevel || '');
+  if (confidentiality === 'confidential' && !hasAnyPermission(session, [APP_PERMISSIONS.documentsViewSensitive])) {
+    return false;
+  }
+
+  return true;
+}
+
 function makePrincipal(source) {
   const username = String(source?.username || '').trim();
   const fullName = String(source?.fullName || '').trim() || username;
@@ -1869,6 +3084,10 @@ function resolveRouteAccessRequirements(method, path) {
     return { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView] };
   }
 
+  if (path.startsWith('/api/v1/modernization/')) {
+    return { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView, APP_PERMISSIONS.reportsView] };
+  }
+
   if (path.startsWith('/api/v1/personnel/')) {
     if (isRead) {
       return { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] };
@@ -2032,14 +3251,42 @@ function ensureRoles(res, session, requiredRoles = []) {
   return ensureAccess(res, session, { requiredRoles });
 }
 
-function sendJson(res, statusCode, data) {
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
+function resolveCorsHeaders(req) {
+  const originHeader = Array.isArray(req?.headers?.origin) ? req.headers.origin[0] : req?.headers?.origin;
+  const origin = String(originHeader || '').trim();
+  if (!origin || !ALLOWED_CORS_ORIGINS.has(origin)) {
+    return {};
+  }
+
+  return {
+    'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-Id',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     'Access-Control-Expose-Headers': 'X-Correlation-Id',
-  });
+    Vary: 'Origin',
+  };
+}
+
+function buildResponseHeaders(req, headers = {}, options = {}) {
+  const securityHeaders = options.frontend ? FRONTEND_SECURITY_HEADERS : API_SECURITY_HEADERS;
+  return {
+    ...securityHeaders,
+    ...resolveCorsHeaders(req),
+    ...headers,
+  };
+}
+
+function sendJson(res, statusCode, data) {
+  res.writeHead(
+    statusCode,
+    buildResponseHeaders(res.__request, {
+      'Content-Type': 'application/json; charset=utf-8',
+    })
+  );
+  if (statusCode === 204) {
+    res.end();
+    return;
+  }
   res.end(JSON.stringify(data));
 }
 
@@ -2322,6 +3569,49 @@ function applyCollectionQuery(items, url, options = {}) {
 
 function findAgent(id) {
   return agents.find((a) => a.id === id);
+}
+
+function findAgentByReference(value) {
+  const normalizedValue = normalizeText(value);
+  if (!normalizedValue) {
+    return null;
+  }
+
+  return (
+    agents.find((agent) => {
+      return [agent.id, agent.matricule, agent.fullName]
+        .map((candidate) => normalizeText(candidate))
+        .some((candidate) => !!candidate && candidate === normalizedValue);
+    }) || null
+  );
+}
+
+function resolvePersonnelAgentLink(agentIdInput, agentLabelInput) {
+  const normalizedAgentId = String(agentIdInput || '').trim();
+  const normalizedAgentLabel = String(agentLabelInput || '').trim();
+  const directMatch = normalizedAgentId ? findAgent(normalizedAgentId) : null;
+  if (directMatch) {
+    return {
+      agentId: directMatch.id,
+      agent: String(directMatch.fullName || '').trim(),
+      matchedAgent: directMatch,
+    };
+  }
+
+  const labelMatch = normalizedAgentLabel ? findAgentByReference(normalizedAgentLabel) : null;
+  if (labelMatch) {
+    return {
+      agentId: labelMatch.id,
+      agent: String(labelMatch.fullName || '').trim(),
+      matchedAgent: labelMatch,
+    };
+  }
+
+  return {
+    agentId: normalizedAgentId,
+    agent: normalizedAgentLabel,
+    matchedAgent: null,
+  };
 }
 
 function extractMatriculeNumber(value) {
@@ -2702,9 +3992,11 @@ function executeAgentMerge(payload, currentUser) {
 
   let reassignedDossiers = 0;
   personnelDossiers.forEach((item) => {
-    if (!isAgentAliasMatch(item.agent, aliases)) {
+    const matchesSecondaryAgent = normalizeText(item.agentId || '') === normalizeText(secondaryAgent.id || '');
+    if (!matchesSecondaryAgent && !isAgentAliasMatch(item.agent, aliases)) {
       return;
     }
+    item.agentId = String(primaryAgent.id || '').trim();
     item.agent = String(primaryAgent.fullName || '').trim();
     item.updatedAt = mergeTimestamp;
     reassignedDossiers += 1;
@@ -2712,9 +4004,11 @@ function executeAgentMerge(payload, currentUser) {
 
   let reassignedAffectations = 0;
   personnelAffectations.forEach((item) => {
-    if (!isAgentAliasMatch(item.agent, aliases)) {
+    const matchesSecondaryAgent = normalizeText(item.agentId || '') === normalizeText(secondaryAgent.id || '');
+    if (!matchesSecondaryAgent && !isAgentAliasMatch(item.agent, aliases)) {
       return;
     }
+    item.agentId = String(primaryAgent.id || '').trim();
     item.agent = String(primaryAgent.fullName || '').trim();
     reassignedAffectations += 1;
   });
@@ -4218,10 +5512,12 @@ function runRecruitmentOnboardingSync(reference, currentUser) {
   const now = new Date().toISOString();
   const dossierReference = `DOS-${new Date().getFullYear()}-${String(recruitmentOnboardingSyncLogs.length + 1).padStart(3, '0')}`;
   const affectationReference = `AFF-${new Date().getFullYear()}-${String(recruitmentOnboardingSyncLogs.length + 1).padStart(3, '0')}`;
+  const resolvedAgent = resolvePersonnelAgentLink('', normalizedOnboarding.agent);
 
   personnelDossiers.push({
     reference: dossierReference,
-    agent: normalizedOnboarding.agent,
+    agentId: resolvedAgent.agentId || '',
+    agent: resolvedAgent.agent || normalizedOnboarding.agent,
     type: 'Dossier agent auto-onboarding',
     status: 'Actif',
     updatedAt: now,
@@ -4229,7 +5525,8 @@ function runRecruitmentOnboardingSync(reference, currentUser) {
 
   personnelAffectations.push({
     reference: affectationReference,
-    agent: normalizedOnboarding.agent,
+    agentId: resolvedAgent.agentId || '',
+    agent: resolvedAgent.agent || normalizedOnboarding.agent,
     fromUnit: 'Recrutement',
     toUnit: normalizedOnboarding.position,
     effectiveDate: normalizedOnboarding.startDate,
@@ -7068,6 +8365,839 @@ function normalizeLibraryDocumentDateOnly(value) {
   return new Date(parsed).toISOString().slice(0, 10);
 }
 
+function addDaysToDateOnly(value, days) {
+  const normalized = normalizeLibraryDocumentDateOnly(value);
+  if (!normalized) {
+    return '';
+  }
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed)) {
+    return '';
+  }
+  const next = new Date(parsed);
+  next.setUTCDate(next.getUTCDate() + Number(days || 0));
+  return next.toISOString().slice(0, 10);
+}
+
+function daysUntilDate(value) {
+  const normalized = normalizeLibraryDocumentDateOnly(value);
+  if (!normalized) {
+    return null;
+  }
+  const parsed = Date.parse(normalized);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  const target = new Date(parsed);
+  target.setHours(0, 0, 0, 0);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.floor((target.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+}
+
+function buildFallbackDocumentTypeCode(value) {
+  const normalized = String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toUpperCase();
+  return normalized || 'GENERIC';
+}
+
+function findUnifiedDocumentTypeDefinition(value) {
+  const normalized = normalizeText(value);
+  if (!normalized) {
+    return null;
+  }
+
+  const catalog = getUnifiedDocumentTypes();
+  return (
+    catalog.find((item) => normalizeText(item.code) === normalized || normalizeText(item.label) === normalized) || null
+  );
+}
+
+function getUnifiedDocumentTypes() {
+  const seeded = UNIFIED_DOCUMENT_TYPES.map((item) => ({ ...item }));
+  const knownCodes = new Set(seeded.map((item) => item.code));
+
+  documentsLibrary.forEach((item) => {
+    const inferredCode = buildFallbackDocumentTypeCode(item.documentTypeCode || item.type);
+    if (!inferredCode || knownCodes.has(inferredCode)) {
+      return;
+    }
+    knownCodes.add(inferredCode);
+    seeded.push({
+      id: `DTYPE-${inferredCode.replace(/_/g, '-')}`,
+      code: inferredCode,
+      label: String(item.type || inferredCode).trim() || inferredCode,
+      moduleScope: String(item.sourceModule || 'DOCUMENTS').trim() || 'DOCUMENTS',
+      ownerEntityType: 'EMPLOYEE',
+      requiresExpiry: false,
+      requiresSignature: false,
+      requiresDispatch: false,
+      isSensitive: false,
+      defaultValidityDays: null,
+      retentionDays: 1825,
+      isActive: true,
+    });
+  });
+
+  return seeded;
+}
+
+function getUnifiedDocumentRequirements() {
+  return UNIFIED_DOCUMENT_REQUIREMENTS
+    .map((item) => {
+      const documentType = findUnifiedDocumentTypeDefinition(item.documentTypeCode);
+      if (!documentType) {
+        return null;
+      }
+      return {
+        ...item,
+        documentTypeId: documentType.id,
+        documentTypeLabel: documentType.label,
+      };
+    })
+    .filter((item) => !!item);
+}
+
+function normalizeUnifiedSourceModule(value, fallback = 'DOCUMENTS') {
+  const normalized = normalizeText(value).replace(/\s+/g, '');
+  if (normalized === 'personnel') return 'PERSONNEL';
+  if (normalized === 'leave') return 'LEAVE';
+  if (normalized === 'discipline') return 'DISCIPLINE';
+  if (normalized === 'workflow') return 'WORKFLOW';
+  if (normalized === 'recruitment') return 'RECRUITMENT';
+  if (normalized === 'admin') return 'ADMIN';
+  if (normalized === 'import') return 'IMPORT';
+  if (normalized === 'documents') return 'DOCUMENTS';
+  return fallback;
+}
+
+function normalizeUnifiedConfidentialityLevel(value, fallback = 'INTERNAL') {
+  const normalized = normalizeText(value).replace(/\s+/g, '');
+  if (normalized === 'public') return 'PUBLIC';
+  if (normalized === 'internal') return 'INTERNAL';
+  if (normalized === 'confidential') return 'CONFIDENTIAL';
+  if (normalized === 'strictlyconfidential' || normalized === 'strictementconfidentiel') {
+    return 'STRICTLY_CONFIDENTIAL';
+  }
+  return fallback;
+}
+
+function buildPersonnelRequiredDocumentDefinitions(contractType) {
+  const normalizedContractType = normalizeText(contractType);
+  const base = ['PIECE_IDENTITE', 'CV', 'DIPLOME_PRINCIPAL'];
+
+  if (normalizedContractType.includes('fonctionnaire')) {
+    base.push('ARRETE_NOMINATION');
+  } else if (normalizedContractType.includes('contractuel') || normalizedContractType.includes('stagiaire')) {
+    base.push('CONTRAT_TRAVAIL');
+  } else {
+    base.push('ARRETE_NOMINATION', 'CONTRAT_TRAVAIL');
+  }
+
+  return base
+    .map((code) => findUnifiedDocumentTypeDefinition(code))
+    .filter((item) => !!item)
+    .map((item) => ({
+      code: item.code,
+      label: item.label,
+    }));
+}
+
+function buildPersonnelDocumentReference(agentId, documentTypeCode, fallbackReference = '') {
+  const normalizedFallback = String(fallbackReference || '').trim().toUpperCase();
+  if (normalizedFallback && /^[A-Z0-9-]{3,40}$/.test(normalizedFallback)) {
+    return normalizedFallback;
+  }
+  const compactCode = String(documentTypeCode || 'DOC')
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 12);
+  return `PERS-${String(agentId || '').replace(/[^A-Z0-9]/g, '').slice(-8)}-${compactCode || 'DOC'}`;
+}
+
+function normalizePersonnelDocumentLibraryStatus(value) {
+  const normalized = normalizeText(value);
+  if (
+    normalized.includes('incomplet') ||
+    normalized.includes('rejete') ||
+    normalized.includes('rejetee') ||
+    normalized.includes('invalide')
+  ) {
+    return 'En validation';
+  }
+  if (normalized.includes('archive')) {
+    return 'Archive';
+  }
+  return 'Valide';
+}
+
+function buildDocumentLinksForItem(document) {
+  const explicit = documentLinksRegistry.filter(
+    (item) => normalizeText(item.reference) === normalizeText(document.reference)
+  );
+
+  const derived = [];
+  if (String(document.employeeId || '').trim()) {
+    derived.push({
+      reference: document.reference,
+      entityType: 'EMPLOYEE',
+      entityId: String(document.employeeId || '').trim(),
+      linkRole: 'PRIMARY',
+    });
+  }
+  if (String(document.sourceRecordId || '').trim()) {
+    derived.push({
+      reference: document.reference,
+      entityType: document.sourceModule === 'PERSONNEL' ? 'EMPLOYEE' : 'GENERIC',
+      entityId: String(document.sourceRecordId || '').trim(),
+      linkRole: 'SOURCE',
+    });
+  }
+
+  const merged = [...explicit, ...derived];
+  const seen = new Set();
+  return merged.filter((item) => {
+    const key = `${normalizeText(item.entityType)}::${normalizeText(item.entityId)}::${normalizeText(item.linkRole)}`;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function ensureDocumentMetadata(document) {
+  const definition =
+    findUnifiedDocumentTypeDefinition(document.documentTypeCode || document.type) ||
+    findUnifiedDocumentTypeDefinition(document.type);
+
+  document.documentTypeCode = definition?.code || buildFallbackDocumentTypeCode(document.documentTypeCode || document.type);
+  document.documentTypeId = definition?.id || `DTYPE-${String(document.documentTypeCode || 'GENERIC').replace(/_/g, '-')}`;
+  document.documentTypeLabel = definition?.label || String(document.type || document.documentTypeCode || 'Document').trim();
+  document.sourceModule = normalizeUnifiedSourceModule(document.sourceModule, 'DOCUMENTS');
+  document.sourceRecordId = String(document.sourceRecordId || '').trim();
+  document.confidentialityLevel = normalizeUnifiedConfidentialityLevel(
+    document.confidentialityLevel,
+    definition?.isSensitive ? 'CONFIDENTIAL' : 'INTERNAL'
+  );
+  document.requiresAcknowledgement = Boolean(
+    document.requiresAcknowledgement ?? document.requires_acknowledgement ?? definition?.requiresDispatch
+  );
+  document.expiresOn = normalizeLibraryDocumentDateOnly(document.expiresOn || document.endDate || '');
+  document.analysisStatus = String(document.analysisStatus || 'NOT_REQUESTED').trim() || 'NOT_REQUESTED';
+  document.lastAnalysisAt = String(document.lastAnalysisAt || '').trim();
+  document.fileName = String(document.fileName || '').trim();
+  document.fileDataUrl = String(document.fileDataUrl || '').trim();
+  return document;
+}
+
+function inferLegacyAgentDocumentStatusFromLibraryDocument(document) {
+  const explicitStatus = String(document.legacyStatus || '').trim();
+  if (explicitStatus) {
+    return explicitStatus;
+  }
+
+  const expiresAt = normalizeLibraryDocumentDateOnly(document.expiresOn || document.endDate || '');
+  const daysRemaining = daysUntilDate(expiresAt);
+  if (daysRemaining !== null && daysRemaining < 0) {
+    return 'Expire';
+  }
+  if (daysRemaining !== null && daysRemaining <= PERSONNEL_DOCUMENT_EXPIRY_WARNING_DAYS) {
+    return 'A renouveler';
+  }
+  if (normalizeText(document.analysisStatus || '').includes('review')) {
+    return 'Incomplet';
+  }
+  return 'Valide';
+}
+
+function buildAgentDocumentFromLibraryDocument(document) {
+  const enriched = ensureDocumentMetadata(document);
+  const expiresAt = normalizeLibraryDocumentDateOnly(enriched.expiresOn || enriched.endDate || '');
+  return {
+    type: String(enriched.documentTypeLabel || enriched.type || '').trim(),
+    reference: String(enriched.reference || '').trim().toUpperCase(),
+    status: inferLegacyAgentDocumentStatusFromLibraryDocument(enriched),
+    required: Boolean(enriched.required ?? enriched.legacyRequired),
+    expiresAt,
+    fileName:
+      String(enriched.fileName || '').trim() ||
+      String(enriched.originalFilename || '').trim() ||
+      (String(enriched.reference || '').trim() ? `${String(enriched.reference || '').trim().toLowerCase()}.pdf` : ''),
+    fileDataUrl: String(enriched.fileDataUrl || '').trim(),
+  };
+}
+
+function matchesDocumentToAgent(document, agent) {
+  const agentId = normalizeText(agent?.id);
+  const agentMatricule = normalizeText(agent?.matricule);
+  const agentName = normalizeText(agent?.fullName);
+  return (
+    normalizeText(document?.employeeId) === agentId ||
+    normalizeText(document?.employeeId) === agentMatricule ||
+    normalizeText(document?.sourceRecordId) === agentId ||
+    normalizeText(document?.employeeName) === agentName
+  );
+}
+
+function listPersonnelDocumentsForAgent(agent) {
+  const projected = documentsLibrary
+    .filter((item) => matchesDocumentToAgent(item, agent))
+    .filter((item) => {
+      const definition = findUnifiedDocumentTypeDefinition(item.documentTypeCode || item.type);
+      return (
+        normalizeUnifiedSourceModule(item.sourceModule, 'DOCUMENTS') === 'PERSONNEL' ||
+        normalizeText(definition?.moduleScope || '') === 'personnel'
+      );
+    })
+    .map((item) => buildAgentDocumentFromLibraryDocument(item));
+
+  const projectedKeys = new Set(
+    projected.map((item) => `${normalizeText(item.type)}::${normalizeText(item.reference)}`)
+  );
+  const embedded = normalizeAgentDocumentsPayload(agent?.documents).filter((item) => {
+    const key = `${normalizeText(item.type)}::${normalizeText(item.reference)}`;
+    return !projectedKeys.has(key);
+  });
+
+  return [...projected, ...embedded].sort((left, right) => {
+    const leftRequired = left.required ? 0 : 1;
+    const rightRequired = right.required ? 0 : 1;
+    if (leftRequired !== rightRequired) {
+      return leftRequired - rightRequired;
+    }
+    return normalizeText(left.type).localeCompare(normalizeText(right.type));
+  });
+}
+
+function buildAgentDocumentCompliancePayload(agent) {
+  const documents = listPersonnelDocumentsForAgent(agent);
+  const requiredDefinitions = buildPersonnelRequiredDocumentDefinitions(agent?.administrative?.contractType || '');
+  const requirementIndex = new Map(
+    getUnifiedDocumentRequirements().map((item) => [String(item.documentTypeCode || '').trim(), item])
+  );
+
+  const items = requiredDefinitions.map((definition) => {
+    const document =
+      documents.find((item) => normalizeText(item.type) === normalizeText(definition.label)) || null;
+    const expiresOn = normalizeLibraryDocumentDateOnly(document?.expiresAt || '');
+    const daysRemaining = daysUntilDate(expiresOn);
+    const normalizedStatus = normalizeText(document?.status || '');
+    const requirement = requirementIndex.get(definition.code) || null;
+    let complianceStatus = 'MISSING';
+
+    if (document && String(document.reference || '').trim()) {
+      complianceStatus = 'COMPLIANT';
+      if (
+        normalizedStatus.includes('expire') ||
+        (daysRemaining !== null && daysRemaining < 0)
+      ) {
+        complianceStatus = 'EXPIRED';
+      } else if (
+        normalizedStatus.includes('renouvel') ||
+        normalizedStatus.includes('invalide') ||
+        normalizedStatus.includes('rejete') ||
+        normalizedStatus.includes('incomplet') ||
+        (daysRemaining !== null && daysRemaining <= PERSONNEL_DOCUMENT_EXPIRY_WARNING_DAYS)
+      ) {
+        complianceStatus = 'EXPIRING_SOON';
+      }
+    }
+
+    const dueOn =
+      expiresOn ||
+      addDaysToDateOnly(agent?.administrative?.hireDate || '', requirement?.dueOffsetDays || 0);
+
+    return {
+      documentTypeCode: definition.code,
+      documentTypeLabel: definition.label,
+      requirementScope: String(requirement?.requirementScope || 'GLOBAL'),
+      complianceStatus,
+      documentReference: String(document?.reference || '').trim(),
+      expiresOn,
+      dueOn,
+    };
+  });
+
+  return {
+    employeeId: String(agent?.id || '').trim(),
+    summary: {
+      requiredCount: items.length,
+      compliantCount: items.filter((item) => item.complianceStatus === 'COMPLIANT').length,
+      missingCount: items.filter((item) => item.complianceStatus === 'MISSING').length,
+      expiredCount: items.filter((item) => item.complianceStatus === 'EXPIRED').length,
+      expiringSoonCount: items.filter((item) => item.complianceStatus === 'EXPIRING_SOON').length,
+    },
+    items,
+  };
+}
+
+function buildAgentDigitalBadge(agent) {
+  const issuedAt = new Date().toISOString();
+  const expiresAtDate = new Date();
+  expiresAtDate.setFullYear(expiresAtDate.getFullYear() + 1);
+  const expiresAt = expiresAtDate.toISOString();
+  const badgeId = `BADGE-${String(agent?.matricule || agent?.id || 'AGENT')
+    .replace(/[^A-Z0-9-]/gi, '')
+    .toUpperCase()}`;
+  const status = normalizeText(agent?.status || '').includes('inactif') ? 'SUSPENDED' : 'ACTIVE';
+  const verificationCode = createHash('sha256')
+    .update(`${agent?.id || ''}|${agent?.matricule || ''}|${issuedAt}`)
+    .digest('hex')
+    .slice(0, 12)
+    .toUpperCase();
+  const signatureHash = createHash('sha256')
+    .update(
+      [
+        badgeId,
+        agent?.id || '',
+        agent?.matricule || '',
+        agent?.fullName || '',
+        agent?.direction || '',
+        issuedAt,
+        expiresAt,
+        verificationCode,
+      ].join('|')
+    )
+    .digest('hex');
+  const qrPayload = JSON.stringify({
+    type: 'GPA-GOUVE-BADGE',
+    agentId: String(agent?.id || '').trim(),
+    matricule: String(agent?.matricule || '').trim(),
+    fullName: String(agent?.fullName || '').trim(),
+    direction: String(agent?.direction || '').trim(),
+    badgeId,
+    verificationCode,
+    signatureHash,
+  });
+
+  return {
+    agentId: String(agent?.id || '').trim(),
+    badgeId,
+    issuedAt,
+    expiresAt,
+    status,
+    verificationCode,
+    signatureHash,
+    qrPayload,
+  };
+}
+
+function normalizePdfText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\x20-\x7E]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function escapePdfText(value) {
+  return normalizePdfText(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)');
+}
+
+function wrapPdfLine(value, maxLength = 92) {
+  const words = normalizePdfText(value).split(' ').filter(Boolean);
+  const lines = [];
+  let current = '';
+  words.forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length > maxLength && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  });
+  if (current) {
+    lines.push(current);
+  }
+  return lines.length ? lines : [''];
+}
+
+function buildAgentDossierExportLines(agent) {
+  const badge = buildAgentDigitalBadge(agent);
+  const documents = listPersonnelDocumentsForAgent(agent);
+  const competencies = normalizeAgentCompetenciesPayload(agent?.competencies);
+  const dependents = normalizeAgentDependentsPayload(agent?.dependents);
+  const agentDisciplineCases = disciplineCases.filter((item) => normalizeText(item.agent) === normalizeText(agent.fullName));
+  const signatureHash = createHash('sha256')
+    .update(JSON.stringify({ agent, documents, competencies, dependents, generatedAt: badge.issuedAt }))
+    .digest('hex');
+  const lines = [
+    'PRIMATURE - DOSSIER ADMINISTRATIF INDIVIDUEL',
+    `Genere le: ${badge.issuedAt}`,
+    `Signature SHA-256: ${signatureHash}`,
+    `Code verification: ${badge.verificationCode}`,
+    '',
+    'IDENTITE',
+    `Matricule: ${agent.matricule || ''}`,
+    `Nom complet: ${agent.fullName || ''}`,
+    `Direction: ${agent.direction || ''}`,
+    `Unite: ${agent.unit || ''}`,
+    `Poste: ${agent.position || ''}`,
+    `Statut: ${agent.status || ''}`,
+    `Manager: ${agent.manager || ''}`,
+    `Email: ${agent.email || ''}`,
+    `Telephone: ${agent.phone || ''}`,
+    `Piece: ${agent.identity?.identityType || ''} ${agent.identity?.identityNumber || ''}`,
+    `Naissance: ${agent.identity?.birthDate || ''} ${agent.identity?.birthPlace || ''}`,
+    `Nationalite: ${agent.identity?.nationality || ''}`,
+    '',
+    'ADMINISTRATIF',
+    `Date recrutement: ${agent.administrative?.hireDate || ''}`,
+    `Contrat: ${agent.administrative?.contractType || ''}`,
+    `Adresse: ${agent.administrative?.address || ''}`,
+    `Contact urgence: ${agent.administrative?.emergencyContactName || ''} ${agent.administrative?.emergencyContactPhone || ''}`,
+    '',
+    'COMPETENCES',
+    ...(competencies.length
+      ? competencies.map((item) => `- ${item.label} | ${item.category} | ${item.level} | ${item.lastAssessedAt || 'non evalue'}`)
+      : ['Aucune competence renseignee']),
+    '',
+    'AYANTS DROIT',
+    ...(dependents.length
+      ? dependents.map((item) => `- ${item.fullName} | ${item.relationship || 'Lien non precise'} | ${item.coverageType} | ${item.coverageStatus}`)
+      : ['Aucun ayant droit renseigne']),
+    '',
+    'DOCUMENTS',
+    ...(documents.length
+      ? documents.map((item) => `- ${item.type} | ${item.reference} | ${item.status} | expiration ${item.expiresAt || 'n/a'}`)
+      : ['Aucun document rattache']),
+    '',
+    'DISCIPLINE',
+    ...(agentDisciplineCases.length
+      ? agentDisciplineCases.map((item) => `- ${item.reference} | ${item.category} | ${item.severity} | ${item.status}`)
+      : ['Aucun dossier disciplinaire rattache']),
+  ];
+
+  return lines.flatMap((line) => wrapPdfLine(line)).slice(0, 60);
+}
+
+function buildSimplePdf(lines) {
+  const textContent = [
+    'BT',
+    '/F1 10 Tf',
+    '50 790 Td',
+    '13 TL',
+    ...lines.map((line) => `(${escapePdfText(line)}) Tj T*`),
+    'ET',
+  ].join('\n');
+
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    `<< /Length ${Buffer.byteLength(textContent, 'utf8')} >>\nstream\n${textContent}\nendstream`,
+  ];
+
+  let output = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(Buffer.byteLength(output, 'utf8'));
+    output += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xrefOffset = Buffer.byteLength(output, 'utf8');
+  output += `xref\n0 ${objects.length + 1}\n`;
+  output += '0000000000 65535 f \n';
+  output += offsets
+    .slice(1)
+    .map((offset) => `${String(offset).padStart(10, '0')} 00000 n `)
+    .join('\n');
+  output += `\ntrailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(output, 'utf8');
+}
+
+function findSyncedPersonnelDocument(agentId, documentTypeCode, reference) {
+  return (
+    documentsLibrary.find((item) => {
+      return (
+        normalizeUnifiedSourceModule(item.sourceModule, 'DOCUMENTS') === 'PERSONNEL' &&
+        normalizeText(item.sourceRecordId || item.employeeId) === normalizeText(agentId) &&
+        (normalizeText(item.documentTypeCode || item.type) === normalizeText(documentTypeCode) ||
+          normalizeText(item.reference) === normalizeText(reference))
+      );
+    }) || null
+  );
+}
+
+function synchronizeAgentDocumentsToLibrary(agent, actor = 'system', updatedAt = new Date().toISOString()) {
+  const normalizedDocuments = normalizeAgentDocumentsPayload(agent?.documents);
+  const activeReferences = new Set();
+
+  normalizedDocuments.forEach((document) => {
+    const definition =
+      findUnifiedDocumentTypeDefinition(document.type) ||
+      findUnifiedDocumentTypeDefinition(document.reference) || {
+        code: buildFallbackDocumentTypeCode(document.type),
+        label: String(document.type || 'Document').trim() || 'Document',
+        isSensitive: true,
+      };
+    const reference = buildPersonnelDocumentReference(agent.id, definition.code, document.reference);
+    const synced = findSyncedPersonnelDocument(agent.id, definition.code, reference);
+    const payload = ensureDocumentMetadata({
+      ...(synced || {}),
+      reference,
+      title: `${definition.label} - ${String(agent.fullName || '').trim()}`,
+      type: definition.label,
+      owner: String(agent.direction || 'Direction RH').trim() || 'Direction RH',
+      updatedAt,
+      status: normalizePersonnelDocumentLibraryStatus(document.status),
+      employeeName: String(agent.fullName || '').trim(),
+      employeeId: String(agent.id || agent.matricule || '').trim(),
+      direction: String(agent.direction || '').trim(),
+      unit: String(agent.unit || '').trim(),
+      issuedAt:
+        normalizeLibraryDocumentDateOnly(agent?.administrative?.hireDate || '') || updatedAt.slice(0, 10),
+      startDate: '',
+      endDate: normalizeLibraryDocumentDateOnly(document.expiresAt || ''),
+      approver: '',
+      missionDestination: '',
+      missionPurpose: '',
+      absenceReason: '',
+      notes: 'Synchronise depuis personnel',
+      sourceModule: 'PERSONNEL',
+      sourceRecordId: String(agent.id || '').trim(),
+      confidentialityLevel: definition.isSensitive ? 'CONFIDENTIAL' : 'INTERNAL',
+      requiresAcknowledgement: false,
+      analysisStatus: synced?.analysisStatus || 'NOT_REQUESTED',
+      lastAnalysisAt: synced?.lastAnalysisAt || '',
+      legacyStatus: String(document.status || '').trim(),
+      legacyRequired: Boolean(document.required),
+      fileName: String(document.fileName || '').trim(),
+      fileDataUrl: String(document.fileDataUrl || '').trim(),
+      expiresOn: normalizeLibraryDocumentDateOnly(document.expiresAt || ''),
+      signedAt: String(synced?.signedAt || '').trim(),
+      signedBy: String(synced?.signedBy || '').trim(),
+      stampLabel: String(synced?.stampLabel || '').trim(),
+      signatureHash: String(synced?.signatureHash || '').trim(),
+      verificationCode: String(synced?.verificationCode || '').trim(),
+      syncedBy: actor,
+    });
+
+    if (synced) {
+      Object.assign(synced, payload);
+    } else {
+      documentsLibrary.push(payload);
+    }
+    activeReferences.add(normalizeText(reference));
+  });
+
+  for (let index = documentsLibrary.length - 1; index >= 0; index -= 1) {
+    const item = documentsLibrary[index];
+    if (
+      normalizeUnifiedSourceModule(item.sourceModule, 'DOCUMENTS') === 'PERSONNEL' &&
+      normalizeText(item.sourceRecordId || item.employeeId) === normalizeText(agent.id) &&
+      !activeReferences.has(normalizeText(item.reference))
+    ) {
+      documentsLibrary.splice(index, 1);
+    }
+  }
+}
+
+function synchronizeAllAgentDocumentsToLibrary() {
+  agents.forEach((agent) => synchronizeAgentDocumentsToLibrary(agent, 'bootstrap', new Date().toISOString()));
+}
+
+function listDocumentAnalysisRuns(reference) {
+  return documentAnalysisRuns
+    .filter((item) => normalizeText(item.reference) === normalizeText(reference))
+    .sort((left, right) => Date.parse(right.createdAt || '') - Date.parse(left.createdAt || ''));
+}
+
+function buildDefaultAnalysisFields(document) {
+  const fields = [];
+  const linkedAgent =
+    findAgentByEmployeeId(document.employeeId) ||
+    agents.find((item) => normalizeText(item.fullName) === normalizeText(document.employeeName)) ||
+    null;
+  const documentTypeCode = normalizeText(document.documentTypeCode || document.type);
+  const pushField = (fieldName, fieldLabel, fieldType, value, confidenceScore = 90, isValidated = false) => {
+    const normalizedValue = String(value || '').trim();
+    if (!normalizedValue) {
+      return;
+    }
+    const field = {
+      fieldName,
+      fieldLabel,
+      fieldType,
+      normalizedValue,
+      confidenceScore,
+      sourcePage: 1,
+      isValidated,
+    };
+    if (fieldType === 'DATE') {
+      field.fieldValueDate = normalizeLibraryDocumentDateOnly(normalizedValue);
+      field.normalizedValue = field.fieldValueDate;
+    } else {
+      field.fieldValueText = normalizedValue;
+    }
+    fields.push(field);
+  };
+
+  if (String(document.employeeId || '').trim()) {
+    fields.push({
+      fieldName: 'employee_id',
+      fieldLabel: 'Matricule agent',
+      fieldType: 'TEXT',
+      fieldValueText: String(document.employeeId || '').trim(),
+      normalizedValue: String(document.employeeId || '').trim(),
+      confidenceScore: 99,
+      sourcePage: 1,
+      isValidated: true,
+    });
+  }
+  if (String(document.employeeName || '').trim()) {
+    fields.push({
+      fieldName: 'employee_name',
+      fieldLabel: 'Nom agent',
+      fieldType: 'TEXT',
+      fieldValueText: String(document.employeeName || '').trim(),
+      normalizedValue: String(document.employeeName || '').trim(),
+      confidenceScore: 98,
+      sourcePage: 1,
+      isValidated: true,
+    });
+  }
+  if (String(document.issuedAt || '').trim()) {
+    fields.push({
+      fieldName: 'issued_on',
+      fieldLabel: "Date d'emission",
+      fieldType: 'DATE',
+      fieldValueDate: normalizeLibraryDocumentDateOnly(document.issuedAt || ''),
+      normalizedValue: normalizeLibraryDocumentDateOnly(document.issuedAt || ''),
+      confidenceScore: 96,
+      sourcePage: 1,
+      isValidated: true,
+    });
+  }
+  if (String(document.expiresOn || document.endDate || '').trim()) {
+    const expiresOn = normalizeLibraryDocumentDateOnly(document.expiresOn || document.endDate || '');
+    fields.push({
+      fieldName: 'expires_on',
+      fieldLabel: "Date d'expiration",
+      fieldType: 'DATE',
+      fieldValueDate: expiresOn,
+      normalizedValue: expiresOn,
+      confidenceScore: 88,
+      sourcePage: 1,
+      isValidated: false,
+    });
+  }
+  pushField('document_reference', 'Reference document', 'TEXT', document.reference, 97, true);
+
+  if (documentTypeCode.includes('piece_identite') || documentTypeCode.includes('identite')) {
+    pushField('identity_type', "Type de piece d'identite", 'TEXT', linkedAgent?.identity?.identityType || 'CNI/Passeport', 88);
+    pushField(
+      'identity_number',
+      "Numero de piece d'identite",
+      'TEXT',
+      linkedAgent?.identity?.identityNumber || document.reference,
+      91
+    );
+    pushField('birth_date', 'Date de naissance', 'DATE', linkedAgent?.identity?.birthDate || '', 82);
+    pushField('birth_place', 'Lieu de naissance', 'TEXT', linkedAgent?.identity?.birthPlace || '', 78);
+    pushField('nationality', 'Nationalite', 'TEXT', linkedAgent?.identity?.nationality || '', 86);
+  }
+
+  if (documentTypeCode.includes('diplome')) {
+    const mainEducation = Array.isArray(linkedAgent?.educations) ? linkedAgent.educations[0] : null;
+    pushField('degree', 'Diplome', 'TEXT', mainEducation?.degree || '', 84);
+    pushField('education_field', 'Specialite', 'TEXT', mainEducation?.field || '', 79);
+    pushField('institution', 'Etablissement', 'TEXT', mainEducation?.institution || '', 81);
+    pushField('graduation_year', 'Annee obtention', 'TEXT', mainEducation?.graduationYear || '', 76);
+  }
+
+  if (documentTypeCode.includes('contrat') || documentTypeCode.includes('nomination')) {
+    pushField('hire_date', 'Date de recrutement', 'DATE', linkedAgent?.administrative?.hireDate || document.issuedAt || '', 89);
+    pushField('contract_type', 'Type de contrat', 'TEXT', linkedAgent?.administrative?.contractType || '', 87);
+  }
+  return fields;
+}
+
+function createDocumentAnalysisRun(document, input = {}) {
+  const pipelineStage = String(input.pipelineStage || input.pipeline_stage || 'FULL').trim().toUpperCase() || 'FULL';
+  const providerName = String(input.providerName || input.provider_name || 'mock-ocr').trim() || 'mock-ocr';
+  const modelName = String(input.modelName || input.model_name || 'mock-classifier-v1').trim() || 'mock-classifier-v1';
+  const classifiedDocumentType =
+    String(document.documentTypeCode || buildFallbackDocumentTypeCode(document.type)).trim() || 'GENERIC';
+  const fields = buildDefaultAnalysisFields(document);
+  const requiresReview = fields.some((item) => item.isValidated === false);
+  const nowIso = new Date().toISOString();
+  const created = {
+    id: `DOC-ANL-${String(documentAnalysisRunSequence++).padStart(6, '0')}`,
+    reference: String(document.reference || '').trim().toUpperCase(),
+    documentId: String(document.reference || '').trim().toUpperCase(),
+    documentVersionId: String(document.reference || '').trim().toUpperCase(),
+    pipelineStage,
+    analysisStatus: requiresReview ? 'REVIEW_REQUIRED' : 'COMPLETED',
+    providerName,
+    modelName,
+    classifiedDocumentType,
+    confidenceScore: requiresReview ? 92.4 : 98.7,
+    summaryText: `${String(document.title || '').trim() || 'Document'} analyse par le moteur documentaire`,
+    errorCode: '',
+    errorMessage: '',
+    fields,
+    startedAt: nowIso,
+    completedAt: nowIso,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+  documentAnalysisRuns.unshift(created);
+  document.analysisStatus = created.analysisStatus;
+  document.lastAnalysisAt = nowIso;
+  return created;
+}
+
+function buildDocumentProcessingQueueItem(document) {
+  const enriched = ensureDocumentMetadata(document);
+  const latestRun = listDocumentAnalysisRuns(enriched.reference)[0] || null;
+  let nextAction = 'NONE';
+
+  if (!enriched.documentTypeCode) {
+    nextAction = 'CLASSIFY';
+  } else if (enriched.analysisStatus === 'NOT_REQUESTED' || enriched.analysisStatus === 'FAILED') {
+    nextAction = 'ANALYZE';
+  } else if (enriched.analysisStatus === 'REVIEW_REQUIRED') {
+    nextAction = 'VALIDATE_FIELDS';
+  } else if (normalizeText(enriched.status) === 'brouillon' || normalizeText(enriched.status) === 'en validation') {
+    nextAction = 'VALIDATE_DOCUMENT';
+  } else if (
+    (normalizeText(enriched.status) === 'valide' || normalizeText(enriched.status) === 'publie') &&
+    enriched.requiresAcknowledgement &&
+    normalizeText(findDocumentDispatch(enriched.reference)?.deliveryStatus || 'assigne') !== 'accusereception'
+  ) {
+    nextAction = 'FOLLOW_UP_DISPATCH';
+  }
+
+  return {
+    reference: enriched.reference,
+    title: enriched.title,
+    documentTypeCode: enriched.documentTypeCode,
+    documentTypeLabel: enriched.documentTypeLabel,
+    status: enriched.status,
+    analysisStatus: enriched.analysisStatus,
+    sourceModule: enriched.sourceModule,
+    confidentialityLevel: enriched.confidentialityLevel,
+    employeeId: enriched.employeeId || '',
+    employeeName: enriched.employeeName || '',
+    requiresAcknowledgement: Boolean(enriched.requiresAcknowledgement),
+    nextAction,
+    updatedAt: enriched.updatedAt,
+    lastAnalysisAt: enriched.lastAnalysisAt || '',
+    latestRunStatus: latestRun?.analysisStatus || '',
+    latestConfidenceScore: latestRun?.confidenceScore ?? null,
+  };
+}
+
 function validateLibraryDocumentPayload(body, currentDocument) {
   const errors = [];
 
@@ -7075,7 +9205,11 @@ function validateLibraryDocumentPayload(body, currentDocument) {
     ? String(currentDocument.reference || '').trim().toUpperCase()
     : String(body.reference || body.docRef || body.doc_ref || '').trim().toUpperCase();
   const title = String(body.title ?? body.name ?? currentDocument?.title ?? '').trim();
-  const type = String(body.type ?? body.category ?? currentDocument?.type ?? '').trim();
+  const requestedDocumentTypeCode = String(
+    body.documentTypeCode ?? body.document_type_code ?? currentDocument?.documentTypeCode ?? ''
+  ).trim();
+  const resolvedDocumentType = findUnifiedDocumentTypeDefinition(requestedDocumentTypeCode || body.type || body.category);
+  let type = String(body.type ?? body.category ?? currentDocument?.type ?? resolvedDocumentType?.label ?? '').trim();
   const owner = String(body.owner ?? body.ownerName ?? body.owner_name ?? currentDocument?.owner ?? '').trim();
   const updatedAtRaw = String(body.updatedAt ?? body.updated_at ?? currentDocument?.updatedAt ?? '').trim();
   const statusFallback = currentDocument ? normalizeDocumentStatus(currentDocument.status, 'Brouillon') : 'Brouillon';
@@ -7104,13 +9238,40 @@ function validateLibraryDocumentPayload(body, currentDocument) {
     body.absenceReason ?? body.absence_reason ?? body.reason ?? currentDocument?.absenceReason ?? ''
   ).trim();
   const notes = String(body.notes ?? currentDocument?.notes ?? '').trim();
+  const sourceModule = normalizeUnifiedSourceModule(
+    body.sourceModule ?? body.source_module ?? currentDocument?.sourceModule,
+    currentDocument ? normalizeUnifiedSourceModule(currentDocument.sourceModule, 'DOCUMENTS') : 'DOCUMENTS'
+  );
+  const sourceRecordId = String(
+    body.sourceRecordId ?? body.source_record_id ?? currentDocument?.sourceRecordId ?? ''
+  ).trim();
+  const confidentialityLevel = normalizeUnifiedConfidentialityLevel(
+    body.confidentialityLevel ?? body.confidentiality_level ?? currentDocument?.confidentialityLevel,
+    currentDocument?.confidentialityLevel || (resolvedDocumentType?.isSensitive ? 'CONFIDENTIAL' : 'INTERNAL')
+  );
+  const requiresAcknowledgement = Boolean(
+    body.requiresAcknowledgement ??
+      body.requires_acknowledgement ??
+      currentDocument?.requiresAcknowledgement ??
+      resolvedDocumentType?.requiresDispatch
+  );
+  const expiresOnRaw = String(
+    body.expiresOn ?? body.expires_on ?? currentDocument?.expiresOn ?? currentDocument?.endDate ?? ''
+  ).trim();
 
   const issuedAt = normalizeLibraryDocumentDateOnly(issuedAtRaw);
   const startDate = normalizeLibraryDocumentDateOnly(startDateRaw);
   const endDate = normalizeLibraryDocumentDateOnly(endDateRaw);
+  const expiresOn = normalizeLibraryDocumentDateOnly(expiresOnRaw) || endDate;
+  const documentTypeCode =
+    resolvedDocumentType?.code || buildFallbackDocumentTypeCode(requestedDocumentTypeCode || type);
   const normalizedType = normalizeText(type);
   const requiresMission = normalizedType.includes('mission');
   const requiresAbsence = normalizedType.includes('absence');
+
+  if (!type && resolvedDocumentType?.label) {
+    type = resolvedDocumentType.label;
+  }
 
   if (reference && !/^[A-Z0-9-]{3,40}$/.test(reference)) {
     errors.push('Reference document invalide');
@@ -7159,6 +9320,9 @@ function validateLibraryDocumentPayload(body, currentDocument) {
   if (endDateRaw && !endDate) {
     errors.push('Date fin document invalide');
   }
+  if (expiresOnRaw && !expiresOn) {
+    errors.push('Date expiration document invalide');
+  }
   if (startDate && endDate && Date.parse(endDate) < Date.parse(startDate)) {
     errors.push('Date fin document doit etre superieure ou egale a date debut');
   }
@@ -7191,9 +9355,15 @@ function validateLibraryDocumentPayload(body, currentDocument) {
       employeeId,
       direction,
       unit,
+      documentTypeCode,
+      sourceModule,
+      sourceRecordId,
+      confidentialityLevel,
+      requiresAcknowledgement,
       issuedAt,
       startDate,
       endDate,
+      expiresOn,
       approver,
       missionDestination,
       missionPurpose,
@@ -7886,6 +10056,744 @@ function computeDocumentAnalytics(referenceTime = Date.now()) {
   };
 }
 
+function buildModernizationSummary(referenceTime = Date.now()) {
+  const documentAnalytics = computeDocumentAnalytics(referenceTime);
+  const documentQueue = documentsLibrary.map((item) => buildDocumentProcessingQueueItem(item));
+  const ocrQueue = documentQueue.filter((item) =>
+    ['CLASSIFY', 'ANALYZE', 'VALIDATE_FIELDS'].includes(String(item.nextAction || '').trim())
+  );
+  const complianceSummaries = agents.map((agent) => buildAgentDocumentCompliancePayload(agent).summary);
+  const missingOrInvalidDocuments = complianceSummaries.reduce((sum, item) => {
+    return sum + Number(item.missingCount || 0) + Number(item.expiredCount || 0) + Number(item.expiringSoonCount || 0);
+  }, 0);
+  const dependentCount = agents.reduce((sum, agent) => sum + (Array.isArray(agent.dependents) ? agent.dependents.length : 0), 0);
+  const competencyCount = agents.reduce((sum, agent) => sum + (Array.isArray(agent.competencies) ? agent.competencies.length : 0), 0);
+  const recruitmentScores = buildRecruitmentApplicationScores({ sortBy: 'score', sortOrder: 'desc' }) || [];
+  const averageRecruitmentScore = modernizationAverage(
+    recruitmentScores.map((item) => modernizationNormalizePercentScore(item.score || item.totalScore || 0))
+  );
+  const onboardingItems = recruitmentOnboarding.map((item) => normalizeRecruitmentOnboardingRecord(item));
+  const onboardingBlocked = onboardingItems.reduce((sum, item) => sum + Number(item.blockedTasksCount || 0), 0);
+  const leaveOpen = leaveRequests.filter((item) =>
+    ['en attente', 'en cours'].includes(normalizeText(item.status || ''))
+  );
+  const shortLeaveAutoCandidates = leaveOpen.filter((item) => modernizationLeaveDurationDays(item) <= 2).length;
+  const workflowBreached = workflowInstances.filter((item) => {
+    const dueTs = modernizationDateTimestamp(item.dueOn);
+    return Number.isFinite(dueTs) && dueTs < referenceTime && normalizeText(item.status || '') !== 'approuve';
+  });
+  const activePerformanceCampaigns = performanceCampaigns.filter((item) =>
+    ['active', 'ouverte', 'en cours'].includes(normalizeText(item.status || ''))
+  );
+  const averageFinalScore = modernizationAverage(performanceResults.map((item) => Number(item.finalScore || 0)));
+  const successionCandidates = agents.filter((agent) => {
+    const hasExpertise = Array.isArray(agent.competencies)
+      && agent.competencies.some((competency) => normalizeText(competency.level || '') === 'expert');
+    const performance = performanceResults.find((result) => normalizeText(result.agent || '') === normalizeText(agent.fullName || ''));
+    return hasExpertise || Number(performance?.finalScore || 0) >= 85;
+  });
+  const activeTrainingSessions = trainingSessions.filter((item) =>
+    ['ouverte', 'active'].includes(normalizeText(item.status || ''))
+  );
+  const completedTrainingSessions = trainingSessions.filter((item) =>
+    ['complete', 'terminee', 'cloturee'].includes(normalizeText(item.status || ''))
+  );
+  const trainingBudgetConsumed = trainingSessions.reduce((sum, item) => {
+    const enrolled = Number(item.enrolled || 0);
+    return sum + enrolled * 850000;
+  }, 0);
+  const trainingBudgetPlanned = Math.max(trainingBudgetConsumed, trainingSessions.reduce((sum, item) => sum + Number(item.seats || 0) * 850000, 0));
+  const trainingBudgetRate = trainingBudgetPlanned > 0
+    ? Math.round((trainingBudgetConsumed / trainingBudgetPlanned) * 100)
+    : 0;
+  const modules = [
+    {
+      code: 'personnel-360',
+      title: 'Gestion du personnel et dossiers administratifs',
+      description: 'Dossier agent 360, ayants droit, portabilite PDF, badges numeriques, OCR et risque turn-over.',
+      route: '/personnel/agents',
+      implementationRate: modernizationImplementationRate(5, missingOrInvalidDocuments > 0 ? 1 : 0),
+      kpis: [
+        { label: 'Agents', value: agents.length, tone: 'primary' },
+        { label: 'Ayants droit', value: dependentCount, tone: dependentCount > 0 ? 'success' : 'warning' },
+        { label: 'Pieces a traiter', value: missingOrInvalidDocuments + ocrQueue.length, tone: missingOrInvalidDocuments + ocrQueue.length > 0 ? 'warning' : 'success' },
+        { label: 'Competences', value: competencyCount, tone: 'info' },
+      ],
+      capabilities: [
+        {
+          label: 'Dossier individuel 360',
+          status: 'Operationnel',
+          detail: 'Identite, affectation, documents, parcours, competences et historique agent.',
+          route: '/personnel/agents',
+        },
+        {
+          label: 'Portabilite PDF securisee',
+          status: 'Operationnel',
+          detail: 'Export dossier agent et verification document via code de controle.',
+          route: '/personnel/agents',
+        },
+        {
+          label: 'OCR intelligent',
+          status: ocrQueue.length > 0 ? 'Surveillance' : 'Operationnel',
+          detail: `${ocrQueue.length} document(s) en file de classification ou extraction.`,
+          route: '/documents/bibliotheque',
+        },
+        {
+          label: 'Analyse predictive du turn-over',
+          status: 'Operationnel',
+          detail: 'Signaux consolides depuis absences, discipline et rapports RH.',
+          route: '/rapports',
+        },
+        {
+          label: 'Gestion des ayants droit',
+          status: dependentCount > 0 ? 'Operationnel' : 'A parametrer',
+          detail: `${dependentCount} ayant(s) droit rattache(s) aux dossiers agents.`,
+          route: '/personnel/agents',
+        },
+        {
+          label: 'Badge numerique QR',
+          status: 'Operationnel',
+          detail: 'Badge numerique disponible sur chaque fiche agent.',
+          route: '/personnel/agents',
+        },
+      ],
+      alerts: missingOrInvalidDocuments > 0
+        ? [`${missingOrInvalidDocuments} obligation(s) documentaire(s) a corriger.`]
+        : [],
+    },
+    {
+      code: 'recrutement-onboarding',
+      title: 'Recrutement et onboarding',
+      description: 'Besoin structure, portail candidat, commissions, matching CV encadre et integration 30/60/90.',
+      route: '/recrutement/candidatures',
+      implementationRate: modernizationImplementationRate(8, onboardingBlocked > 0 ? 1 : 0),
+      kpis: [
+        { label: 'Candidatures', value: recruitmentApplications.length, tone: 'primary' },
+        { label: 'Campagnes actives', value: recruitmentCampaigns.filter((item) => normalizeText(item.status || '') === 'active').length, tone: 'success' },
+        { label: 'Score IA moyen', value: averageRecruitmentScore, unit: '%', tone: 'info' },
+        { label: 'Blocages onboarding', value: onboardingBlocked, tone: onboardingBlocked > 0 ? 'danger' : 'success' },
+      ],
+      capabilities: [
+        {
+          label: 'Expression du besoin et campagne',
+          status: 'Operationnel',
+          detail: 'Besoins, quotas, responsables, delais et budget campagne suivis.',
+          route: '/recrutement/campagnes',
+        },
+        {
+          label: 'Portail candidat',
+          status: 'Operationnel',
+          detail: 'Depot, suivi de statut, pieces jointes et recherche dossier.',
+          route: '/recrutement/portail-candidat',
+        },
+        {
+          label: 'Commissions et jurys',
+          status: 'Operationnel',
+          detail: 'Planification, grilles, notes et decisions de commission.',
+          route: '/recrutement/commissions',
+        },
+        {
+          label: 'Matching CV encadre',
+          status: 'Operationnel',
+          detail: `Score moyen ${averageRecruitmentScore}% avec validation RH obligatoire.`,
+          route: '/recrutement/candidatures',
+        },
+        {
+          label: 'Assistant entretien',
+          status: 'Operationnel',
+          detail: 'Banque de questions, import/export et evaluation d entretien.',
+          route: '/recrutement/commissions',
+        },
+        {
+          label: 'Detection incoherences',
+          status: 'Operationnel',
+          detail: 'Doublons, dossiers incomplets et controles de regles candidat.',
+          route: '/recrutement/candidatures',
+        },
+        {
+          label: 'Onboarding digital',
+          status: onboardingBlocked > 0 ? 'Surveillance' : 'Operationnel',
+          detail: 'Checklist, escalades, synchronisation dossier agent et jalons 30/60/90.',
+          route: '/recrutement/integration',
+        },
+      ],
+      alerts: onboardingBlocked > 0 ? [`${onboardingBlocked} tache(s) onboarding bloquee(s).`] : [],
+    },
+    {
+      code: 'conges-temps',
+      title: 'Gestion des conges et temps',
+      description: 'Soldes dynamiques, calendrier equipe, continuite service, anomalies et auto-approbation.',
+      route: '/absences/demandes',
+      implementationRate: modernizationImplementationRate(4, leaveOpen.length > 3 ? 1 : 0),
+      kpis: [
+        { label: 'Demandes ouvertes', value: leaveOpen.length, tone: leaveOpen.length > 3 ? 'warning' : 'success' },
+        { label: 'Types de solde', value: leaveBalances.length, tone: 'primary' },
+        { label: 'Auto-approbables', value: shortLeaveAutoCandidates, tone: 'info' },
+        { label: 'Evenements equipe', value: leaveEvents.length, tone: 'secondary' },
+      ],
+      capabilities: [
+        {
+          label: 'Calculateur de solde dynamique',
+          status: 'Operationnel',
+          detail: 'Allocation, consommation, reliquat et restant par type d absence.',
+          route: '/absences/soldes',
+        },
+        {
+          label: 'Vue calendrier equipe',
+          status: 'Operationnel',
+          detail: 'Evenements conges, missions et absences centralises.',
+          route: '/absences/calendrier',
+        },
+        {
+          label: 'Optimisation des plannings',
+          status: 'En cours',
+          detail: 'Suggestions de periodes basees sur charges et chevauchements.',
+          route: '/absences/calendrier',
+        },
+        {
+          label: 'Detection anomalies',
+          status: 'Operationnel',
+          detail: 'Signalement des volumes inhabituels et absences longues.',
+          route: '/absences/demandes',
+        },
+        {
+          label: 'Auto-approbation encadree',
+          status: shortLeaveAutoCandidates > 0 ? 'A parametrer' : 'Operationnel',
+          detail: `${shortLeaveAutoCandidates} demande(s) courte(s) eligible(s) a parametrage.`,
+          route: '/workflows/instances',
+        },
+      ],
+      alerts: leaveOpen.length > 3 ? [`${leaveOpen.length} demande(s) ouvertes a surveiller.`] : [],
+    },
+    {
+      code: 'performance-carriere',
+      title: 'Performance et carriere',
+      description: 'Evaluation 360, succession, GPEC, sentiment et recommandations de mobilite.',
+      route: '/evaluation',
+      implementationRate: modernizationImplementationRate(5, averageFinalScore < 75 ? 1 : 0),
+      kpis: [
+        { label: 'Campagnes actives', value: activePerformanceCampaigns.length, tone: 'primary' },
+        { label: 'Score final moyen', value: averageFinalScore, unit: '%', tone: averageFinalScore >= 80 ? 'success' : 'warning' },
+        { label: 'Successeurs', value: successionCandidates.length, tone: 'info' },
+        { label: 'Mouvements', value: careerMovements.length, tone: 'secondary' },
+      ],
+      capabilities: [
+        {
+          label: 'Evaluation a 360 degres',
+          status: 'En cours',
+          detail: 'Resultats manager/self deja consolides, retours pairs a completer.',
+          route: '/evaluation/resultats',
+        },
+        {
+          label: 'Plans de succession',
+          status: successionCandidates.length ? 'Operationnel' : 'A parametrer',
+          detail: `${successionCandidates.length} profil(s) a haut potentiel identifie(s).`,
+          route: '/carriere/promotions',
+        },
+        {
+          label: 'GPEC interactive',
+          status: competencyCount > 0 ? 'Operationnel' : 'A parametrer',
+          detail: `${competencyCount} competence(s) cartographiee(s).`,
+          route: '/personnel/agents',
+        },
+        {
+          label: 'Analyse de sentiment',
+          status: 'Operationnel',
+          detail: `Climat deduit des evaluations: ${modernizationSentimentLabel(averageFinalScore)}.`,
+          route: '/evaluation/resultats',
+        },
+        {
+          label: 'Recommandation de mobilite',
+          status: 'Operationnel',
+          detail: 'Suggestions via competences, performance et mouvements de carriere.',
+          route: '/carriere/mutations',
+        },
+      ],
+      alerts: averageFinalScore < 75 ? ['Score evaluation moyen a surveiller.'] : [],
+    },
+    {
+      code: 'formation-developpement',
+      title: 'Formation et developpement',
+      description: 'Evaluation a froid, budget, adaptive learning et attestations automatiques.',
+      route: '/formation/sessions',
+      implementationRate: modernizationImplementationRate(4, trainingBudgetRate > 90 ? 1 : 0),
+      kpis: [
+        { label: 'Sessions ouvertes', value: activeTrainingSessions.length, tone: 'primary' },
+        { label: 'Catalogue', value: trainingCatalog.length, tone: 'info' },
+        { label: 'Budget consomme', value: trainingBudgetRate, unit: '%', tone: trainingBudgetRate > 90 ? 'warning' : 'success' },
+        { label: 'Attestations', value: completedTrainingSessions.length, tone: 'success' },
+      ],
+      capabilities: [
+        {
+          label: 'Evaluation a froid',
+          status: 'En cours',
+          detail: 'Relance post-formation prevue a partir des sessions terminees.',
+          route: '/formation/sessions',
+        },
+        {
+          label: 'Suivi budgetaire',
+          status: 'Operationnel',
+          detail: `${trainingBudgetRate}% du budget formation planifie consomme.`,
+          route: '/formation/sessions',
+        },
+        {
+          label: 'Adaptive learning',
+          status: 'Operationnel',
+          detail: 'Recommandations selon ecarts evaluation/competences.',
+          route: '/formation/catalogue',
+        },
+        {
+          label: 'Certification automatique',
+          status: completedTrainingSessions.length ? 'Operationnel' : 'A parametrer',
+          detail: `${completedTrainingSessions.length} session(s) avec attestation prete.`,
+          route: '/formation/sessions',
+        },
+      ],
+      alerts: trainingBudgetRate > 90 ? ['Budget formation proche du plafond.'] : [],
+    },
+    {
+      code: 'plateforme-transverse',
+      title: 'Innovations transverses',
+      description: "Prim'Assistant, BPMN, automatisation workflow et BI strategique.",
+      route: '/prim-assistant',
+      implementationRate: modernizationImplementationRate(3, workflowBreached.length > 0 ? 1 : 0),
+      kpis: [
+        { label: 'Definitions BPMN', value: workflowDefinitions.length, tone: 'primary' },
+        { label: 'Instances workflow', value: workflowInstances.length, tone: 'info' },
+        { label: 'SLA depasses', value: workflowBreached.length, tone: workflowBreached.length ? 'danger' : 'success' },
+        { label: 'Rapports BI', value: 4, tone: 'success' },
+      ],
+      capabilities: [
+        {
+          label: "Chatbot RH Prim'Assistant",
+          status: 'Operationnel',
+          detail: 'Orientation conversationnelle vers les modules RH et FAQ metier.',
+          route: '/prim-assistant',
+        },
+        {
+          label: 'Moteur workflow BPMN',
+          status: 'Operationnel',
+          detail: 'Definitions, instances, SLA et automatisation des escalades.',
+          route: '/workflows/definitions',
+        },
+        {
+          label: 'Tableau de bord BI',
+          status: 'Operationnel',
+          detail: 'Effectifs, absences, turnover, workflow et exports RH.',
+          route: '/rapports',
+        },
+      ],
+      alerts: workflowBreached.length ? [`${workflowBreached.length} workflow(s) au-dela du SLA.`] : [],
+    },
+  ];
+
+  const allCapabilities = modules.flatMap((module) => module.capabilities);
+  const operationalProposals = allCapabilities.filter((item) => item.status === 'Operationnel' || item.status === 'Surveillance').length;
+  const criticalAlerts = modules.reduce((sum, module) => {
+    return sum + module.alerts.filter((alert) => normalizeText(alert).includes('critique') || normalizeText(alert).includes('sla')).length;
+  }, 0);
+
+  return {
+    generatedAt: new Date(referenceTime).toISOString(),
+    coverage: {
+      totalProposals: allCapabilities.length,
+      operationalProposals,
+      implementationRate: allCapabilities.length ? Math.round((operationalProposals / allCapabilities.length) * 100) : 0,
+      criticalAlerts,
+    },
+    modules,
+    aiSignals: buildModernizationSignals(referenceTime, {
+      ocrQueue,
+      workflowBreached,
+      onboardingBlocked,
+      leaveOpen,
+      averageFinalScore,
+      trainingBudgetRate,
+    }),
+    roadmap: buildModernizationRoadmap({
+      ocrQueue,
+      shortLeaveAutoCandidates,
+      onboardingBlocked,
+      workflowBreached,
+      trainingBudgetRate,
+    }),
+  };
+}
+
+function buildModernizationSignals(referenceTime, context) {
+  const signals = [];
+  const turnoverRisks = buildModernizationTurnoverRisks(referenceTime).slice(0, 2);
+  turnoverRisks.forEach((risk) => {
+    signals.push({
+      title: `Risque turn-over - ${risk.fullName}`,
+      module: 'Personnel',
+      score: risk.score,
+      severity: modernizationSeverityFromScore(risk.score),
+      recommendation: risk.recommendation,
+      route: '/rapports',
+    });
+  });
+
+  if (context.ocrQueue.length > 0) {
+    signals.push({
+      title: 'Documents a analyser par OCR',
+      module: 'Documents',
+      score: Math.min(100, context.ocrQueue.length * 20),
+      severity: context.ocrQueue.length > 4 ? 'Eleve' : 'Modere',
+      recommendation: 'Lancer analyse OCR puis valider les champs extraits.',
+      route: '/documents/bibliotheque',
+    });
+  }
+
+  if (context.workflowBreached.length > 0) {
+    signals.push({
+      title: 'Workflow en depassement SLA',
+      module: 'Workflows',
+      score: Math.min(100, context.workflowBreached.length * 35),
+      severity: context.workflowBreached.length > 1 ? 'Critique' : 'Eleve',
+      recommendation: 'Executer un cycle d automatisation et relancer le responsable.',
+      route: '/workflows/instances',
+    });
+  }
+
+  if (context.onboardingBlocked > 0) {
+    signals.push({
+      title: 'Onboarding bloque',
+      module: 'Recrutement',
+      score: Math.min(100, context.onboardingBlocked * 30),
+      severity: 'Eleve',
+      recommendation: 'Debloquer les taches securite, IT ou logistique avant arrivee agent.',
+      route: '/recrutement/integration',
+    });
+  }
+
+  if (context.leaveOpen.length > 3) {
+    signals.push({
+      title: 'Volume de demandes absence eleve',
+      module: 'Conges',
+      score: Math.min(100, context.leaveOpen.length * 15),
+      severity: 'Modere',
+      recommendation: 'Verifier calendrier equipe et activer auto-approbation des demandes courtes.',
+      route: '/absences/demandes',
+    });
+  }
+
+  if (context.averageFinalScore < 75) {
+    signals.push({
+      title: 'Performance moyenne a renforcer',
+      module: 'Performance',
+      score: 100 - context.averageFinalScore,
+      severity: 'Modere',
+      recommendation: 'Proposer formations adaptees aux ecarts de competences.',
+      route: '/formation/catalogue',
+    });
+  }
+
+  if (context.trainingBudgetRate > 90) {
+    signals.push({
+      title: 'Budget formation proche plafond',
+      module: 'Formation',
+      score: context.trainingBudgetRate,
+      severity: 'Eleve',
+      recommendation: 'Prioriser les formations obligatoires et rechercher subventions.',
+      route: '/formation/sessions',
+    });
+  }
+
+  if (!signals.length) {
+    signals.push({
+      title: 'Plateforme stable',
+      module: 'Pilotage',
+      score: 8,
+      severity: 'Faible',
+      recommendation: 'Poursuivre le suivi hebdomadaire des indicateurs RH.',
+      route: '/dashboard',
+    });
+  }
+
+  return signals.slice(0, 8);
+}
+
+function buildModernizationRoadmap(context) {
+  return [
+    {
+      label: 'Parametrer fournisseur OCR production',
+      owner: 'DSI / RH',
+      dueDate: '2026-06-15',
+      status: context.ocrQueue.length ? 'En cours' : 'Operationnel',
+      progress: context.ocrQueue.length ? 65 : 100,
+    },
+    {
+      label: 'Activer auto-approbation des absences courtes',
+      owner: 'Direction RH',
+      dueDate: '2026-06-30',
+      status: context.shortLeaveAutoCandidates > 0 ? 'A parametrer' : 'Operationnel',
+      progress: context.shortLeaveAutoCandidates > 0 ? 45 : 100,
+    },
+    {
+      label: 'Finaliser retours pairs evaluation 360',
+      owner: 'Managers',
+      dueDate: '2026-07-15',
+      status: 'En cours',
+      progress: 60,
+    },
+    {
+      label: 'Generaliser attestations automatiques formation',
+      owner: 'Formation',
+      dueDate: '2026-07-30',
+      status: context.trainingBudgetRate > 90 ? 'Surveillance' : 'En cours',
+      progress: 72,
+    },
+    {
+      label: 'Revoir SLA workflows critiques',
+      owner: 'Administration RH',
+      dueDate: '2026-06-10',
+      status: context.workflowBreached.length ? 'Surveillance' : 'Operationnel',
+      progress: context.workflowBreached.length ? 70 : 100,
+    },
+  ];
+}
+
+function buildModernizationTurnoverRisks(referenceTime) {
+  return agents
+    .map((agent) => {
+      let score = 0;
+      const factors = [];
+      const agentLeaves = leaveRequests.filter((request) => normalizeText(request.agent || '') === normalizeText(agent.fullName || ''));
+      const agentDiscipline = disciplineCases.filter((item) => normalizeText(item.agent || '') === normalizeText(agent.fullName || ''));
+      const openLeaves = agentLeaves.filter((request) => ['en attente', 'en cours'].includes(normalizeText(request.status || ''))).length;
+      const longLeaves = agentLeaves.filter((request) => modernizationLeaveDurationDays(request) >= 10).length;
+      const performance = performanceResults.find((item) => normalizeText(item.agent || '') === normalizeText(agent.fullName || ''));
+
+      if (openLeaves > 0) {
+        score += openLeaves * 18;
+        factors.push('absence ouverte');
+      }
+      if (longLeaves > 0) {
+        score += longLeaves * 20;
+        factors.push('absence longue');
+      }
+      if (agentDiscipline.length > 0) {
+        score += agentDiscipline.length * 25;
+        factors.push('discipline');
+      }
+      if (performance && Number(performance.finalScore || 0) < 75) {
+        score += 22;
+        factors.push('performance faible');
+      }
+      if (Array.isArray(agent.documents) && agent.documents.some((document) => modernizationDateTimestamp(document.expiresAt) < referenceTime)) {
+        score += 10;
+        factors.push('document expire');
+      }
+
+      return {
+        fullName: agent.fullName,
+        score: Math.min(100, score),
+        recommendation: factors.length
+          ? `Planifier entretien RH et action preventive (${factors.join(', ')}).`
+          : 'Maintenir le suivi manager habituel.',
+      };
+    })
+    .filter((item) => item.score > 0)
+    .sort((left, right) => right.score - left.score);
+}
+
+function personnelTurnoverRiskLevel(score) {
+  if (score >= 75) return 'Critique';
+  if (score >= 50) return 'Eleve';
+  if (score >= 25) return 'Modere';
+  return 'Faible';
+}
+
+function personnelTurnoverRecommendedAction(score, factors) {
+  const normalizedFactors = factors.map((item) => normalizeText(item));
+  if (score >= 75) {
+    return 'Entretien RH prioritaire et plan de retention individualise';
+  }
+  if (score >= 50) {
+    return 'Entretien manager sous 7 jours et regularisation des irritants';
+  }
+  if (normalizedFactors.some((item) => item.includes('contrat'))) {
+    return 'Anticiper le renouvellement contractuel';
+  }
+  if (normalizedFactors.some((item) => item.includes('absence'))) {
+    return 'Analyser les absences recentes avec le manager';
+  }
+  if (normalizedFactors.some((item) => item.includes('document'))) {
+    return 'Regulariser le dossier administratif';
+  }
+  return 'Surveillance RH mensuelle';
+}
+
+function buildPersonnelTurnoverRiskItems(referenceTime = Date.now()) {
+  const nowTs = Number.isFinite(Number(referenceTime)) ? Number(referenceTime) : Date.now();
+  const ninetyDaysAgo = nowTs - 90 * 24 * 60 * 60 * 1000;
+  const generatedAt = new Date(nowTs).toISOString();
+
+  return agents
+    .map((agent) => {
+      let score = 0;
+      const factors = [];
+      const agentAliases = [agent.id, agent.matricule, agent.fullName]
+        .map((value) => normalizeText(value))
+        .filter(Boolean);
+      const matchesAgent = (value) => agentAliases.includes(normalizeText(value));
+
+      const agentLeaves = leaveRequests.filter((request) => matchesAgent(request.agent || request.employeeName || ''));
+      const recentLeaves = agentLeaves.filter((request) => {
+        const start = Date.parse(String(request.startDate || request.createdAt || '').trim());
+        return !Number.isNaN(start) && start >= ninetyDaysAgo && start <= nowTs;
+      });
+      const openLeaves = agentLeaves.filter((request) => {
+        const status = normalizeText(request.status || '');
+        return status.includes('attente') || status.includes('cours');
+      });
+      const longLeaves = recentLeaves.filter((request) => modernizationLeaveDurationDays(request) >= 10);
+
+      if (openLeaves.length > 0) {
+        score += Math.min(24, openLeaves.length * 12);
+        factors.push(`${openLeaves.length} absence(s) ouverte(s)`);
+      }
+      if (recentLeaves.length >= 3) {
+        score += 20;
+        factors.push(`${recentLeaves.length} absence(s) recentes sur 90 jours`);
+      } else if (recentLeaves.length >= 2) {
+        score += 10;
+        factors.push(`${recentLeaves.length} absence(s) recentes sur 90 jours`);
+      }
+      if (longLeaves.length > 0) {
+        score += Math.min(25, longLeaves.length * 15);
+        factors.push(`${longLeaves.length} absence(s) longue(s)`);
+      }
+
+      const performance = performanceResults.find((item) => matchesAgent(item.agent || item.agentName || ''));
+      const finalScore = Number(performance?.finalScore || performance?.score || 0);
+      if (Number.isFinite(finalScore) && finalScore > 0 && finalScore < 75) {
+        score += finalScore < 60 ? 28 : 18;
+        factors.push(`Performance en baisse (${Math.round(finalScore)})`);
+      }
+
+      const documents = listPersonnelDocumentsForAgent(agent);
+      const expiredRequiredDocuments = documents.filter((document) => {
+        const expiry = Date.parse(String(document.expiresAt || '').trim());
+        const status = normalizeText(document.status || '');
+        return document.required !== false && (status.includes('expire') || (!Number.isNaN(expiry) && expiry < nowTs));
+      });
+      if (expiredRequiredDocuments.length > 0) {
+        score += Math.min(18, expiredRequiredDocuments.length * 9);
+        factors.push(`${expiredRequiredDocuments.length} document(s) critique(s) expire(s)`);
+      }
+
+      const contractDocument = documents.find((document) => normalizeText(document.type || '').includes('contrat'));
+      const contractExpiry = Date.parse(String(contractDocument?.expiresAt || '').trim());
+      if (!Number.isNaN(contractExpiry)) {
+        const daysRemaining = Math.ceil((contractExpiry - nowTs) / (24 * 60 * 60 * 1000));
+        if (daysRemaining < 0) {
+          score += 30;
+          factors.push('Contrat expire');
+        } else if (daysRemaining <= 60) {
+          score += 22;
+          factors.push('Contrat a renouveler sous 60 jours');
+        }
+      }
+
+      const severeDisciplineCases = disciplineCases.filter((item) => {
+        if (!matchesAgent(item.agent || '')) {
+          return false;
+        }
+        const severity = normalizeText(item.severity || '');
+        return severity.includes('critique') || severity.includes('eleve');
+      });
+      if (severeDisciplineCases.length > 0) {
+        score += Math.min(25, severeDisciplineCases.length * 15);
+        factors.push(`${severeDisciplineCases.length} dossier(s) disciplinaire(s) sensible(s)`);
+      }
+
+      const hireDate = Date.parse(String(agent.administrative?.hireDate || agent.hireDate || '').trim());
+      if (!Number.isNaN(hireDate)) {
+        const daysSinceHire = Math.ceil((nowTs - hireDate) / (24 * 60 * 60 * 1000));
+        if (daysSinceHire >= 0 && daysSinceHire <= 120) {
+          score += 8;
+          factors.push('Integration recente a suivre');
+        }
+      }
+
+      const riskScore = Math.min(100, score);
+      return {
+        agentId: String(agent.id || '').trim(),
+        matricule: String(agent.matricule || '').trim(),
+        fullName: String(agent.fullName || '').trim(),
+        direction: String(agent.direction || '').trim(),
+        unit: String(agent.unit || '').trim(),
+        position: String(agent.position || '').trim(),
+        riskScore,
+        riskLevel: personnelTurnoverRiskLevel(riskScore),
+        factors,
+        recommendedAction: personnelTurnoverRecommendedAction(riskScore, factors),
+        modelName: 'rules-v1',
+        generatedAt,
+        reviewedAt: '',
+        reviewDecision: '',
+      };
+    })
+    .filter((item) => item.riskScore > 0)
+    .sort((left, right) => right.riskScore - left.riskScore || left.fullName.localeCompare(right.fullName));
+}
+
+function modernizationImplementationRate(total, blockers) {
+  if (!total) return 0;
+  const completed = Math.max(0, total - blockers);
+  return Math.round((completed / total) * 100);
+}
+
+function modernizationAverage(values) {
+  const numbers = values.map((value) => Number(value)).filter((value) => Number.isFinite(value) && value > 0);
+  if (!numbers.length) return 0;
+  return Math.round(numbers.reduce((sum, value) => sum + value, 0) / numbers.length);
+}
+
+function modernizationNormalizePercentScore(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return 0;
+  }
+  if (numeric <= 1) {
+    return Math.round(numeric * 100);
+  }
+  if (numeric <= 10) {
+    return Math.round(numeric * 10);
+  }
+  return Math.round(numeric);
+}
+
+function modernizationDateTimestamp(value) {
+  const timestamp = Date.parse(String(value || '').trim());
+  return Number.isNaN(timestamp) ? Number.POSITIVE_INFINITY : timestamp;
+}
+
+function modernizationLeaveDurationDays(item) {
+  const start = Date.parse(String(item.startDate || '').trim());
+  const end = Date.parse(String(item.endDate || item.startDate || '').trim());
+  if (Number.isNaN(start) || Number.isNaN(end)) {
+    return 0;
+  }
+  return Math.max(1, Math.round((end - start) / 86400000) + 1);
+}
+
+function modernizationSeverityFromScore(score) {
+  if (score >= 75) return 'Critique';
+  if (score >= 50) return 'Eleve';
+  if (score >= 25) return 'Modere';
+  return 'Faible';
+}
+
+function modernizationSentimentLabel(score) {
+  if (score >= 85) return 'tres favorable';
+  if (score >= 75) return 'stable';
+  if (score >= 65) return 'a surveiller';
+  return 'fragile';
+}
+
 function removeByReferenceInPlace(items, getReference, references) {
   if (!Array.isArray(items) || !(references instanceof Set) || references.size === 0) {
     return 0;
@@ -8457,7 +11365,9 @@ function normalizePersonnelDossierStatus(value) {
 function validatePersonnelDossierCreatePayload(body) {
   const errors = [];
   const reference = String(body.reference || body.dossierRef || body.dossier_ref || '').trim().toUpperCase();
-  const agent = String(body.agent || body.agentName || body.agent_name || '').trim();
+  const agentIdInput = String(body.agentId || body.agent_id || '').trim();
+  const agentInput = String(body.agent || body.agentName || body.agent_name || '').trim();
+  const resolvedAgent = resolvePersonnelAgentLink(agentIdInput, agentInput);
   const type = String(body.type || body.dossierType || body.dossier_type || '').trim();
   const status = normalizePersonnelDossierStatus(body.status || 'Actif');
   const updatedAtInput = String(body.updatedAt || body.updated_at || '').trim();
@@ -8474,7 +11384,10 @@ function validatePersonnelDossierCreatePayload(body) {
   if (reference && findPersonnelDossier(reference)) {
     errors.push('Reference dossier deja existante');
   }
-  if (agent.length < 2) {
+  if (agentIdInput && !resolvedAgent.matchedAgent) {
+    errors.push('Agent dossier introuvable');
+  }
+  if (resolvedAgent.agent.length < 2) {
     errors.push('Agent dossier requis');
   }
   if (type.length < 2) {
@@ -8488,7 +11401,8 @@ function validatePersonnelDossierCreatePayload(body) {
     errors,
     payload: {
       reference: reference || null,
-      agent,
+      agentId: resolvedAgent.agentId || null,
+      agent: resolvedAgent.agent,
       type,
       status,
       updatedAt,
@@ -8524,7 +11438,9 @@ function normalizePersonnelAffectationStatus(value) {
 function validatePersonnelAffectationCreatePayload(body) {
   const errors = [];
   const reference = String(body.reference || body.assignmentRef || body.assignment_ref || '').trim().toUpperCase();
-  const agent = String(body.agent || body.agentName || body.agent_name || '').trim();
+  const agentIdInput = String(body.agentId || body.agent_id || '').trim();
+  const agentInput = String(body.agent || body.agentName || body.agent_name || '').trim();
+  const resolvedAgent = resolvePersonnelAgentLink(agentIdInput, agentInput);
   const fromUnit = String(body.fromUnit || body.from_unit || '').trim();
   const toUnit = String(body.toUnit || body.to_unit || '').trim();
   const effectiveDateInput = String(body.effectiveDate || body.effective_date || '').trim();
@@ -8540,7 +11456,10 @@ function validatePersonnelAffectationCreatePayload(body) {
   if (reference && findPersonnelAffectation(reference)) {
     errors.push('Reference affectation deja existante');
   }
-  if (agent.length < 2) {
+  if (agentIdInput && !resolvedAgent.matchedAgent) {
+    errors.push('Agent affectation introuvable');
+  }
+  if (resolvedAgent.agent.length < 2) {
     errors.push('Agent affectation requis');
   }
   if (fromUnit.length < 2) {
@@ -8556,10 +11475,13 @@ function validatePersonnelAffectationCreatePayload(body) {
     errors.push('Date effective affectation invalide');
   }
 
-  if (agent && effectiveDate && !Number.isNaN(parsedEffectiveDate)) {
-    const normalizedAgent = normalizeText(agent);
+  if (resolvedAgent.agent && effectiveDate && !Number.isNaN(parsedEffectiveDate)) {
+    const normalizedAgent = normalizeText(resolvedAgent.agent);
+    const normalizedAgentId = normalizeText(resolvedAgent.agentId);
     const conflict = personnelAffectations.some((item) => {
-      const sameAgent = normalizeText(item.agent) === normalizedAgent;
+      const sameAgent = normalizedAgentId
+        ? normalizeText(item.agentId || '') === normalizedAgentId
+        : normalizeText(item.agent) === normalizedAgent;
       const sameDate = String(item.effectiveDate || '').slice(0, 10) === effectiveDate;
       const notCanceled = normalizeText(item.status) !== 'annulee';
       return sameAgent && sameDate && notCanceled;
@@ -8573,7 +11495,8 @@ function validatePersonnelAffectationCreatePayload(body) {
     errors,
     payload: {
       reference: reference || null,
-      agent,
+      agentId: resolvedAgent.agentId || null,
+      agent: resolvedAgent.agent,
       fromUnit,
       toUnit,
       effectiveDate,
@@ -8700,6 +11623,12 @@ function buildAgentAuditSnapshot(agent) {
     phone: String(agent?.phone || '').trim(),
     identityNumber: String(agent?.identity?.identityNumber || '').trim(),
     contractType: String(agent?.administrative?.contractType || '').trim(),
+    competencies: normalizeAgentCompetenciesPayload(agent?.competencies)
+      .map((item) => item.label)
+      .join(', '),
+    dependents: normalizeAgentDependentsPayload(agent?.dependents)
+      .map((item) => item.fullName)
+      .join(', '),
   };
 }
 
@@ -8716,6 +11645,8 @@ function computeAgentAuditChanges(beforeSnapshot, afterSnapshot) {
     ['phone', 'Telephone'],
     ['identityNumber', "Numero piece d'identite"],
     ['contractType', 'Type contrat'],
+    ['competencies', 'Competences'],
+    ['dependents', 'Ayants droit'],
   ];
 
   return fields
@@ -8813,6 +11744,9 @@ function normalizeAgentDocumentsPayload(rawDocuments) {
       const type = String(item?.type || item?.category || '').trim();
       const reference = String(item?.reference || item?.ref || '').trim();
       const status = String(item?.status || 'Valide').trim() || 'Valide';
+      const expiresAt = String(
+        item?.expiresAt || item?.expires_at || item?.expirationDate || item?.expiration_date || ''
+      ).trim();
       const fileName = String(item?.fileName || item?.file_name || '').trim();
       const fileDataUrl = String(
         item?.fileDataUrl || item?.file_data_url || item?.dataUrl || item?.data_url || item?.url || ''
@@ -8822,6 +11756,7 @@ function normalizeAgentDocumentsPayload(rawDocuments) {
         type,
         reference,
         status,
+        expiresAt,
         fileName,
         fileDataUrl,
         required,
@@ -8843,6 +11778,61 @@ function normalizeAgentEducationsPayload(rawEducations) {
       graduationYear: String(item?.graduationYear || item?.graduation_year || item?.year || '').trim(),
     }))
     .filter((item) => item.degree || item.field || item.institution || item.graduationYear);
+}
+
+function normalizeAgentCompetencyLevel(value) {
+  const normalized = normalizeText(value);
+  if (normalized.includes('expert')) return 'Expert';
+  if (normalized.includes('avance') || normalized.includes('senior')) return 'Avance';
+  if (normalized.includes('inter')) return 'Intermediaire';
+  return 'Debutant';
+}
+
+function normalizeAgentCompetenciesPayload(rawCompetencies) {
+  if (!Array.isArray(rawCompetencies)) {
+    return [];
+  }
+
+  return rawCompetencies
+    .map((item, index) => {
+      const label = String(item?.label || item?.name || '').trim();
+      return {
+        id: String(item?.id || '').trim() || `COMP-${Date.now()}-${index + 1}`,
+        label,
+        category: String(item?.category || 'Metier').trim() || 'Metier',
+        level: normalizeAgentCompetencyLevel(item?.level || 'Debutant'),
+        lastAssessedAt: normalizeLibraryDocumentDateOnly(item?.lastAssessedAt || item?.last_assessed_at || ''),
+      };
+    })
+    .filter((item) => item.label);
+}
+
+function normalizeAgentDependentStatus(value) {
+  const normalized = normalizeText(value);
+  if (normalized.includes('suspend')) return 'Suspendu';
+  if (normalized.includes('expir')) return 'Expire';
+  return 'Actif';
+}
+
+function normalizeAgentDependentsPayload(rawDependents) {
+  if (!Array.isArray(rawDependents)) {
+    return [];
+  }
+
+  return rawDependents
+    .map((item, index) => {
+      const fullName = String(item?.fullName || item?.full_name || item?.name || '').trim();
+      return {
+        id: String(item?.id || '').trim() || `DEP-${Date.now()}-${index + 1}`,
+        fullName,
+        relationship: String(item?.relationship || item?.lien || '').trim(),
+        birthDate: normalizeLibraryDocumentDateOnly(item?.birthDate || item?.birth_date || ''),
+        coverageType: String(item?.coverageType || item?.coverage_type || 'Sociale').trim() || 'Sociale',
+        coverageStatus: normalizeAgentDependentStatus(item?.coverageStatus || item?.coverage_status || 'Actif'),
+        phone: String(item?.phone || '').trim(),
+      };
+    })
+    .filter((item) => item.fullName);
 }
 
 function normalizeAgentCareerEventsPayload(rawEvents) {
@@ -8900,6 +11890,8 @@ function validateAgentCreatePayload(body) {
   const isDraft = Boolean(body.isDraft || normalizeText(status) === 'brouillon');
   const documents = normalizeAgentDocumentsPayload(body.documents);
   const educations = normalizeAgentEducationsPayload(body.educations);
+  const competencies = normalizeAgentCompetenciesPayload(body.competencies || body.skills);
+  const dependents = normalizeAgentDependentsPayload(body.dependents || body.beneficiaries);
   const identity = normalizeAgentIdentityPayload(body.identity);
   const administrative = normalizeAgentAdministrativePayload(body.administrative);
 
@@ -9012,6 +12004,8 @@ function validateAgentCreatePayload(body) {
       identity,
       administrative,
       educations,
+      competencies,
+      dependents,
       documents,
       isDraft,
     },
@@ -9057,6 +12051,14 @@ function validateAgentUpdatePayload(body, currentAgent) {
   const documents = has('documents')
     ? normalizeAgentDocumentsPayload(safeBody.documents)
     : normalizeAgentDocumentsPayload(currentAgent.documents);
+
+  const competencies = has('competencies') || has('skills')
+    ? normalizeAgentCompetenciesPayload(safeBody.competencies || safeBody.skills)
+    : normalizeAgentCompetenciesPayload(currentAgent.competencies);
+
+  const dependents = has('dependents') || has('beneficiaries')
+    ? normalizeAgentDependentsPayload(safeBody.dependents || safeBody.beneficiaries)
+    : normalizeAgentDependentsPayload(currentAgent.dependents);
 
   const careerEvents = has('careerEvents') || has('career_events')
     ? normalizeAgentCareerEventsPayload(safeBody.careerEvents || safeBody.career_events)
@@ -9148,6 +12150,8 @@ function validateAgentUpdatePayload(body, currentAgent) {
       identity,
       administrative,
       educations,
+      competencies,
+      dependents,
       careerEvents,
       documents,
     },
@@ -9878,11 +12882,18 @@ function serveFrontendFile(req, res, filePath, cacheControl) {
     return false;
   }
 
-  res.writeHead(200, {
-    'Content-Type': frontendContentTypeFor(filePath),
-    'Content-Length': stats.size,
-    'Cache-Control': cacheControl,
-  });
+  res.writeHead(
+    200,
+    buildResponseHeaders(
+      req,
+      {
+        'Content-Type': frontendContentTypeFor(filePath),
+        'Content-Length': stats.size,
+        'Cache-Control': cacheControl,
+      },
+      { frontend: true }
+    )
+  );
 
   if ((req.method || 'GET') === 'HEAD') {
     res.end();
@@ -9924,6 +12935,9 @@ function serveFrontendRequest(req, res, requestPath) {
   return serveFrontendFile(req, res, FRONTEND_INDEX_PATH, 'no-store');
 }
 
+documentsLibrary.forEach((item) => ensureDocumentMetadata(item));
+synchronizeAllAgentDocumentsToLibrary();
+
 const server = http.createServer(async (req, res) => {
   const method = req.method || 'GET';
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
@@ -9933,6 +12947,7 @@ const server = http.createServer(async (req, res) => {
     ? req.headers['x-correlation-id'][0]
     : req.headers['x-correlation-id'];
   const requestId = String(incomingRequestId || '').trim() || nowToken('req');
+  res.__request = req;
   res.setHeader('X-Correlation-Id', requestId);
 
   if (method === 'OPTIONS') {
@@ -9956,6 +12971,11 @@ const server = http.createServer(async (req, res) => {
 
   if (!path.startsWith('/api/v1')) {
     if (serveFrontendRequest(req, res, path)) {
+      return;
+    }
+    // Fallback absolu : toujours servir index.html pour les routes SPA
+    if (fs.existsSync(FRONTEND_INDEX_PATH)) {
+      serveFrontendFile(req, res, FRONTEND_INDEX_PATH, 'no-store');
       return;
     }
     sendApiError(res, 404, 'NOT_FOUND', 'Not Found');
@@ -10013,6 +13033,11 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (method === 'GET' && path.startsWith('/api/v1/public/uploads/')) {
+      const uploadAuthContext = authenticateRequest(req, res);
+      if (!uploadAuthContext) {
+        return;
+      }
+
       let requestedName = '';
       try {
         requestedName = decodeURIComponent(path.slice('/api/v1/public/uploads/'.length));
@@ -10042,16 +13067,15 @@ const server = http.createServer(async (req, res) => {
       const mimeType = UPLOAD_MIME_BY_EXTENSION[extension] || 'application/octet-stream';
       const dispositionRaw = normalizeText(url.searchParams.get('disposition') || '');
       const contentDisposition = dispositionRaw === 'inline' ? 'inline' : 'attachment';
-      res.writeHead(200, {
-        'Content-Type': mimeType,
-        'Content-Length': stats.size,
-        'Content-Disposition': `${contentDisposition}; filename="${safeFileName}"`,
-        'Cache-Control': 'public, max-age=3600',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Correlation-Id',
-        'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-        'Access-Control-Expose-Headers': 'X-Correlation-Id',
-      });
+      res.writeHead(
+        200,
+        buildResponseHeaders(req, {
+          'Content-Type': mimeType,
+          'Content-Length': stats.size,
+          'Content-Disposition': `${contentDisposition}; filename="${safeFileName}"`,
+          'Cache-Control': 'private, no-store',
+        })
+      );
 
       const stream = fs.createReadStream(absolutePath);
       stream.on('error', () => {
@@ -10255,26 +13279,80 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (method === 'GET' && path === '/api/v1/dashboard/summary') {
+      const headcount = agents.length;
+      const active = agents.filter((a) => normalizeText(a.status) === 'actif').length;
+      const absences = leaveRequests.filter((r) => normalizeText(r.status) !== 'termine').length;
+      const vacanciesCount = vacantPositions.length;
       sendJson(res, 200, {
-        headcount: 128,
-        active: 117,
-        absences: 11,
-        vacancies: 6,
+        headcount,
+        active,
+        absences,
+        vacancies: vacanciesCount,
       });
       return;
     }
 
     if (method === 'GET' && path === '/api/v1/dashboard/pending-requests') {
-      sendJson(res, 200, [
-        {
-          reference: 'REQ-2026-001',
-          agent: 'Aminata Diallo',
-          type: 'Conge annuel',
-          unit: 'Gestion administrative',
-          submittedAt: '2026-03-20',
-          status: 'En attente',
-        },
-      ]);
+      const pending = leaveRequests
+        .filter((r) => normalizeText(r.status) === 'en attente')
+        .map((r) => ({
+          reference: r.reference,
+          agent: r.agent,
+          type: r.type,
+          unit: r.unit || '—',
+          submittedAt: r.startDate,
+          status: r.status,
+        }));
+      sendJson(res, 200, pending);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/modernization/summary') {
+      sendJson(res, 200, buildModernizationSummary(Date.now()));
+      return;
+    }
+
+    if (
+      method === 'GET' &&
+      (path === '/api/v1/documents/requests' || path === '/api/v1/documents/requests/')
+    ) {
+      let items = [...documentRequests];
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyStringFilter(items, url, 'type', 'type');
+      items = applyStringFilter(items, url, 'agent', 'agent');
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['reference', 'agent', 'type', 'reason', 'status', 'owner', 'workflow', 'step'],
+        defaultSortBy: 'desiredDate',
+        defaultSortOrder: 'asc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && path === '/api/v1/personnel/turnover-risk') {
+      let items = buildPersonnelTurnoverRiskItems(Date.now());
+      items = applyStringFilter(items, url, 'direction', 'direction');
+      items = applyStringFilter(items, url, 'unit', 'unit');
+      items = applyStringFilter(items, url, 'riskLevel', 'riskLevel');
+      const minScoreRaw = Number(url.searchParams.get('minScore') || 0);
+      if (Number.isFinite(minScoreRaw) && minScoreRaw > 0) {
+        items = items.filter((item) => Number(item.riskScore || 0) >= minScoreRaw);
+      }
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'agentId',
+          'matricule',
+          'fullName',
+          'direction',
+          'unit',
+          'position',
+          'riskLevel',
+          'recommendedAction',
+        ],
+        defaultSortBy: 'riskScore',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
       return;
     }
 
@@ -10290,6 +13368,8 @@ const server = http.createServer(async (req, res) => {
         manager: a.manager,
         contractType: String(a.administrative?.contractType || '').trim(),
         photoUrl: a.photoUrl,
+        hireDate: String(a.administrative?.hireDate || '').trim(),
+        documents: listPersonnelDocumentsForAgent(a),
       }));
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'direction', 'direction');
@@ -10340,10 +13420,17 @@ const server = http.createServer(async (req, res) => {
         identity: validation.payload.identity,
         administrative: validation.payload.administrative,
         educations: validation.payload.educations,
+        competencies: validation.payload.competencies,
+        dependents: validation.payload.dependents,
         careerEvents: [],
         documents: validation.payload.documents,
       };
       agents.push(created);
+      synchronizeAgentDocumentsToLibrary(
+        created,
+        String(currentUser?.username || 'system').trim().toLowerCase() || 'system',
+        new Date().toISOString()
+      );
       sendJson(res, 201, created);
       return;
     }
@@ -10385,9 +13472,16 @@ const server = http.createServer(async (req, res) => {
         identity: validation.payload.identity,
         administrative: validation.payload.administrative,
         educations: validation.payload.educations,
+        competencies: validation.payload.competencies,
+        dependents: validation.payload.dependents,
         careerEvents: validation.payload.careerEvents,
         documents: validation.payload.documents,
       });
+      synchronizeAgentDocumentsToLibrary(
+        agent,
+        String(currentUser?.username || 'system').trim().toLowerCase() || 'system',
+        updatedAt
+      );
 
       appendAgentAuditEvent({
         agentId: agent.id,
@@ -10506,6 +13600,18 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (method === 'GET' && /^\/api\/v1\/personnel\/agents\/[^/]+\/document-compliance$/.test(path)) {
+      const segments = path.split('/');
+      const id = String(segments[5] || '').trim();
+      const agent = findAgent(id);
+      if (!agent) {
+        sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
+        return;
+      }
+      sendJson(res, 200, buildAgentDocumentCompliancePayload(agent));
+      return;
+    }
+
     if (method === 'GET' && /^\/api\/v1\/personnel\/agents\/[^/]+\/audit-trail$/.test(path)) {
       const segments = path.split('/');
       const id = String(segments[5] || '').trim();
@@ -10518,6 +13624,40 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (method === 'GET' && /^\/api\/v1\/personnel\/agents\/[^/]+\/digital-badge$/.test(path)) {
+      const segments = path.split('/');
+      const id = String(segments[5] || '').trim();
+      const agent = findAgent(id);
+      if (!agent) {
+        sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
+        return;
+      }
+      sendJson(res, 200, buildAgentDigitalBadge(agent));
+      return;
+    }
+
+    if (method === 'GET' && /^\/api\/v1\/personnel\/agents\/[^/]+\/export-pdf$/.test(path)) {
+      const segments = path.split('/');
+      const id = String(segments[5] || '').trim();
+      const agent = findAgent(id);
+      if (!agent) {
+        sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
+        return;
+      }
+      const pdfBuffer = buildSimplePdf(buildAgentDossierExportLines(agent));
+      const fileName = `dossier-${String(agent.matricule || agent.id || 'agent').replace(/[^A-Za-z0-9-]/g, '-')}.pdf`;
+      res.writeHead(
+        200,
+        buildResponseHeaders(res.__request, {
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': `attachment; filename="${fileName}"`,
+          'Content-Length': String(pdfBuffer.length),
+        })
+      );
+      res.end(pdfBuffer);
+      return;
+    }
+
     if (method === 'GET' && path.startsWith('/api/v1/personnel/agents/')) {
       const id = path.split('/').pop();
       const agent = findAgent(id);
@@ -10525,7 +13665,10 @@ const server = http.createServer(async (req, res) => {
         sendApiError(res, 404, 'AGENT_NOT_FOUND', 'Agent introuvable');
         return;
       }
-      sendJson(res, 200, agent);
+      sendJson(res, 200, {
+        ...agent,
+        documents: listPersonnelDocumentsForAgent(agent),
+      });
       return;
     }
 
@@ -10534,8 +13677,9 @@ const server = http.createServer(async (req, res) => {
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'type', 'type');
       items = applyStringFilter(items, url, 'agent', 'agent');
+      items = applyStringFilter(items, url, 'agentId', 'agentId');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['reference', 'agent', 'type', 'status', 'updatedAt'],
+        searchFields: ['reference', 'agentId', 'agent', 'type', 'status', 'updatedAt'],
         defaultSortBy: 'updatedAt',
         defaultSortOrder: 'desc',
       });
@@ -10557,6 +13701,7 @@ const server = http.createServer(async (req, res) => {
 
       const created = {
         reference: validation.payload.reference || buildPersonnelDossierReference(),
+        agentId: validation.payload.agentId || '',
         agent: validation.payload.agent,
         type: validation.payload.type,
         status: validation.payload.status,
@@ -10571,10 +13716,11 @@ const server = http.createServer(async (req, res) => {
       let items = [...personnelAffectations];
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'agent', 'agent');
+      items = applyStringFilter(items, url, 'agentId', 'agentId');
       items = applyStringFilter(items, url, 'fromUnit', 'fromUnit');
       items = applyStringFilter(items, url, 'toUnit', 'toUnit');
       items = applyCollectionQuery(items, url, {
-        searchFields: ['reference', 'agent', 'fromUnit', 'toUnit', 'effectiveDate', 'status'],
+        searchFields: ['reference', 'agentId', 'agent', 'fromUnit', 'toUnit', 'effectiveDate', 'status'],
         defaultSortBy: 'effectiveDate',
         defaultSortOrder: 'desc',
       });
@@ -10596,6 +13742,7 @@ const server = http.createServer(async (req, res) => {
 
       const created = {
         reference: validation.payload.reference || buildPersonnelAffectationReference(),
+        agentId: validation.payload.agentId || '',
         agent: validation.payload.agent,
         fromUnit: validation.payload.fromUnit,
         toUnit: validation.payload.toUnit,
@@ -12347,11 +15494,12 @@ const server = http.createServer(async (req, res) => {
 
     if (method === 'GET' && path === '/api/v1/training/requests') {
       let items = [...trainingEnrollmentRequests];
-      const isAgentOnly = hasAnyRole(currentUser, ['agent']) && !hasAnyRole(currentUser, ['manager', 'hr_manager', 'super_admin']);
-      if (isAgentOnly) {
-        const currentUsername = String(currentUser.username || '').trim().toLowerCase();
-        items = items.filter((item) => String(item.applicantUsername || '').trim().toLowerCase() === currentUsername);
-      }
+      items = items.filter((item) =>
+        canAccessScopedRecord(currentUser, {
+          applicantUsername: item.applicantUsername,
+          applicantName: item.applicantName,
+        })
+      );
 
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'sessionCode', 'sessionCode');
@@ -12582,6 +15730,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (method === 'GET' && routePath === '/api/v1/documents/audit-logs') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
       let items = [...documentAuditLogs];
       items = applyStringFilter(items, url, 'reference', 'reference');
       items = applyStringFilter(items, url, 'action', 'action');
@@ -12595,14 +15747,81 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (method === 'GET' && routePath === '/api/v1/documents/types') {
+      let items = getUnifiedDocumentTypes();
+      items = applyStringFilter(items, url, 'moduleScope', 'moduleScope');
+      items = applyStringFilter(items, url, 'ownerEntityType', 'ownerEntityType');
+      const activeRaw = normalizeText(url.searchParams.get('active'));
+      if (activeRaw === 'true' || activeRaw === 'false') {
+        const expected = activeRaw === 'true';
+        items = items.filter((item) => Boolean(item.isActive) === expected);
+      }
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['code', 'label', 'moduleScope', 'ownerEntityType'],
+        defaultSortBy: 'label',
+        defaultSortOrder: 'asc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && routePath === '/api/v1/documents/requirements') {
+      let items = getUnifiedDocumentRequirements();
+      items = applyStringFilter(items, url, 'scope', 'requirementScope');
+      items = applyStringFilter(items, url, 'documentTypeCode', 'documentTypeCode');
+      items = applyStringFilter(items, url, 'contractType', 'contractType');
+      const activeRaw = normalizeText(url.searchParams.get('active'));
+      if (activeRaw === 'true' || activeRaw === 'false') {
+        const expected = activeRaw === 'true';
+        items = items.filter((item) => Boolean(item.isActive) === expected);
+      }
+      items = applyCollectionQuery(items, url, {
+        searchFields: ['requirementCode', 'documentTypeCode', 'documentTypeLabel', 'requirementScope', 'contractType'],
+        defaultSortBy: 'requirementCode',
+        defaultSortOrder: 'asc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && routePath === '/api/v1/documents/processing-queue') {
+      let items = documentsLibrary.filter((item) => canReadDocumentRecord(currentUser, item)).map((item) => buildDocumentProcessingQueueItem(item));
+      items = applyStringFilter(items, url, 'nextAction', 'nextAction');
+      items = applyStringFilter(items, url, 'status', 'status');
+      items = applyStringFilter(items, url, 'analysisStatus', 'analysisStatus');
+      items = applyStringFilter(items, url, 'sourceModule', 'sourceModule');
+      items = applyCollectionQuery(items, url, {
+        searchFields: [
+          'reference',
+          'title',
+          'documentTypeCode',
+          'documentTypeLabel',
+          'status',
+          'analysisStatus',
+          'sourceModule',
+          'employeeId',
+          'employeeName',
+          'nextAction',
+        ],
+        defaultSortBy: 'updatedAt',
+        defaultSortOrder: 'desc',
+      });
+      sendJson(res, 200, items);
+      return;
+    }
+
     if (method === 'GET' && routePath === '/api/v1/documents/analytics') {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
       const report = computeDocumentAnalytics();
       sendJson(res, 200, report);
       return;
     }
 
     if (method === 'GET' && routePath === '/api/v1/documents/overdue') {
-      let items = listDocumentOverdueItems();
+      let items = listDocumentOverdueItems().filter((item) => canReadDocumentRecord(currentUser, item));
       items = applyStringFilter(items, url, 'recipientUsername', 'recipientUsername');
       items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
       items = applyCollectionQuery(items, url, {
@@ -12620,6 +15839,145 @@ const server = http.createServer(async (req, res) => {
         defaultSortOrder: 'desc',
       });
       sendJson(res, 200, items);
+      return;
+    }
+
+    if (method === 'GET' && /^\/api\/v1\/documents\/library\/[^/]+\/analysis$/.test(path)) {
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[5] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const currentDocument = findLibraryDocument(rawReference);
+      if (!currentDocument) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+      if (!canReadDocumentRecord(currentUser, currentDocument)) {
+        sendApiError(res, 403, 'AUTH_FORBIDDEN', 'Acces refuse');
+        return;
+      }
+
+      sendJson(res, 200, {
+        runs: listDocumentAnalysisRuns(rawReference),
+      });
+      return;
+    }
+
+    if (method === 'POST' && /^\/api\/v1\/documents\/library\/[^/]+\/analyze$/.test(path)) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      try {
+        rawReference = decodeURIComponent(segments[5] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_REFERENCE_INVALID', 'Reference document invalide');
+        return;
+      }
+
+      const currentDocument = findLibraryDocument(rawReference);
+      if (!currentDocument) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const force = Boolean(body?.force);
+      const latestRun = listDocumentAnalysisRuns(rawReference)[0] || null;
+      if (latestRun && !force) {
+        sendJson(res, 200, latestRun);
+        return;
+      }
+
+      const createdRun = createDocumentAnalysisRun(ensureDocumentMetadata(currentDocument), body || {});
+      sendJson(res, 201, createdRun);
+      return;
+    }
+
+    if (
+      method === 'PATCH' &&
+      /^\/api\/v1\/documents\/library\/[^/]+\/analysis\/[^/]+\/fields\/[^/]+$/.test(path)
+    ) {
+      if (!ensureRoles(res, currentUser, ['super_admin', 'hr_manager'])) {
+        return;
+      }
+
+      const segments = path.split('/');
+      let rawReference = '';
+      let runId = '';
+      let fieldName = '';
+      try {
+        rawReference = decodeURIComponent(segments[5] || '');
+        runId = decodeURIComponent(segments[7] || '');
+        fieldName = decodeURIComponent(segments[9] || '');
+      } catch {
+        sendApiError(res, 400, 'DOCUMENT_ANALYSIS_FIELD_INVALID', 'Parametres analyse invalides');
+        return;
+      }
+
+      const currentDocument = findLibraryDocument(rawReference);
+      if (!currentDocument) {
+        sendApiError(res, 404, 'DOCUMENT_NOT_FOUND', 'Document introuvable');
+        return;
+      }
+
+      const run = listDocumentAnalysisRuns(rawReference).find((item) => String(item.id || '').trim() === String(runId || '').trim());
+      if (!run) {
+        sendApiError(res, 404, 'DOCUMENT_ANALYSIS_RUN_NOT_FOUND', 'Execution analyse introuvable');
+        return;
+      }
+
+      const field = (Array.isArray(run.fields) ? run.fields : []).find(
+        (item) => normalizeText(item.fieldName) === normalizeText(fieldName)
+      );
+      if (!field) {
+        sendApiError(res, 404, 'DOCUMENT_ANALYSIS_FIELD_NOT_FOUND', 'Champ analyse introuvable');
+        return;
+      }
+
+      const body = await readJsonBody(req);
+      const safeBody = body && typeof body === 'object' ? body : {};
+      const has = (key) => Object.prototype.hasOwnProperty.call(safeBody, key);
+
+      if (has('fieldValueText')) {
+        field.fieldValueText = safeBody.fieldValueText == null ? '' : String(safeBody.fieldValueText).trim();
+      }
+      if (has('fieldValueDate')) {
+        field.fieldValueDate = normalizeLibraryDocumentDateOnly(safeBody.fieldValueDate);
+      }
+      if (has('fieldValueNumber')) {
+        const numeric = Number(safeBody.fieldValueNumber);
+        field.fieldValueNumber = Number.isFinite(numeric) ? numeric : null;
+      }
+      if (has('fieldValueBoolean')) {
+        field.fieldValueBoolean = Boolean(safeBody.fieldValueBoolean);
+      }
+      if (has('normalizedValue')) {
+        field.normalizedValue = safeBody.normalizedValue == null ? '' : String(safeBody.normalizedValue).trim();
+      } else if (field.fieldValueDate) {
+        field.normalizedValue = String(field.fieldValueDate || '').trim();
+      } else if (field.fieldValueText) {
+        field.normalizedValue = String(field.fieldValueText || '').trim();
+      }
+      if (has('isValidated')) {
+        field.isValidated = Boolean(safeBody.isValidated);
+      }
+
+      run.updatedAt = new Date().toISOString();
+      run.analysisStatus = (Array.isArray(run.fields) ? run.fields : []).every((item) => item.isValidated)
+        ? 'COMPLETED'
+        : 'REVIEW_REQUIRED';
+      currentDocument.analysisStatus = run.analysisStatus;
+      currentDocument.lastAnalysisAt = run.updatedAt;
+
+      sendJson(res, 200, run);
       return;
     }
 
@@ -12839,18 +16197,42 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (method === 'GET' && path === '/api/v1/documents/library') {
-      let items = documentsLibrary.map((item) => toDispatchedDocument(item));
+      let items = documentsLibrary.filter((item) => canReadDocumentRecord(currentUser, item)).map((item) => ({
+        ...toDispatchedDocument(ensureDocumentMetadata(item)),
+        links: buildDocumentLinksForItem(item),
+      }));
       items = applyStringFilter(items, url, 'status', 'status');
       items = applyStringFilter(items, url, 'type', 'type');
+      items = applyStringFilter(items, url, 'typeCode', 'documentTypeCode');
       items = applyStringFilter(items, url, 'owner', 'owner');
       items = applyStringFilter(items, url, 'deliveryStatus', 'deliveryStatus');
+      items = applyStringFilter(items, url, 'sourceModule', 'sourceModule');
+      items = applyStringFilter(items, url, 'analysisStatus', 'analysisStatus');
+      items = applyStringFilter(items, url, 'confidentialityLevel', 'confidentialityLevel');
+      const linkEntityType = normalizeText(url.searchParams.get('linkEntityType'));
+      const linkEntityId = normalizeText(url.searchParams.get('linkEntityId'));
+      if (linkEntityType || linkEntityId) {
+        items = items.filter((item) => {
+          const links = Array.isArray(item.links) ? item.links : [];
+          return links.some((link) => {
+            const entityTypeMatches = !linkEntityType || normalizeText(link.entityType) === linkEntityType;
+            const entityIdMatches = !linkEntityId || normalizeText(link.entityId) === linkEntityId;
+            return entityTypeMatches && entityIdMatches;
+          });
+        });
+      }
       items = applyCollectionQuery(items, url, {
         searchFields: [
           'reference',
           'title',
           'type',
+          'documentTypeCode',
+          'documentTypeLabel',
           'owner',
           'status',
+          'sourceModule',
+          'analysisStatus',
+          'confidentialityLevel',
           'employeeName',
           'employeeId',
           'direction',
@@ -12899,6 +16281,7 @@ const server = http.createServer(async (req, res) => {
         reference: validation.payload.reference || buildLibraryDocumentReference(),
         title: validation.payload.title,
         type: validation.payload.type,
+        documentTypeCode: validation.payload.documentTypeCode,
         owner: validation.payload.owner,
         updatedAt: validation.payload.updatedAt,
         status: validation.payload.status,
@@ -12906,20 +16289,28 @@ const server = http.createServer(async (req, res) => {
         employeeId: validation.payload.employeeId,
         direction: validation.payload.direction,
         unit: validation.payload.unit,
+        sourceModule: validation.payload.sourceModule,
+        sourceRecordId: validation.payload.sourceRecordId,
+        confidentialityLevel: validation.payload.confidentialityLevel,
+        requiresAcknowledgement: validation.payload.requiresAcknowledgement,
         issuedAt: validation.payload.issuedAt,
         startDate: validation.payload.startDate,
         endDate: validation.payload.endDate,
+        expiresOn: validation.payload.expiresOn,
         approver: validation.payload.approver,
         missionDestination: validation.payload.missionDestination,
         missionPurpose: validation.payload.missionPurpose,
         absenceReason: validation.payload.absenceReason,
         notes: validation.payload.notes,
+        analysisStatus: 'NOT_REQUESTED',
+        lastAnalysisAt: '',
         signedAt: '',
         signedBy: '',
         stampLabel: '',
         signatureHash: '',
         verificationCode: '',
       };
+      ensureDocumentMetadata(created);
       documentsLibrary.push(created);
       addDocumentAuditLog({
         reference: created.reference,
@@ -12932,7 +16323,10 @@ const server = http.createServer(async (req, res) => {
           employeeId: created.employeeId || '',
         },
       });
-      sendJson(res, 201, toDispatchedDocument(created));
+      sendJson(res, 201, {
+        ...toDispatchedDocument(created),
+        links: buildDocumentLinksForItem(created),
+      });
       return;
     }
 
@@ -13169,6 +16563,7 @@ const server = http.createServer(async (req, res) => {
       Object.assign(currentDocument, {
         title: validation.payload.title,
         type: validation.payload.type,
+        documentTypeCode: validation.payload.documentTypeCode,
         owner: validation.payload.owner,
         updatedAt: validation.payload.updatedAt,
         status: validation.payload.status,
@@ -13176,15 +16571,21 @@ const server = http.createServer(async (req, res) => {
         employeeId: validation.payload.employeeId,
         direction: validation.payload.direction,
         unit: validation.payload.unit,
+        sourceModule: validation.payload.sourceModule,
+        sourceRecordId: validation.payload.sourceRecordId,
+        confidentialityLevel: validation.payload.confidentialityLevel,
+        requiresAcknowledgement: validation.payload.requiresAcknowledgement,
         issuedAt: validation.payload.issuedAt,
         startDate: validation.payload.startDate,
         endDate: validation.payload.endDate,
+        expiresOn: validation.payload.expiresOn,
         approver: validation.payload.approver,
         missionDestination: validation.payload.missionDestination,
         missionPurpose: validation.payload.missionPurpose,
         absenceReason: validation.payload.absenceReason,
         notes: validation.payload.notes,
       });
+      ensureDocumentMetadata(currentDocument);
 
       const nextStatus = normalizeDocumentStatus(currentDocument.status, 'Brouillon');
       const isStatusTransition = previousStatus !== nextStatus;
@@ -13199,7 +16600,10 @@ const server = http.createServer(async (req, res) => {
           : 'Mise a jour des metadonnees du document',
       });
 
-      sendJson(res, 200, toDispatchedDocument(currentDocument));
+      sendJson(res, 200, {
+        ...toDispatchedDocument(currentDocument),
+        links: buildDocumentLinksForItem(currentDocument),
+      });
       return;
     }
 

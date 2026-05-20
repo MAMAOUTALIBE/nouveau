@@ -4,11 +4,47 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Journal d'audit</div>
         <div class="btn-list">
-          <button class="btn btn-outline-primary">Exporter</button>
+          <button class="btn btn-outline-primary" (click)="exportCsv()">Exporter CSV</button>
         </div>
       </div>
       <div class="card-body">
+        <form class="row g-2 align-items-end mb-3" [formGroup]="form" (ngSubmit)="loadAudit()">
+          <div class="col-md-4">
+            <label class="form-label">Utilisateur</label>
+            <input type="text" class="form-control" formControlName="user" placeholder="email ou username">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Action</label>
+            <input type="text" class="form-control" formControlName="action" placeholder="ex: CREATE_USER">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Période</label>
+            <div class="d-flex gap-2">
+              <input type="date" class="form-control" formControlName="dateFrom">
+              <input type="date" class="form-control" formControlName="dateTo">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Page</label>
+            <input type="number" min="1" class="form-control" formControlName="page">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Taille</label>
+            <input type="number" min="5" max="200" class="form-control" formControlName="limit">
+          </div>
+          <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Filtrer</button>
+            <button type="button" class="btn btn-light" (click)="form.reset(); loadAudit();">Réinitialiser</button>
+          </div>
+        </form>
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <div>Page {{ form.value.page || 1 }}</div>
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary" type="button" (click)="prevPage()">Précédent</button>
+            <button class="btn btn-outline-secondary" type="button" (click)="nextPage()">Suivant</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

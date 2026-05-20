@@ -135,6 +135,7 @@ describe('HrReportsService analytics helpers', () => {
           receivedOn: daysFrom(now, -4),
         },
       ],
+      disciplineCases: [],
     };
 
     const snapshot = composeHrReportSnapshot(
@@ -149,6 +150,7 @@ describe('HrReportsService analytics helpers', () => {
     expect(snapshot.kpis.find((kpi) => kpi.id === 'vacant_positions')?.value).toBe(1);
     expect(snapshot.kpis.find((kpi) => kpi.id === 'workflow_breached')?.value).toBe(1);
     expect(snapshot.kpis.find((kpi) => kpi.id === 'absenteeism_rate')?.value).toBe(50);
+    expect(snapshot.kpis.find((kpi) => kpi.id === 'turnover_high_risk')?.value).toBeGreaterThanOrEqual(0);
 
     expect(snapshot.directionDistribution[0]).toMatchObject({ label: 'Direction RH', value: 2 });
     expect(snapshot.leaveByType.map((item) => item.label)).toEqual(['Conge annuel', 'Maladie']);

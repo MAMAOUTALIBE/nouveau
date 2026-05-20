@@ -322,6 +322,11 @@ export class ApplicationsPage implements OnInit, OnDestroy {
   }
 
   exportApplications(): void {
+    if (!this.canManageRecruitment()) {
+      this.notifyMissingManagePermission();
+      return;
+    }
+
     if (!this.items.length) {
       this.toastr.info('Aucune candidature a exporter', 'Recrutement', {
         timeOut: 2500,
@@ -371,12 +376,65 @@ export class ApplicationsPage implements OnInit, OnDestroy {
     this.createAttachments.splice(index, 1);
   }
 
-  previewAttachmentHref(attachment: ApplicationAttachmentEntry): string {
-    return this.resolveAttachmentUrl(attachment.url, true);
+  previewAttachmentUrl(attachment: ApplicationAttachmentEntry): string {
+    return this.attachmentUrlWithDisposition(attachment, 'inline');
   }
 
-  downloadAttachmentHref(attachment: ApplicationAttachmentEntry): string {
-    return this.resolveAttachmentUrl(attachment.url, false);
+  downloadAttachmentUrl(attachment: ApplicationAttachmentEntry): string {
+    return this.attachmentUrlWithDisposition(attachment, 'attachment');
+  }
+
+  previewAttachment(attachment: ApplicationAttachmentEntry): void {
+    const fileName = String(attachment.fileName || 'piece-jointe').trim() || 'piece-jointe';
+    const normalizedUrl = String(attachment.url || '').trim();
+    if (!normalizedUrl) {
+      return;
+    }
+
+    if (normalizedUrl.startsWith('blob:')) {
+      const popup = window.open(normalizedUrl, '_blank', 'noopener,noreferrer');
+      if (!popup) {
+        this.downloadObjectUrl(normalizedUrl, fileName);
+      }
+      return;
+    }
+
+    this.recruitmentService.downloadAttachment(normalizedUrl).subscribe({
+      next: (blob) => {
+        if (!this.openBlobPreview(blob)) {
+          this.downloadBlob(blob, fileName);
+        }
+      },
+      error: () => {
+        this.toastr.error('Téléchargement impossible pour le moment', 'Recrutement', {
+          timeOut: 2800,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
+  }
+
+  downloadAttachment(attachment: ApplicationAttachmentEntry): void {
+    const fileName = String(attachment.fileName || 'piece-jointe').trim() || 'piece-jointe';
+    const normalizedUrl = String(attachment.url || '').trim();
+    if (!normalizedUrl) {
+      return;
+    }
+
+    if (normalizedUrl.startsWith('blob:')) {
+      this.downloadObjectUrl(normalizedUrl, fileName);
+      return;
+    }
+
+    this.recruitmentService.downloadAttachment(normalizedUrl).subscribe({
+      next: (blob) => this.downloadBlob(blob, fileName),
+      error: () => {
+        this.toastr.error('Téléchargement impossible pour le moment', 'Recrutement', {
+          timeOut: 2800,
+          positionClass: 'toast-top-right',
+        });
+      },
+    });
   }
 
   openDetails(item: Application): void {
@@ -1106,6 +1164,11 @@ export class ApplicationsPage implements OnInit, OnDestroy {
   }
 
   exportQuestionBank(format: 'csv' | 'json'): void {
+    if (!this.canManageRecruitment()) {
+      this.notifyMissingManagePermission();
+      return;
+    }
+
     this.recruitmentService
       .exportInterviewQuestionBank({ format })
       .subscribe({
@@ -1680,30 +1743,40 @@ export class ApplicationsPage implements OnInit, OnDestroy {
     return Array.from(this.allowedAttachmentExtensions).some((extension) => fileName.endsWith(extension));
   }
 
-  private resolveAttachmentUrl(url: string, inline: boolean): string {
-    const normalized = String(url || '').trim();
-    if (!normalized) {
-      return '';
-    }
-    if (normalized.startsWith('blob:')) {
-      return normalized;
-    }
+  private openBlobPreview(blob: Blob): boolean {
+    const objectUrl = URL.createObjectURL(blob);
+    const popup = window.open(objectUrl, '_blank', 'noopener,noreferrer,width=980,height=760');
+    const opened = !!popup;
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), opened ? 60_000 : 2_000);
+    return opened;
+  }
 
-    let absolute = normalized;
-    if (typeof window !== 'undefined' && !/^https?:\/\//i.test(normalized)) {
-      absolute = new URL(normalized.startsWith('/') ? normalized : `/${normalized}`, window.location.origin).toString();
-    }
-    if (!inline) {
-      return absolute;
-    }
+  private downloadBlob(blob: Blob, fileName: string): void {
+    const objectUrl = URL.createObjectURL(blob);
+    this.downloadObjectUrl(objectUrl, fileName);
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1_000);
+  }
 
-    try {
-      const parsed = new URL(absolute, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
-      parsed.searchParams.set('disposition', 'inline');
-      return parsed.toString();
-    } catch {
-      return absolute;
+  private downloadObjectUrl(url: string, fileName: string): void {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  }
+
+  private attachmentUrlWithDisposition(
+    attachment: ApplicationAttachmentEntry,
+    disposition: 'inline' | 'attachment'
+  ): string {
+    const normalizedUrl = String(attachment.url || '').trim();
+    if (!normalizedUrl || normalizedUrl.startsWith('blob:')) {
+      return normalizedUrl;
     }
+    const separator = normalizedUrl.includes('?') ? '&' : '?';
+    return `${normalizedUrl}${separator}disposition=${disposition}`;
   }
 
   private downloadTextFile(filename: string, content: string, mimeType: string): void {

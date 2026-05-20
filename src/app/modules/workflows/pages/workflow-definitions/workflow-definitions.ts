@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GridJsAngularComponent } from 'gridjs-angular';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import { APP_PERMISSIONS, AccessControlService } from '../../../../core/security/access-control.service';
 import {
   CreateWorkflowDefinitionPayload,
   WorkflowDefinition,
@@ -22,6 +23,7 @@ export class WorkflowDefinitionsPage implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private workflowsService = inject(WorkflowsService);
   private toastr = inject(ToastrService);
+  private accessControl = inject(AccessControlService);
 
   items: WorkflowDefinition[] = [];
   showCreateForm = false;
@@ -65,6 +67,10 @@ export class WorkflowDefinitionsPage implements OnInit {
   }
 
   toggleCreateForm(): void {
+    if (!this.showCreateForm && !this.ensureManageWorkflows('creer un workflow')) {
+      return;
+    }
+
     this.showCreateForm = !this.showCreateForm;
     if (!this.showCreateForm) {
       this.resetForm();
@@ -79,6 +85,10 @@ export class WorkflowDefinitionsPage implements OnInit {
   }
 
   saveDefinition(): void {
+    if (!this.ensureManageWorkflows('enregistrer un workflow')) {
+      return;
+    }
+
     if (this.form.invalid || this.submitting) {
       this.form.markAllAsTouched();
       return;
@@ -172,5 +182,21 @@ export class WorkflowDefinitionsPage implements OnInit {
     }
 
     return 'Operation impossible pour le moment';
+  }
+
+  canManageWorkflows(): boolean {
+    return this.accessControl.hasPermission(APP_PERMISSIONS.workflowsManage);
+  }
+
+  private ensureManageWorkflows(action: string): boolean {
+    if (this.canManageWorkflows()) {
+      return true;
+    }
+
+    this.toastr.error(`Acces refuse: droits insuffisants pour ${action}`, 'Workflows', {
+      timeOut: 3200,
+      positionClass: 'toast-top-right',
+    });
+    return false;
   }
 }

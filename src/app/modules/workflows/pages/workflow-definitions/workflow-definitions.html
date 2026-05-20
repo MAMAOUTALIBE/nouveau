@@ -4,7 +4,7 @@
       <div class="card-header justify-content-between">
         <div class="card-title">Workflows</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageWorkflows()">
             {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau workflow' }}
           </button>
           <button type="button" class="btn btn-outline-primary">Exporter</button>
@@ -57,7 +57,7 @@
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                <button type="submit" class="btn btn-primary" [disabled]="submitting || !canManageWorkflows()">
                   {{ submitting ? 'Enregistrement...' : 'Enregistrer le workflow' }}
                 </button>
               </div>

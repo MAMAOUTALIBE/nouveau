@@ -5,6 +5,7 @@ import { VacantPosition, OrganizationService } from '../organization/organizatio
 import { AgentListItem, PersonnelService } from '../personnel/personnel.service';
 import { Application, RecruitmentService } from '../recruitment/recruitment.service';
 import { WorkflowInstance, WorkflowsService } from '../workflows/workflows.service';
+import { DisciplineCase, DisciplineService } from '../discipline/discipline.service';
 
 export interface HrReportFilters {
   periodDays?: number;
@@ -42,6 +43,19 @@ export interface HrRiskItem {
   score: number;
 }
 
+export interface HrTurnoverRiskItem {
+  agentId: string;
+  matricule: string;
+  fullName: string;
+  direction: string;
+  unit: string;
+  position: string;
+  riskScore: number;
+  riskLevel: 'Faible' | 'Modere' | 'Eleve' | 'Critique';
+  factors: string[];
+  recommendedAction: string;
+}
+
 export interface HrReportSnapshot {
   generatedAt: string;
   filters: {
@@ -55,6 +69,7 @@ export interface HrReportSnapshot {
   leaveTrend: HrTrendPoint[];
   workflowThroughputTrend: HrTrendPoint[];
   riskItems: HrRiskItem[];
+  turnoverRiskItems: HrTurnoverRiskItem[];
   insights: string[];
   records: {
     agents: AgentListItem[];
@@ -62,6 +77,7 @@ export interface HrReportSnapshot {
     vacancies: VacantPosition[];
     workflows: WorkflowInstance[];
     applications: Application[];
+    disciplineCases: DisciplineCase[];
   };
 }
 
@@ -71,6 +87,7 @@ export interface HrReportSourceData {
   vacancies: VacantPosition[];
   workflows: WorkflowInstance[];
   applications: Application[];
+  disciplineCases: DisciplineCase[];
 }
 
 interface NormalizedFilters {
@@ -89,6 +106,7 @@ export class HrReportsService {
   private organizationService = inject(OrganizationService);
   private workflowsService = inject(WorkflowsService);
   private recruitmentService = inject(RecruitmentService);
+  private disciplineService = inject(DisciplineService);
 
   buildSnapshot(filters?: HrReportFilters): Observable<HrReportSnapshot> {
     const normalized = normalizeHrReportFilters(filters);
@@ -125,6 +143,14 @@ export class HrReportsService {
           page: 1,
           limit: MAX_COLLECTION_LIMIT,
           sortBy: 'receivedOn',
+          sortOrder: 'desc',
+        })
+        .pipe(catchError(() => of([]))),
+      disciplineCases: this.disciplineService
+        .getCases({
+          page: 1,
+          limit: MAX_COLLECTION_LIMIT,
+          sortBy: 'openedOn',
           sortOrder: 'desc',
         })
         .pipe(catchError(() => of([]))),
@@ -187,12 +213,17 @@ export function composeHrReportSnapshot(
     DEFAULT_MONTHS
   );
   const riskItems = buildRiskItems(source.workflows);
+  const turnoverRiskItems = buildTurnoverRiskItems(scopedAgents, source.leaveRequests, source.disciplineCases, now);
+  const highTurnoverRisk = turnoverRiskItems.filter(
+    (item) => item.riskLevel === 'Eleve' || item.riskLevel === 'Critique'
+  ).length;
 
   const insights = [
     `${workflowBreached} workflow(s) en depassement SLA`,
     `${recruitmentPipeline} candidature(s) en cours de traitement`,
     `${periodLeaves.length} demande(s) d'absence sur ${filters.periodDays} jours`,
     `${workflowApprovedInPeriod.length} workflow(s) finalise(s) sur la periode`,
+    `${highTurnoverRisk} agent(s) avec risque de turn-over eleve ou critique`,
   ];
 
   return {
@@ -211,6 +242,12 @@ export function composeHrReportSnapshot(
         unit: '%',
         badge: 'bg-info',
       },
+      {
+        id: 'turnover_high_risk',
+        label: 'Risque turn-over',
+        value: highTurnoverRisk,
+        badge: highTurnoverRisk > 0 ? 'bg-danger' : 'bg-success',
+      },
     ],
     directionDistribution,
     leaveByType,
@@ -218,6 +255,7 @@ export function composeHrReportSnapshot(
     leaveTrend,
     workflowThroughputTrend,
     riskItems,
+    turnoverRiskItems,
     insights,
     records: {
       agents: scopedAgents,
@@ -225,6 +263,7 @@ export function composeHrReportSnapshot(
       vacancies: source.vacancies,
       workflows: source.workflows,
       applications: source.applications,
+      disciplineCases: source.disciplineCases,
     },
   };
 }
@@ -303,6 +342,142 @@ function buildRiskItems(instances: WorkflowInstance[]): HrRiskItem[] {
     .filter((item) => item.score > 0)
     .sort((left, right) => right.score - left.score)
     .slice(0, 8);
+}
+
+function buildTurnoverRiskItems(
+  agents: AgentListItem[],
+  leaveRequests: LeaveRequest[],
+  disciplineCases: DisciplineCase[],
+  now: Date
+): HrTurnoverRiskItem[] {
+  const nowTs = now.getTime();
+  const ninetyDaysAgo = nowTs - 90 * 24 * 60 * 60 * 1000;
+
+  return agents
+    .map((agent) => {
+      const factors: string[] = [];
+      let score = 0;
+      const status = normalizeText(agent.status);
+
+      if (status.includes('absence')) {
+        score += 18;
+        factors.push('Statut en absence');
+      }
+      if (status.includes('inactif')) {
+        score += 25;
+        factors.push('Statut inactif');
+      }
+      if (!safeLabel(agent.manager || '', '').trim()) {
+        score += 10;
+        factors.push('Manager non renseigne');
+      }
+
+      const recentLeaves = leaveRequests.filter((request) => {
+        const requestMeta = request as unknown as { requesterName?: string };
+        const requester = normalizeText(request.agent || requestMeta.requesterName || '');
+        const start = Date.parse(request.startDate);
+        return (
+          !Number.isNaN(start) &&
+          start >= ninetyDaysAgo &&
+          (requester === normalizeText(agent.fullName) || requester === normalizeText(agent.matricule))
+        );
+      });
+      if (recentLeaves.length >= 3) {
+        score += 20;
+        factors.push(`${recentLeaves.length} absences recentes`);
+      } else if (recentLeaves.length >= 2) {
+        score += 10;
+        factors.push(`${recentLeaves.length} absences recentes`);
+      }
+
+      const agentDocuments = Array.isArray(agent.documents) ? agent.documents : [];
+      const expiredRequiredDocuments = agentDocuments.filter((document) => {
+        const normalizedStatus = normalizeText(document.status);
+        const expiry = Date.parse(document.expiresAt || '');
+        return (
+          document.required !== false &&
+          (normalizedStatus.includes('expire') || (!Number.isNaN(expiry) && expiry < nowTs))
+        );
+      });
+      if (expiredRequiredDocuments.length > 0) {
+        score += 12;
+        factors.push(`${expiredRequiredDocuments.length} piece(s) critique(s) expiree(s)`);
+      }
+
+      const contractDocument = agentDocuments.find((document) => normalizeText(document.type).includes('contrat'));
+      const contractExpiry = Date.parse(contractDocument?.expiresAt || '');
+      if (!Number.isNaN(contractExpiry)) {
+        const daysRemaining = Math.ceil((contractExpiry - nowTs) / (24 * 60 * 60 * 1000));
+        if (daysRemaining < 0) {
+          score += 30;
+          factors.push('Contrat expire');
+        } else if (daysRemaining <= 60) {
+          score += 22;
+          factors.push('Contrat a renouveler sous 60 jours');
+        }
+      }
+
+      const agentDisciplineCases = disciplineCases.filter(
+        (item) => normalizeText(item.agent) === normalizeText(agent.fullName)
+      );
+      const severeCases = agentDisciplineCases.filter((item) => {
+        const severity = normalizeText(item.severity);
+        return severity.includes('critique') || severity.includes('eleve');
+      });
+      if (severeCases.length > 0) {
+        score += Math.min(25, severeCases.length * 15);
+        factors.push(`${severeCases.length} dossier(s) disciplinaire(s) sensible(s)`);
+      }
+
+      const hireDate = Date.parse(agent.hireDate || '');
+      if (!Number.isNaN(hireDate)) {
+        const daysSinceHire = Math.ceil((nowTs - hireDate) / (24 * 60 * 60 * 1000));
+        if (daysSinceHire >= 0 && daysSinceHire <= 120) {
+          score += 8;
+          factors.push('Integration recente a suivre');
+        }
+      }
+
+      const riskScore = Math.min(100, score);
+      return {
+        agentId: agent.id,
+        matricule: agent.matricule,
+        fullName: agent.fullName,
+        direction: agent.direction,
+        unit: agent.unit,
+        position: agent.position,
+        riskScore,
+        riskLevel: turnoverRiskLevel(riskScore),
+        factors,
+        recommendedAction: turnoverRecommendedAction(riskScore, factors),
+      } as HrTurnoverRiskItem;
+    })
+    .filter((item) => item.riskScore > 0)
+    .sort((left, right) => right.riskScore - left.riskScore || left.fullName.localeCompare(right.fullName))
+    .slice(0, 12);
+}
+
+function turnoverRiskLevel(score: number): HrTurnoverRiskItem['riskLevel'] {
+  if (score >= 75) return 'Critique';
+  if (score >= 50) return 'Eleve';
+  if (score >= 25) return 'Modere';
+  return 'Faible';
+}
+
+function turnoverRecommendedAction(score: number, factors: string[]): string {
+  if (score >= 75) {
+    return 'Entretien RH prioritaire et plan de retention individualise';
+  }
+  if (score >= 50) {
+    return 'Entretien manager sous 7 jours et regularisation des irritants';
+  }
+  if (factors.some((item) => normalizeText(item).includes('contrat'))) {
+    return 'Anticiper le renouvellement contractuel';
+  }
+  if (factors.some((item) => normalizeText(item).includes('absence'))) {
+    return 'Analyser les absences recentes avec le manager';
+  }
+  return 'Surveillance RH mensuelle';
 }
 
 function isDateWithinRange(dateRaw: string, startTs: number, endTs: number): boolean {

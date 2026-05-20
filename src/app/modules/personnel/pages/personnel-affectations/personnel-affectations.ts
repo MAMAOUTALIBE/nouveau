@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { downloadCsv } from '../../../../core/utils/csv-export.utils';
 import {
+  AgentListItem,
   CreatePersonnelAffectationPayload,
   PersonnelAffectation,
   PersonnelService,
@@ -25,9 +26,12 @@ export class PersonnelAffectationsPage implements OnInit {
   private toastr = inject(ToastrService);
 
   items: PersonnelAffectation[] = [];
+  agents: AgentListItem[] = [];
   showCreateForm = false;
   isLoading = false;
+  loadingAgents = false;
   submitting = false;
+  agentLookupValue = '';
 
   gridConfig = {
     columns: ['Reference', 'Agent', 'Structure source', 'Structure cible', 'Date effective', 'Statut'],
@@ -39,6 +43,7 @@ export class PersonnelAffectationsPage implements OnInit {
 
   form = this.fb.group({
     reference: ['', [Validators.maxLength(40), Validators.pattern(/^[A-Z0-9-]*$/)]],
+    agentId: ['', [Validators.required]],
     agent: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
     fromUnit: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(160)]],
     toUnit: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(160)]],
@@ -47,6 +52,7 @@ export class PersonnelAffectationsPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.loadAgents();
     this.loadItems();
   }
 
@@ -78,6 +84,11 @@ export class PersonnelAffectationsPage implements OnInit {
   }
 
   saveAffectation(): void {
+    if (!this.form.get('agentId')?.value) {
+      this.form.get('agentId')?.markAsTouched();
+      return;
+    }
+
     if (this.form.invalid || this.submitting) {
       this.form.markAllAsTouched();
       return;
@@ -105,6 +116,7 @@ export class PersonnelAffectationsPage implements OnInit {
 
     const payload: CreatePersonnelAffectationPayload = {
       reference: this.form.value.reference?.trim() || undefined,
+      agentId: this.form.value.agentId?.trim() || undefined,
       agent: this.form.value.agent?.trim() || '',
       fromUnit,
       toUnit,
@@ -156,6 +168,49 @@ export class PersonnelAffectationsPage implements OnInit {
     });
   }
 
+  onAgentLookupInput(value: string): void {
+    this.agentLookupValue = value;
+    const match = this.findAgentByLookup(value);
+    if (!match) {
+      this.form.patchValue({ agentId: '', agent: '' }, { emitEvent: false });
+      return;
+    }
+    this.applyAgentSelection(match);
+  }
+
+  onAgentLookupBlur(): void {
+    const match = this.findAgentByLookup(this.agentLookupValue);
+    if (match) {
+      this.applyAgentSelection(match);
+      return;
+    }
+    this.form.get('agentId')?.markAsTouched();
+  }
+
+  agentSelectionError(): string | null {
+    const control = this.form.get('agentId');
+    if (!control?.touched || control.value) {
+      return null;
+    }
+    return 'Selectionnez un agent existant';
+  }
+
+  agentLookupLabel(agent: AgentListItem): string {
+    return `${agent.fullName} (${agent.matricule})`;
+  }
+
+  selectedAgentSummary(): string {
+    const selectedId = String(this.form.get('agentId')?.value || '').trim();
+    if (!selectedId) {
+      return '';
+    }
+    const selected = this.agents.find((item) => item.id === selectedId);
+    if (!selected) {
+      return '';
+    }
+    return `${selected.direction} / ${selected.unit || 'Sans unite'} - ${selected.position}`;
+  }
+
   private loadItems(): void {
     this.isLoading = true;
     this.personnelService
@@ -194,15 +249,71 @@ export class PersonnelAffectationsPage implements OnInit {
       });
   }
 
+  private loadAgents(): void {
+    this.loadingAgents = true;
+    this.personnelService
+      .getAgents({
+        page: 1,
+        limit: 500,
+        sortBy: 'fullName',
+        sortOrder: 'asc',
+      })
+      .pipe(finalize(() => (this.loadingAgents = false)))
+      .subscribe({
+        next: (items) => {
+          this.agents = items;
+        },
+        error: () => {
+          this.agents = [];
+        },
+      });
+  }
+
   private resetForm(): void {
+    this.agentLookupValue = '';
     this.form.reset({
       reference: '',
+      agentId: '',
       agent: '',
       fromUnit: '',
       toUnit: '',
       effectiveDate: '',
       status: 'Planifiee',
     });
+  }
+
+  private findAgentByLookup(value: string): AgentListItem | null {
+    const normalizedInput = this.normalizeText(value);
+    if (!normalizedInput) {
+      return null;
+    }
+
+    return (
+      this.agents.find((item) => {
+        return [this.agentLookupLabel(item), item.fullName, item.matricule]
+          .map((candidate) => this.normalizeText(candidate))
+          .some((candidate) => !!candidate && candidate === normalizedInput);
+      }) || null
+    );
+  }
+
+  private applyAgentSelection(agent: AgentListItem): void {
+    this.agentLookupValue = this.agentLookupLabel(agent);
+    this.form.patchValue(
+      {
+        agentId: agent.id,
+        agent: agent.fullName,
+      },
+      { emitEvent: false }
+    );
+  }
+
+  private normalizeText(value: string): string {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   private exportDateSuffix(): string {

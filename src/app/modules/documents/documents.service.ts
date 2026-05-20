@@ -11,6 +11,8 @@ export interface DocumentItem {
   reference: string;
   title: string;
   type: string;
+  documentTypeCode?: string;
+  documentTypeLabel?: string;
   owner: string;
   updatedAt: string;
   status: string;
@@ -18,9 +20,14 @@ export interface DocumentItem {
   employeeId: string;
   direction: string;
   unit: string;
+  sourceModule?: string;
+  sourceRecordId?: string;
+  confidentialityLevel?: string;
+  requiresAcknowledgement?: boolean;
   issuedAt: string;
   startDate: string;
   endDate: string;
+  expiresOn?: string;
   approver: string;
   missionDestination: string;
   missionPurpose: string;
@@ -44,12 +51,124 @@ export interface DocumentItem {
   stampLabel: string;
   signatureHash: string;
   verificationCode: string;
+  analysisStatus?: string;
+  lastAnalysisAt?: string;
+  links?: DocumentLink[];
+}
+
+export interface DocumentLink {
+  entityType: string;
+  entityId: string;
+  linkRole: string;
+}
+
+export interface DocumentTypeDefinition {
+  id: string;
+  code: string;
+  label: string;
+  moduleScope: string;
+  ownerEntityType: string;
+  requiresExpiry: boolean;
+  requiresSignature: boolean;
+  requiresDispatch: boolean;
+  isSensitive: boolean;
+  defaultValidityDays: number | null;
+  retentionDays: number | null;
+  isActive: boolean;
+}
+
+export interface DocumentRequirement {
+  id: string;
+  requirementCode: string;
+  documentTypeCode: string;
+  documentTypeLabel: string;
+  requirementScope: string;
+  contractType: string;
+  isMandatory: boolean;
+  warningOffsetDays: number;
+  dueOffsetDays: number;
+  isActive: boolean;
+}
+
+export interface DocumentProcessingQueueItem {
+  reference: string;
+  title: string;
+  documentTypeCode: string;
+  documentTypeLabel: string;
+  status: string;
+  analysisStatus: string;
+  sourceModule: string;
+  confidentialityLevel: string;
+  employeeId: string;
+  employeeName: string;
+  requiresAcknowledgement: boolean;
+  nextAction: string;
+  updatedAt: string;
+  lastAnalysisAt: string;
+  latestRunStatus: string;
+  latestConfidenceScore: number | null;
+}
+
+export interface DocumentAnalysisField {
+  fieldName: string;
+  fieldLabel: string;
+  fieldType: string;
+  fieldValueText: string;
+  fieldValueDate: string;
+  fieldValueNumber: number | null;
+  fieldValueBoolean: boolean | null;
+  normalizedValue: string;
+  confidenceScore: number | null;
+  sourcePage: number | null;
+  isValidated: boolean;
+}
+
+export interface DocumentAnalysisRun {
+  id: string;
+  reference: string;
+  documentId: string;
+  documentVersionId: string;
+  pipelineStage: string;
+  analysisStatus: string;
+  providerName: string;
+  modelName: string;
+  classifiedDocumentType: string;
+  confidenceScore: number | null;
+  summaryText: string;
+  errorCode: string;
+  errorMessage: string;
+  fields: DocumentAnalysisField[];
+  startedAt: string;
+  completedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentAnalysisSummary {
+  runs: DocumentAnalysisRun[];
+}
+
+export interface AnalyzeDocumentPayload {
+  pipelineStage?: string;
+  providerName?: string;
+  modelName?: string;
+  force?: boolean;
+}
+
+export interface UpdateDocumentAnalysisFieldPayload {
+  fieldValueText?: string | null;
+  fieldValueDate?: string | null;
+  fieldValueNumber?: number | null;
+  fieldValueBoolean?: boolean | null;
+  normalizedValue?: string | null;
+  isValidated?: boolean;
 }
 
 export interface CreateDocumentPayload {
   reference?: string;
   title: string;
   type: string;
+  documentTypeCode?: string;
   owner: string;
   updatedAt?: string;
   status?: string;
@@ -57,9 +176,14 @@ export interface CreateDocumentPayload {
   employeeId?: string;
   direction?: string;
   unit?: string;
+  sourceModule?: string;
+  sourceRecordId?: string;
+  confidentialityLevel?: string;
+  requiresAcknowledgement?: boolean;
   issuedAt: string;
   startDate?: string;
   endDate?: string;
+  expiresOn?: string;
   approver?: string;
   missionDestination?: string;
   missionPurpose?: string;
@@ -72,7 +196,13 @@ export type UpdateDocumentPayload = Omit<CreateDocumentPayload, 'reference'>;
 export interface DocumentsQuery extends CollectionQueryOptions {
   status?: string;
   type?: string;
+  typeCode?: string;
   owner?: string;
+  sourceModule?: string;
+  analysisStatus?: string;
+  confidentialityLevel?: string;
+  linkEntityType?: string;
+  linkEntityId?: string;
 }
 
 export interface DocumentInboxQuery extends CollectionQueryOptions {
@@ -82,6 +212,26 @@ export interface DocumentInboxQuery extends CollectionQueryOptions {
 export interface DocumentOverdueQuery extends CollectionQueryOptions {
   recipientUsername?: string;
   deliveryStatus?: string;
+}
+
+export interface DocumentTypesQuery extends CollectionQueryOptions {
+  moduleScope?: string;
+  ownerEntityType?: string;
+  active?: boolean;
+}
+
+export interface DocumentRequirementsQuery extends CollectionQueryOptions {
+  scope?: string;
+  documentTypeCode?: string;
+  contractType?: string;
+  active?: boolean;
+}
+
+export interface DocumentProcessingQueueQuery extends CollectionQueryOptions {
+  nextAction?: string;
+  status?: string;
+  analysisStatus?: string;
+  sourceModule?: string;
 }
 
 export interface AssignDocumentPayload {
@@ -278,12 +428,24 @@ interface DocumentItemDto {
   name?: string;
   type?: string;
   category?: string;
+  documentTypeCode?: string;
+  document_type_code?: string;
+  documentTypeLabel?: string;
+  document_type_label?: string;
   owner?: string;
   ownerName?: string;
   owner_name?: string;
   updatedAt?: string;
   updated_at?: string;
   status?: string;
+  sourceModule?: string;
+  source_module?: string;
+  sourceRecordId?: string;
+  source_record_id?: string;
+  confidentialityLevel?: string;
+  confidentiality_level?: string;
+  requiresAcknowledgement?: boolean;
+  requires_acknowledgement?: boolean;
   employeeName?: string;
   employee_name?: string;
   employee?: string;
@@ -301,6 +463,8 @@ interface DocumentItemDto {
   start_date?: string;
   endDate?: string;
   end_date?: string;
+  expiresOn?: string;
+  expires_on?: string;
   approver?: string;
   validator?: string;
   missionDestination?: string;
@@ -361,6 +525,163 @@ interface DocumentItemDto {
   signature_hash?: string;
   verificationCode?: string;
   verification_code?: string;
+  analysisStatus?: string;
+  analysis_status?: string;
+  lastAnalysisAt?: string;
+  last_analysis_at?: string;
+  links?: DocumentLinkDto[];
+}
+
+interface DocumentLinkDto {
+  entityType?: string;
+  entity_type?: string;
+  entityId?: string;
+  entity_id?: string;
+  linkRole?: string;
+  link_role?: string;
+}
+
+interface DocumentTypeDefinitionDto {
+  id?: string;
+  code?: string;
+  label?: string;
+  moduleScope?: string;
+  module_scope?: string;
+  ownerEntityType?: string;
+  owner_entity_type?: string;
+  requiresExpiry?: boolean;
+  requires_expiry?: boolean;
+  requiresSignature?: boolean;
+  requires_signature?: boolean;
+  requiresDispatch?: boolean;
+  requires_dispatch?: boolean;
+  isSensitive?: boolean;
+  is_sensitive?: boolean;
+  defaultValidityDays?: number | null;
+  default_validity_days?: number | null;
+  retentionDays?: number | null;
+  retention_days?: number | null;
+  isActive?: boolean;
+  is_active?: boolean;
+}
+
+interface DocumentRequirementDto {
+  id?: string;
+  requirementCode?: string;
+  requirement_code?: string;
+  documentTypeCode?: string;
+  document_type_code?: string;
+  documentTypeLabel?: string;
+  document_type_label?: string;
+  requirementScope?: string;
+  requirement_scope?: string;
+  contractType?: string;
+  contract_type?: string;
+  isMandatory?: boolean;
+  is_mandatory?: boolean;
+  warningOffsetDays?: number;
+  warning_offset_days?: number;
+  dueOffsetDays?: number;
+  due_offset_days?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+}
+
+interface DocumentProcessingQueueItemDto {
+  reference?: string;
+  title?: string;
+  documentTypeCode?: string;
+  document_type_code?: string;
+  documentTypeLabel?: string;
+  document_type_label?: string;
+  status?: string;
+  analysisStatus?: string;
+  analysis_status?: string;
+  sourceModule?: string;
+  source_module?: string;
+  confidentialityLevel?: string;
+  confidentiality_level?: string;
+  employeeId?: string;
+  employee_id?: string;
+  employeeName?: string;
+  employee_name?: string;
+  requiresAcknowledgement?: boolean;
+  requires_acknowledgement?: boolean;
+  nextAction?: string;
+  next_action?: string;
+  updatedAt?: string;
+  updated_at?: string;
+  lastAnalysisAt?: string;
+  last_analysis_at?: string;
+  latestRunStatus?: string;
+  latest_run_status?: string;
+  latestConfidenceScore?: number | null;
+  latest_confidence_score?: number | null;
+}
+
+interface DocumentAnalysisFieldDto {
+  fieldName?: string;
+  field_name?: string;
+  fieldLabel?: string;
+  field_label?: string;
+  fieldType?: string;
+  field_type?: string;
+  fieldValueText?: string;
+  field_value_text?: string;
+  fieldValueDate?: string;
+  field_value_date?: string;
+  fieldValueNumber?: number | null;
+  field_value_number?: number | null;
+  fieldValueBoolean?: boolean | null;
+  field_value_boolean?: boolean | null;
+  normalizedValue?: string;
+  normalized_value?: string;
+  confidenceScore?: number | null;
+  confidence_score?: number | null;
+  sourcePage?: number | null;
+  source_page?: number | null;
+  isValidated?: boolean;
+  is_validated?: boolean;
+}
+
+interface DocumentAnalysisRunDto {
+  id?: string;
+  reference?: string;
+  documentId?: string;
+  document_id?: string;
+  documentVersionId?: string;
+  document_version_id?: string;
+  pipelineStage?: string;
+  pipeline_stage?: string;
+  analysisStatus?: string;
+  analysis_status?: string;
+  providerName?: string;
+  provider_name?: string;
+  modelName?: string;
+  model_name?: string;
+  classifiedDocumentType?: string;
+  classified_document_type?: string;
+  confidenceScore?: number | null;
+  confidence_score?: number | null;
+  summaryText?: string;
+  summary_text?: string;
+  errorCode?: string;
+  error_code?: string;
+  errorMessage?: string;
+  error_message?: string;
+  fields?: DocumentAnalysisFieldDto[];
+  startedAt?: string;
+  started_at?: string;
+  completedAt?: string;
+  completed_at?: string;
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
+  updated_at?: string;
+}
+
+interface DocumentAnalysisSummaryDto {
+  runs?: DocumentAnalysisRunDto[];
 }
 
 interface DocumentAuditLogDto {
@@ -520,7 +841,13 @@ export class DocumentsService {
     const params = buildCollectionQueryParams(query, {
       status: query?.status,
       type: query?.type,
+      typeCode: query?.typeCode,
       owner: query?.owner,
+      sourceModule: query?.sourceModule,
+      analysisStatus: query?.analysisStatus,
+      confidentialityLevel: query?.confidentialityLevel,
+      linkEntityType: query?.linkEntityType,
+      linkEntityId: query?.linkEntityId,
     });
 
     return this.apiClient
@@ -593,6 +920,152 @@ export class DocumentsService {
           return throwError(() => error);
         })
       );
+  }
+
+  getDocumentTypes(query?: DocumentTypesQuery): Observable<DocumentTypeDefinition[]> {
+    const params = buildCollectionQueryParams(query, {
+      moduleScope: query?.moduleScope,
+      ownerEntityType: query?.ownerEntityType,
+      active: typeof query?.active === 'boolean' ? String(query.active) : undefined,
+    });
+
+    return this.apiClient
+      .get<DocumentTypeDefinitionDto[]>(
+        API_ENDPOINTS.documents.types,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((items) => (Array.isArray(items) ? items : [])),
+        map((items) => items.map((dto) => this.normalizeDocumentType(dto)).filter((item) => !!item.code)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of([]);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getDocumentRequirements(query?: DocumentRequirementsQuery): Observable<DocumentRequirement[]> {
+    const params = buildCollectionQueryParams(query, {
+      scope: query?.scope,
+      documentTypeCode: query?.documentTypeCode,
+      contractType: query?.contractType,
+      active: typeof query?.active === 'boolean' ? String(query.active) : undefined,
+    });
+
+    return this.apiClient
+      .get<DocumentRequirementDto[]>(
+        API_ENDPOINTS.documents.requirements,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((items) => (Array.isArray(items) ? items : [])),
+        map((items) => items.map((dto) => this.normalizeDocumentRequirement(dto)).filter((item) => !!item.id)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of([]);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getDocumentProcessingQueue(query?: DocumentProcessingQueueQuery): Observable<DocumentProcessingQueueItem[]> {
+    const params = buildCollectionQueryParams(query, {
+      nextAction: query?.nextAction,
+      status: query?.status,
+      analysisStatus: query?.analysisStatus,
+      sourceModule: query?.sourceModule,
+    });
+
+    return this.apiClient
+      .get<DocumentProcessingQueueItemDto[]>(
+        API_ENDPOINTS.documents.processingQueue,
+        params,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((items) => (Array.isArray(items) ? items : [])),
+        map((items) => items.map((dto) => this.normalizeDocumentProcessingQueueItem(dto)).filter((item) => !!item.reference)),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of([]);
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  getDocumentAnalysis(reference: string): Observable<DocumentAnalysisSummary> {
+    const normalizedReference = String(reference || '').trim();
+
+    return this.apiClient
+      .get<DocumentAnalysisSummaryDto>(
+        API_ENDPOINTS.documents.analysis(normalizedReference),
+        undefined,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(
+        map((dto) => this.normalizeDocumentAnalysisSummary(dto || {})),
+        catchError((error) => {
+          if (this.shouldUseLocalFallback(error)) {
+            return of({ runs: [] });
+          }
+          return throwError(() => error);
+        })
+      );
+  }
+
+  analyzeDocument(reference: string, payload?: AnalyzeDocumentPayload): Observable<DocumentAnalysisRun> {
+    const normalizedReference = String(reference || '').trim();
+    const normalizedPayload: AnalyzeDocumentPayload = {
+      pipelineStage: this.normalizeOptionalText(payload?.pipelineStage),
+      providerName: this.normalizeOptionalText(payload?.providerName),
+      modelName: this.normalizeOptionalText(payload?.modelName),
+      force: payload?.force === true,
+    };
+
+    return this.apiClient
+      .post<DocumentAnalysisRunDto, AnalyzeDocumentPayload>(
+        API_ENDPOINTS.documents.analyze(normalizedReference),
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(map((dto) => this.normalizeDocumentAnalysisRun(dto || {})));
+  }
+
+  updateDocumentAnalysisField(
+    reference: string,
+    runId: string,
+    fieldName: string,
+    payload: UpdateDocumentAnalysisFieldPayload
+  ): Observable<DocumentAnalysisRun> {
+    const normalizedReference = String(reference || '').trim();
+    const normalizedRunId = String(runId || '').trim();
+    const normalizedFieldName = String(fieldName || '').trim();
+    const normalizedPayload: UpdateDocumentAnalysisFieldPayload = {
+      fieldValueText: payload.fieldValueText == null ? payload.fieldValueText : String(payload.fieldValueText).trim(),
+      fieldValueDate: payload.fieldValueDate == null ? payload.fieldValueDate : this.normalizeDateOnly(payload.fieldValueDate),
+      fieldValueNumber:
+        payload.fieldValueNumber == null || !Number.isFinite(Number(payload.fieldValueNumber))
+          ? null
+          : Number(payload.fieldValueNumber),
+      fieldValueBoolean:
+        typeof payload.fieldValueBoolean === 'boolean' ? payload.fieldValueBoolean : null,
+      normalizedValue: payload.normalizedValue == null ? payload.normalizedValue : String(payload.normalizedValue).trim(),
+      isValidated: typeof payload.isValidated === 'boolean' ? payload.isValidated : undefined,
+    };
+
+    return this.apiClient
+      .patch<DocumentAnalysisRunDto, UpdateDocumentAnalysisFieldPayload>(
+        API_ENDPOINTS.documents.analysisField(normalizedReference, normalizedRunId, normalizedFieldName),
+        normalizedPayload,
+        { skipErrorToast: this.fallbackEnabled }
+      )
+      .pipe(map((dto) => this.normalizeDocumentAnalysisRun(dto || {})));
   }
 
   assignDocument(reference: string, payload: AssignDocumentPayload): Observable<DocumentItem> {
@@ -951,6 +1424,8 @@ export class DocumentsService {
       reference,
       title,
       type,
+      documentTypeCode: toStringValue(readField(dto, ['documentTypeCode', 'document_type_code'], '')).trim(),
+      documentTypeLabel: toStringValue(readField(dto, ['documentTypeLabel', 'document_type_label'], '')).trim(),
       owner,
       updatedAt,
       status,
@@ -958,12 +1433,22 @@ export class DocumentsService {
       employeeId: toStringValue(readField(dto, ['employeeId', 'employee_id', 'matricule'], '')).trim(),
       direction: toStringValue(readField(dto, ['direction'], '')).trim(),
       unit: toStringValue(readField(dto, ['unit'], '')).trim(),
+      sourceModule: toStringValue(readField(dto, ['sourceModule', 'source_module'], '')).trim(),
+      sourceRecordId: toStringValue(readField(dto, ['sourceRecordId', 'source_record_id'], '')).trim(),
+      confidentialityLevel: toStringValue(
+        readField(dto, ['confidentialityLevel', 'confidentiality_level'], '')
+      ).trim(),
+      requiresAcknowledgement: this.toBoolean(
+        readField(dto, ['requiresAcknowledgement', 'requires_acknowledgement'], false),
+        false
+      ),
       issuedAt:
         this.normalizeDateOnly(
           toStringValue(readField(dto, ['issuedAt', 'issued_at', 'issueDate', 'issue_date'], '')).trim()
         ) || issuedAtFallback,
       startDate: this.normalizeDateOnly(toStringValue(readField(dto, ['startDate', 'start_date'], '')).trim()),
       endDate: this.normalizeDateOnly(toStringValue(readField(dto, ['endDate', 'end_date'], '')).trim()),
+      expiresOn: this.normalizeDateOnly(toStringValue(readField(dto, ['expiresOn', 'expires_on'], '')).trim()),
       approver: toStringValue(readField(dto, ['approver', 'validator'], '')).trim(),
       missionDestination: toStringValue(
         readField(dto, ['missionDestination', 'mission_destination', 'destination'], '')
@@ -998,6 +1483,177 @@ export class DocumentsService {
       stampLabel: toStringValue(readField(dto, ['stampLabel', 'stamp_label'], '')).trim(),
       signatureHash: toStringValue(readField(dto, ['signatureHash', 'signature_hash'], '')).trim(),
       verificationCode: toStringValue(readField(dto, ['verificationCode', 'verification_code'], '')).trim().toUpperCase(),
+      analysisStatus: toStringValue(readField(dto, ['analysisStatus', 'analysis_status'], '')).trim(),
+      lastAnalysisAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['lastAnalysisAt', 'last_analysis_at'], '')).trim(),
+        ''
+      ),
+      links: this.normalizeDocumentLinks(readField(dto, ['links'], [])),
+    };
+  }
+
+  private normalizeDocumentLinks(raw: unknown): DocumentLink[] {
+    if (!Array.isArray(raw)) {
+      return [];
+    }
+
+    return raw
+      .map((item) => {
+        const dto = this.asRecord(item) as DocumentLinkDto;
+        return {
+          entityType: toStringValue(readField(dto, ['entityType', 'entity_type'], '')).trim(),
+          entityId: toStringValue(readField(dto, ['entityId', 'entity_id'], '')).trim(),
+          linkRole: toStringValue(readField(dto, ['linkRole', 'link_role'], '')).trim(),
+        };
+      })
+      .filter((item) => !!item.entityType && !!item.entityId);
+  }
+
+  private normalizeDocumentType(dto: DocumentTypeDefinitionDto): DocumentTypeDefinition {
+    const defaultValidityRaw = readField(dto, ['defaultValidityDays', 'default_validity_days'], null);
+    const retentionRaw = readField(dto, ['retentionDays', 'retention_days'], null);
+    const defaultValidity = defaultValidityRaw == null ? null : this.toFiniteNumber(defaultValidityRaw, 0);
+    const retentionDays = retentionRaw == null ? null : this.toFiniteNumber(retentionRaw, 0);
+
+    return {
+      id: toStringValue(readField(dto, ['id'], '')).trim(),
+      code: toStringValue(readField(dto, ['code'], '')).trim(),
+      label: toStringValue(readField(dto, ['label'], '')).trim(),
+      moduleScope: toStringValue(readField(dto, ['moduleScope', 'module_scope'], '')).trim(),
+      ownerEntityType: toStringValue(readField(dto, ['ownerEntityType', 'owner_entity_type'], '')).trim(),
+      requiresExpiry: this.toBoolean(readField(dto, ['requiresExpiry', 'requires_expiry'], false), false),
+      requiresSignature: this.toBoolean(readField(dto, ['requiresSignature', 'requires_signature'], false), false),
+      requiresDispatch: this.toBoolean(readField(dto, ['requiresDispatch', 'requires_dispatch'], false), false),
+      isSensitive: this.toBoolean(readField(dto, ['isSensitive', 'is_sensitive'], false), false),
+      defaultValidityDays: defaultValidity,
+      retentionDays,
+      isActive: this.toBoolean(readField(dto, ['isActive', 'is_active'], true), true),
+    };
+  }
+
+  private normalizeDocumentRequirement(dto: DocumentRequirementDto): DocumentRequirement {
+    return {
+      id: toStringValue(readField(dto, ['id'], '')).trim(),
+      requirementCode: toStringValue(readField(dto, ['requirementCode', 'requirement_code'], '')).trim(),
+      documentTypeCode: toStringValue(readField(dto, ['documentTypeCode', 'document_type_code'], '')).trim(),
+      documentTypeLabel: toStringValue(readField(dto, ['documentTypeLabel', 'document_type_label'], '')).trim(),
+      requirementScope: toStringValue(readField(dto, ['requirementScope', 'requirement_scope'], '')).trim(),
+      contractType: toStringValue(readField(dto, ['contractType', 'contract_type'], '')).trim(),
+      isMandatory: this.toBoolean(readField(dto, ['isMandatory', 'is_mandatory'], false), false),
+      warningOffsetDays: this.toFiniteNumber(readField(dto, ['warningOffsetDays', 'warning_offset_days'], 0), 0),
+      dueOffsetDays: this.toFiniteNumber(readField(dto, ['dueOffsetDays', 'due_offset_days'], 0), 0),
+      isActive: this.toBoolean(readField(dto, ['isActive', 'is_active'], true), true),
+    };
+  }
+
+  private normalizeDocumentProcessingQueueItem(
+    dto: DocumentProcessingQueueItemDto
+  ): DocumentProcessingQueueItem {
+    const latestConfidenceRaw = readField(dto, ['latestConfidenceScore', 'latest_confidence_score'], null);
+    return {
+      reference: toStringValue(readField(dto, ['reference'], '')).trim(),
+      title: toStringValue(readField(dto, ['title'], '')).trim(),
+      documentTypeCode: toStringValue(readField(dto, ['documentTypeCode', 'document_type_code'], '')).trim(),
+      documentTypeLabel: toStringValue(readField(dto, ['documentTypeLabel', 'document_type_label'], '')).trim(),
+      status: toStringValue(readField(dto, ['status'], '')).trim(),
+      analysisStatus: toStringValue(readField(dto, ['analysisStatus', 'analysis_status'], '')).trim(),
+      sourceModule: toStringValue(readField(dto, ['sourceModule', 'source_module'], '')).trim(),
+      confidentialityLevel: toStringValue(
+        readField(dto, ['confidentialityLevel', 'confidentiality_level'], '')
+      ).trim(),
+      employeeId: toStringValue(readField(dto, ['employeeId', 'employee_id'], '')).trim(),
+      employeeName: toStringValue(readField(dto, ['employeeName', 'employee_name'], '')).trim(),
+      requiresAcknowledgement: this.toBoolean(
+        readField(dto, ['requiresAcknowledgement', 'requires_acknowledgement'], false),
+        false
+      ),
+      nextAction: toStringValue(readField(dto, ['nextAction', 'next_action'], 'NONE')).trim() || 'NONE',
+      updatedAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['updatedAt', 'updated_at'], '')).trim(),
+        new Date().toISOString()
+      ),
+      lastAnalysisAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['lastAnalysisAt', 'last_analysis_at'], '')).trim(),
+        ''
+      ),
+      latestRunStatus: toStringValue(readField(dto, ['latestRunStatus', 'latest_run_status'], '')).trim(),
+      latestConfidenceScore:
+        latestConfidenceRaw == null ? null : this.toFiniteNumber(latestConfidenceRaw, 0),
+    };
+  }
+
+  private normalizeDocumentAnalysisSummary(dto: DocumentAnalysisSummaryDto): DocumentAnalysisSummary {
+    const runsRaw = readField(dto, ['runs'], []);
+    const runs = Array.isArray(runsRaw)
+      ? runsRaw.map((item) => this.normalizeDocumentAnalysisRun(item as DocumentAnalysisRunDto))
+      : [];
+    return { runs };
+  }
+
+  private normalizeDocumentAnalysisRun(dto: DocumentAnalysisRunDto): DocumentAnalysisRun {
+    const fieldsRaw = readField(dto, ['fields'], []);
+    return {
+      id: toStringValue(readField(dto, ['id'], '')).trim(),
+      reference: toStringValue(readField(dto, ['reference'], '')).trim(),
+      documentId: toStringValue(readField(dto, ['documentId', 'document_id'], '')).trim(),
+      documentVersionId: toStringValue(
+        readField(dto, ['documentVersionId', 'document_version_id'], '')
+      ).trim(),
+      pipelineStage: toStringValue(readField(dto, ['pipelineStage', 'pipeline_stage'], '')).trim(),
+      analysisStatus: toStringValue(readField(dto, ['analysisStatus', 'analysis_status'], '')).trim(),
+      providerName: toStringValue(readField(dto, ['providerName', 'provider_name'], '')).trim(),
+      modelName: toStringValue(readField(dto, ['modelName', 'model_name'], '')).trim(),
+      classifiedDocumentType: toStringValue(
+        readField(dto, ['classifiedDocumentType', 'classified_document_type'], '')
+      ).trim(),
+      confidenceScore: this.toNullableFiniteNumber(
+        readField(dto, ['confidenceScore', 'confidence_score'], null)
+      ),
+      summaryText: toStringValue(readField(dto, ['summaryText', 'summary_text'], '')).trim(),
+      errorCode: toStringValue(readField(dto, ['errorCode', 'error_code'], '')).trim(),
+      errorMessage: toStringValue(readField(dto, ['errorMessage', 'error_message'], '')).trim(),
+      fields: Array.isArray(fieldsRaw)
+        ? fieldsRaw.map((item) => this.normalizeDocumentAnalysisField(item as DocumentAnalysisFieldDto))
+        : [],
+      startedAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['startedAt', 'started_at'], '')).trim(),
+        ''
+      ),
+      completedAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['completedAt', 'completed_at'], '')).trim(),
+        ''
+      ),
+      createdAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['createdAt', 'created_at'], '')).trim(),
+        ''
+      ),
+      updatedAt: this.normalizeIsoDateString(
+        toStringValue(readField(dto, ['updatedAt', 'updated_at'], '')).trim(),
+        ''
+      ),
+    };
+  }
+
+  private normalizeDocumentAnalysisField(dto: DocumentAnalysisFieldDto): DocumentAnalysisField {
+    const fieldValueBooleanRaw = readField(dto, ['fieldValueBoolean', 'field_value_boolean'], null);
+    return {
+      fieldName: toStringValue(readField(dto, ['fieldName', 'field_name'], '')).trim(),
+      fieldLabel: toStringValue(readField(dto, ['fieldLabel', 'field_label'], '')).trim(),
+      fieldType: toStringValue(readField(dto, ['fieldType', 'field_type'], '')).trim(),
+      fieldValueText: toStringValue(readField(dto, ['fieldValueText', 'field_value_text'], '')).trim(),
+      fieldValueDate: this.normalizeDateOnly(
+        toStringValue(readField(dto, ['fieldValueDate', 'field_value_date'], '')).trim()
+      ),
+      fieldValueNumber: this.toNullableFiniteNumber(
+        readField(dto, ['fieldValueNumber', 'field_value_number'], null)
+      ),
+      fieldValueBoolean: typeof fieldValueBooleanRaw === 'boolean' ? fieldValueBooleanRaw : null,
+      normalizedValue: toStringValue(readField(dto, ['normalizedValue', 'normalized_value'], '')).trim(),
+      confidenceScore: this.toNullableFiniteNumber(
+        readField(dto, ['confidenceScore', 'confidence_score'], null)
+      ),
+      sourcePage: this.toNullableFiniteNumber(readField(dto, ['sourcePage', 'source_page'], null)),
+      isValidated: this.toBoolean(readField(dto, ['isValidated', 'is_validated'], false), false),
     };
   }
 
@@ -1322,6 +1978,7 @@ export class DocumentsService {
       reference: this.normalizeOptionalText(payload.reference)?.toUpperCase(),
       title: String(payload.title || '').trim(),
       type: String(payload.type || '').trim(),
+      documentTypeCode: this.normalizeOptionalText(payload.documentTypeCode)?.toUpperCase(),
       owner: String(payload.owner || '').trim(),
       updatedAt: this.normalizeIsoDateString(payload.updatedAt, new Date().toISOString()),
       status: this.normalizeOptionalText(payload.status) || 'Brouillon',
@@ -1329,9 +1986,14 @@ export class DocumentsService {
       employeeId: this.normalizeOptionalText(payload.employeeId),
       direction: this.normalizeOptionalText(payload.direction),
       unit: this.normalizeOptionalText(payload.unit),
+      sourceModule: this.normalizeOptionalText(payload.sourceModule)?.toUpperCase(),
+      sourceRecordId: this.normalizeOptionalText(payload.sourceRecordId),
+      confidentialityLevel: this.normalizeOptionalText(payload.confidentialityLevel)?.toUpperCase(),
+      requiresAcknowledgement: payload.requiresAcknowledgement === true,
       issuedAt: this.normalizeDateOnly(payload.issuedAt) || this.toDateOnly(new Date().toISOString()),
       startDate: this.normalizeDateOnly(payload.startDate),
       endDate: this.normalizeDateOnly(payload.endDate),
+      expiresOn: this.normalizeDateOnly(payload.expiresOn),
       approver: this.normalizeOptionalText(payload.approver),
       missionDestination: this.normalizeOptionalText(payload.missionDestination),
       missionPurpose: this.normalizeOptionalText(payload.missionPurpose),
@@ -1344,6 +2006,7 @@ export class DocumentsService {
     return {
       title: String(payload.title || '').trim(),
       type: String(payload.type || '').trim(),
+      documentTypeCode: this.normalizeOptionalText(payload.documentTypeCode)?.toUpperCase(),
       owner: String(payload.owner || '').trim(),
       updatedAt: this.normalizeIsoDateString(payload.updatedAt, new Date().toISOString()),
       status: this.normalizeOptionalText(payload.status) || 'Brouillon',
@@ -1351,9 +2014,14 @@ export class DocumentsService {
       employeeId: this.normalizeOptionalText(payload.employeeId),
       direction: this.normalizeOptionalText(payload.direction),
       unit: this.normalizeOptionalText(payload.unit),
+      sourceModule: this.normalizeOptionalText(payload.sourceModule)?.toUpperCase(),
+      sourceRecordId: this.normalizeOptionalText(payload.sourceRecordId),
+      confidentialityLevel: this.normalizeOptionalText(payload.confidentialityLevel)?.toUpperCase(),
+      requiresAcknowledgement: payload.requiresAcknowledgement === true,
       issuedAt: this.normalizeDateOnly(payload.issuedAt) || this.toDateOnly(new Date().toISOString()),
       startDate: this.normalizeDateOnly(payload.startDate),
       endDate: this.normalizeDateOnly(payload.endDate),
+      expiresOn: this.normalizeDateOnly(payload.expiresOn),
       approver: this.normalizeOptionalText(payload.approver),
       missionDestination: this.normalizeOptionalText(payload.missionDestination),
       missionPurpose: this.normalizeOptionalText(payload.missionPurpose),
@@ -1407,7 +2075,13 @@ export class DocumentsService {
 
     const status = (query?.status || '').trim().toLowerCase();
     const type = (query?.type || '').trim().toLowerCase();
+    const typeCode = (query?.typeCode || '').trim().toLowerCase();
     const owner = (query?.owner || '').trim().toLowerCase();
+    const sourceModule = (query?.sourceModule || '').trim().toLowerCase();
+    const analysisStatus = (query?.analysisStatus || '').trim().toLowerCase();
+    const confidentialityLevel = (query?.confidentialityLevel || '').trim().toLowerCase();
+    const linkEntityType = (query?.linkEntityType || '').trim().toLowerCase();
+    const linkEntityId = (query?.linkEntityId || '').trim().toLowerCase();
     const search = (query?.q || '').trim().toLowerCase();
 
     if (status) {
@@ -1416,8 +2090,32 @@ export class DocumentsService {
     if (type) {
       next = next.filter((item) => item.type.toLowerCase().includes(type));
     }
+    if (typeCode) {
+      next = next.filter((item) => String(item.documentTypeCode || '').toLowerCase().includes(typeCode));
+    }
     if (owner) {
       next = next.filter((item) => item.owner.toLowerCase().includes(owner));
+    }
+    if (sourceModule) {
+      next = next.filter((item) => String(item.sourceModule || '').toLowerCase().includes(sourceModule));
+    }
+    if (analysisStatus) {
+      next = next.filter((item) => String(item.analysisStatus || '').toLowerCase().includes(analysisStatus));
+    }
+    if (confidentialityLevel) {
+      next = next.filter((item) =>
+        String(item.confidentialityLevel || '').toLowerCase().includes(confidentialityLevel)
+      );
+    }
+    if (linkEntityType || linkEntityId) {
+      next = next.filter((item) => {
+        const links = Array.isArray(item.links) ? item.links : [];
+        return links.some((link) => {
+          const entityTypeMatches = !linkEntityType || link.entityType.toLowerCase().includes(linkEntityType);
+          const entityIdMatches = !linkEntityId || link.entityId.toLowerCase().includes(linkEntityId);
+          return entityTypeMatches && entityIdMatches;
+        });
+      });
     }
     if (search) {
       next = next.filter((item) => {
@@ -1425,6 +2123,8 @@ export class DocumentsService {
           item.reference.toLowerCase().includes(search) ||
           item.title.toLowerCase().includes(search) ||
           item.type.toLowerCase().includes(search) ||
+          String(item.documentTypeCode || '').toLowerCase().includes(search) ||
+          String(item.documentTypeLabel || '').toLowerCase().includes(search) ||
           item.owner.toLowerCase().includes(search) ||
           item.updatedAt.toLowerCase().includes(search) ||
           item.status.toLowerCase().includes(search) ||
@@ -1432,9 +2132,13 @@ export class DocumentsService {
           item.employeeId.toLowerCase().includes(search) ||
           item.direction.toLowerCase().includes(search) ||
           item.unit.toLowerCase().includes(search) ||
+          String(item.sourceModule || '').toLowerCase().includes(search) ||
+          String(item.confidentialityLevel || '').toLowerCase().includes(search) ||
+          String(item.analysisStatus || '').toLowerCase().includes(search) ||
           item.issuedAt.toLowerCase().includes(search) ||
           item.startDate.toLowerCase().includes(search) ||
           item.endDate.toLowerCase().includes(search) ||
+          String(item.expiresOn || '').toLowerCase().includes(search) ||
           item.approver.toLowerCase().includes(search) ||
           item.missionDestination.toLowerCase().includes(search) ||
           item.missionPurpose.toLowerCase().includes(search) ||
@@ -1595,18 +2299,28 @@ export class DocumentsService {
         return item.title;
       case 'type':
         return item.type;
+      case 'documentTypeCode':
+        return item.documentTypeCode || '';
       case 'owner':
         return item.owner;
       case 'updatedAt':
         return item.updatedAt;
       case 'status':
         return item.status;
+      case 'sourceModule':
+        return item.sourceModule || '';
+      case 'analysisStatus':
+        return item.analysisStatus || '';
+      case 'confidentialityLevel':
+        return item.confidentialityLevel || '';
       case 'employeeName':
         return item.employeeName;
       case 'employeeId':
         return item.employeeId;
       case 'issuedAt':
         return item.issuedAt;
+      case 'expiresOn':
+        return item.expiresOn || '';
       case 'deliveryStatus':
         return item.deliveryStatus;
       case 'assignedAt':
@@ -1655,6 +2369,8 @@ export class DocumentsService {
       reference: this.normalizeOptionalText(payload.reference) || this.generateDocumentReference(current),
       title: String(payload.title || '').trim(),
       type: String(payload.type || '').trim(),
+      documentTypeCode: this.normalizeOptionalText(payload.documentTypeCode)?.toUpperCase() || '',
+      documentTypeLabel: '',
       owner: String(payload.owner || '').trim(),
       updatedAt: this.normalizeIsoDateString(payload.updatedAt, new Date().toISOString()),
       status: this.normalizeOptionalText(payload.status) || 'Brouillon',
@@ -1662,9 +2378,14 @@ export class DocumentsService {
       employeeId: this.normalizeOptionalText(payload.employeeId) || '',
       direction: this.normalizeOptionalText(payload.direction) || '',
       unit: this.normalizeOptionalText(payload.unit) || '',
+      sourceModule: this.normalizeOptionalText(payload.sourceModule)?.toUpperCase() || '',
+      sourceRecordId: this.normalizeOptionalText(payload.sourceRecordId) || '',
+      confidentialityLevel: this.normalizeOptionalText(payload.confidentialityLevel)?.toUpperCase() || '',
+      requiresAcknowledgement: payload.requiresAcknowledgement === true,
       issuedAt: this.normalizeDateOnly(payload.issuedAt) || this.toDateOnly(new Date().toISOString()),
       startDate: this.normalizeDateOnly(payload.startDate),
       endDate: this.normalizeDateOnly(payload.endDate),
+      expiresOn: this.normalizeDateOnly(payload.expiresOn),
       approver: this.normalizeOptionalText(payload.approver) || '',
       missionDestination: this.normalizeOptionalText(payload.missionDestination) || '',
       missionPurpose: this.normalizeOptionalText(payload.missionPurpose) || '',
@@ -1688,6 +2409,9 @@ export class DocumentsService {
       stampLabel: '',
       signatureHash: '',
       verificationCode: '',
+      analysisStatus: 'NOT_REQUESTED',
+      lastAnalysisAt: '',
+      links: [],
     };
     const deduped = current.filter((item) => item.reference !== created.reference);
     deduped.push(created);
@@ -1710,6 +2434,7 @@ export class DocumentsService {
       ...existing,
       title: String(payload.title || '').trim(),
       type: String(payload.type || '').trim(),
+      documentTypeCode: this.normalizeOptionalText(payload.documentTypeCode)?.toUpperCase() || existing.documentTypeCode || '',
       owner: String(payload.owner || '').trim(),
       updatedAt: this.normalizeIsoDateString(payload.updatedAt, new Date().toISOString()),
       status: this.normalizeOptionalText(payload.status) || 'Brouillon',
@@ -1717,9 +2442,18 @@ export class DocumentsService {
       employeeId: this.normalizeOptionalText(payload.employeeId) || '',
       direction: this.normalizeOptionalText(payload.direction) || '',
       unit: this.normalizeOptionalText(payload.unit) || '',
+      sourceModule: this.normalizeOptionalText(payload.sourceModule)?.toUpperCase() || existing.sourceModule || '',
+      sourceRecordId: this.normalizeOptionalText(payload.sourceRecordId) || existing.sourceRecordId || '',
+      confidentialityLevel:
+        this.normalizeOptionalText(payload.confidentialityLevel)?.toUpperCase() || existing.confidentialityLevel || '',
+      requiresAcknowledgement:
+        typeof payload.requiresAcknowledgement === 'boolean'
+          ? payload.requiresAcknowledgement
+          : existing.requiresAcknowledgement || false,
       issuedAt: this.normalizeDateOnly(payload.issuedAt) || this.toDateOnly(new Date().toISOString()),
       startDate: this.normalizeDateOnly(payload.startDate),
       endDate: this.normalizeDateOnly(payload.endDate),
+      expiresOn: this.normalizeDateOnly(payload.expiresOn) || existing.expiresOn || '',
       approver: this.normalizeOptionalText(payload.approver) || '',
       missionDestination: this.normalizeOptionalText(payload.missionDestination) || '',
       missionPurpose: this.normalizeOptionalText(payload.missionPurpose) || '',
@@ -1743,6 +2477,9 @@ export class DocumentsService {
       stampLabel: existing.stampLabel || '',
       signatureHash: existing.signatureHash || '',
       verificationCode: existing.verificationCode || '',
+      analysisStatus: existing.analysisStatus || 'NOT_REQUESTED',
+      lastAnalysisAt: existing.lastAnalysisAt || '',
+      links: Array.isArray(existing.links) ? existing.links : [],
     };
 
     current[index] = updated;
@@ -1873,6 +2610,8 @@ export class DocumentsService {
             reference: String(record.reference || '').trim(),
             title: String(record.title || '').trim(),
             type: String(record.type || '').trim(),
+            documentTypeCode: String(record.documentTypeCode || '').trim(),
+            documentTypeLabel: String(record.documentTypeLabel || '').trim(),
             owner: String(record.owner || '').trim(),
             updatedAt,
             status: String(record.status || 'Brouillon').trim() || 'Brouillon',
@@ -1880,9 +2619,14 @@ export class DocumentsService {
             employeeId: String(record.employeeId || '').trim(),
             direction: String(record.direction || '').trim(),
             unit: String(record.unit || '').trim(),
+            sourceModule: String(record.sourceModule || '').trim(),
+            sourceRecordId: String(record.sourceRecordId || '').trim(),
+            confidentialityLevel: String(record.confidentialityLevel || '').trim(),
+            requiresAcknowledgement: this.toBoolean(record.requiresAcknowledgement, false),
             issuedAt: this.normalizeDateOnly(record.issuedAt) || this.toDateOnly(updatedAt),
             startDate: this.normalizeDateOnly(record.startDate),
             endDate: this.normalizeDateOnly(record.endDate),
+            expiresOn: this.normalizeDateOnly(record.expiresOn),
             approver: String(record.approver || '').trim(),
             missionDestination: String(record.missionDestination || '').trim(),
             missionPurpose: String(record.missionPurpose || '').trim(),
@@ -1906,6 +2650,9 @@ export class DocumentsService {
             stampLabel: String(record.stampLabel || '').trim(),
             signatureHash: String(record.signatureHash || '').trim(),
             verificationCode: String(record.verificationCode || '').trim().toUpperCase(),
+            analysisStatus: String(record.analysisStatus || '').trim(),
+            lastAnalysisAt: this.normalizeIsoDateString(record.lastAnalysisAt, ''),
+            links: this.normalizeDocumentLinks(record.links),
           } as DocumentItem;
         })
         .filter((item) => !!item.reference && !!item.title && !!item.type && !!item.owner && !!item.updatedAt);
@@ -2018,6 +2765,14 @@ export class DocumentsService {
       return fallback;
     }
     return parsed;
+  }
+
+  private toNullableFiniteNumber(value: unknown): number | null {
+    if (value === null || value === undefined || String(value).trim() === '') {
+      return null;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   private toBoolean(value: unknown, fallback: boolean): boolean {

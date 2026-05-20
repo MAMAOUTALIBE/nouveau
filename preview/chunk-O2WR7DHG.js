@@ -1,1 +1,0 @@
-import"./chunk-MG3ERZGY.js";var e=[{path:"",redirectTo:"dossiers",pathMatch:"full"},{path:"dossiers",loadComponent:()=>import("./chunk-5HMNOVRX.js").then(t=>t.DisciplineCasesPage),data:{parentTitle:"Pilotage",childTitle:"Discipline"}}];export{e as DISCIPLINE_ROUTES};

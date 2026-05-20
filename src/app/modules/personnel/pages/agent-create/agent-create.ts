@@ -22,7 +22,7 @@ import {
   CreateAgentPayload,
   PersonnelService,
 } from '../../personnel.service';
-import { AccessControlService } from '../../../../core/security/access-control.service';
+import { APP_PERMISSIONS, AccessControlService } from '../../../../core/security/access-control.service';
 import { AuthService } from '../../../../shared/services/auth.service';
 
 const MATRICULE_PATTERN = /^PRM-\d{4,8}$/;
@@ -331,6 +331,14 @@ export class AgentCreatePage implements OnInit, OnDestroy {
   }
 
   private submit(isDraft: boolean): void {
+    if (!this.accessControl.hasPermission(APP_PERMISSIONS.personnelManage)) {
+      this.toastr.error('Acces refuse: droits insuffisants pour creer ou modifier un agent', 'Agent', {
+        timeOut: 3500,
+        positionClass: 'toast-top-right',
+      });
+      return;
+    }
+
     if (this.uploadingFiles > 0) {
       this.toastr.warning('Veuillez attendre la fin des téléversements en cours', 'Agent', {
         timeOut: 3000,

@@ -26,6 +26,10 @@ export class PerfResultsPage implements OnInit {
   items: PerfResult[] = [];
   showCreateForm = false;
   submitting = false;
+  successionPlans: Array<{ agent: string; direction: string; readiness: string; targetRole: string; score: number }> = [];
+  sentimentSignals: Array<{ agent: string; signal: string; severity: 'Alerte' | 'Critique' }> = [];
+  mobilityRecommendations: Array<{ agent: string; recommendation: string; score: number }> = [];
+  skillsMatrix: Array<{ direction: string; averageScore: number; population: number; level: string }> = [];
 
   gridConfig = {
     columns: ['Agent', 'Direction', 'Auto-éval', 'Manager', 'Score final', 'Statut'],
@@ -132,6 +136,7 @@ export class PerfResultsPage implements OnInit {
     this.performanceService.getResults().subscribe({
       next: (items) => {
         this.items = items;
+        this.recomputePerformanceInsights(items);
         this.gridConfig = {
           ...this.gridConfig,
           data: items.map((r) => [
@@ -147,6 +152,10 @@ export class PerfResultsPage implements OnInit {
       },
       error: (error) => {
         this.items = [];
+        this.successionPlans = [];
+        this.sentimentSignals = [];
+        this.mobilityRecommendations = [];
+        this.skillsMatrix = [];
         this.gridConfig = { ...this.gridConfig, data: [] };
         this.toastr.error(this.resolveError(error), 'Evaluation', {
           timeOut: 3500,
@@ -180,5 +189,80 @@ export class PerfResultsPage implements OnInit {
     }
 
     return 'Operation impossible pour le moment';
+  }
+
+  private recomputePerformanceInsights(items: PerfResult[]): void {
+    this.successionPlans = items
+      .filter((item) => item.finalScore >= 80)
+      .sort((left, right) => right.finalScore - left.finalScore)
+      .slice(0, 6)
+      .map((item) => ({
+        agent: item.agent,
+        direction: item.direction,
+        readiness: item.finalScore >= 90 ? 'Pret maintenant' : 'Pret sous 12 mois',
+        targetRole: `Responsable ${item.direction}`,
+        score: item.finalScore,
+      }));
+
+    this.sentimentSignals = items
+      .map((item) => {
+        const gap = item.managerScore - item.selfScore;
+        if (gap <= -20) {
+          return {
+            agent: item.agent,
+            signal: 'Auto-evaluation nettement superieure a la note manager',
+            severity: 'Alerte' as const,
+          };
+        }
+        if (gap >= 25) {
+          return {
+            agent: item.agent,
+            signal: 'Note manager tres superieure a l auto-evaluation',
+            severity: 'Alerte' as const,
+          };
+        }
+        if (item.finalScore < 45) {
+          return {
+            agent: item.agent,
+            signal: 'Score final faible: accompagnement prioritaire',
+            severity: 'Critique' as const,
+          };
+        }
+        return null;
+      })
+      .filter((item): item is { agent: string; signal: string; severity: 'Alerte' | 'Critique' } => !!item)
+      .slice(0, 8);
+
+    this.mobilityRecommendations = items
+      .filter((item) => item.finalScore >= 70)
+      .sort((left, right) => right.finalScore - left.finalScore)
+      .slice(0, 6)
+      .map((item) => ({
+        agent: item.agent,
+        score: item.finalScore,
+        recommendation:
+          item.finalScore >= 85
+            ? `Mobilite interne vers un role de coordination ${item.direction}`
+            : `Plan de developpement cible pour consolider ${item.direction}`,
+      }));
+
+    const byDirection = new Map<string, { total: number; count: number }>();
+    items.forEach((item) => {
+      const current = byDirection.get(item.direction) || { total: 0, count: 0 };
+      current.total += item.finalScore;
+      current.count += 1;
+      byDirection.set(item.direction, current);
+    });
+    this.skillsMatrix = Array.from(byDirection.entries())
+      .map(([direction, bucket]) => {
+        const averageScore = bucket.count > 0 ? Math.round((bucket.total / bucket.count) * 10) / 10 : 0;
+        return {
+          direction,
+          averageScore,
+          population: bucket.count,
+          level: averageScore >= 80 ? 'Expertise forte' : averageScore >= 60 ? 'Socle stable' : 'Renforcement requis',
+        };
+      })
+      .sort((left, right) => right.averageScore - left.averageScore);
   }
 }

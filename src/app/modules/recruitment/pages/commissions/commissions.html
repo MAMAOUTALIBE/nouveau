@@ -1,0 +1,224 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div>
+          <div class="card-title">Commissions de recrutement</div>
+          <div class="text-muted fs-12">Planification des seances, notation, PV signe et archivage</div>
+        </div>
+        <div class="btn-list">
+          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
+            {{ showCreateForm ? 'Fermer le formulaire' : 'Planifier une commission' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted fs-11 text-uppercase">Commissions</div>
+              <div class="fs-3 fw-semibold mt-1">{{ commissions.length }}</div>
+              <div class="text-muted fs-12 mt-1">Seances planifiees ou archivees</div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted fs-11 text-uppercase">PV signes</div>
+              <div class="fs-3 fw-semibold mt-1">{{ signedCount() }}</div>
+              <div class="text-muted fs-12 mt-1">Signatures electroniques simulees</div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted fs-11 text-uppercase">Archives</div>
+              <div class="fs-3 fw-semibold mt-1">{{ archivedCount() }}</div>
+              <div class="text-muted fs-12 mt-1">Decisions conservees</div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="border rounded p-3 h-100">
+              <div class="text-muted fs-11 text-uppercase">Candidatures</div>
+              <div class="fs-3 fw-semibold mt-1">{{ applications.length }}</div>
+              <div class="text-muted fs-12 mt-1">Dossiers mobilisables</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+          <div class="card-body">
+            <form [formGroup]="form" (ngSubmit)="createCommission()" class="row g-3">
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Campagne</label>
+                <select class="form-select" formControlName="campaignCode">
+                  <option value="">Selectionner...</option>
+                  <option *ngFor="let campaign of campaigns" [value]="campaign.code">
+                    {{ campaign.code }} - {{ campaign.title }}
+                  </option>
+                </select>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('campaignCode') as error">{{ error }}</div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Date de seance</label>
+                <input type="date" class="form-control" formControlName="sessionDate" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('sessionDate') as error">{{ error }}</div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">President</label>
+                <input type="text" class="form-control" formControlName="chair" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('chair') as error">{{ error }}</div>
+              </div>
+              <div class="col-xl-3 col-md-6">
+                <label class="form-label">Membres du jury</label>
+                <textarea rows="1" class="form-control" formControlName="membersText" placeholder="Nom 1; Nom 2; Nom 3"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('membersText') as error">{{ error }}</div>
+              </div>
+              <div class="col-12 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-light" (click)="toggleCreateForm()" [disabled]="submitting">
+                  Annuler
+                </button>
+                <button type="submit" class="btn btn-primary" [disabled]="submitting || loading">
+                  {{ submitting ? 'Creation...' : 'Generer la commission' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="alert alert-light border mb-0" *ngIf="commissions.length === 0">
+          Aucune commission planifiee. Creez une commission depuis une campagne disposant de candidatures.
+        </div>
+
+        <div class="row g-3" *ngIf="commissions.length > 0">
+          <div class="col-xl-12" *ngFor="let commission of commissions">
+            <div class="card border shadow-none mb-0">
+              <div class="card-header d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div>
+                  <div class="fw-semibold">{{ commission.id }}</div>
+                  <div class="text-muted fs-12">{{ commission.campaignTitle }} - {{ commission.sessionDate }}</div>
+                  <div class="text-muted fs-12">
+                    President: {{ commission.chair }} | Jury: {{ commission.members.length }} membre(s)
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                  <span class="badge" [ngClass]="statusBadgeClass(commission.status)">{{ commission.status }}</span>
+                  <span class="badge bg-light text-dark">{{ commission.signatureStatus }}</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row g-3 mb-3">
+                  <div class="col-xl-3 col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-11 text-uppercase">Candidats examines</div>
+                      <div class="fs-4 fw-semibold mt-1">{{ commission.reviews.length }}</div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-11 text-uppercase">Presellection</div>
+                      <div class="fs-4 fw-semibold mt-1">{{ shortlistCount(commission) }}</div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-11 text-uppercase">Score moyen</div>
+                      <div class="fs-4 fw-semibold mt-1">{{ averageScore(commission) | number: '1.0-1' }}</div>
+                    </div>
+                  </div>
+                  <div class="col-xl-3 col-md-6">
+                    <div class="border rounded p-3 h-100">
+                      <div class="text-muted fs-11 text-uppercase">PV</div>
+                      <div class="fs-6 fw-semibold mt-1">{{ commission.pvReference || '-' }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Reference</th>
+                        <th>Candidat</th>
+                        <th>Poste</th>
+                        <th>Score IA</th>
+                        <th>Note commission</th>
+                        <th>Decision</th>
+                        <th>Commentaire</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let review of commission.reviews">
+                        <td class="fw-semibold">{{ review.reference }}</td>
+                        <td>{{ review.candidate }}</td>
+                        <td>{{ review.position }}</td>
+                        <td>{{ review.aiScore }}</td>
+                        <td style="width: 140px;">
+                          <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            min="0"
+                            max="100"
+                            [(ngModel)]="review.commissionScore"
+                            [ngModelOptions]="{ standalone: true }"
+                            (change)="updateReviewDecision(commission, review)"
+                            [disabled]="commission.status === 'Archivee'"
+                          />
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="decisionBadgeClass(review.decision)">
+                            {{ review.decision }}
+                          </span>
+                        </td>
+                        <td style="min-width: 260px;">
+                          <input
+                            type="text"
+                            class="form-control form-control-sm"
+                            [(ngModel)]="review.comment"
+                            [ngModelOptions]="{ standalone: true }"
+                            (change)="updateReviewDecision(commission, review)"
+                            [disabled]="commission.status === 'Archivee'"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer d-flex flex-wrap justify-content-between gap-2">
+                <div class="text-muted fs-12">
+                  Cree le {{ commission.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                </div>
+                <div class="btn-list">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-warning"
+                    (click)="startDeliberation(commission)"
+                    [disabled]="commission.status !== 'Planifiee'"
+                  >
+                    Ouvrir deliberation
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="signMinutes(commission)"
+                    [disabled]="commission.status === 'Archivee' || commission.signatureStatus === 'Signe electroniquement'"
+                  >
+                    Signer PV
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-success"
+                    (click)="archiveCommission(commission)"
+                    [disabled]="commission.status === 'Archivee'"
+                  >
+                    Archiver
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

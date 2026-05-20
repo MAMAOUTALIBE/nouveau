@@ -1,65 +1,377 @@
-<div class="row row-sm">
-  <div class="col-xl-12">
+<div class="row row-sm g-3">
+  <div class="col-12">
     <div class="card custom-card">
       <div class="card-header justify-content-between">
-        <div class="card-title">Dossiers disciplinaires</div>
+        <div>
+          <h5 class="card-title mb-1">Discipline - Pilotage operationnel</h5>
+          <p class="mb-0 text-muted fs-12">
+            Gestion des conflits, sanctions, recours et radiations sur un cycle complet.
+          </p>
+        </div>
         <div class="btn-list">
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
-            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau dossier' }}
+            {{ showCreateForm ? 'Fermer la saisie' : 'Nouveau dossier' }}
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary" (click)="resetFilters()">Reinitialiser filtres</button>
         </div>
       </div>
+
       <div class="card-body">
-        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+        <div class="row g-3 mb-3">
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Total dossiers</span>
+              <h4 class="value">{{ stats.total }}</h4>
+            </div>
+          </div>
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Dossiers ouverts</span>
+              <h4 class="value text-primary">{{ stats.ouverts }}</h4>
+            </div>
+          </div>
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Mediations actives</span>
+              <h4 class="value text-info">{{ stats.mediation }}</h4>
+            </div>
+          </div>
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Sanctions actives</span>
+              <h4 class="value text-warning">{{ stats.sanctionsActives }}</h4>
+            </div>
+          </div>
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Radiations</span>
+              <h4 class="value text-danger">{{ stats.radiations }}</h4>
+            </div>
+          </div>
+          <div class="col-xl col-md-4 col-sm-6">
+            <div class="discipline-kpi">
+              <span class="label">Recours ouverts</span>
+              <h4 class="value text-success">{{ stats.recoursOuverts }}</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-3">
+          <div class="card-body">
+            <form class="row g-2" [formGroup]="filtersForm">
+              <div class="col-lg-3 col-md-6">
+                <label class="form-label mb-1">Recherche</label>
+                <input type="text" class="form-control" formControlName="q" placeholder="Reference, agent, motif..." />
+              </div>
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label mb-1">Statut</label>
+                <select class="form-select" formControlName="status">
+                  <option value="Tous">Tous</option>
+                  <option *ngFor="let status of workflowSteps" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label mb-1">Gravite</label>
+                <select class="form-select" formControlName="severity">
+                  <option value="Tous">Tous</option>
+                  <option *ngFor="let severity of severityOptions" [value]="severity">{{ severity }}</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label mb-1">Direction</label>
+                <select class="form-select" formControlName="direction">
+                  <option value="Tous">Toutes</option>
+                  <option *ngFor="let direction of directionOptions" [value]="direction">{{ direction }}</option>
+                </select>
+              </div>
+              <div class="col-lg-2 col-md-6">
+                <label class="form-label mb-1">Categorie</label>
+                <select class="form-select" formControlName="category">
+                  <option value="Tous">Toutes</option>
+                  <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
+                </select>
+              </div>
+              <div class="col-lg-1 col-md-6">
+                <label class="form-label mb-1">Radiation</label>
+                <select class="form-select" formControlName="radiation">
+                  <option value="Tous">Tous</option>
+                  <option value="Oui">Oui</option>
+                  <option value="Non">Non</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <div class="form-check mt-1">
+                  <input class="form-check-input" type="checkbox" id="activeOnly" formControlName="activeOnly" />
+                  <label class="form-check-label" for="activeOnly">Afficher uniquement les dossiers non clotures</label>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card border shadow-none mb-3" *ngIf="showCreateForm">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveCase()" class="row g-3">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label">Reference (optionnel)</label>
                 <input type="text" class="form-control" formControlName="reference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label class="form-label">Agent</label>
                 <input type="text" class="form-control" formControlName="agent" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('agent') as error">{{ error }}</div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Date ouverture</label>
-                <input type="date" class="form-control" formControlName="openedOn" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('openedOn') as error">{{ error }}</div>
+              <div class="col-md-3">
+                <label class="form-label">Direction</label>
+                <input type="text" class="form-control" formControlName="direction" />
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('direction') as error">{{ error }}</div>
               </div>
+              <div class="col-md-3">
+                <label class="form-label">Statut initial</label>
+                <select class="form-select" formControlName="status">
+                  <option *ngFor="let status of workflowSteps" [value]="status">{{ status }}</option>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Categorie</label>
+                <select class="form-select" formControlName="category">
+                  <option *ngFor="let category of categoryOptions" [value]="category">{{ category }}</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Gravite</label>
+                <select class="form-select" formControlName="severity">
+                  <option *ngFor="let severity of severityOptions" [value]="severity">{{ severity }}</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Incident le</label>
+                <input type="date" class="form-control" formControlName="incidentOn" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Ouvert le</label>
+                <input type="date" class="form-control" formControlName="openedOn" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Confidentialite</label>
+                <select class="form-select" formControlName="confidentialLevel">
+                  <option *ngFor="let level of confidentialityOptions" [value]="level">{{ level }}</option>
+                </select>
+              </div>
+
               <div class="col-md-8">
                 <label class="form-label">Motif / Infraction</label>
                 <input type="text" class="form-control" formControlName="infraction" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('infraction') as error">{{ error }}</div>
               </div>
-              <div class="col-md-2">
-                <label class="form-label">Statut</label>
-                <select class="form-select" formControlName="status">
-                  <option value="Ouvert">Ouvert</option>
-                  <option value="Instruction">Instruction</option>
-                  <option value="Cloture">Cloture</option>
-                </select>
+              <div class="col-md-4 d-flex align-items-end">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="checkbox" id="mediationRequired" formControlName="mediationRequired" />
+                  <label class="form-check-label" for="mediationRequired">Mediation prealable requise</label>
+                </div>
               </div>
-              <div class="col-md-2">
-                <label class="form-label">Sanction</label>
-                <input type="text" class="form-control" formControlName="sanction" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('sanction') as error">{{ error }}</div>
+
+              <div class="col-12">
+                <label class="form-label">Resume des faits</label>
+                <textarea class="form-control" rows="3" formControlName="summary"></textarea>
+                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('summary') as error">{{ error }}</div>
               </div>
+
               <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
-                  Annuler
-                </button>
+                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">Annuler</button>
                 <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le dossier' }}
+                  {{ submitting ? 'Enregistrement...' : 'Enregistrer dossier' }}
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <gridjs-angular [config]="gridConfig"></gridjs-angular>
+        <div class="row g-3">
+          <div class="col-xxl-8">
+            <div class="card border custom-card mb-0">
+              <div class="card-header justify-content-between">
+                <div class="card-title mb-0">Dossiers en instruction</div>
+                <span class="badge bg-light text-dark">{{ filteredItems.length }} lignes</span>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table class="table table-hover text-nowrap align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Reference</th>
+                        <th>Agent</th>
+                        <th>Motif</th>
+                        <th>Gravite</th>
+                        <th>Statut</th>
+                        <th>Sanction</th>
+                        <th>Radiation</th>
+                        <th>Ouvert le</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngIf="loading">
+                        <td colspan="9" class="text-center py-4 text-muted">Chargement des dossiers...</td>
+                      </tr>
+                      <tr *ngIf="!loading && filteredItems.length === 0">
+                        <td colspan="9" class="text-center py-4 text-muted">Aucun dossier correspondant aux filtres.</td>
+                      </tr>
+                      <tr
+                        *ngFor="let item of filteredItems"
+                        [class.table-active]="selectedCase?.reference === item.reference">
+                        <td class="fw-semibold">{{ item.reference }}</td>
+                        <td>
+                          <div>{{ item.agent }}</div>
+                          <small class="text-muted">{{ item.direction }}</small>
+                        </td>
+                        <td>
+                          <div class="text-wrap" style="max-width: 260px">{{ item.infraction }}</div>
+                          <small class="text-muted">{{ item.category }}</small>
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="severityBadgeClass(item.severity)">{{ item.severity }}</span>
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="statusBadgeClass(item.status)">{{ item.status }}</span>
+                        </td>
+                        <td>{{ sanctionLabel(item) }}</td>
+                        <td>{{ radiationLabel(item) }}</td>
+                        <td>{{ item.openedOn }}</td>
+                        <td class="text-end">
+                          <div class="d-inline-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-light" (click)="selectCase(item)">
+                              Detail
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-primary"
+                              [disabled]="isBusy(item.reference) || item.status === 'Cloturee'"
+                              (click)="runAdvance(item)">
+                              Etape +
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-warning"
+                              [disabled]="isBusy(item.reference) || item.status === 'Cloturee'"
+                              (click)="runRecommendedSanction(item)">
+                              Sanction
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-success"
+                              [disabled]="isBusy(item.reference) || item.status === 'Cloturee'"
+                              (click)="closeCase(item)">
+                              Cloturer
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xxl-4">
+            <div class="card border custom-card mb-0">
+              <div class="card-header justify-content-between">
+                <div class="card-title mb-0">Decision et suivi</div>
+                <button type="button" class="btn btn-sm btn-light" *ngIf="selectedCase" (click)="clearSelection()">
+                  Fermer
+                </button>
+              </div>
+              <div class="card-body">
+                <div *ngIf="!selectedCase" class="alert alert-info-transparent mb-0">
+                  Selectionne un dossier dans la table pour gerer mediation, sanction, recours et cloture.
+                </div>
+
+                <div *ngIf="selectedCase">
+                  <div class="mb-3">
+                    <h6 class="mb-1">{{ selectedCase.reference }} - {{ selectedCase.agent }}</h6>
+                    <p class="mb-2 text-muted fs-12">{{ selectedCase.direction }} | {{ selectedCase.category }}</p>
+                    <p class="mb-0 fs-13">{{ selectedCase.infraction }}</p>
+                  </div>
+
+                  <div class="workflow-list mb-3">
+                    <span
+                      *ngFor="let step of workflowSteps"
+                      [class]="workflowClass(selectedCase, step)">
+                      {{ step }}
+                    </span>
+                  </div>
+
+                  <form [formGroup]="detailForm" (ngSubmit)="saveSelectedCase()" class="row g-2">
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Statut</label>
+                      <select class="form-select" formControlName="status">
+                        <option *ngFor="let status of workflowSteps" [value]="status">{{ status }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Mediation</label>
+                      <select class="form-select" formControlName="mediationStatus">
+                        <option *ngFor="let status of mediationStatusOptions" [value]="status">{{ status }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Recours</label>
+                      <select class="form-select" formControlName="appealStatus">
+                        <option *ngFor="let status of appealStatusOptions" [value]="status">{{ status }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Type sanction</label>
+                      <select class="form-select" formControlName="sanctionType">
+                        <option value="">Aucune</option>
+                        <option *ngFor="let sanction of sanctionOptions" [value]="sanction">{{ sanction }}</option>
+                      </select>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label mb-1">Duree (jours)</label>
+                      <input type="number" min="0" class="form-control" formControlName="sanctionDurationDays" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label mb-1">Debut sanction</label>
+                      <input type="date" class="form-control" formControlName="sanctionStartOn" />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label mb-1">Fin sanction</label>
+                      <input type="date" class="form-control" formControlName="sanctionEndOn" />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Decision par</label>
+                      <input type="text" class="form-control" formControlName="decisionBy" />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label mb-1">Date decision</label>
+                      <input type="date" class="form-control" formControlName="decisionOn" />
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label mb-1">Resume mise a jour</label>
+                      <textarea class="form-control" rows="3" formControlName="summary"></textarea>
+                      <div class="text-danger fs-11 mt-1" *ngIf="detailFieldError('summary') as error">{{ error }}</div>
+                    </div>
+                    <div class="col-12">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="radiationCase" formControlName="radiation" />
+                        <label class="form-check-label" for="radiationCase">Radiation prononcee</label>
+                      </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end">
+                      <button type="submit" class="btn btn-primary" [disabled]="savingSelection">
+                        {{ savingSelection ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

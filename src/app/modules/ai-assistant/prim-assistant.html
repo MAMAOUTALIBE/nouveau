@@ -1,0 +1,111 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div>
+          <div class="card-title">Prim'Assistant</div>
+          <div class="text-muted fs-12">Assistant RH pour orienter les demandes et trouver le bon module</div>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" (click)="clearConversation()">
+          Reinitialiser
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-xl-4">
+            <div class="card border shadow-none mb-3">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Demandes rapides</h6>
+                <div class="text-muted fs-12">Questions frequentes RH</div>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary text-start"
+                    *ngFor="let prompt of quickPrompts"
+                    (click)="askQuick(prompt)"
+                  >
+                    {{ prompt }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card border shadow-none mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Domaines couverts</h6>
+                <div class="text-muted fs-12">Base de connaissance initiale</div>
+              </div>
+              <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                  <a
+                    class="badge bg-light text-dark"
+                    *ngFor="let entry of knowledgeBase"
+                    [routerLink]="entry.route"
+                  >
+                    {{ entry.module }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-8">
+            <div class="card border shadow-none mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Conversation</h6>
+                <div class="text-muted fs-12">Reponses guidees et liens directs vers les modules</div>
+              </div>
+              <div class="card-body">
+                <div class="border rounded p-3 mb-3" style="min-height: 360px;">
+                  <div
+                    class="d-flex mb-3"
+                    *ngFor="let message of messages"
+                    [ngClass]="message.role === 'user' ? 'justify-content-end' : 'justify-content-start'"
+                  >
+                    <div
+                      class="p-3 rounded border"
+                      style="max-width: 78%;"
+                      [ngClass]="message.role === 'user' ? 'bg-primary-transparent text-primary' : 'bg-light'"
+                    >
+                      <div class="fw-semibold fs-12 mb-1">
+                        {{ message.role === 'user' ? 'Vous' : 'Prim Assistant' }}
+                      </div>
+                      <div class="fs-13">{{ message.text }}</div>
+                      <div class="mt-2" *ngIf="message.matchedEntry">
+                        <a class="btn btn-sm btn-outline-primary" [routerLink]="message.matchedEntry.route">
+                          Ouvrir {{ message.matchedEntry.module }}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <form [formGroup]="form" (ngSubmit)="ask()" class="row g-2">
+                  <div class="col-md-9">
+                    <input
+                      type="text"
+                      class="form-control"
+                      formControlName="question"
+                      placeholder="Ex: comment suivre une candidature ?"
+                    />
+                    <div
+                      class="text-danger fs-11 mt-1"
+                      *ngIf="form.get('question')?.touched && form.get('question')?.invalid"
+                    >
+                      Saisissez une question de 3 caracteres minimum.
+                    </div>
+                  </div>
+                  <div class="col-md-3 d-grid">
+                    <button type="submit" class="btn btn-primary">Demander</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

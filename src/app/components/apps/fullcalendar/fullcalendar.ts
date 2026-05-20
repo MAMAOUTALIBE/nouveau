@@ -124,6 +124,38 @@ export class Fullcalendar{
     eventClick: (arg) => this.handleEventClick(arg),
     drop: () => this.handleDrop(),
   };
+
+  /**
+   * Quick add from the “Create New Event” button.
+   * Prompts user for title + date, then injects into both state and FullCalendar instance.
+   */
+  openCreateEvent(): void {
+    const title = prompt('Titre de l’événement ?');
+    if (!title) return;
+
+    const suggestedDate = moment().format('YYYY-MM-DD');
+    const date = prompt('Date (YYYY-MM-DD) ?', suggestedDate) || suggestedDate;
+    const parsedDate = moment(date, 'YYYY-MM-DD', true);
+    if (!parsedDate.isValid()) {
+      alert('Date invalide. Format attendu : YYYY-MM-DD');
+      return;
+    }
+
+    const newEvent: EventInput = {
+      id: `${Date.now()}`,
+      title: title.trim(),
+      start: parsedDate.format('YYYY-MM-DD'),
+      end: parsedDate.format('YYYY-MM-DD'),
+      allDay: true,
+      className: 'bg-primary',
+    };
+
+    this.calendarEvents = [...this.calendarEvents, newEvent];
+    if (this.fullCalendar) {
+      this.fullCalendar.getApi().addEvent(newEvent);
+    }
+    this.cdr.detectChanges();
+  }
   handleDrop() {
     this.draggedEventData = null;
   }
@@ -137,7 +169,7 @@ export class Fullcalendar{
         start: arg.date,
         allDay: arg.allDay,
         // className: 'bg-primary-transparent', // Optional: Add a default class
-        className: this.draggedEventData?.className ,
+        className: this.draggedEventData?.className || 'bg-primary',
       };
 
       // Update calendarEvents immutably to trigger change detection

@@ -119,6 +119,6 @@ Si vous déployez via GitHub :
 
 Points d'attention :
 
-- l'application exposera le compte de test mock `spruko@admin.com / sprukoadmin`
+- ne déployez pas le backend mock sur un environnement exposé sans remplacer l'authentification et la gestion des accès
 - les fichiers téléversés par le mock backend sont stockés localement sur le conteneur et peuvent disparaître lors d'un redéploiement
 - pour la production réelle, remplacez le mock backend et le stockage local des uploads

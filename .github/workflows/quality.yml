@@ -6,9 +6,9 @@ on:
   pull_request:
 
 jobs:
-  quality:
+  frontend:
+    name: Frontend (Angular)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,3 +30,153 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  backend:
+    name: Backend (Python)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: rh_test
+          POSTGRES_PASSWORD: rh_test
+          POSTGRES_DB: rh_primature_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rh_test -d rh_primature_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://rh_test:rh_test@localhost:5432/rh_primature_test
+      JWT_SECRET_KEY: ci-test-jwt-secret-key-must-be-at-least-32-chars-long
+      ENV: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: latest
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Lint (ruff)
+        working-directory: backend
+        run: uv run ruff check app tests
+
+      - name: Format check (ruff format)
+        working-directory: backend
+        run: uv run ruff format --check app tests
+
+      - name: Typecheck (mypy)
+        working-directory: backend
+        run: uv run mypy app
+
+      - name: Alembic upgrade head
+        working-directory: backend
+        run: uv run alembic upgrade head
+
+      - name: Alembic downgrade base then upgrade head (reversibility)
+        working-directory: backend
+        run: |
+          uv run alembic downgrade base || true
+          uv run alembic upgrade head
+
+      - name: Pytest unit + integration
+        working-directory: backend
+        run: uv run pytest --cov=app --cov-report=xml --cov-report=term -v
+
+      - name: Upload coverage to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage.xml
+          if-no-files-found: warn
+
+  docker:
+    name: Docker build + scan
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: false
+          load: true
+          tags: gpa-gouve/backend:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Trivy scan backend image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: gpa-gouve/backend:ci
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+      - name: Trivy scan filesystem (config + secrets)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '0' # warn only for now
+          severity: CRITICAL,HIGH
+
+  release:
+    name: Build & push image (release tags only)
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: startsWith(github.ref, 'refs/tags/release-')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#release-}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          tags: |
+            ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}/${{ github.repository_owner }}/gpa-gouve-backend:${{ steps.version.outputs.version }}
+            ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}/${{ github.repository_owner }}/gpa-gouve-backend:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}

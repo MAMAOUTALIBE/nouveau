@@ -76,6 +76,97 @@
           </div>
         </div>
 
+        <div class="row g-3 mb-4">
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Evaluation a froid</h6>
+                <div class="text-muted fs-12">Relances apres 3 mois</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ coldEvaluationReminders.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="coldEvaluationReminders.length > 0; else noColdEval">
+                  <li class="mb-2" *ngFor="let item of coldEvaluationReminders">
+                    <div class="fw-semibold">{{ item.session.code }}</div>
+                    <div class="text-muted fs-12">{{ item.dueLabel }} - {{ item.enrolled }} inscrit(s)</div>
+                  </li>
+                </ul>
+                <ng-template #noColdEval>
+                  <div class="text-muted fs-12">Aucune relance a froid prioritaire.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Suivi budgetaire</h6>
+                <div class="text-muted fs-12">Budget estime et cout participant</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ budgetInsights.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="budgetInsights.length > 0; else noBudget">
+                  <li class="mb-2" *ngFor="let item of budgetInsights">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ item.session.code }}</span>
+                      <span class="badge bg-light text-dark">{{ item.varianceLabel }}</span>
+                    </div>
+                    <div class="text-muted fs-12">
+                      Budget {{ item.budget | number: '1.0-0' }} GNF | Cout {{ item.costPerParticipant | number: '1.0-0' }} GNF
+                    </div>
+                  </li>
+                </ul>
+                <ng-template #noBudget>
+                  <div class="text-muted fs-12">Aucune session a suivre.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Adaptive learning</h6>
+                <div class="text-muted fs-12">Recommandations sur demandes en attente</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ adaptiveRecommendations.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="adaptiveRecommendations.length > 0; else noAdaptive">
+                  <li class="mb-2" *ngFor="let item of adaptiveRecommendations">
+                    <div class="fw-semibold">{{ item.request.applicantName }}</div>
+                    <div class="text-muted fs-12">{{ item.recommendation }}</div>
+                  </li>
+                </ul>
+                <ng-template #noAdaptive>
+                  <div class="text-muted fs-12">Aucune demande en attente a recommander.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-3 col-md-6">
+            <div class="card border shadow-none h-100 mb-0">
+              <div class="card-header">
+                <h6 class="card-title mb-1">Certification</h6>
+                <div class="text-muted fs-12">Attestations pretes a generer</div>
+              </div>
+              <div class="card-body">
+                <div class="fs-3 fw-semibold mb-2">{{ certificationReady.length }}</div>
+                <ul class="list-unstyled mb-0" *ngIf="certificationReady.length > 0; else noCert">
+                  <li class="mb-2" *ngFor="let item of certificationReady">
+                    <div class="d-flex justify-content-between gap-2">
+                      <span class="fw-semibold">{{ item.request.applicantName }}</span>
+                      <span class="badge bg-success-transparent text-success">{{ item.certificateRef }}</span>
+                    </div>
+                    <div class="text-muted fs-12">{{ item.request.sessionCode }}</div>
+                  </li>
+                </ul>
+                <ng-template #noCert>
+                  <div class="text-muted fs-12">Aucune attestation disponible.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveSession()" class="row g-3">

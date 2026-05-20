@@ -18,6 +18,15 @@ export const content: Routes = [
       import('../../modules/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
+    path: 'modernisation-rh',
+    canMatch: [permissionMatchGuard],
+    data: {
+      requiredAnyPermissions: [APP_PERMISSIONS.dashboardView, APP_PERMISSIONS.reportsView],
+    },
+    loadChildren: () =>
+      import('../../modules/modernization/modernization.routes').then((m) => m.MODERNIZATION_ROUTES),
+  },
+  {
     path: 'personnel',
     canMatch: [permissionMatchGuard],
     data: { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] },
@@ -88,11 +97,36 @@ export const content: Routes = [
       import('../../modules/workflows/workflows.routes').then((m) => m.WORKFLOWS_ROUTES),
   },
   {
+    path: 'apps',
+    canMatch: [permissionMatchGuard],
+    data: {
+      requiredAnyPermissions: [APP_PERMISSIONS.adminView],
+      requiredAnyScopes: [APP_SCOPES.global],
+    },
+    loadChildren: () =>
+      import('../../components/apps/apps.routes').then((m) => m.appsRoutingModule),
+  },
+  {
     path: 'rapports',
     canMatch: [permissionMatchGuard],
     data: { requiredAnyPermissions: [APP_PERMISSIONS.reportsView] },
     loadChildren: () =>
       import('../../modules/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
+  },
+  {
+    path: 'prim-assistant',
+    canMatch: [permissionMatchGuard],
+    data: {
+      requiredAnyPermissions: [
+        APP_PERMISSIONS.dashboardView,
+        APP_PERMISSIONS.portalAgent,
+        APP_PERMISSIONS.portalManager,
+      ],
+      parentTitle: 'Portails',
+      childTitle: "Prim'Assistant",
+    },
+    loadComponent: () =>
+      import('../../modules/ai-assistant/prim-assistant').then((m) => m.PrimAssistantPage),
   },
   {
     path: 'portail-agent',

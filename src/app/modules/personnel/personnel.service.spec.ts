@@ -41,6 +41,8 @@ describe('PersonnelService', () => {
         position_title: 'Chef de service',
         status: 'Actif',
         manager_name: 'Seydou Traore',
+        hire_date: '2026-01-15',
+        documents: [{ category: 'Contrat', ref: 'CTR-001', status: 'Valide', expires_at: '2026-12-31' }],
       },
     ]);
 
@@ -56,6 +58,18 @@ describe('PersonnelService', () => {
         manager: 'Seydou Traore',
         contractType: '',
         photoUrl: './assets/images/faces/profile.jpg',
+        hireDate: '2026-01-15',
+        documents: [
+          {
+            type: 'Contrat',
+            reference: 'CTR-001',
+            status: 'Valide',
+            required: false,
+            expiresAt: '2026-12-31',
+            fileName: '',
+            fileDataUrl: '',
+          },
+        ],
       },
     ]);
   });
@@ -92,6 +106,8 @@ describe('PersonnelService', () => {
         manager: 'Directeur Administratif',
         contractType: '',
         photoUrl: './assets/images/faces/profile.jpg',
+        hireDate: undefined,
+        documents: undefined,
       },
     ]);
   });
@@ -128,6 +144,8 @@ describe('PersonnelService', () => {
         manager: 'Chef Service RH',
         contractType: '',
         photoUrl: './assets/images/faces/profile.jpg',
+        hireDate: undefined,
+        documents: undefined,
       },
     ]);
   });
@@ -160,6 +178,65 @@ describe('PersonnelService', () => {
 
     req.flush([]);
     await expect(responsePromise).resolves.toEqual([]);
+  });
+
+  it('maps turnover risk items and forwards filters', async () => {
+    const responsePromise = firstValueFrom(
+      service.getTurnoverRisks({
+        q: 'Aminata',
+        riskLevel: 'Eleve',
+        minScore: 50,
+        sortBy: 'riskScore',
+        sortOrder: 'desc',
+      })
+    );
+
+    const req = httpMock.expectOne((request) => {
+      return (
+        request.url === `${environment.api.baseUrl}${API_ENDPOINTS.personnel.turnoverRisk}` &&
+        request.params.get('q') === 'Aminata' &&
+        request.params.get('riskLevel') === 'Eleve' &&
+        request.params.get('minScore') === '50' &&
+        request.params.get('sortBy') === 'riskScore' &&
+        request.params.get('sortOrder') === 'desc'
+      );
+    });
+
+    req.flush([
+      {
+        agent_id: 'PRM-0001',
+        matricule: 'PRM-0001',
+        full_name: 'Aminata Diallo',
+        direction: 'Direction RH',
+        unit: 'Gestion administrative',
+        position: 'Chef de service',
+        risk_score: 67.2,
+        risk_level: 'Eleve',
+        factors: ['3 absence(s) recentes', 'Contrat a renouveler sous 60 jours'],
+        recommended_action: 'Entretien manager sous 7 jours',
+        model_name: 'rules-v1',
+        generated_at: '2026-04-28T08:00:00.000Z',
+      },
+    ]);
+
+    await expect(responsePromise).resolves.toEqual([
+      {
+        agentId: 'PRM-0001',
+        matricule: 'PRM-0001',
+        fullName: 'Aminata Diallo',
+        direction: 'Direction RH',
+        unit: 'Gestion administrative',
+        position: 'Chef de service',
+        riskScore: 67,
+        riskLevel: 'Eleve',
+        factors: ['3 absence(s) recentes', 'Contrat a renouveler sous 60 jours'],
+        recommendedAction: 'Entretien manager sous 7 jours',
+        modelName: 'rules-v1',
+        generatedAt: '2026-04-28T08:00:00.000Z',
+        reviewedAt: '',
+        reviewDecision: '',
+      },
+    ]);
   });
 
   it('loads duplicate index for pre-submit checks', async () => {
@@ -520,7 +597,7 @@ describe('PersonnelService', () => {
       mobile: '+22300000000',
       photo_url: '/assets/avatar.png',
       career_events: [{ label: 'Promotion', detail: 'Nomination', event_date: '2026-01-01' }],
-      documents: [{ category: 'Arrete', ref: 'ARR-001', status: 'Valide' }],
+      documents: [{ category: 'Arrete', ref: 'ARR-001', status: 'Valide', expires_at: '2026-05-10' }],
     });
 
     await expect(responsePromise).resolves.toMatchObject({
@@ -533,7 +610,147 @@ describe('PersonnelService', () => {
       phone: '+22300000000',
       photoUrl: '/assets/avatar.png',
       careerEvents: [{ title: 'Promotion', description: 'Nomination', date: '2026-01-01' }],
-      documents: [{ type: 'Arrete', reference: 'ARR-001', status: 'Valide' }],
+      documents: [{ type: 'Arrete', reference: 'ARR-001', status: 'Valide', expiresAt: '2026-05-10' }],
+    });
+  });
+
+  it('loads document compliance summary for one agent', async () => {
+    const responsePromise = firstValueFrom(service.getAgentDocumentCompliance('PRM-0001'));
+    const req = httpMock.expectOne(
+      `${environment.api.baseUrl}${API_ENDPOINTS.personnel.agentDocumentCompliance('PRM-0001')}`
+    );
+
+    req.flush({
+      employee_id: 'PRM-0001',
+      summary: {
+        requiredCount: 4,
+        compliantCount: 2,
+        missingCount: 1,
+        expiredCount: 0,
+        expiringSoonCount: 1,
+      },
+      items: [
+        {
+          document_type_code: 'CONTRAT_TRAVAIL',
+          document_type_label: 'Contrat',
+          requirement_scope: 'CONTRACT_TYPE',
+          compliance_status: 'EXPIRING_SOON',
+          document_reference: 'DOC-2026-001',
+          expires_on: '2026-05-15',
+          due_on: '2026-05-15',
+        },
+      ],
+    });
+
+    await expect(responsePromise).resolves.toEqual({
+      employeeId: 'PRM-0001',
+      summary: {
+        requiredCount: 4,
+        compliantCount: 2,
+        missingCount: 1,
+        expiredCount: 0,
+        expiringSoonCount: 1,
+      },
+      items: [
+        {
+          documentTypeCode: 'CONTRAT_TRAVAIL',
+          documentTypeLabel: 'Contrat',
+          requirementScope: 'CONTRACT_TYPE',
+          complianceStatus: 'EXPIRING_SOON',
+          documentReference: 'DOC-2026-001',
+          expiresOn: '2026-05-15',
+          dueOn: '2026-05-15',
+        },
+      ],
+    });
+  });
+
+  it('maps dossiers with agentId and forwards agentId filter', async () => {
+    const responsePromise = firstValueFrom(
+      service.getDossiers({
+        agentId: 'PRM-0001',
+        page: 1,
+        limit: 20,
+        sortBy: 'updatedAt',
+        sortOrder: 'desc',
+      })
+    );
+
+    const req = httpMock.expectOne((request) => {
+      return (
+        request.url === `${environment.api.baseUrl}${API_ENDPOINTS.personnel.dossiers}` &&
+        request.params.get('agentId') === 'PRM-0001' &&
+        request.params.get('page') === '1' &&
+        request.params.get('limit') === '20' &&
+        request.params.get('sortBy') === 'updatedAt' &&
+        request.params.get('sortOrder') === 'desc'
+      );
+    });
+
+    req.flush([
+      {
+        reference: 'DOS-2026-001',
+        agent_id: 'PRM-0001',
+        agent_name: 'Aminata Diallo',
+        dossier_type: 'Arrete nomination',
+        status: 'Actif',
+        updated_at: '2026-03-12T09:00:00.000Z',
+      },
+    ]);
+
+    await expect(responsePromise).resolves.toEqual([
+      {
+        reference: 'DOS-2026-001',
+        agentId: 'PRM-0001',
+        agent: 'Aminata Diallo',
+        type: 'Arrete nomination',
+        status: 'Actif',
+        updatedAt: '2026-03-12T09:00:00.000Z',
+      },
+    ]);
+  });
+
+  it('creates affectation with agentId and maps response payload', async () => {
+    const responsePromise = firstValueFrom(
+      service.createAffectation({
+        agentId: 'PRM-0002',
+        agent: 'Mamadou Camara',
+        fromUnit: 'Gestion administrative',
+        toUnit: 'Service Paie',
+        effectiveDate: '2026-04-01',
+        status: 'Planifiee',
+      })
+    );
+
+    const req = httpMock.expectOne(`${environment.api.baseUrl}${API_ENDPOINTS.personnel.affectations}`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toMatchObject({
+      agentId: 'PRM-0002',
+      agent: 'Mamadou Camara',
+      fromUnit: 'Gestion administrative',
+      toUnit: 'Service Paie',
+      effectiveDate: '2026-04-01',
+      status: 'Planifiee',
+    });
+
+    req.flush({
+      reference: 'AFF-2026-010',
+      agent_id: 'PRM-0002',
+      agent_name: 'Mamadou Camara',
+      from_unit: 'Gestion administrative',
+      to_unit: 'Service Paie',
+      effective_date: '2026-04-01',
+      status: 'Planifiee',
+    });
+
+    await expect(responsePromise).resolves.toEqual({
+      reference: 'AFF-2026-010',
+      agentId: 'PRM-0002',
+      agent: 'Mamadou Camara',
+      fromUnit: 'Gestion administrative',
+      toUnit: 'Service Paie',
+      effectiveDate: '2026-04-01',
+      status: 'Planifiee',
     });
   });
 });

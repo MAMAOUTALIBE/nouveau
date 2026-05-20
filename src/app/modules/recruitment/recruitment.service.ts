@@ -1,4 +1,4 @@
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -1549,6 +1549,7 @@ export class RecruitmentService {
   private readonly localBiExportLogsKey = 'rh_dev_recruitment_bi_export_logs';
   private readonly localObservabilityEventsKey = 'rh_dev_recruitment_observability_events';
   private readonly fallbackEnabled = !!environment.auth?.devFallback?.enabled;
+  private readonly http = inject(HttpClient);
   private readonly apiClient = inject(ApiClientService);
   private readonly defaultScoringPolicy: RecruitmentScoringPolicy = {
     criteria: [
@@ -1700,6 +1701,16 @@ export class RecruitmentService {
           return throwError(() => error);
         })
       );
+  }
+
+  downloadAttachment(url: string): Observable<Blob> {
+    const normalized = String(url || '').trim();
+    if (!normalized || normalized.startsWith('blob:')) {
+      return throwError(() => new Error('URL de téléchargement invalide'));
+    }
+
+    const requestUrl = /^https?:\/\//i.test(normalized) ? normalized : normalized.startsWith('/') ? normalized : `/${normalized}`;
+    return this.http.get(requestUrl, { responseType: 'blob' });
   }
 
   getCampaigns(query?: RecruitmentCampaignsQuery): Observable<Campaign[]> {

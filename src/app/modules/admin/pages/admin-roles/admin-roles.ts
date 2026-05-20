@@ -5,11 +5,18 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { GridJsAngularComponent } from 'gridjs-angular';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
+import { downloadCsv } from '../../../../core/utils/csv-export.utils';
 import {
   AdminRole,
   AdminService,
   CreateAdminRolePayload
 } from '../../admin.service';
+import { APP_PERMISSIONS } from '../../../../core/security/access-control.service';
+
+interface PermissionOption {
+  key: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-admin-roles',
@@ -26,6 +33,13 @@ export class AdminRolesPage implements OnInit {
   items: AdminRole[] = [];
   showCreateForm = false;
   submitting = false;
+  deleting = false;
+  editingName: string | null = null;
+  permissionOptions: PermissionOption[] = Object.entries(APP_PERMISSIONS).map(
+    ([, value]) => ({ key: value, label: value })
+  );
+  selectedPermissions = new Set<string>();
+  private hasPermissionSelectionChanged = false;
 
   gridConfig = {
     columns: ['Rôle', 'Description', 'Permissions'],
@@ -42,6 +56,7 @@ export class AdminRolesPage implements OnInit {
   });
 
   ngOnInit(): void {
+    this.seedPermissionsSelection(1);
     this.loadRoles();
   }
 
@@ -61,20 +76,29 @@ export class AdminRolesPage implements OnInit {
   }
 
   toggleCreateForm(): void {
+    this.editingName = null;
     this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) {
-      this.resetForm();
-    }
+    this.resetForm();
     this.cdr.detectChanges();
   }
 
   cancelCreate(): void {
     this.showCreateForm = false;
+    this.editingName = null;
     this.resetForm();
     this.cdr.detectChanges();
   }
 
   saveRole(): void {
+    const permissionCountRaw = this.hasPermissionSelectionChanged
+      ? this.selectedPermissions.size
+      : Number(this.form.value.permissions ?? 0);
+    const permissionCount = Number.isFinite(permissionCountRaw)
+      ? Math.round(permissionCountRaw)
+      : 0;
+
+    this.form.patchValue({ permissions: permissionCount });
+
     if (this.form.invalid || this.submitting) {
       this.form.markAllAsTouched();
       return;
@@ -83,20 +107,24 @@ export class AdminRolesPage implements OnInit {
     const payload: CreateAdminRolePayload = {
       name: this.form.value.name?.trim() || '',
       description: this.form.value.description?.trim() || '',
-      permissions: Number(this.form.value.permissions ?? 1),
+      permissions: permissionCount || 1,
     };
 
     this.submitting = true;
-    this.adminService
-      .createRole(payload)
+    const action$ = this.editingName
+      ? this.adminService.updateRole({ ...payload, name: this.editingName })
+      : this.adminService.createRole(payload);
+
+    action$
       .pipe(finalize(() => (this.submitting = false)))
       .subscribe({
         next: () => {
-          this.toastr.success('Role cree avec succes', 'Administration', {
+          this.toastr.success(this.editingName ? 'Rôle mis à jour' : 'Rôle créé', 'Administration', {
             timeOut: 2400,
             positionClass: 'toast-top-right',
           });
           this.showCreateForm = false;
+          this.editingName = null;
           this.resetForm();
           this.loadRoles();
           this.cdr.detectChanges();
@@ -116,7 +144,7 @@ export class AdminRolesPage implements OnInit {
         this.items = items;
         this.gridConfig = {
           ...this.gridConfig,
-          data: items.map((r) => [r.name, r.description, r.permissions]),
+          data: items.map((r) => [r.name, r.description, this.permissionLabel(r.permissions)]),
         };
         this.cdr.detectChanges();
       },
@@ -132,12 +160,92 @@ export class AdminRolesPage implements OnInit {
     });
   }
 
+  permissionLabel(count: number): string {
+    const safe = Number.isFinite(count) ? count : 0;
+    return safe === 1 ? '1 permission' : `${safe} permissions`;
+  }
+
+  displayedPermissionCount(): number {
+    const raw = this.hasPermissionSelectionChanged
+      ? this.selectedPermissions.size
+      : Number(this.form.value.permissions ?? 0);
+    return Number.isFinite(raw) ? Math.round(raw) : 0;
+  }
+
+  togglePermission(option: PermissionOption, checked: boolean): void {
+    this.hasPermissionSelectionChanged = true;
+    if (checked) {
+      this.selectedPermissions.add(option.key);
+    } else {
+      this.selectedPermissions.delete(option.key);
+    }
+    this.form.patchValue({ permissions: this.selectedPermissions.size });
+  }
+
+  startEdit(role: AdminRole): void {
+    if (this.submitting) return;
+    this.editingName = role.name;
+    this.showCreateForm = true;
+    this.form.patchValue({
+      name: role.name,
+      description: role.description,
+      permissions: role.permissions,
+    });
+    this.seedPermissionsSelection(role.permissions);
+    this.cdr.detectChanges();
+  }
+
+  deleteRole(role: AdminRole): void {
+    if (this.deleting || !confirm(`Supprimer le rôle ${role.name} ?`)) return;
+    this.deleting = true;
+    this.adminService
+      .deleteRole(role.name)
+      .pipe(finalize(() => (this.deleting = false)))
+      .subscribe({
+        next: () => {
+          this.toastr.success('Rôle supprimé', 'Administration', { timeOut: 2200 });
+          this.loadRoles();
+        },
+        error: (error) => {
+          this.toastr.error(this.resolveError(error), 'Administration', { timeOut: 3500 });
+        },
+      });
+  }
+
+  exportCsv(): void {
+    this.adminService.getRoles().subscribe({
+      next: (items) => {
+        downloadCsv({
+          filename: 'admin-roles.csv',
+          delimiter: ';',
+          headers: ['name', 'description', 'permissions'],
+          rows: items.map((role) => [role.name, role.description, role.permissions]),
+        });
+      },
+      error: (error) => {
+        this.toastr.error(this.resolveError(error), 'Export CSV', { timeOut: 3000 });
+      },
+    });
+  }
+
   private resetForm(): void {
     this.form.reset({
       name: '',
       description: '',
       permissions: 1,
     });
+    this.seedPermissionsSelection(1);
+  }
+
+  private seedPermissionsSelection(count: number): void {
+    const safeCount = Math.max(
+      0,
+      Math.min(this.permissionOptions.length, Number.isFinite(count) ? Math.round(count) : 0)
+    );
+    this.selectedPermissions = new Set(
+      this.permissionOptions.slice(0, safeCount).map((option) => option.key)
+    );
+    this.hasPermissionSelectionChanged = false;
   }
 
   private resolveError(error: unknown): string {

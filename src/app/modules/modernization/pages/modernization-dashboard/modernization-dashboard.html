@@ -1,0 +1,179 @@
+<div class="row row-sm">
+  <div class="col-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div>
+          <div class="card-title">Modernisation RH</div>
+          <div class="text-muted fs-12">Proposition strategique de la Primature transformee en pilotage applicatif</div>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" [disabled]="isLoading" (click)="reload()">
+          Actualiser
+        </button>
+      </div>
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <div class="mt-2 text-muted">Consolidation des propositions...</div>
+        </div>
+
+        <ng-container *ngIf="!isLoading && summary as data">
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted fs-12">Propositions couvertes</div>
+                <div class="fs-24 fw-semibold">
+                  {{ data.coverage.operationalProposals }}/{{ data.coverage.totalProposals }}
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted fs-12">Taux d implementation</div>
+                <div class="fs-24 fw-semibold">{{ data.coverage.implementationRate }}%</div>
+                <div class="progress mt-2" style="height: 8px">
+                  <div
+                    class="progress-bar"
+                    [ngClass]="progressClass(data.coverage.implementationRate)"
+                    [style.width.%]="data.coverage.implementationRate"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted fs-12">Alertes critiques</div>
+                <div class="fs-24 fw-semibold">{{ data.coverage.criticalAlerts }}</div>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted fs-12">Dernier calcul</div>
+                <div class="fw-semibold">{{ generatedAtLabel }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-xl-8">
+              <div class="row g-4">
+                <div class="col-12" *ngFor="let module of data.modules; trackBy: trackModule">
+                  <div class="border rounded p-3 h-100">
+                    <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+                      <div>
+                        <h5 class="fw-semibold mb-1">{{ module.title }}</h5>
+                        <div class="text-muted fs-13">{{ module.description }}</div>
+                      </div>
+                      <a class="btn btn-outline-primary btn-sm align-self-start" [routerLink]="module.route">
+                        Ouvrir
+                      </a>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                      <div class="col-sm-6 col-lg-3" *ngFor="let kpi of module.kpis">
+                        <div class="p-3 rounded border bg-light h-100">
+                          <div class="badge mb-2" [ngClass]="toneClass(kpi.tone)">{{ kpi.label }}</div>
+                          <div class="fs-20 fw-semibold">{{ kpi.value }}{{ kpi.unit || '' }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-between fs-12 mb-1">
+                        <span>Avancement</span>
+                        <span class="fw-semibold">{{ module.implementationRate }}%</span>
+                      </div>
+                      <div class="progress" style="height: 8px">
+                        <div
+                          class="progress-bar"
+                          [ngClass]="progressClass(module.implementationRate)"
+                          [style.width.%]="module.implementationRate"
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div class="table-responsive">
+                      <table class="table table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th>Capacite</th>
+                            <th>Statut</th>
+                            <th>Detail</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let capability of module.capabilities">
+                            <td class="fw-semibold">{{ capability.label }}</td>
+                            <td>
+                              <span class="badge" [ngClass]="statusBadgeClass(capability.status)">
+                                {{ capability.status }}
+                              </span>
+                            </td>
+                            <td>
+                              <span>{{ capability.detail }}</span>
+                              <a
+                                *ngIf="capability.route"
+                                class="ms-2 fw-semibold"
+                                [routerLink]="capability.route"
+                              >
+                                Voir
+                              </a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="alert alert-warning mt-3 mb-0 py-2" *ngIf="module.alerts.length">
+                      <div class="fw-semibold mb-1">Points d attention</div>
+                      <div class="fs-13" *ngFor="let alert of module.alerts">{{ alert }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xl-4">
+              <div class="border rounded p-3 mb-4">
+                <h6 class="fw-semibold mb-3">Signaux IA et automatisation</h6>
+                <div class="d-flex flex-column gap-3">
+                  <div class="border rounded p-3" *ngFor="let signal of data.aiSignals; trackBy: trackSignal">
+                    <div class="d-flex justify-content-between gap-2 mb-2">
+                      <div class="fw-semibold">{{ signal.title }}</div>
+                      <span class="badge" [ngClass]="severityClass(signal.severity)">{{ signal.severity }}</span>
+                    </div>
+                    <div class="text-muted fs-12 mb-2">{{ signal.module }} - score {{ signal.score }}</div>
+                    <div class="fs-13 mb-2">{{ signal.recommendation }}</div>
+                    <a class="fw-semibold" [routerLink]="signal.route">Traiter</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="border rounded p-3">
+                <h6 class="fw-semibold mb-3">Feuille de route restante</h6>
+                <div class="d-flex flex-column gap-3">
+                  <div *ngFor="let item of data.roadmap; trackBy: trackRoadmap">
+                    <div class="d-flex justify-content-between gap-2">
+                      <div>
+                        <div class="fw-semibold">{{ item.label }}</div>
+                        <div class="text-muted fs-12">{{ item.owner }} - echeance {{ item.dueDate }}</div>
+                      </div>
+                      <span class="badge align-self-start" [ngClass]="statusBadgeClass(item.status)">
+                        {{ item.status }}
+                      </span>
+                    </div>
+                    <div class="progress mt-2" style="height: 7px">
+                      <div class="progress-bar" [ngClass]="progressClass(item.progress)" [style.width.%]="item.progress"></div>
+                    </div>
+                  </div>
+                  <div class="text-muted text-center py-3" *ngIf="!data.roadmap.length">
+                    Aucune action restante.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

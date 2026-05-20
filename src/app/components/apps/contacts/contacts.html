@@ -4,7 +4,7 @@
     <span class="main-content-title mg-b-0 mg-b-lg-1">CONTACTS</span>
   </div>
   <div class="justify-content-center">
-    <button type="button" class="btn btn-primary">
+    <button type="button" class="btn btn-primary" (click)="addNewContact()">
       <i class="fe fe-plus me-1"></i> Add New Contact
     </button>
   </div>
@@ -32,7 +32,7 @@
                     </div>
 
                     @for (contact of group.contacts; track $index) {
-                    <div [class]="`main-contact-item ${contact.active ? 'selected':''}`">
+                    <div class="main-contact-item" [ngClass]="{'selected': contact.active}" (click)="selectContact(contact)">
 
                       <!-- Avatar / Image -->
                       @if (contact.avatar) {
@@ -147,7 +147,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-12 col-lg-7 col-xl-8 col-xxl-9">
+  <div class="col-sm-12 col-lg-7 col-xl-8 col-xxl-9" *ngIf="selectedContact as contact">
     <div class="">
       <div class="main-content-body main-content-body-contacts card custom-card">
         <div class="main-contact-info-header pt-3">
@@ -165,8 +165,8 @@
               </div>
             </div>
             <div class="media-body">
-              <h5>Teri Dactyl</h5>
-              <p>Web Designer</p>
+              <h5>{{ contact.name || 'Contact' }}</h5>
+              <p>{{ contact.role || 'Contact' }}</p>
               <nav class="contact-info">
                 <a href="javascript:void(0);" class="contact-icon border tx-inverse" data-bs-toggle="tooltip"
                   ngbTooltip="Call"><i class="fe fe-phone"></i></a>
@@ -183,7 +183,7 @@
           </div>
           <div class="main-contact-action btn-list pt-3 pe-0">
             <a href="javascript:void(0);" class="btn ripple btn-primary text-fixed-white btn-icon" data-placement="top"
-              data-bs-toggle="tooltip" ngbTooltip="Edit Profile"><i class="fe fe-edit"></i></a>
+              data-bs-toggle="tooltip" ngbTooltip="Edit Profile" (click)="editSelectedContact()"><i class="fe fe-edit"></i></a>
             <a href="javascript:void(0);" class="btn ripple btn-secondary text-fixed-white btn-icon"
               data-placement="top" data-bs-toggle="tooltip" ngbTooltip="Delete Profile"><i
                 class="fe fe-trash-2"></i></a>
@@ -194,51 +194,40 @@
         <div class="main-contact-info-body">
           <div class="px-4 py-3">
             <h6>Biography :</h6>
-            <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam,
-              nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
-              voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo
-              voluptas nulla pariatur.</p>
-            <p>Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam,
-              nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea
-              voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo
-              voluptas nulla pariaturexplicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur
-              aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi
-              nesciunt.</p>
+            <p class="mb-2" [innerText]="contact.biography || 'Non renseignée'"></p>
           </div>
           <div class="media-list pb-0">
             <div class="media">
               <div class="media-body px-4">
                 <div>
-                  <label>Work :</label> <span class="tx-medium">+1 (234) 567 8901</span>
+                  <label>Work :</label> <span class="tx-medium">{{ contact.work || contact.value }}</span>
                 </div>
                 <div>
-                  <label>Personal :</label> <span class="tx-medium">+1 (498) 021 0090</span>
-                </div>
-              </div>
-            </div>
-            <div class="media">
-              <div class="media-body px-4">
-                <div>
-                  <label>Gmail Account :</label> <span class="tx-medium">Dactyl.taylor@gmail.com</span>
-                </div>
-                <div>
-                  <label>Other Account :</label> <span class="tx-medium">me@bootstrapdash.me</span>
+                  <label>Personal :</label> <span class="tx-medium">{{ contact.personal || 'Non renseigné' }}</span>
                 </div>
               </div>
             </div>
             <div class="media">
               <div class="media-body px-4">
                 <div>
-                  <label>Current Address :</label> <span class="tx-medium">012 Dashboard Apartments,
-                    Dayl Francisco, California 13245</span>
+                  <label>Gmail Account :</label> <span class="tx-medium">{{ contact.gmail || 'Non renseigné' }}</span>
+                </div>
+                <div>
+                  <label>Other Account :</label> <span class="tx-medium">{{ contact.other || 'Non renseigné' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="media">
+              <div class="media-body px-4">
+                <div>
+                  <label>Current Address :</label> <span class="tx-medium">{{ contact.address || 'Non renseignée' }}</span>
                 </div>
               </div>
             </div>
             <div class="media mb-0">
               <div class="media-body px-4 pb-3">
                 <div>
-                  <label>Call History :</label> <span class="tx-medium">Duration of last call: 5m
-                    25sec</span>
+                  <label>Call History :</label> <span class="tx-medium">{{ contact.callHistory || 'Durée inconnue' }}</span>
                 </div>
               </div>
             </div>

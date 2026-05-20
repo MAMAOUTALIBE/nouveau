@@ -163,6 +163,44 @@
               </div>
             </div>
           </div>
+
+          <div class="row mt-4 g-4">
+            <div class="col-xl-12">
+              <div class="border rounded p-3 h-100">
+                <h6 class="fw-semibold mb-3">Analyse prédictive du turn-over</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Agent</th>
+                        <th>Direction</th>
+                        <th>Score</th>
+                        <th>Niveau</th>
+                        <th>Facteurs</th>
+                        <th>Action recommandée</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let risk of data.turnoverRiskItems">
+                        <td>
+                          <div class="fw-semibold">{{ risk.fullName }}</div>
+                          <div class="text-muted fs-12">{{ risk.matricule }}</div>
+                        </td>
+                        <td>{{ risk.direction }}</td>
+                        <td class="fw-semibold">{{ risk.riskScore }}</td>
+                        <td><span class="badge" [ngClass]="riskLevelBadgeClass(risk.riskLevel)">{{ risk.riskLevel }}</span></td>
+                        <td>{{ risk.factors.join(' | ') }}</td>
+                        <td>{{ risk.recommendedAction }}</td>
+                      </tr>
+                      <tr *ngIf="!data.turnoverRiskItems.length">
+                        <td colspan="6" class="text-center text-muted">Aucun signal de turn-over détecté</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
         </ng-container>
       </div>
     </div>

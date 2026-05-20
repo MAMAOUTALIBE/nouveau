@@ -1,0 +1,51 @@
+.discipline-kpi {
+  border: 1px solid var(--default-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--custom-white);
+  height: 100%;
+}
+
+.discipline-kpi .label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.discipline-kpi .value {
+  margin: 0;
+  font-weight: 600;
+}
+
+.workflow-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.workflow-step {
+  border: 1px solid var(--default-border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--custom-white);
+}
+
+.workflow-step.done {
+  border-color: rgba(var(--success-rgb), 0.35);
+  color: rgb(var(--success-rgb));
+  background: rgba(var(--success-rgb), 0.1);
+}
+
+.workflow-step.current {
+  border-color: rgba(var(--primary-rgb), 0.4);
+  color: rgb(var(--primary-rgb));
+  background: rgba(var(--primary-rgb), 0.1);
+  font-weight: 600;
+}
+
+td .text-wrap {
+  white-space: normal;
+}

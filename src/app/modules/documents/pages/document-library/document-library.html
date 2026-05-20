@@ -1,15 +1,115 @@
 <div class="row row-sm">
   <div class="col-xl-12">
     <div class="card custom-card">
-      <div class="card-header justify-content-between">
-        <div class="card-title">Documents RH editables (missions, absences, attestations)</div>
-        <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
-            {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau document' }}
-          </button>
+      <div class="card-header justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <div class="card-title mb-1">Centre documentaire RH</div>
+          <div class="text-muted fs-12">Gestion des documents administratifs, demandes et notifications agents</div>
         </div>
+        <button type="button" class="btn btn-primary" (click)="toggleCreateForm()" [disabled]="!canManageDocuments()">
+          {{ showCreateForm ? 'Fermer le formulaire' : 'Nouveau document' }}
+        </button>
       </div>
       <div class="card-body">
+        <div class="documents-workspace">
+          <section class="workspace-hero">
+            <div>
+              <div class="workspace-hero__eyebrow">Primature · Ressources Humaines</div>
+              <h5 class="workspace-hero__title">Pilotage unifie du cycle documentaire</h5>
+              <p class="workspace-hero__text mb-0">
+                Production, validation, affectation, suivi de lecture et conservation des documents agents dans une seule vue.
+              </p>
+            </div>
+            <div class="workspace-hero__meta">
+              <div class="workspace-hero__stamp">
+                Derniere consolidation:
+                <strong>{{ analytics.generatedAt | date:'yyyy-MM-dd HH:mm' }}</strong>
+              </div>
+              <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                <button type="button" class="btn btn-sm btn-light" (click)="setWorkspaceTab('bibliotheque')">Vue bibliotheque</button>
+                <button type="button" class="btn btn-sm btn-light" (click)="setWorkspaceTab('demandes')">Demandes en attente</button>
+                <button type="button" class="btn btn-sm btn-light" (click)="setWorkspaceTab('notifications')">Alertes notifications</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+              <article class="workspace-kpi kpi-docs">
+                <span class="workspace-kpi__label">Documents actifs</span>
+                <strong class="workspace-kpi__value">{{ analytics.totals.totalDocuments }}</strong>
+                <small class="workspace-kpi__meta">{{ analytics.totals.signedDocuments }} signes</small>
+              </article>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <article class="workspace-kpi kpi-requests">
+                <span class="workspace-kpi__label">Demandes ouvertes</span>
+                <strong class="workspace-kpi__value">{{ pendingRequestsCount() }}</strong>
+                <small class="workspace-kpi__meta">{{ documentRequests.length }} demandes totales</small>
+              </article>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <article class="workspace-kpi kpi-notifications">
+                <span class="workspace-kpi__label">Notifications non lues</span>
+                <strong class="workspace-kpi__value">{{ unreadNotificationsCount() }}</strong>
+                <small class="workspace-kpi__meta">{{ notifications.length }} notifications recues</small>
+              </article>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+              <article class="workspace-kpi kpi-sla">
+                <span class="workspace-kpi__label">SLA en retard</span>
+                <strong class="workspace-kpi__value">{{ analytics.totals.overdueDocuments }}</strong>
+                <small class="workspace-kpi__meta">Taux accuse: {{ analytics.rates.acknowledgementRate }}%</small>
+              </article>
+            </div>
+          </div>
+
+          <div class="workspace-tabs mb-4">
+            <button
+              type="button"
+              class="workspace-tab"
+              [class.is-active]="activeWorkspaceTab === 'bibliotheque'"
+              (click)="setWorkspaceTab('bibliotheque')">
+              <span class="workspace-tab__label">Bibliotheque</span>
+              <span class="workspace-tab__count">{{ items.length }}</span>
+            </button>
+            <button
+              type="button"
+              class="workspace-tab"
+              [class.is-active]="activeWorkspaceTab === 'inbox'"
+              (click)="setWorkspaceTab('inbox')">
+              <span class="workspace-tab__label">Inbox employe</span>
+              <span class="workspace-tab__count">{{ inboxItems.length }}</span>
+            </button>
+            <button
+              type="button"
+              class="workspace-tab"
+              [class.is-active]="activeWorkspaceTab === 'demandes'"
+              (click)="setWorkspaceTab('demandes')">
+              <span class="workspace-tab__label">Demandes</span>
+              <span class="workspace-tab__count">{{ pendingRequestsCount() }}</span>
+            </button>
+            <button
+              type="button"
+              class="workspace-tab"
+              [class.is-active]="activeWorkspaceTab === 'notifications'"
+              (click)="setWorkspaceTab('notifications')">
+              <span class="workspace-tab__label">Notifications</span>
+              <span class="workspace-tab__count">{{ unreadNotificationsCount() }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="alert alert-info py-2 px-3 mb-4 d-flex align-items-center justify-content-between"
+          *ngIf="bulkActionRunning"
+          role="status"
+          aria-live="polite">
+          <span class="fw-semibold">{{ bulkActionLabel }}</span>
+          <span class="spinner-border spinner-border-sm text-info" role="status" aria-hidden="true"></span>
+        </div>
+
+        <div *ngIf="activeWorkspaceTab === 'bibliotheque'">
         <div class="row g-3 align-items-end mb-4">
           <div class="col-xl-8 col-lg-7">
             <label class="form-label">Charger un document existant pour edition</label>
@@ -25,7 +125,7 @@
           </div>
           <div class="col-xl-4 col-lg-5 d-grid">
             <div class="d-grid gap-2">
-              <button type="button" class="btn btn-outline-primary" (click)="startEditSelected()" [disabled]="!selectedReference">
+              <button type="button" class="btn btn-outline-primary" (click)="startEditSelected()" [disabled]="!selectedReference || !canManageDocuments()">
                 Editer ce document
               </button>
               <button
@@ -34,6 +134,13 @@
                 (click)="exportSelectedPdf()"
                 [disabled]="!selectedReference">
                 Exporter PDF selection
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-success"
+                (click)="exportStyledAttestation()"
+                [disabled]="!isAttestationSelected()">
+                Exporter attestation (Guinée)
               </button>
             </div>
           </div>
@@ -87,16 +194,16 @@
             </div>
 
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="runArchiveSimulation()" [disabled]="maintenanceRunning">
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="runArchiveSimulation()" [disabled]="maintenanceRunning || !canManageDocuments()">
                 Simulation archivage 30j
               </button>
-              <button type="button" class="btn btn-sm btn-primary" (click)="executeArchiveRun()" [disabled]="maintenanceRunning">
+              <button type="button" class="btn btn-sm btn-primary" (click)="executeArchiveRun()" [disabled]="maintenanceRunning || !canManageDocuments()">
                 Lancer archivage 30j
               </button>
-              <button type="button" class="btn btn-sm btn-outline-warning" (click)="runPurgeSimulation()" [disabled]="maintenanceRunning">
+              <button type="button" class="btn btn-sm btn-outline-warning" (click)="runPurgeSimulation()" [disabled]="maintenanceRunning || !canManageDocuments()">
                 Simulation purge 120j
               </button>
-              <button type="button" class="btn btn-sm btn-warning" (click)="executeArchivePurge()" [disabled]="maintenanceRunning">
+              <button type="button" class="btn btn-sm btn-warning" (click)="executeArchivePurge()" [disabled]="maintenanceRunning || !canManageDocuments()">
                 Purger archives 120j
               </button>
             </div>
@@ -203,7 +310,7 @@
                   <span *ngIf="item.recipientUsername"> - {{ item.recipientUsername }}</span>
                   <span *ngIf="item.assignmentDueAt"> | Echeance: {{ item.assignmentDueAt | date:'yyyy-MM-dd HH:mm' }}</span>
                 </div>
-                <button type="submit" class="btn btn-success" [disabled]="assigning || !canAssignDocument(item)">
+                <button type="submit" class="btn btn-success" [disabled]="assigning || !canAssignDocument(item) || !canManageDocuments()">
                   {{ assigning ? 'Assignation...' : 'Assigner a l employe' }}
                 </button>
               </div>
@@ -216,11 +323,11 @@
             <h6 class="mb-0">Workflow securise du document</h6>
             <div class="d-flex gap-2">
               <span class="badge text-bg-primary">Statut actuel: {{ item.status }}</span>
-              <button
+                <button
                 type="button"
                 class="btn btn-sm btn-outline-success"
                 (click)="signSelectedDocument()"
-                [disabled]="signing || !canSignDocument(item)">
+                [disabled]="signing || !canSignDocument(item) || !canManageDocuments()">
                 {{ signing ? 'Signature...' : 'Signer et cacheter' }}
               </button>
             </div>
@@ -238,7 +345,7 @@
                 class="btn btn-sm btn-outline-primary"
                 *ngFor="let nextStatus of allowedStatusTransitions(item)"
                 (click)="transitionSelectedDocument(nextStatus)"
-                [disabled]="!canTransitionToStatus(item, nextStatus)">
+                [disabled]="!canTransitionToStatus(item, nextStatus) || !canManageDocuments()">
                 {{ transitioning ? 'Transition...' : ('Passer a ' + nextStatus) }}
               </button>
               <span class="text-muted fs-12" *ngIf="!allowedStatusTransitions(item).length">
@@ -397,7 +504,7 @@
                 <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
                   Annuler
                 </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                <button type="submit" class="btn btn-primary" [disabled]="submitting || !canManageDocuments()">
                   {{ submitting ? 'Enregistrement...' : (isEditMode ? 'Mettre a jour le document' : 'Enregistrer le document') }}
                 </button>
               </div>
@@ -433,7 +540,10 @@
                 <td>{{ deliveryStatusLabel(item) }}</td>
                 <td>
                   <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="startEdit(item)">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openDocumentDetail(item)">
+                      Detail
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" (click)="startEdit(item)" [disabled]="!canManageDocuments()">
                       Modifier
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-dark" (click)="exportPdf(item)">
@@ -452,7 +562,496 @@
             </tbody>
           </table>
         </div>
+        </div>
+
+        <div *ngIf="activeWorkspaceTab === 'inbox'" class="card border shadow-none mb-0">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Inbox documents assignes aux employes</h6>
+            <span class="badge text-bg-light">{{ filteredInboxItems.length }} / {{ inboxItems.length }} elements</span>
+          </div>
+          <div class="card-body p-0">
+            <form [formGroup]="inboxFiltersForm" class="row g-2 p-3 border-bottom">
+              <div class="col-xl-5 col-md-6">
+                <label class="form-label mb-1">Recherche</label>
+                <input type="text" class="form-control form-control-sm" formControlName="q" placeholder="Reference, titre, destinataire..." />
+              </div>
+              <div class="col-xl-2 col-md-3">
+                <label class="form-label mb-1">Lecture</label>
+                <select class="form-select form-select-sm" formControlName="readState">
+                  <option *ngFor="let option of readStateFilterOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+              <div class="col-xl-3 col-md-3">
+                <label class="form-label mb-1">Livraison</label>
+                <select class="form-select form-select-sm" formControlName="deliveryStatus">
+                  <option value="Tous">Tous</option>
+                  <option *ngFor="let option of inboxDeliveryStatusOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-3">
+                <label class="form-label mb-1">Par page</label>
+                <select class="form-select form-select-sm" formControlName="pageSize">
+                  <option *ngFor="let option of pageSizeOptions" [ngValue]="option">{{ option }}</option>
+                </select>
+              </div>
+            </form>
+            <div class="bulk-toolbar border-bottom px-3 py-2 d-flex flex-wrap gap-2 align-items-center" *ngIf="inboxSelectionCount() > 0">
+              <span class="bulk-toolbar__count">{{ inboxSelectionCount() }} selection(s)</span>
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="bulkMarkInboxRead()" [disabled]="bulkActionRunning">
+                Marquer lus
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-success" (click)="bulkAcknowledgeInbox()" [disabled]="bulkActionRunning">
+                Accuser reception
+              </button>
+              <button type="button" class="btn btn-sm btn-light" (click)="clearInboxSelection()" [disabled]="bulkActionRunning">
+                Vider
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0">
+                <thead>
+                  <tr>
+                    <th class="table-select-col">
+                      <input
+                        type="checkbox"
+                        [checked]="areAllInboxPageSelected()"
+                        aria-label="Selectionner tous les documents de la page inbox"
+                        (change)="toggleInboxPageSelection(($any($event.target)).checked)" />
+                    </th>
+                    <th>Reference</th>
+                    <th>Titre</th>
+                    <th>Destinataire</th>
+                    <th>Statut livraison</th>
+                    <th>Echeance</th>
+                    <th>Suivi lecture</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="inboxLoading">
+                    <td colspan="8" class="text-center text-muted">Chargement inbox...</td>
+                  </tr>
+                  <tr *ngIf="!inboxLoading && !filteredInboxItems.length">
+                    <td colspan="8" class="text-center text-muted">Aucun document ne correspond aux filtres inbox.</td>
+                  </tr>
+                  <tr *ngFor="let item of pagedInboxItems">
+                    <td class="table-select-col">
+                      <input
+                        type="checkbox"
+                        [checked]="isInboxSelected(item)"
+                        [attr.aria-label]="'Selectionner le document ' + item.reference"
+                        (change)="toggleInboxSelection(item, ($any($event.target)).checked)" />
+                    </td>
+                    <td>{{ item.reference }}</td>
+                    <td>{{ item.title }}</td>
+                    <td>
+                      <div>{{ item.assignedEmployeeName || item.employeeName || '-' }}</div>
+                      <small class="text-muted">{{ item.recipientUsername || '-' }}</small>
+                    </td>
+                    <td>{{ deliveryStatusLabel(item) }}</td>
+                    <td>{{ item.assignmentDueAt ? (item.assignmentDueAt | date:'yyyy-MM-dd HH:mm') : '-' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="inboxStatusBadgeClass(item)">
+                        {{ inboxStatusLabel(item) }}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-2">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-secondary"
+                          (click)="openDocumentDetail(item)">
+                          Detail
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          [disabled]="inboxUpdatingReference === item.reference || !!item.readAt"
+                          (click)="markInboxRead(item)">
+                          Marquer lu
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-success"
+                          [disabled]="inboxUpdatingReference === item.reference || !!item.acknowledgedAt"
+                          (click)="acknowledgeInbox(item)">
+                          Accuser reception
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top" *ngIf="!inboxLoading">
+              <div class="fs-12 text-muted">{{ pagedInboxItems.length }} affiches sur {{ filteredInboxItems.length }}</div>
+              <div class="d-inline-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-light" (click)="setInboxPage(inboxPage - 1)" [disabled]="inboxPage <= 1">
+                  Precedent
+                </button>
+                <span class="fs-12 text-muted">Page {{ inboxPage }} / {{ inboxTotalPages }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light"
+                  (click)="setInboxPage(inboxPage + 1)"
+                  [disabled]="inboxPage >= inboxTotalPages">
+                  Suivant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeWorkspaceTab === 'demandes'" class="row g-3">
+          <div class="col-xl-4">
+            <div class="card border shadow-none mb-0">
+              <div class="card-header">
+                <h6 class="mb-0">Nouvelle demande document</h6>
+              </div>
+              <div class="card-body">
+                <form [formGroup]="requestForm" (ngSubmit)="createDocumentRequest()" class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Type de document</label>
+                    <select class="form-select" formControlName="documentType">
+                      <option *ngFor="let option of documentTypeOptions" [value]="option">{{ option }}</option>
+                    </select>
+                    <div class="text-danger fs-11 mt-1" *ngIf="requestFieldError('documentType') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Motif / usage</label>
+                    <textarea rows="3" class="form-control" formControlName="purpose"></textarea>
+                    <div class="text-danger fs-11 mt-1" *ngIf="requestFieldError('purpose') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Date souhaitee</label>
+                    <input type="date" class="form-control" formControlName="neededBy" />
+                    <div class="text-danger fs-11 mt-1" *ngIf="requestFieldError('neededBy') as error">{{ error }}</div>
+                  </div>
+                  <div class="col-12 d-grid">
+                    <button type="submit" class="btn btn-primary" [disabled]="requestSubmitting">
+                      {{ requestSubmitting ? 'Soumission...' : 'Soumettre la demande' }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-8">
+            <div class="card border shadow-none mb-0">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Traitement des demandes</h6>
+                <span class="badge text-bg-light">{{ filteredDocumentRequests.length }} / {{ documentRequests.length }} demandes</span>
+              </div>
+              <div class="card-body p-0">
+                <form [formGroup]="requestFiltersForm" class="row g-2 p-3 border-bottom">
+                  <div class="col-xl-5 col-md-6">
+                    <label class="form-label mb-1">Recherche</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="q" placeholder="Reference, demandeur, motif..." />
+                  </div>
+                  <div class="col-xl-2 col-md-3">
+                    <label class="form-label mb-1">Statut</label>
+                    <select class="form-select form-select-sm" formControlName="status">
+                      <option value="Tous">Tous</option>
+                      <option *ngFor="let option of requestStatusOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </div>
+                  <div class="col-xl-3 col-md-3">
+                    <label class="form-label mb-1">Type document</label>
+                    <select class="form-select form-select-sm" formControlName="documentType">
+                      <option value="Tous">Tous</option>
+                      <option *ngFor="let option of requestTypeOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </div>
+                  <div class="col-xl-2 col-md-3">
+                    <label class="form-label mb-1">Par page</label>
+                    <select class="form-select form-select-sm" formControlName="pageSize">
+                      <option *ngFor="let option of pageSizeOptions" [ngValue]="option">{{ option }}</option>
+                    </select>
+                  </div>
+                </form>
+                <div class="bulk-toolbar border-bottom px-3 py-2 d-flex flex-wrap gap-2 align-items-center" *ngIf="requestSelectionCount() > 0">
+                  <span class="bulk-toolbar__count">{{ requestSelectionCount() }} selection(s)</span>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-success"
+                    (click)="bulkDecideRequests('APPROUVER')"
+                    [disabled]="bulkActionRunning || !canManageDocuments()">
+                    Valider selection
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="bulkDecideRequests('REJETER')"
+                    [disabled]="bulkActionRunning || !canManageDocuments()">
+                    Rejeter selection
+                  </button>
+                  <button type="button" class="btn btn-sm btn-light" (click)="clearRequestSelection()" [disabled]="bulkActionRunning">
+                    Vider
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                      <tr>
+                        <th class="table-select-col">
+                          <input
+                            type="checkbox"
+                            [checked]="areAllRequestPageSelected()"
+                            aria-label="Selectionner toutes les demandes de la page"
+                            (change)="toggleRequestPageSelection(($any($event.target)).checked)" />
+                        </th>
+                        <th>Reference</th>
+                        <th>Type</th>
+                        <th>Demandeur</th>
+                        <th>Echeance</th>
+                        <th>Statut</th>
+                        <th>Decision</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngIf="requestsLoading">
+                        <td colspan="7" class="text-center text-muted">Chargement demandes...</td>
+                      </tr>
+                      <tr *ngIf="!requestsLoading && !filteredDocumentRequests.length">
+                        <td colspan="7" class="text-center text-muted">Aucune demande ne correspond aux filtres.</td>
+                      </tr>
+                      <tr *ngFor="let item of pagedDocumentRequests">
+                        <td class="table-select-col">
+                          <input
+                            type="checkbox"
+                            [checked]="isRequestSelected(item)"
+                            [attr.aria-label]="'Selectionner la demande ' + item.reference"
+                            (change)="toggleRequestSelection(item, ($any($event.target)).checked)" />
+                        </td>
+                        <td>{{ item.reference }}</td>
+                        <td>{{ item.documentType }}</td>
+                        <td>
+                          <div>{{ item.requesterName }}</div>
+                          <small class="text-muted">{{ item.requesterUsername || '-' }}</small>
+                        </td>
+                        <td>{{ item.neededBy || '-' }}</td>
+                        <td>
+                          <span class="badge" [ngClass]="requestStatusBadgeClass(item.status)">
+                            {{ item.status }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="d-inline-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openRequestDetail(item)">
+                              Detail
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-success"
+                              [disabled]="!isRequestPending(item) || (requestDecisionSubmitting && requestDecisionReference === item.reference) || !canManageDocuments()"
+                              (click)="decideDocumentRequest(item, 'APPROUVER')">
+                              Valider
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-outline-danger"
+                              [disabled]="!isRequestPending(item) || (requestDecisionSubmitting && requestDecisionReference === item.reference) || !canManageDocuments()"
+                              (click)="decideDocumentRequest(item, 'REJETER')">
+                              Rejeter
+                            </button>
+                          </div>
+                          <div class="fs-11 text-muted mt-1" *ngIf="item.decidedBy || item.decisionComment">
+                            {{ item.decidedBy || '-' }} {{ item.decidedAt ? ('| ' + (item.decidedAt | date:'yyyy-MM-dd HH:mm')) : '' }}
+                            <span *ngIf="item.decisionComment"> - {{ item.decisionComment }}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top" *ngIf="!requestsLoading">
+                  <div class="fs-12 text-muted">{{ pagedDocumentRequests.length }} affiches sur {{ filteredDocumentRequests.length }}</div>
+                  <div class="d-inline-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-light" (click)="setRequestPage(requestPage - 1)" [disabled]="requestPage <= 1">
+                      Precedent
+                    </button>
+                    <span class="fs-12 text-muted">Page {{ requestPage }} / {{ requestTotalPages }}</span>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light"
+                      (click)="setRequestPage(requestPage + 1)"
+                      [disabled]="requestPage >= requestTotalPages">
+                      Suivant
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="activeWorkspaceTab === 'notifications'" class="card border shadow-none mb-0">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Notifications documentaires</h6>
+            <span class="badge text-bg-light">{{ filteredNotifications.length }} / {{ notifications.length }} notifications</span>
+          </div>
+          <div class="card-body p-0">
+            <form [formGroup]="notificationFiltersForm" class="row g-2 p-3 border-bottom">
+              <div class="col-xl-5 col-md-6">
+                <label class="form-label mb-1">Recherche</label>
+                <input type="text" class="form-control form-control-sm" formControlName="q" placeholder="Titre, message, reference..." />
+              </div>
+              <div class="col-xl-2 col-md-3">
+                <label class="form-label mb-1">Etat</label>
+                <select class="form-select form-select-sm" formControlName="readState">
+                  <option *ngFor="let option of readStateFilterOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+              <div class="col-xl-3 col-md-3">
+                <label class="form-label mb-1">Categorie</label>
+                <select class="form-select form-select-sm" formControlName="category">
+                  <option value="Tous">Tous</option>
+                  <option *ngFor="let option of notificationCategoryOptions" [value]="option">{{ option }}</option>
+                </select>
+              </div>
+              <div class="col-xl-2 col-md-3">
+                <label class="form-label mb-1">Par page</label>
+                <select class="form-select form-select-sm" formControlName="pageSize">
+                  <option *ngFor="let option of pageSizeOptions" [ngValue]="option">{{ option }}</option>
+                </select>
+              </div>
+            </form>
+            <div
+              class="bulk-toolbar border-bottom px-3 py-2 d-flex flex-wrap gap-2 align-items-center"
+              *ngIf="notificationSelectionCount() > 0">
+              <span class="bulk-toolbar__count">{{ notificationSelectionCount() }} selection(s)</span>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="bulkMarkNotificationsRead()"
+                [disabled]="bulkActionRunning">
+                Marquer lues
+              </button>
+              <button type="button" class="btn btn-sm btn-light" (click)="clearNotificationSelection()" [disabled]="bulkActionRunning">
+                Vider
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered mb-0">
+                <thead>
+                  <tr>
+                    <th class="table-select-col">
+                      <input
+                        type="checkbox"
+                        [checked]="areAllNotificationPageSelected()"
+                        aria-label="Selectionner toutes les notifications de la page"
+                        (change)="toggleNotificationPageSelection(($any($event.target)).checked)" />
+                    </th>
+                    <th>Date</th>
+                    <th>Titre</th>
+                    <th>Message</th>
+                    <th>Categorie</th>
+                    <th>Reference</th>
+                    <th>Etat</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="notificationsLoading">
+                    <td colspan="8" class="text-center text-muted">Chargement notifications...</td>
+                  </tr>
+                  <tr *ngIf="!notificationsLoading && !filteredNotifications.length">
+                    <td colspan="8" class="text-center text-muted">Aucune notification ne correspond aux filtres.</td>
+                  </tr>
+                  <tr *ngFor="let item of pagedNotifications">
+                    <td class="table-select-col">
+                      <input
+                        type="checkbox"
+                        [checked]="isNotificationSelected(item)"
+                        [attr.aria-label]="'Selectionner la notification ' + item.id"
+                        (change)="toggleNotificationSelection(item, ($any($event.target)).checked)" />
+                    </td>
+                    <td>{{ item.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.message }}</td>
+                    <td>{{ item.category || '-' }}</td>
+                    <td>{{ item.reference || '-' }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="notificationStatusBadgeClass(item)">
+                        {{ item.isRead ? 'Lue' : 'Non lue' }}
+                      </span>
+                    </td>
+                    <td class="text-end">
+                      <div class="d-inline-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="openNotificationDetail(item)">
+                          Detail
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          [disabled]="item.isRead || notificationUpdatingId === item.id"
+                          (click)="markNotificationRead(item)">
+                          Marquer lue
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top" *ngIf="!notificationsLoading">
+              <div class="fs-12 text-muted">{{ pagedNotifications.length }} affichees sur {{ filteredNotifications.length }}</div>
+              <div class="d-inline-flex align-items-center gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light"
+                  (click)="setNotificationPage(notificationPage - 1)"
+                  [disabled]="notificationPage <= 1">
+                  Precedent
+                </button>
+                <span class="fs-12 text-muted">Page {{ notificationPage }} / {{ notificationTotalPages }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light"
+                  (click)="setNotificationPage(notificationPage + 1)"
+                  [disabled]="notificationPage >= notificationTotalPages">
+                  Suivant
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
+
+<div class="detail-drawer-layer" *ngIf="detailDrawerOpen">
+  <button
+    type="button"
+    class="detail-drawer-backdrop"
+    aria-label="Fermer le panneau detail"
+    (click)="closeDetailPanel()"></button>
+  <aside
+    class="detail-drawer"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="detailPanelTitle"
+    (click)="$event.stopPropagation()">
+    <div class="detail-drawer__header">
+      <div>
+        <div class="detail-drawer__title">{{ detailPanelTitle }}</div>
+        <div class="detail-drawer__subtitle">{{ detailPanelSubtitle }}</div>
+      </div>
+      <button type="button" class="btn btn-sm btn-light" (click)="closeDetailPanel()">Fermer</button>
+    </div>
+
+    <div class="detail-drawer__status">{{ detailPanelStatus }}</div>
+
+    <div class="detail-drawer__rows">
+      <div class="detail-row" *ngFor="let row of detailPanelRows">
+        <span class="detail-row__label">{{ row.label }}</span>
+        <span class="detail-row__value">{{ row.value }}</span>
+      </div>
+    </div>
+
+    <div class="detail-drawer__description">
+      {{ detailPanelDescription }}
+    </div>
+  </aside>
 </div>

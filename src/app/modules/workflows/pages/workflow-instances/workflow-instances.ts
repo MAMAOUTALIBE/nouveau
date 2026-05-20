@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription, firstValueFrom } from 'rxjs';
+import { APP_PERMISSIONS, AccessControlService } from '../../../../core/security/access-control.service';
 import {
   CreateWorkflowInstancePayload,
   WorkflowAction,
@@ -48,6 +49,7 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   private workflowsService = inject(WorkflowsService);
   private workflowAutomationService = inject(WorkflowAutomationService);
   private toastr = inject(ToastrService);
+  private accessControl = inject(AccessControlService);
   private subscriptions = new Subscription();
 
   isLoading = false;
@@ -171,6 +173,11 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async toggleAutomation(): Promise<void> {
+    if (!this.ensureManageWorkflows('activer ou desactiver l auto-escalade')) {
+      this.automationEnabled = !this.automationEnabled;
+      return;
+    }
+
     try {
       if (this.automationEnabled) {
         await this.workflowAutomationService.startAutoEscalation(this.automationIntervalSeconds * 1000);
@@ -200,6 +207,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.ensureManageWorkflows("modifier l intervalle d auto-escalade")) {
+      return;
+    }
+
     try {
       await this.workflowAutomationService.startAutoEscalation(this.automationIntervalSeconds * 1000);
       this.toastr.info(`Nouvel intervalle applique: ${this.automationIntervalSeconds}s`, 'Workflows', {
@@ -215,6 +226,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async runAutomationCycle(): Promise<void> {
+    if (!this.ensureManageWorkflows('executer un cycle automation')) {
+      return;
+    }
+
     if (this.isRunningAutomationCycle) {
       return;
     }
@@ -242,6 +257,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async clearAutomationEvents(): Promise<void> {
+    if (!this.ensureManageWorkflows('vider le journal automation')) {
+      return;
+    }
+
     try {
       await this.workflowAutomationService.clearEvents();
       this.toastr.info('Journal automation vide', 'Workflows', {
@@ -257,6 +276,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async saveNotificationChannels(): Promise<void> {
+    if (!this.ensureManageWorkflows('mettre a jour les canaux de notification')) {
+      return;
+    }
+
     if (this.isSavingChannels) {
       return;
     }
@@ -291,6 +314,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async saveEscalationMatrix(): Promise<void> {
+    if (!this.ensureManageWorkflows('modifier la matrice d escalation')) {
+      return;
+    }
+
     if (this.isSavingMatrix) {
       return;
     }
@@ -343,6 +370,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async applySimulationBatch(): Promise<void> {
+    if (!this.ensureManageWorkflows('appliquer le batch d escalade')) {
+      return;
+    }
+
     if (this.isApplyingSimulationBatch) {
       return;
     }
@@ -467,6 +498,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   performAction(instance: WorkflowInstance, action: WorkflowAction, note = ''): void {
+    if (!this.ensureManageWorkflows('executer une transition workflow')) {
+      return;
+    }
+
     this.workflowsService.transitionInstance(instance.id, action, note).subscribe({
       next: () => {
         this.toastr.success(`Action ${this.actionLabel(action).toLowerCase()} appliquee`, 'Workflows', {
@@ -497,6 +532,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   async launchEmergencyPlan(): Promise<void> {
+    if (!this.ensureManageWorkflows("lancer le plan d urgence")) {
+      return;
+    }
+
     if (this.isApplyingEmergencyPlan) {
       return;
     }
@@ -782,6 +821,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   toggleCreateForm(): void {
+    if (!this.showCreateForm && !this.ensureManageWorkflows('creer une instance workflow')) {
+      return;
+    }
+
     this.showCreateForm = !this.showCreateForm;
     if (this.showCreateForm) {
       this.initializeCreateForm();
@@ -812,6 +855,10 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
   }
 
   saveNewInstance(): void {
+    if (!this.ensureManageWorkflows('enregistrer une instance workflow')) {
+      return;
+    }
+
     if (this.isCreatingInstance) {
       return;
     }
@@ -1236,6 +1283,22 @@ export class WorkflowInstancesPage implements OnInit, OnDestroy {
       return error.message;
     }
     return 'Action workflow impossible';
+  }
+
+  canManageWorkflows(): boolean {
+    return this.accessControl.hasPermission(APP_PERMISSIONS.workflowsManage);
+  }
+
+  private ensureManageWorkflows(action: string): boolean {
+    if (this.canManageWorkflows()) {
+      return true;
+    }
+
+    this.toastr.error(`Acces refuse: droits insuffisants pour ${action}`, 'Workflows', {
+      timeOut: 3200,
+      positionClass: 'toast-top-right',
+    });
+    return false;
   }
 
   private initializeCreateForm(): void {

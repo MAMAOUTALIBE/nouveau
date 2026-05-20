@@ -113,6 +113,61 @@ export class TrainingSessionsPage implements OnInit {
     });
   }
 
+  get coldEvaluationReminders(): Array<{ session: TrainingSession; dueLabel: string; enrolled: number }> {
+    return this.items
+      .map((session) => ({ session, endDate: this.parseSessionEndDate(session) }))
+      .filter((entry) => !!entry.endDate)
+      .filter((entry) => this.daysSince(entry.endDate as Date) >= 90)
+      .slice(0, 6)
+      .map((entry) => ({
+        session: entry.session,
+        dueLabel: `Evaluation a froid J+${this.daysSince(entry.endDate as Date)}`,
+        enrolled: entry.session.enrolled,
+      }));
+  }
+
+  get budgetInsights(): Array<{ session: TrainingSession; budget: number; costPerParticipant: number; varianceLabel: string }> {
+    return this.items.slice(0, 6).map((session) => {
+      const budget = session.seats * 650_000;
+      const consumed = Math.max(session.enrolled, 1) * 520_000;
+      return {
+        session,
+        budget,
+        costPerParticipant: Math.round(consumed / Math.max(session.enrolled, 1)),
+        varianceLabel: consumed > budget ? 'Depassement' : 'Sous controle',
+      };
+    });
+  }
+
+  get adaptiveRecommendations(): Array<{ request: TrainingEnrollmentRequest; recommendation: string }> {
+    return this.requests
+      .filter((request) => this.normalizeRequestStatus(request.status) === 'soumise')
+      .slice(0, 6)
+      .map((request) => ({
+        request,
+        recommendation: this.recommendTrainingPath(request),
+      }));
+  }
+
+  get certificationReady(): Array<{ request: TrainingEnrollmentRequest; certificateRef: string }> {
+    const completedSessionCodes = new Set(
+      this.items
+        .filter((session) => {
+          const status = this.normalizeStatus(session.status);
+          return status === 'complete' || session.enrolled >= session.seats;
+        })
+        .map((session) => session.code)
+    );
+    return this.requests
+      .filter((request) => this.normalizeRequestStatus(request.status) === 'validee')
+      .filter((request) => completedSessionCodes.has(request.sessionCode))
+      .slice(0, 6)
+      .map((request) => ({
+        request,
+        certificateRef: `CERT-${request.reference}`,
+      }));
+  }
+
   fieldError(fieldName: string): string | null {
     const control = this.form.get(fieldName);
     if (!control || !control.touched || !control.errors) {
@@ -406,6 +461,30 @@ export class TrainingSessionsPage implements OnInit {
 
   private normalizeRequestStatus(status: string): string {
     return String(status || '').trim().toLowerCase();
+  }
+
+  private parseSessionEndDate(session: TrainingSession): Date | null {
+    const rawDate = String(session.dates || '').split(' - ').pop()?.trim() || '';
+    const parsed = Date.parse(rawDate);
+    return Number.isNaN(parsed) ? null : new Date(parsed);
+  }
+
+  private daysSince(date: Date): number {
+    return Math.max(0, Math.floor((Date.now() - date.getTime()) / 86_400_000));
+  }
+
+  private recommendTrainingPath(request: TrainingEnrollmentRequest): string {
+    const text = `${request.sessionTitle} ${request.motivation}`.toLowerCase();
+    if (text.includes('management') || text.includes('manager')) {
+      return 'Parcours leadership public + evaluation manager a 60 jours';
+    }
+    if (text.includes('paie') || text.includes('budget')) {
+      return 'Parcours expertise administrative avec atelier cas pratiques';
+    }
+    if (text.includes('digital') || text.includes('data') || text.includes('outil')) {
+      return 'Parcours transformation digitale avec module avance';
+    }
+    return 'Parcours standard avec controle des acquis en fin de session';
   }
 
   private requestsForSession(sessionCode: string): TrainingEnrollmentRequest[] {

@@ -291,6 +291,11 @@ export class CampaignsPage implements OnInit {
   }
 
   exportCampaigns(): void {
+    if (!this.canManageRecruitment()) {
+      this.notifyMissingManagePermission();
+      return;
+    }
+
     if (!this.items.length) {
       this.toastr.info('Aucune campagne a exporter', 'Recrutement', {
         timeOut: 2500,
@@ -501,6 +506,11 @@ export class CampaignsPage implements OnInit {
   }
 
   exportExecutiveDashboard(format: 'csv' | 'pdf'): void {
+    if (!this.canManageRecruitment()) {
+      this.notifyMissingManagePermission();
+      return;
+    }
+
     this.executiveExporting = true;
     this.recruitmentService
       .exportExecutiveDashboard(format)
@@ -567,6 +577,11 @@ export class CampaignsPage implements OnInit {
   }
 
   pushObservabilityEvent(): void {
+    if (!this.canManageRecruitment()) {
+      this.notifyMissingManagePermission();
+      return;
+    }
+
     if (this.observabilityEventForm.invalid || this.observabilityEventSubmitting) {
       this.observabilityEventForm.markAllAsTouched();
       return;

@@ -113,7 +113,7 @@ Routes à conserver mais à remapper:
 - `pages/profile` ou son équivalent en nouveau module RH
 - `pages/settings` ou son équivalent en administration RH
 - `apps/contacts`
-- `apps/fullcalender`
+- `apps/fullcalendar`
 - `apps/file-manager`
 - `apps/file-details`
 - `apps/treeview`

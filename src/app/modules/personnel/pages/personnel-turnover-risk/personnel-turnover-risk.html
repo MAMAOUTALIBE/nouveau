@@ -1,0 +1,145 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+    <div class="card custom-card">
+      <div class="card-header justify-content-between">
+        <div>
+          <div class="card-title mb-1">Analyse prédictive du turn-over</div>
+          <div class="text-muted fs-12">Scoring explicable par agent, facteurs de risque et actions RH recommandées</div>
+        </div>
+        <div class="btn-list">
+          <button type="button" class="btn btn-outline-primary" [disabled]="isLoading" (click)="loadRisks()">
+            Actualiser
+          </button>
+          <button type="button" class="btn btn-primary" [disabled]="isLoading || !items.length" (click)="exportRisks()">
+            Exporter
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="border rounded-2 p-3 h-100">
+              <div class="text-muted fs-12">Agents surveillés</div>
+              <div class="fs-3 fw-semibold mt-1">{{ items.length }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded-2 p-3 h-100">
+              <div class="text-muted fs-12">Risque élevé ou critique</div>
+              <div class="fs-3 fw-semibold mt-1">{{ highRiskCount() }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded-2 p-3 h-100">
+              <div class="text-muted fs-12">Cas critiques</div>
+              <div class="fs-3 fw-semibold mt-1">{{ criticalRiskCount() }}</div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border rounded-2 p-3 h-100">
+              <div class="text-muted fs-12">Score moyen</div>
+              <div class="fs-3 fw-semibold mt-1">{{ averageRiskScore() }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 align-items-end mb-4">
+          <div class="col-md-4">
+            <label class="form-label">Recherche</label>
+            <input
+              type="search"
+              class="form-control"
+              [(ngModel)]="search"
+              placeholder="Agent, matricule, poste"
+              (keyup.enter)="loadRisks()" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Direction</label>
+            <input
+              type="search"
+              class="form-control"
+              [(ngModel)]="direction"
+              placeholder="Direction ou service"
+              (keyup.enter)="loadRisks()" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Niveau</label>
+            <select class="form-select" [(ngModel)]="selectedRiskLevel" (change)="loadRisks()">
+              <option *ngFor="let option of riskLevelOptions" [ngValue]="option.value">{{ option.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <label class="form-label">Score min.</label>
+            <input type="number" class="form-control" min="0" max="100" [(ngModel)]="minScore" />
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button type="button" class="btn btn-primary flex-fill" [disabled]="isLoading" (click)="loadRisks()">
+              Filtrer
+            </button>
+            <button type="button" class="btn btn-light" [disabled]="isLoading" (click)="resetFilters()">
+              Effacer
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Direction</th>
+                <th>Score</th>
+                <th>Niveau</th>
+                <th>Facteurs</th>
+                <th>Action recommandée</th>
+                <th>Modèle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="7" class="text-center text-muted py-4">Chargement des risques...</td>
+              </tr>
+              <tr *ngIf="!isLoading && !items.length">
+                <td colspan="7" class="text-center text-muted py-4">Aucun signal de turn-over détecté</td>
+              </tr>
+              <tr *ngFor="let item of items; trackBy: trackByAgentId">
+                <td>
+                  <div class="fw-semibold">{{ item.fullName }}</div>
+                  <div class="text-muted fs-12">{{ item.matricule }} - {{ item.position }}</div>
+                </td>
+                <td>
+                  <div>{{ item.direction }}</div>
+                  <div class="text-muted fs-12">{{ item.unit || 'Sans unité' }}</div>
+                </td>
+                <td class="min-w-120">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold">{{ item.riskScore }}</span>
+                    <div class="progress flex-grow-1 progress-xs">
+                      <div
+                        class="progress-bar"
+                        [ngClass]="scoreBarClass(item.riskLevel)"
+                        [style.width.%]="item.riskScore"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="riskLevelBadgeClass(item.riskLevel)">{{ item.riskLevel }}</span>
+                </td>
+                <td>
+                  <span *ngIf="item.factors.length; else noFactors">{{ item.factors.join(' | ') }}</span>
+                  <ng-template #noFactors><span class="text-muted">Aucun facteur détaillé</span></ng-template>
+                </td>
+                <td>{{ item.recommendedAction }}</td>
+                <td>
+                  <div>{{ item.modelName }}</div>
+                  <div class="text-muted fs-12">{{ item.generatedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

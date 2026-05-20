@@ -91,4 +91,13 @@ describe('ApiClientService', () => {
     await expect(requestPromise).rejects.toHaveProperty('status', 503);
     httpMock.expectNone(`${environment.api.baseUrl}/post-no-retry`);
   });
+
+  it('unwraps a data envelope for patch()', async () => {
+    const requestPromise = firstValueFrom(service.patch<{ ok: boolean }, { status: string }>('/patch-demo', { status: 'ok' }));
+    const req = httpMock.expectOne(`${environment.api.baseUrl}/patch-demo`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush({ data: { ok: true } });
+
+    await expect(requestPromise).resolves.toEqual({ ok: true });
+  });
 });

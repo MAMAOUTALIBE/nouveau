@@ -213,7 +213,7 @@ export class AppStateService {
     html?.setAttribute('data-vertical-style','overlay');
     this.stateSubject.next(this.initialState);
     this.updateStateAndEmit(this.initialState);
-    localStorage.clear();
+    localStorage.removeItem(this.localStorageKey);
 
     const checkedElement = document.querySelector('[name="theme-primary"]:checked') as HTMLInputElement | null;
     // Check if the element exists before trying to modify it
