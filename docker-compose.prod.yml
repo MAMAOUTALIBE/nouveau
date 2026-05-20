@@ -24,7 +24,26 @@ services:
       timeout: 5s
       retries: 10
 
+  # Migrations Alembic — conteneur one-shot exécuté une fois, avant le backend.
+  # (Évite de migrer dans chaque worker gunicorn et le conflit de boucle asyncio.)
+  migrate:
+    image: rhgn-backend:local
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rh-migrate
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      ENV: prod
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY requis dans .env (>=32 caracteres)}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-rh_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rh_primature}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   backend:
+    image: rhgn-backend:local
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -37,12 +56,15 @@ services:
       APP_PORT: 8000
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY requis dans .env (>=32 caracteres)}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-rh_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rh_primature}
-      RUN_MIGRATIONS_ON_STARTUP: "true"
+      # Migrations gérées par le service `migrate` — surtout pas au démarrage du backend.
+      RUN_MIGRATIONS_ON_STARTUP: "false"
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       BCRYPT_ROUNDS: "12"
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     # Le backend n'est PAS exposé directement : seul nginx (frontend) l'atteint.
     expose:
       - "8000"

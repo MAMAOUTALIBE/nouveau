@@ -67,8 +67,9 @@ committer.
 docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Le premier lancement compile les images (quelques minutes). Au démarrage, le
-backend applique automatiquement les migrations de base de données.
+Le premier lancement compile les images (quelques minutes). Un conteneur
+dédié `rh-migrate` applique les migrations de base de données, puis le
+backend démarre une fois les migrations terminées.
 
 Vérifier que tout tourne :
 
