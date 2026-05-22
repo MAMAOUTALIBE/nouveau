@@ -95,7 +95,6 @@ _RECRUITMENT_LIST_STUBS = [
     "/recruitment/onboarding/sync-logs",
     "/recruitment/rules",
     "/recruitment/rules/executions",
-    "/recruitment/shortlists/validations",
 ]
 
 _RECRUITMENT_OBJECT_STUBS = [
@@ -111,7 +110,6 @@ _RECRUITMENT_ACTION_STUBS = [
     "/recruitment/interview-question-bank/import",
     "/recruitment/interview-question-bank/export",
     "/recruitment/rules/simulate",
-    "/recruitment/shortlists/suggest",
     "/recruitment/uploads",
 ]
 
@@ -161,16 +159,6 @@ for _path in _RECRUITMENT_ACTION_STUBS:
 
 
 # Routes paramétrées (impossibles à générer en boucle simple)
-@router.post("/recruitment/shortlists/{reference}/validate")
-async def stub_shortlist_validate(
-    reference: str,
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> dict[str, Any]:
-    response.headers.update(_STUB_HEADER)
-    return {"status": "stub", "implemented": False, "reference": reference}
-
-
 @router.post("/recruitment/interviews/{interview_id}/reschedule")
 async def stub_interview_reschedule(
     interview_id: str,

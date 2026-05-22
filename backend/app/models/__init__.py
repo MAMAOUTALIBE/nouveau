@@ -65,6 +65,7 @@ from app.models.recruitment import (
     RecruitmentCampaign,
     RecruitmentComment,
     RecruitmentScoringPolicy,
+    RecruitmentShortlistValidation,
     RecruitmentStatusEvent,
 )
 from app.models.signature import (
@@ -136,6 +137,7 @@ __all__ = [
     "RecruitmentCampaign",
     "RecruitmentComment",
     "RecruitmentScoringPolicy",
+    "RecruitmentShortlistValidation",
     "RecruitmentStatusEvent",
     "Role",
     "RolePermission",

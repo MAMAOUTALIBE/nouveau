@@ -196,3 +196,54 @@ class ApplicationScoresResponse(BaseModel):
     policy_updated_at: datetime | None = None
     criteria: list[ScoringCriterion]
     items: list[ApplicationScoreEntry]
+
+
+# ---------------------------------------------------------------------------
+# Shortlists — suggestion (top-N par score) + validation RH
+# ---------------------------------------------------------------------------
+ShortlistDecision = Literal["VALIDATED", "REJECTED"]
+
+
+class ShortlistSuggestionRequest(BaseModel):
+    top_n: int = Field(default=5, ge=1, le=50)
+    campaign: str | None = None
+    position: str | None = None
+
+
+class ShortlistSuggestionEntry(BaseModel):
+    reference: str
+    candidate: str
+    position: str
+    campaign: str
+    status: ApplicationStatus
+    received_on: date | None
+    total_score: float
+    rank: int
+    details: list[ApplicationScoreDetail]
+    justification: str
+    validation_required: bool
+    validation_status: Literal["PENDING", "VALIDATED", "REJECTED"]
+    validated_at: datetime | None = None
+    validated_by: str | None = None
+    validation_note: str | None = None
+
+
+class ShortlistSuggestionResponse(BaseModel):
+    generated_at: datetime
+    top_n: int
+    total_candidates: int
+    criteria_version: str
+    suggested: list[ShortlistSuggestionEntry]
+
+
+class ShortlistValidationEntry(BaseModel):
+    reference: str
+    decision: ShortlistDecision
+    note: str | None = None
+    validated_at: datetime
+    validated_by: str
+
+
+class ShortlistValidateRequest(BaseModel):
+    decision: ShortlistDecision
+    note: str | None = None

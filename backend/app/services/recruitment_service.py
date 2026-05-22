@@ -20,6 +20,7 @@ from app.models.recruitment import (
     RecruitmentCampaign,
     RecruitmentComment,
     RecruitmentScoringPolicy,
+    RecruitmentShortlistValidation,
     RecruitmentStatusEvent,
 )
 from app.models.user import User
@@ -38,6 +39,10 @@ from app.schemas.recruitment import (
     OnboardingItemResponse,
     ScoringCriterion,
     ScoringPolicyResponse,
+    ShortlistSuggestionEntry,
+    ShortlistSuggestionResponse,
+    ShortlistValidateRequest,
+    ShortlistValidationEntry,
 )
 
 
@@ -638,4 +643,221 @@ async def list_application_scores(
         policy_updated_at=policy_row.updated_at if policy_row else None,
         criteria=criteria,
         items=entries,
+    )
+
+
+# ============================================================================
+# Shortlists — suggestion top-N + validation RH
+# ============================================================================
+# Score à partir duquel une candidature est shortlistée sans demander de
+# validation RH (en dessous, RH doit valider explicitement).
+_SHORTLIST_AUTO_VALIDATE_SCORE = 75.0
+
+
+async def _load_shortlist_validation(
+    session: AsyncSession, *, organization_id: UUID, reference: str
+) -> RecruitmentShortlistValidation | None:
+    return (
+        await session.execute(
+            select(RecruitmentShortlistValidation).where(
+                RecruitmentShortlistValidation.organization_id == organization_id,
+                RecruitmentShortlistValidation.application_reference == reference,
+            )
+        )
+    ).scalar_one_or_none()
+
+
+async def suggest_shortlist(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    top_n: int,
+    campaign: str | None = None,
+    position: str | None = None,
+) -> ShortlistSuggestionResponse:
+    """Top-N candidatures par score, enrichies du statut de validation RH."""
+    scores = await list_application_scores(
+        session,
+        organization_id=organization_id,
+        campaign=campaign,
+        position=position,
+    )
+    top = scores.items[:top_n]
+
+    # Charge les validations existantes pour les références shortlistées.
+    refs = [item.reference for item in top]
+    validations: dict[str, RecruitmentShortlistValidation] = {}
+    if refs:
+        rows = (
+            await session.execute(
+                select(RecruitmentShortlistValidation).where(
+                    RecruitmentShortlistValidation.organization_id == organization_id,
+                    RecruitmentShortlistValidation.application_reference.in_(refs),
+                )
+            )
+        ).scalars().all()
+        validations = {row.application_reference: row for row in rows}
+
+    # Résout les noms d'utilisateurs validateurs.
+    user_ids = {v.validated_by_user_id for v in validations.values() if v.validated_by_user_id}
+    user_names: dict[UUID, str] = {}
+    if user_ids:
+        user_names = {
+            user_id: full_name
+            for user_id, full_name in (
+                await session.execute(
+                    select(User.user_id, User.full_name).where(User.user_id.in_(user_ids))
+                )
+            ).all()
+        }
+
+    entries: list[ShortlistSuggestionEntry] = []
+    for item in top:
+        validation = validations.get(item.reference)
+        validation_required = item.total_score < _SHORTLIST_AUTO_VALIDATE_SCORE
+        if validation is not None:
+            validation_status = validation.decision  # VALIDATED | REJECTED
+            validated_at = validation.validated_at
+            validated_by = (
+                user_names.get(validation.validated_by_user_id)
+                if validation.validated_by_user_id
+                else None
+            )
+            validation_note = validation.note
+        else:
+            validation_status = "PENDING"
+            validated_at = None
+            validated_by = None
+            validation_note = None
+        top_detail = max(item.details, key=lambda d: d.weighted_score) if item.details else None
+        justification = (
+            f"{top_detail.criterion_label} en tête à {top_detail.raw_score:g}%."
+            if top_detail
+            else "Score global prioritaire."
+        )
+        entries.append(
+            ShortlistSuggestionEntry(
+                reference=item.reference,
+                candidate=item.candidate,
+                position=item.position,
+                campaign=item.campaign,
+                status=item.status,
+                received_on=item.received_on,
+                total_score=item.total_score,
+                rank=item.rank,
+                details=item.details,
+                justification=justification,
+                validation_required=validation_required,
+                validation_status=validation_status,
+                validated_at=validated_at,
+                validated_by=validated_by,
+                validation_note=validation_note,
+            )
+        )
+
+    criteria_version = (
+        scores.policy_updated_at.isoformat()
+        if scores.policy_updated_at is not None
+        else "default"
+    )
+
+    return ShortlistSuggestionResponse(
+        generated_at=datetime.now(UTC),
+        top_n=top_n,
+        total_candidates=len(scores.items),
+        criteria_version=criteria_version,
+        suggested=entries,
+    )
+
+
+async def list_shortlist_validations(
+    session: AsyncSession, *, organization_id: UUID
+) -> list[ShortlistValidationEntry]:
+    """Liste des validations de shortlist enregistrées."""
+    rows = (
+        await session.execute(
+            select(RecruitmentShortlistValidation, User.full_name)
+            .join(
+                User,
+                RecruitmentShortlistValidation.validated_by_user_id == User.user_id,
+                isouter=True,
+            )
+            .where(RecruitmentShortlistValidation.organization_id == organization_id)
+            .order_by(RecruitmentShortlistValidation.validated_at.desc())
+        )
+    ).all()
+    return [
+        ShortlistValidationEntry(
+            reference=validation.application_reference,
+            decision=validation.decision,
+            note=validation.note,
+            validated_at=validation.validated_at,
+            validated_by=full_name or "système",
+        )
+        for validation, full_name in rows
+    ]
+
+
+async def validate_shortlist_entry(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    reference: str,
+    body: ShortlistValidateRequest,
+    actor_user_id: UUID,
+    actor_full_name: str,
+    audit: AuditWriter,
+) -> ShortlistValidationEntry:
+    """Upsert d'une décision de validation de shortlist."""
+    normalized_ref = reference.strip().upper()
+    if not normalized_ref:
+        raise NotFoundError("Référence manquante.", code="SHORTLIST_REFERENCE_MISSING")
+
+    # Vérifie que la candidature existe pour cette organisation.
+    exists = (
+        await session.execute(
+            select(RecruitmentApplication.application_id).where(
+                RecruitmentApplication.organization_id == organization_id,
+                RecruitmentApplication.reference == normalized_ref,
+            )
+        )
+    ).scalar_one_or_none()
+    if exists is None:
+        raise NotFoundError(
+            f"Candidature {normalized_ref} introuvable.",
+            code="SHORTLIST_APPLICATION_NOT_FOUND",
+        )
+
+    validation = await _load_shortlist_validation(
+        session, organization_id=organization_id, reference=normalized_ref
+    )
+    if validation is None:
+        validation = RecruitmentShortlistValidation(
+            organization_id=organization_id,
+            application_reference=normalized_ref,
+            decision=body.decision,
+            note=body.note,
+            validated_by_user_id=actor_user_id,
+        )
+        session.add(validation)
+    else:
+        validation.decision = body.decision
+        validation.note = body.note
+        validation.validated_by_user_id = actor_user_id
+    await session.flush([validation])
+    await session.refresh(validation, ["validated_at"])
+
+    await audit.record(
+        action=f"RECRUITMENT_SHORTLIST_{body.decision}",
+        target_type="recruitment_shortlist_validation",
+        target_id=normalized_ref,
+        after={"decision": body.decision, "note": body.note},
+    )
+
+    return ShortlistValidationEntry(
+        reference=normalized_ref,
+        decision=body.decision,
+        note=body.note,
+        validated_at=validation.validated_at,
+        validated_by=actor_full_name,
     )

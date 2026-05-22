@@ -224,3 +224,40 @@ class RecruitmentScoringPolicy(Base, TimestampMixin):
         PG_UUID(as_uuid=True),
         ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
     )
+
+
+class RecruitmentShortlistValidation(Base):
+    """Décision RH sur une candidature shortlistée (validée ou rejetée)."""
+
+    __tablename__ = "recruitment_shortlist_validations"
+    __table_args__ = (
+        CheckConstraint(
+            "decision in ('VALIDATED','REJECTED')",
+            name="recruitment_shortlist_validations_decision_check",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "application_reference",
+            name="recruitment_shortlist_validations_unique",
+        ),
+        {"schema": DEFAULT_SCHEMA},
+    )
+
+    shortlist_validation_id: Mapped[UUID] = uuid_pk_column()
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.organizations.organization_id"),
+        nullable=False,
+    )
+    application_reference: Mapped[str] = mapped_column(String, nullable=False)
+    decision: Mapped[str] = mapped_column(String, nullable=False)
+    note: Mapped[str | None] = mapped_column(String)
+    validated_by_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
+    )
+    validated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )

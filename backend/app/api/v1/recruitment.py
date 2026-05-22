@@ -25,6 +25,10 @@ from app.schemas.recruitment import (
     OnboardingItemResponse,
     ScoringPolicyResponse,
     ScoringPolicyUpdateRequest,
+    ShortlistSuggestionRequest,
+    ShortlistSuggestionResponse,
+    ShortlistValidateRequest,
+    ShortlistValidationEntry,
 )
 from app.services import recruitment_service
 
@@ -274,4 +278,66 @@ async def list_application_scores(
         organization_id=current_user.organization_id,
         campaign=campaign,
         position=position,
+    )
+
+
+# ============================================================================
+# Shortlists — suggestion top-N + validation RH
+# ============================================================================
+@router.post("/shortlists/suggest", response_model=ShortlistSuggestionResponse)
+async def suggest_shortlist(
+    body: ShortlistSuggestionRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:view", "recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ShortlistSuggestionResponse:
+    """Top-N candidatures selon le scoring, enrichies du statut de validation."""
+    return await recruitment_service.suggest_shortlist(
+        session,
+        organization_id=current_user.organization_id,
+        top_n=body.top_n,
+        campaign=body.campaign,
+        position=body.position,
+    )
+
+
+@router.get("/shortlists/validations", response_model=list[ShortlistValidationEntry])
+async def list_shortlist_validations(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:view", "recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[ShortlistValidationEntry]:
+    """Historique des validations de shortlist enregistrées."""
+    return await recruitment_service.list_shortlist_validations(
+        session, organization_id=current_user.organization_id
+    )
+
+
+@router.post(
+    "/shortlists/{reference}/validate",
+    response_model=ShortlistValidationEntry,
+)
+async def validate_shortlist_entry(
+    reference: str,
+    body: ShortlistValidateRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> ShortlistValidationEntry:
+    """Valide ou rejette une candidature shortlistée (upsert)."""
+    return await recruitment_service.validate_shortlist_entry(
+        session,
+        organization_id=current_user.organization_id,
+        reference=reference,
+        body=body,
+        actor_user_id=current_user.user_id,
+        actor_full_name=current_user.full_name,
+        audit=audit,
     )
