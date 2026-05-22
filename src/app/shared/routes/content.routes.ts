@@ -6,14 +6,14 @@ export const content: Routes = [
   {
     path: 'dashboards',
     canMatch: [permissionMatchGuard],
-    data: { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView] },
+    data: { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] },
     loadChildren: () =>
       import('../../modules/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
     path: 'dashboard',
     canMatch: [permissionMatchGuard],
-    data: { requiredAnyPermissions: [APP_PERMISSIONS.dashboardView] },
+    data: { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] },
     loadChildren: () =>
       import('../../modules/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
@@ -109,7 +109,7 @@ export const content: Routes = [
   {
     path: 'rapports',
     canMatch: [permissionMatchGuard],
-    data: { requiredAnyPermissions: [APP_PERMISSIONS.reportsView] },
+    data: { requiredAnyPermissions: [APP_PERMISSIONS.personnelView] },
     loadChildren: () =>
       import('../../modules/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
   },

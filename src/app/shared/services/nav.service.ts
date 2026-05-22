@@ -148,7 +148,7 @@ export class NavService implements OnDestroy {
       icon: MENU_ICONS.dashboard,
       type: 'sub',
       dirchange: false,
-      requiredAnyPermissions: [APP_PERMISSIONS.dashboardView],
+      requiredAnyPermissions: [APP_PERMISSIONS.personnelView],
       children: [
         { path: '/dashboard', title: 'Vue generale', icon: MENU_ICONS.dashboard, type: 'link', dirchange: false },
         { path: '/dashboard/operations', title: 'Vue operationnelle', icon: MENU_ICONS.workflows, type: 'link', dirchange: false },
@@ -279,7 +279,7 @@ export class NavService implements OnDestroy {
       icon: MENU_ICONS.rapports,
       type: 'link',
       dirchange: false,
-      requiredAnyPermissions: [APP_PERMISSIONS.reportsView],
+      requiredAnyPermissions: [APP_PERMISSIONS.personnelView],
     },
     { headTitle: 'Web Apps', headIcon: SECTION_ICONS.webApps },
     {
@@ -287,6 +287,8 @@ export class NavService implements OnDestroy {
       icon: MENU_ICONS.webapps,
       type: 'sub',
       dirchange: false,
+      // Aligné sur le guard de la route `/apps` (réservée aux administrateurs).
+      requiredAnyPermissions: [APP_PERMISSIONS.adminView],
       children: [
         { path: '/apps/fullcalendar', title: 'Full Calendar', icon: MENU_ICONS.calendrier, type: 'link', dirchange: false },
         { path: '/apps/contacts', title: 'Contacts', icon: MENU_ICONS.personnel, type: 'link', dirchange: false },
@@ -410,6 +412,11 @@ export class NavService implements OnDestroy {
   }
 
   getDefaultPath(): string {
+    // Le responsable hiérarchique pilote son équipe via le Portail manager :
+    // le tableau de bord global et les rapports sont réservés aux RH/Admin.
+    if (this.isManagerSpaceOnly()) {
+      return '/portail-manager';
+    }
     const filtered = this.removeOrphanHeadings(this.filterMenuItems(this.getMenuSource()));
     return this.findFirstNavigablePath(filtered) || '/acces-refuse';
   }
@@ -421,6 +428,18 @@ export class NavService implements OnDestroy {
   private isEmployeeSpaceOnly(): boolean {
     const access = this.accessControl.snapshot();
     return access.roles.length === 1 && access.roles[0] === 'agent';
+  }
+
+  /**
+   * Responsable hiérarchique « pur » : possède le Portail manager mais pas la
+   * vue RH transverse (`personnel:view`). Le tableau de bord global et les
+   * rapports — réservés aux RH/Admin — ne lui sont donc pas proposés.
+   */
+  private isManagerSpaceOnly(): boolean {
+    return (
+      this.accessControl.hasPermission(APP_PERMISSIONS.portalManager) &&
+      !this.accessControl.hasPermission(APP_PERMISSIONS.personnelView)
+    );
   }
 
   private filterMenuItems(items: Menu[]): Menu[] {
@@ -436,8 +455,12 @@ export class NavService implements OnDestroy {
         return;
       }
 
+      // La permission du parent est autoritaire : si l'utilisateur n'y a pas
+      // droit, tout le sous-arbre est masqué — même si les entrées enfantes
+      // n'ont pas de permission propre (sinon un module interdit resterait
+      // affiché avec des liens menant tous à « accès refusé »).
       const allowedByPermissions = this.isMenuItemAllowed(item);
-      if (!allowedByPermissions && !hasVisibleChildren) {
+      if (!allowedByPermissions) {
         return;
       }
 
