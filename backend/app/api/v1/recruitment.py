@@ -17,11 +17,14 @@ from app.schemas.recruitment import (
     ApplicationCommentResponse,
     ApplicationCreateRequest,
     ApplicationResponse,
+    ApplicationScoresResponse,
     ApplicationStatusEventResponse,
     ApplicationStatusUpdateRequest,
     CampaignCreateRequest,
     CampaignResponse,
     OnboardingItemResponse,
+    ScoringPolicyResponse,
+    ScoringPolicyUpdateRequest,
 )
 from app.services import recruitment_service
 
@@ -215,4 +218,60 @@ async def list_onboarding(
     """Parcours d'intégration des nouvelles recrues (page Recrutement › Intégration)."""
     return await recruitment_service.list_onboarding(
         session, organization_id=current_user.organization_id
+    )
+
+
+# ============================================================================
+# Scoring des candidatures
+# ============================================================================
+@router.get("/scoring-policy", response_model=ScoringPolicyResponse)
+async def get_scoring_policy(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:view", "recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> ScoringPolicyResponse:
+    """Politique de scoring de l'organisation (critères par défaut si absente)."""
+    return await recruitment_service.get_scoring_policy(
+        session, organization_id=current_user.organization_id
+    )
+
+
+@router.put("/scoring-policy", response_model=ScoringPolicyResponse)
+async def update_scoring_policy(
+    body: ScoringPolicyUpdateRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> ScoringPolicyResponse:
+    """Met à jour les critères et pondérations de la politique de scoring."""
+    return await recruitment_service.update_scoring_policy(
+        session,
+        organization_id=current_user.organization_id,
+        criteria=body.criteria,
+        actor_user_id=current_user.user_id,
+        audit=audit,
+    )
+
+
+@router.get("/application-scores", response_model=ApplicationScoresResponse)
+async def list_application_scores(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:view", "recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    campaign: str | None = None,
+    position: str | None = None,
+) -> ApplicationScoresResponse:
+    """Score classé de chaque candidature, calculé selon la politique en vigueur."""
+    return await recruitment_service.list_application_scores(
+        session,
+        organization_id=current_user.organization_id,
+        campaign=campaign,
+        position=position,
     )

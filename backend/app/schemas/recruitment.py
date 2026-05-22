@@ -132,3 +132,67 @@ class OnboardingItemResponse(BaseModel):
     start_date: date
     status: str
     checklist: list[str]
+
+
+# ---------------------------------------------------------------------------
+# Scoring des candidatures
+# ---------------------------------------------------------------------------
+# Critères de notation — clés alignées sur le contrat du frontend.
+ScoringCriterionKey = Literal[
+    "experienceYears",
+    "skillsMatch",
+    "educationLevel",
+    "interviewAverage",
+    "testScore",
+]
+
+
+class ScoringCriterion(BaseModel):
+    """Critère de notation et sa pondération.
+
+    Les noms de champs (dont `maxYears`) sont alignés sur le contrat du
+    frontend : ces objets transitent tels quels et sont stockés en JSONB.
+    """
+
+    key: ScoringCriterionKey
+    label: str = Field(min_length=1, max_length=120)
+    weight: float = Field(ge=0, le=100)
+    # Borne de l'expérience en années — pertinent pour `experienceYears`.
+    maxYears: int | None = Field(default=None, ge=1, le=50)  # noqa: N815
+
+
+class ScoringPolicyResponse(BaseModel):
+    criteria: list[ScoringCriterion]
+    updated_at: datetime | None = None
+    updated_by: str | None = None
+
+
+class ScoringPolicyUpdateRequest(BaseModel):
+    criteria: list[ScoringCriterion] = Field(min_length=1, max_length=20)
+
+
+class ApplicationScoreDetail(BaseModel):
+    criterion_key: ScoringCriterionKey
+    criterion_label: str
+    weight: float
+    raw_score: float
+    weighted_score: float
+    justification: str
+
+
+class ApplicationScoreEntry(BaseModel):
+    reference: str
+    candidate: str
+    position: str
+    campaign: str
+    status: ApplicationStatus
+    received_on: date | None
+    total_score: float
+    rank: int
+    details: list[ApplicationScoreDetail]
+
+
+class ApplicationScoresResponse(BaseModel):
+    policy_updated_at: datetime | None = None
+    criteria: list[ScoringCriterion]
+    items: list[ApplicationScoreEntry]

@@ -192,3 +192,35 @@ class RecruitmentAttachment(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+
+class RecruitmentScoringPolicy(Base, TimestampMixin):
+    """Politique de scoring du recrutement — une ligne par organisation.
+
+    Les critères de notation et leurs pondérations sont stockés en JSONB
+    (`[{key, label, weight, maxYears?}]`). Les scores des candidatures sont
+    calculés à la volée à partir de cette politique (aucun score persisté).
+    """
+
+    __tablename__ = "recruitment_scoring_policies"
+    __table_args__ = (
+        UniqueConstraint("organization_id", name="recruitment_scoring_policies_org_key"),
+        {"schema": DEFAULT_SCHEMA},
+    )
+
+    scoring_policy_id: Mapped[UUID] = uuid_pk_column()
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.organizations.organization_id"),
+        nullable=False,
+    )
+    criteria: Mapped[list[dict[str, Any]]] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=list,
+        server_default="[]",
+    )
+    updated_by_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
+    )

@@ -206,7 +206,6 @@ async def stub_doc_purge_archives(
 # entretiens, onboarding 30/60/90, règles, BI/observability)
 # ============================================================================
 _RECRUITMENT_LIST_STUBS = [
-    "/recruitment/application-scores",
     "/recruitment/applications/duplicates",
     "/recruitment/applications/duplicates/links",
     "/recruitment/audit-logs",
@@ -230,7 +229,6 @@ _RECRUITMENT_OBJECT_STUBS = [
     "/recruitment/control-tower",
     "/recruitment/executive-dashboard",
     "/recruitment/observability",
-    "/recruitment/scoring-policy",
 ]
 
 _RECRUITMENT_ACTION_STUBS = [

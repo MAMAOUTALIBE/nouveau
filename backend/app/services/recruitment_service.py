@@ -19,18 +19,25 @@ from app.models.recruitment import (
     RecruitmentApplication,
     RecruitmentCampaign,
     RecruitmentComment,
+    RecruitmentScoringPolicy,
     RecruitmentStatusEvent,
 )
+from app.models.user import User
 from app.schemas.recruitment import (
     ApplicationCommentCreateRequest,
     ApplicationCommentResponse,
     ApplicationCreateRequest,
     ApplicationResponse,
+    ApplicationScoreDetail,
+    ApplicationScoreEntry,
+    ApplicationScoresResponse,
     ApplicationStatusEventResponse,
     ApplicationStatusUpdateRequest,
     CampaignCreateRequest,
     CampaignResponse,
     OnboardingItemResponse,
+    ScoringCriterion,
+    ScoringPolicyResponse,
 )
 
 
@@ -410,3 +417,225 @@ async def list_onboarding(
             )
         )
     return items
+
+
+# ============================================================================
+# Scoring des candidatures
+# ============================================================================
+# Politique par défaut si l'organisation n'en a pas encore configuré une —
+# alignée sur le `defaultScoringPolicy` du frontend.
+_DEFAULT_SCORING_CRITERIA: tuple[dict[str, object], ...] = (
+    {"key": "experienceYears", "label": "Expérience pertinente", "weight": 25, "maxYears": 10},
+    {"key": "skillsMatch", "label": "Adéquation compétences", "weight": 30},
+    {"key": "educationLevel", "label": "Niveau académique", "weight": 15},
+    {"key": "interviewAverage", "label": "Évaluation entretien", "weight": 20},
+    {"key": "testScore", "label": "Score test technique", "weight": 10},
+)
+
+
+def _scoring_criteria(policy: RecruitmentScoringPolicy | None) -> list[ScoringCriterion]:
+    """Critères de la politique, ou les critères par défaut si non configurée."""
+    raw = list(policy.criteria) if policy and policy.criteria else list(_DEFAULT_SCORING_CRITERIA)
+    return [ScoringCriterion.model_validate(item) for item in raw]
+
+
+async def _get_scoring_policy_row(
+    session: AsyncSession, organization_id: UUID
+) -> RecruitmentScoringPolicy | None:
+    return (
+        await session.execute(
+            select(RecruitmentScoringPolicy).where(
+                RecruitmentScoringPolicy.organization_id == organization_id
+            )
+        )
+    ).scalar_one_or_none()
+
+
+async def _resolve_user_name(session: AsyncSession, user_id: UUID | None) -> str | None:
+    if user_id is None:
+        return None
+    return (
+        await session.execute(select(User.full_name).where(User.user_id == user_id))
+    ).scalar_one_or_none()
+
+
+async def get_scoring_policy(
+    session: AsyncSession, *, organization_id: UUID
+) -> ScoringPolicyResponse:
+    """Politique de scoring de l'organisation (critères par défaut si absente)."""
+    policy = await _get_scoring_policy_row(session, organization_id)
+    return ScoringPolicyResponse(
+        criteria=_scoring_criteria(policy),
+        updated_at=policy.updated_at if policy else None,
+        updated_by=(
+            await _resolve_user_name(session, policy.updated_by_user_id) if policy else None
+        ),
+    )
+
+
+async def update_scoring_policy(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    criteria: list[ScoringCriterion],
+    actor_user_id: UUID,
+    audit: AuditWriter,
+) -> ScoringPolicyResponse:
+    """Crée ou met à jour (upsert) la politique de scoring de l'organisation."""
+    serialized = [c.model_dump(mode="json") for c in criteria]
+    policy = await _get_scoring_policy_row(session, organization_id)
+    if policy is None:
+        policy = RecruitmentScoringPolicy(
+            organization_id=organization_id,
+            criteria=serialized,
+            updated_by_user_id=actor_user_id,
+        )
+        session.add(policy)
+    else:
+        policy.criteria = serialized
+        policy.updated_by_user_id = actor_user_id
+    await session.flush([policy])
+    await session.refresh(policy, ["updated_at"])
+    await audit.record(
+        action="RECRUITMENT_SCORING_POLICY_UPDATED",
+        target_type="recruitment_scoring_policy",
+        target_id=str(policy.scoring_policy_id),
+        after={"criteria": serialized},
+    )
+    return ScoringPolicyResponse(
+        criteria=_scoring_criteria(policy),
+        updated_at=policy.updated_at,
+        updated_by=await _resolve_user_name(session, actor_user_id),
+    )
+
+
+def _criterion_raw_score(
+    application: RecruitmentApplication, criterion: ScoringCriterion
+) -> float:
+    """Score brut 0-100 d'une candidature pour un critère donné."""
+    if criterion.key == "experienceYears":
+        cap = criterion.maxYears or 10
+        years = application.experience_years or 0
+        return round(min(years, cap) / cap * 100, 1) if cap else 0.0
+    value = {
+        "skillsMatch": application.skills_match_score,
+        "educationLevel": application.education_score,
+        "interviewAverage": application.interview_avg_score,
+        "testScore": application.test_score,
+    }.get(criterion.key)
+    if value is None:
+        return 0.0
+    return max(0.0, min(100.0, round(float(value), 1)))
+
+
+def _criterion_justification(
+    criterion: ScoringCriterion, application: RecruitmentApplication, raw: float
+) -> str:
+    if criterion.key == "experienceYears":
+        return f"{application.experience_years or 0} année(s) d'expérience pertinente."
+    if criterion.key == "skillsMatch":
+        return f"Adéquation des compétences estimée à {raw:g}%."
+    if criterion.key == "educationLevel":
+        return f"Niveau académique converti en score {raw:g}%."
+    if criterion.key == "interviewAverage":
+        return (
+            f"Évaluation moyenne d'entretien {raw:g}%."
+            if raw > 0
+            else "Aucune évaluation d'entretien enregistrée."
+        )
+    return (
+        f"Résultat du test technique {raw:g}%."
+        if raw > 0
+        else "Aucun test technique enregistré."
+    )
+
+
+async def list_application_scores(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    campaign: str | None = None,
+    position: str | None = None,
+) -> ApplicationScoresResponse:
+    """Calcule, à la volée, le score de chaque candidature selon la politique."""
+    policy_row = await _get_scoring_policy_row(session, organization_id)
+    criteria = _scoring_criteria(policy_row)
+
+    campaigns = {
+        c.campaign_id: c
+        for c in (
+            await session.execute(
+                select(RecruitmentCampaign).where(
+                    RecruitmentCampaign.organization_id == organization_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    }
+
+    base = select(RecruitmentApplication).where(
+        RecruitmentApplication.organization_id == organization_id
+    )
+    if position:
+        base = base.where(RecruitmentApplication.desired_position.ilike(f"%{position}%"))
+    rows = (
+        (await session.execute(base.order_by(RecruitmentApplication.received_on.desc())))
+        .scalars()
+        .all()
+    )
+
+    needle = campaign.strip().lower() if campaign else None
+    entries: list[ApplicationScoreEntry] = []
+    for application in rows:
+        camp = campaigns.get(application.campaign_id) if application.campaign_id else None
+        if needle:
+            haystack = f"{camp.code} {camp.title}".lower() if camp else ""
+            if needle not in haystack:
+                continue
+
+        details: list[ApplicationScoreDetail] = []
+        total = 0.0
+        for criterion in criteria:
+            raw = _criterion_raw_score(application, criterion)
+            weighted = round(raw * criterion.weight / 100, 1)
+            total += weighted
+            details.append(
+                ApplicationScoreDetail(
+                    criterion_key=criterion.key,
+                    criterion_label=criterion.label,
+                    weight=criterion.weight,
+                    raw_score=raw,
+                    weighted_score=weighted,
+                    justification=_criterion_justification(criterion, application, raw),
+                )
+            )
+
+        entries.append(
+            ApplicationScoreEntry(
+                reference=application.reference,
+                candidate=application.candidate_full_name,
+                position=(
+                    application.desired_position
+                    or (camp.need_position if camp else None)
+                    or (camp.title if camp else None)
+                    or "Poste non précisé"
+                ),
+                campaign=camp.title if camp else "",
+                status=application.application_status,
+                received_on=application.received_on,
+                total_score=round(total, 1),
+                rank=0,
+                details=details,
+            )
+        )
+
+    entries.sort(key=lambda entry: entry.total_score, reverse=True)
+    for index, entry in enumerate(entries, start=1):
+        entry.rank = index
+
+    return ApplicationScoresResponse(
+        policy_updated_at=policy_row.updated_at if policy_row else None,
+        criteria=criteria,
+        items=entries,
+    )

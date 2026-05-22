@@ -130,6 +130,12 @@ async def _ensure_campaigns(
     return campaign_ids, created
 
 
+def _demo_score(reference: str, salt: str, low: int, high: int) -> int:
+    """Score de démonstration déterministe (reproductible) dans [low, high]."""
+    digest = sum(ord(char) for char in f"{reference}:{salt}")
+    return low + digest % (high - low + 1)
+
+
 async def _ensure_applications(
     session: AsyncSession, *, organization_id: UUID, campaign_ids: list[UUID]
 ) -> int:
@@ -159,6 +165,9 @@ async def _ensure_applications(
         ).first()
         if existing is not None:
             continue
+        # Scores entretien/test : l'entretien n'existe qu'à partir du statut
+        # INTERVIEW ; le test technique dès la présélection (pas pour un NEW).
+        interviewed = status in ("INTERVIEW", "OFFERED", "HIRED")
         session.add(
             RecruitmentApplication(
                 organization_id=organization_id,
@@ -174,6 +183,12 @@ async def _ensure_applications(
                 experience_years=experience_years,
                 skills_match_score=skills_score or None,
                 education_score=education_score or None,
+                interview_avg_score=(
+                    _demo_score(reference, "interview", 60, 92) if interviewed else None
+                ),
+                test_score=(
+                    _demo_score(reference, "test", 55, 95) if status != "NEW" else None
+                ),
             )
         )
         created += 1
