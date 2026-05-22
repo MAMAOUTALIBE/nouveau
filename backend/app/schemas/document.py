@@ -310,3 +310,160 @@ class DocumentRequestDecisionRequest(BaseModel):
             if not data.get("comment") and data.get("reason"):
                 data["comment"] = data.get("reason")
         return data
+
+
+# ---------------------------------------------------------------------------
+# Journal d'audit documentaire (page Documents > Bibliotheque)
+# ---------------------------------------------------------------------------
+class DocumentAuditLogItem(BaseModel):
+    id: str
+    reference: str
+    action: str
+    actor: str
+    happened_at: datetime
+    status_before: str
+    status_after: str
+    detail: str
+    metadata: dict[str, str]
+
+
+# ---------------------------------------------------------------------------
+# Inbox / file de traitement / en retard
+# ---------------------------------------------------------------------------
+class DocumentInboxItem(BaseModel):
+    reference: str
+    title: str
+    document_type: str
+    sender: str
+    delivery_status: str
+    assigned_at: datetime
+    due_at: datetime | None
+    is_read: bool
+    is_acknowledged: bool
+    requires_acknowledgement: bool
+    confidentiality_level: str
+
+
+class DocumentOverdueItem(BaseModel):
+    reference: str
+    title: str
+    document_type: str
+    assigned_employee_name: str
+    delivery_status: str
+    assigned_at: datetime
+    due_at: datetime
+    overdue_hours: int
+    overdue_days: int
+
+
+class DocumentProcessingQueueItem(BaseModel):
+    analysis_run_id: UUID
+    document_reference: str
+    document_title: str
+    analysis_status: str
+    pipeline: str
+    started_at: datetime | None
+    completed_at: datetime | None
+
+
+# ---------------------------------------------------------------------------
+# Analytics documentaire (page Documents > Bibliotheque, cockpit)
+# ---------------------------------------------------------------------------
+class DocumentAnalyticsTotals(BaseModel):
+    total_documents: int
+    signed_documents: int
+    assigned_documents: int
+    read_documents: int
+    acknowledged_documents: int
+    pending_acknowledgements: int
+    overdue_documents: int
+    due_in_next48h: int
+
+
+class DocumentAnalyticsRates(BaseModel):
+    acknowledgement_rate: float
+    signature_rate: float
+
+
+class DocumentAnalyticsSla(BaseModel):
+    average_ack_hours: float
+    average_read_hours: float
+
+
+class DocumentAnalyticsBreakdown(BaseModel):
+    label: str
+    count: int
+
+
+class DocumentAnalyticsReport(BaseModel):
+    generated_at: datetime
+    totals: DocumentAnalyticsTotals
+    rates: DocumentAnalyticsRates
+    sla: DocumentAnalyticsSla
+    status_breakdown: list[DocumentAnalyticsBreakdown]
+    type_breakdown: list[DocumentAnalyticsBreakdown]
+    overdue_preview: list[DocumentOverdueItem]
+
+
+# ---------------------------------------------------------------------------
+# Exigences documentaires (pièces obligatoires) — expose la table
+# `hr.document_requirements` au frontend, alignée sur l'interface
+# `DocumentRequirement` du frontend.
+# ---------------------------------------------------------------------------
+class DocumentRequirementItem(BaseModel):
+    id: UUID
+    requirement_code: str
+    document_type_code: str
+    document_type_label: str
+    requirement_scope: str
+    contract_type: str
+    is_mandatory: bool = True
+    warning_offset_days: int = 0
+    due_offset_days: int = 0
+    is_active: bool = True
+
+
+# ---------------------------------------------------------------------------
+# Archivage (campagnes d'archivage et purge)
+# ---------------------------------------------------------------------------
+class DocumentArchiveRunRequest(BaseModel):
+    older_than_days: int = Field(default=365, ge=30, le=3650)
+    dry_run: bool = True
+    only_acknowledged: bool = True
+    include_unassigned: bool = False
+
+
+class DocumentArchiveCandidate(BaseModel):
+    reference: str
+    title: str
+    status: str
+    delivery_status: str
+    age_days: int
+    eligible_from: datetime
+
+
+class DocumentArchiveRunResult(BaseModel):
+    generated_at: datetime
+    dry_run: bool
+    older_than_days: int
+    only_acknowledged: bool
+    include_unassigned: bool
+    candidates_count: int
+    archived_count: int
+    candidates: list[DocumentArchiveCandidate]
+
+
+class DocumentArchivePurgeRequest(BaseModel):
+    retention_days: int = Field(default=1825, ge=365, le=7300)
+    dry_run: bool = True
+    include_notifications: bool = False
+
+
+class DocumentArchivePurgeResult(BaseModel):
+    generated_at: datetime
+    dry_run: bool
+    retention_days: int
+    include_notifications: bool
+    candidates_count: int
+    purged_documents: int
+    references: list[str]

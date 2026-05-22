@@ -10,7 +10,7 @@ Aligné sur le SQL réel `002_unified_documents.sql` :
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -21,22 +21,41 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.core.security.rbac import AuthenticatedUser
+from app.models.audit_log import AuditLog
 from app.models.document import (
     Document,
     DocumentAnalysisRun,
+    DocumentDispatch,
     DocumentExtractedField,
     DocumentRequest,
+    DocumentRequirement,
     DocumentType,
+    DocumentVersion,
 )
 from app.models.employee import Employee
+from app.models.user import User
 from app.schemas.document import (
     DocumentAnalysisRunResponse,
+    DocumentAnalyticsBreakdown,
+    DocumentAnalyticsRates,
+    DocumentAnalyticsReport,
+    DocumentAnalyticsSla,
+    DocumentAnalyticsTotals,
+    DocumentArchivePurgeRequest,
+    DocumentArchivePurgeResult,
+    DocumentArchiveRunRequest,
+    DocumentArchiveRunResult,
+    DocumentAuditLogItem,
     DocumentCreateRequest,
     DocumentExtractedFieldResponse,
     DocumentExtractedFieldValidateRequest,
+    DocumentInboxItem,
+    DocumentOverdueItem,
+    DocumentProcessingQueueItem,
     DocumentRequestCreateRequest,
     DocumentRequestDecisionRequest,
     DocumentRequestResponse,
+    DocumentRequirementItem,
     DocumentResponse,
     DocumentTypeCreateRequest,
     DocumentTypeResponse,
@@ -740,3 +759,518 @@ async def decide_request(
             )
         ).scalar_one_or_none() or "—"
     return _request_to_dto(r, requester_name=requester_name)
+
+
+# ============================================================================
+# Journal d'audit documentaire
+# ============================================================================
+async def list_document_audit_logs(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    reference: str | None = None,
+    action: str | None = None,
+    actor: str | None = None,
+    limit: int = 200,
+) -> list[DocumentAuditLogItem]:
+    """Journal des événements d'audit sur les documents (lecture seule)."""
+    base = (
+        select(AuditLog, User.full_name, User.username)
+        .join(User, AuditLog.user_id == User.user_id, isouter=True)
+        .where(
+            AuditLog.organization_id == organization_id,
+            AuditLog.target_type.ilike("document%"),
+        )
+    )
+    if reference:
+        base = base.where(AuditLog.target_id == reference)
+    if action:
+        base = base.where(AuditLog.action.ilike(f"%{action}%"))
+    if actor:
+        base = base.where(User.full_name.ilike(f"%{actor}%") | User.username.ilike(f"%{actor}%"))
+
+    rows = (
+        await session.execute(base.order_by(AuditLog.occurred_at.desc()).limit(limit))
+    ).all()
+
+    items: list[DocumentAuditLogItem] = []
+    for log, full_name, username in rows:
+        before = log.before_data or {}
+        after = log.after_data or {}
+        status_before = (
+            before.get("document_status")
+            or before.get("request_status")
+            or ""
+        )
+        status_after = (
+            after.get("document_status")
+            or after.get("request_status")
+            or ""
+        )
+        items.append(
+            DocumentAuditLogItem(
+                id=str(log.audit_log_id),
+                reference=log.target_id or "",
+                action=log.action,
+                actor=full_name or username or "système",
+                happened_at=log.occurred_at,
+                status_before=str(status_before),
+                status_after=str(status_after),
+                detail=str(after.get("detail") or after.get("reference") or ""),
+                metadata={k: str(v) for k, v in (log.audit_metadata or {}).items()},
+            )
+        )
+    return items
+
+
+# ============================================================================
+# Inbox / Overdue / Processing-queue
+# ============================================================================
+async def list_document_inbox(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    recipient_employee_id: UUID | None,
+    recipient_user_id: UUID | None,
+) -> list[DocumentInboxItem]:
+    """Documents assignés à l'agent connecté (statut ASSIGNED / READ / REMINDED)."""
+    base = (
+        select(DocumentDispatch, Document, DocumentType)
+        .join(Document, Document.document_id == DocumentDispatch.document_id)
+        .join(
+            DocumentType,
+            DocumentType.document_type_id == Document.document_type_id,
+            isouter=True,
+        )
+        .where(
+            Document.organization_id == organization_id,
+            DocumentDispatch.delivery_status.in_(["ASSIGNED", "READ", "REMINDED"]),
+        )
+    )
+    if recipient_employee_id is not None:
+        base = base.where(DocumentDispatch.recipient_employee_id == recipient_employee_id)
+    elif recipient_user_id is not None:
+        base = base.where(DocumentDispatch.recipient_user_id == recipient_user_id)
+
+    rows = (
+        await session.execute(base.order_by(DocumentDispatch.assigned_at.desc()).limit(200))
+    ).all()
+
+    items: list[DocumentInboxItem] = []
+    for dispatch, document, doc_type in rows:
+        items.append(
+            DocumentInboxItem(
+                reference=document.reference,
+                title=document.title,
+                document_type=(doc_type.label if doc_type else document.document_type) or "",
+                sender="—",
+                delivery_status=dispatch.delivery_status,
+                assigned_at=dispatch.assigned_at,
+                due_at=dispatch.due_at,
+                is_read=dispatch.read_at is not None,
+                is_acknowledged=dispatch.acknowledged_at is not None,
+                requires_acknowledgement=document.requires_acknowledgement,
+                confidentiality_level=document.confidentiality_level,
+            )
+        )
+    return items
+
+
+async def list_document_overdue(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    limit: int = 100,
+) -> list[DocumentOverdueItem]:
+    """Dispatches en retard : `due_at` passé et statut non ACKNOWLEDGED/CANCELLED."""
+    now = datetime.now(UTC)
+    base = (
+        select(DocumentDispatch, Document, DocumentType, Employee.full_name)
+        .join(Document, Document.document_id == DocumentDispatch.document_id)
+        .join(
+            DocumentType,
+            DocumentType.document_type_id == Document.document_type_id,
+            isouter=True,
+        )
+        .join(
+            Employee,
+            Employee.employee_id == DocumentDispatch.recipient_employee_id,
+            isouter=True,
+        )
+        .where(
+            Document.organization_id == organization_id,
+            DocumentDispatch.due_at < now,
+            DocumentDispatch.delivery_status.in_(["ASSIGNED", "READ", "REMINDED"]),
+        )
+    )
+    rows = (
+        await session.execute(base.order_by(DocumentDispatch.due_at.asc()).limit(limit))
+    ).all()
+
+    items: list[DocumentOverdueItem] = []
+    for dispatch, document, doc_type, emp_name in rows:
+        # `due_at` est non-null : filtré par le WHERE plus haut.
+        assert dispatch.due_at is not None
+        delta = now - dispatch.due_at
+        overdue_hours = int(delta.total_seconds() // 3600)
+        overdue_days = max(0, overdue_hours // 24)
+        items.append(
+            DocumentOverdueItem(
+                reference=document.reference,
+                title=document.title,
+                document_type=(doc_type.label if doc_type else document.document_type) or "",
+                assigned_employee_name=emp_name or "—",
+                delivery_status=dispatch.delivery_status,
+                assigned_at=dispatch.assigned_at,
+                due_at=dispatch.due_at,
+                overdue_hours=overdue_hours,
+                overdue_days=overdue_days,
+            )
+        )
+    return items
+
+
+async def list_document_processing_queue(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    limit: int = 100,
+) -> list[DocumentProcessingQueueItem]:
+    """Exécutions d'extraction documentaire en cours / en attente."""
+    base = (
+        select(DocumentAnalysisRun, Document)
+        .join(Document, Document.document_id == DocumentAnalysisRun.document_id)
+        .where(
+            Document.organization_id == organization_id,
+            DocumentAnalysisRun.analysis_status.in_(["PENDING", "RUNNING", "FAILED"]),
+        )
+    )
+    rows = (
+        await session.execute(base.order_by(DocumentAnalysisRun.created_at.desc()).limit(limit))
+    ).all()
+    return [
+        DocumentProcessingQueueItem(
+            analysis_run_id=run.document_analysis_run_id,
+            document_reference=document.reference,
+            document_title=document.title,
+            analysis_status=run.analysis_status,
+            pipeline=run.pipeline_name or "",
+            started_at=run.started_at,
+            completed_at=run.completed_at,
+        )
+        for run, document in rows
+    ]
+
+
+# ============================================================================
+# Exigences documentaires
+# ============================================================================
+async def list_document_requirements(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    scope: str | None = None,
+    document_type_code: str | None = None,
+    contract_type: str | None = None,
+) -> list[DocumentRequirementItem]:
+    """Liste des exigences documentaires de l'organisation, jointes au type."""
+    base = (
+        select(DocumentRequirement, DocumentType)
+        .join(
+            DocumentType,
+            DocumentType.document_type_id == DocumentRequirement.document_type_id,
+        )
+        .where(DocumentRequirement.organization_id == organization_id)
+    )
+    if scope:
+        base = base.where(DocumentRequirement.requirement_scope == scope)
+    if document_type_code:
+        base = base.where(DocumentType.code == document_type_code)
+    if contract_type:
+        base = base.where(DocumentRequirement.contract_type == contract_type)
+    rows = (
+        await session.execute(base.order_by(DocumentRequirement.requirement_code))
+    ).all()
+    return [
+        DocumentRequirementItem(
+            id=req.document_requirement_id,
+            requirement_code=req.requirement_code,
+            document_type_code=dt.code,
+            document_type_label=dt.label,
+            requirement_scope=req.requirement_scope,
+            contract_type=req.contract_type or "",
+            is_mandatory=True,
+            warning_offset_days=0,
+            due_offset_days=0,
+            is_active=True,
+        )
+        for req, dt in rows
+    ]
+
+
+# ============================================================================
+# Analytics documentaire
+# ============================================================================
+async def compute_document_analytics(
+    session: AsyncSession, *, organization_id: UUID
+) -> DocumentAnalyticsReport:
+    """Agrège les indicateurs de la page Documents (cockpit)."""
+    now = datetime.now(UTC)
+    next_48h = now + timedelta(hours=48)
+
+    total_documents = (
+        await session.execute(
+            select(func.count())
+            .select_from(Document)
+            .where(Document.organization_id == organization_id)
+        )
+    ).scalar_one()
+    signed_documents = (
+        await session.execute(
+            select(func.count(func.distinct(DocumentVersion.document_id)))
+            .select_from(DocumentVersion)
+            .join(Document, Document.document_id == DocumentVersion.document_id)
+            .where(
+                Document.organization_id == organization_id,
+                DocumentVersion.signed_at.isnot(None),
+            )
+        )
+    ).scalar_one()
+
+    dispatch_base = (
+        select(DocumentDispatch)
+        .join(Document, Document.document_id == DocumentDispatch.document_id)
+        .where(Document.organization_id == organization_id)
+    )
+    dispatches = (await session.execute(dispatch_base)).scalars().all()
+    assigned_documents = len(dispatches)
+    read_documents = sum(1 for d in dispatches if d.read_at is not None)
+    acknowledged_documents = sum(1 for d in dispatches if d.acknowledged_at is not None)
+    pending_acknowledgements = sum(
+        1
+        for d in dispatches
+        if d.acknowledged_at is None
+        and d.delivery_status in ("ASSIGNED", "READ", "REMINDED")
+    )
+    overdue_documents = sum(
+        1
+        for d in dispatches
+        if d.due_at is not None
+        and d.due_at < now
+        and d.delivery_status in ("ASSIGNED", "READ", "REMINDED")
+    )
+    due_in_next48h = sum(
+        1
+        for d in dispatches
+        if d.due_at is not None
+        and now <= d.due_at <= next_48h
+        and d.delivery_status in ("ASSIGNED", "READ", "REMINDED")
+    )
+
+    acknowledgement_rate = (
+        round(acknowledged_documents / assigned_documents * 100, 1)
+        if assigned_documents
+        else 0.0
+    )
+    signature_rate = (
+        round(signed_documents / total_documents * 100, 1) if total_documents else 0.0
+    )
+
+    ack_hours = [
+        (d.acknowledged_at - d.assigned_at).total_seconds() / 3600
+        for d in dispatches
+        if d.acknowledged_at is not None
+    ]
+    read_hours = [
+        (d.read_at - d.assigned_at).total_seconds() / 3600
+        for d in dispatches
+        if d.read_at is not None
+    ]
+    average_ack_hours = round(sum(ack_hours) / len(ack_hours), 1) if ack_hours else 0.0
+    average_read_hours = round(sum(read_hours) / len(read_hours), 1) if read_hours else 0.0
+
+    status_rows = (
+        await session.execute(
+            select(Document.document_status, func.count())
+            .where(Document.organization_id == organization_id)
+            .group_by(Document.document_status)
+        )
+    ).all()
+    type_rows = (
+        await session.execute(
+            select(DocumentType.label, func.count())
+            .select_from(Document)
+            .join(
+                DocumentType,
+                DocumentType.document_type_id == Document.document_type_id,
+                isouter=True,
+            )
+            .where(Document.organization_id == organization_id)
+            .group_by(DocumentType.label)
+        )
+    ).all()
+
+    overdue_preview = await list_document_overdue(
+        session, organization_id=organization_id, limit=5
+    )
+
+    return DocumentAnalyticsReport(
+        generated_at=now,
+        totals=DocumentAnalyticsTotals(
+            total_documents=int(total_documents),
+            signed_documents=int(signed_documents),
+            assigned_documents=int(assigned_documents),
+            read_documents=int(read_documents),
+            acknowledged_documents=int(acknowledged_documents),
+            pending_acknowledgements=int(pending_acknowledgements),
+            overdue_documents=int(overdue_documents),
+            due_in_next48h=int(due_in_next48h),
+        ),
+        rates=DocumentAnalyticsRates(
+            acknowledgement_rate=acknowledgement_rate,
+            signature_rate=signature_rate,
+        ),
+        sla=DocumentAnalyticsSla(
+            average_ack_hours=average_ack_hours,
+            average_read_hours=average_read_hours,
+        ),
+        status_breakdown=[
+            DocumentAnalyticsBreakdown(label=str(status or ""), count=int(count))
+            for status, count in status_rows
+        ],
+        type_breakdown=[
+            DocumentAnalyticsBreakdown(label=str(label or "Sans type"), count=int(count))
+            for label, count in type_rows
+        ],
+        overdue_preview=overdue_preview,
+    )
+
+
+# ============================================================================
+# Archivage (campagnes d'archivage et purge)
+# ============================================================================
+async def run_document_archive(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    body: DocumentArchiveRunRequest,
+    actor_user_id: UUID,
+    audit: AuditWriter,
+) -> DocumentArchiveRunResult:
+    """Archive (ou simule) les documents PUBLISHED plus vieux que `older_than_days`."""
+    now = datetime.now(UTC)
+    threshold = now - timedelta(days=body.older_than_days)
+
+    candidates_query = (
+        select(Document, DocumentDispatch)
+        .join(
+            DocumentDispatch,
+            DocumentDispatch.document_id == Document.document_id,
+            isouter=True,
+        )
+        .where(
+            Document.organization_id == organization_id,
+            Document.document_status == "PUBLISHED",
+            Document.created_at < threshold,
+        )
+    )
+    rows = (await session.execute(candidates_query)).all()
+    # Déduplique par document — un document peut avoir plusieurs dispatches.
+    by_doc: dict[UUID, tuple[Document, DocumentDispatch | None]] = {}
+    for doc, dispatch in rows:
+        if doc.document_id not in by_doc:
+            by_doc[doc.document_id] = (doc, dispatch)
+    candidates: list[tuple[Document, DocumentDispatch | None]] = []
+    for doc, dispatch in by_doc.values():
+        if body.only_acknowledged and (dispatch is None or dispatch.acknowledged_at is None):
+            continue
+        if not body.include_unassigned and dispatch is None:
+            continue
+        candidates.append((doc, dispatch))
+
+    archived_count = 0
+    if not body.dry_run:
+        for doc, _ in candidates:
+            doc.document_status = "ARCHIVED"
+        archived_count = len(candidates)
+        if archived_count:
+            await audit.record(
+                action="DOCUMENT_ARCHIVE_RUN",
+                target_type="document_archive_run",
+                target_id=str(actor_user_id),
+                after={
+                    "archived_count": archived_count,
+                    "older_than_days": body.older_than_days,
+                },
+            )
+
+    return DocumentArchiveRunResult(
+        generated_at=now,
+        dry_run=body.dry_run,
+        older_than_days=body.older_than_days,
+        only_acknowledged=body.only_acknowledged,
+        include_unassigned=body.include_unassigned,
+        candidates_count=len(candidates),
+        archived_count=archived_count,
+        candidates=[
+            {
+                "reference": doc.reference,
+                "title": doc.title,
+                "status": doc.document_status,
+                "delivery_status": dispatch.delivery_status if dispatch else "—",
+                "age_days": (now - doc.created_at).days,
+                "eligible_from": doc.created_at + timedelta(days=body.older_than_days),
+            }
+            for doc, dispatch in candidates[:25]
+        ],
+    )
+
+
+async def purge_document_archives(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    body: DocumentArchivePurgeRequest,
+    actor_user_id: UUID,
+    audit: AuditWriter,
+) -> DocumentArchivePurgeResult:
+    """Supprime (ou simule) les documents ARCHIVED plus vieux que `retention_days`."""
+    now = datetime.now(UTC)
+    threshold = now - timedelta(days=body.retention_days)
+
+    rows = (
+        await session.execute(
+            select(Document).where(
+                Document.organization_id == organization_id,
+                Document.document_status == "ARCHIVED",
+                Document.updated_at < threshold,
+            )
+        )
+    ).scalars().all()
+
+    references = [doc.reference for doc in rows]
+    purged = 0
+    if not body.dry_run:
+        for doc in rows:
+            await session.delete(doc)
+        purged = len(rows)
+        if purged:
+            await audit.record(
+                action="DOCUMENT_ARCHIVE_PURGE",
+                target_type="document_archive_purge",
+                target_id=str(actor_user_id),
+                after={
+                    "purged": purged,
+                    "retention_days": body.retention_days,
+                },
+            )
+
+    return DocumentArchivePurgeResult(
+        generated_at=now,
+        dry_run=body.dry_run,
+        retention_days=body.retention_days,
+        include_notifications=body.include_notifications,
+        candidates_count=len(rows),
+        purged_documents=purged,
+        references=references[:50],
+    )

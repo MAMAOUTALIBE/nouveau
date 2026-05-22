@@ -14,12 +14,22 @@ from app.core.security.rbac import AuthenticatedUser, require_permissions
 from app.schemas.common import Page
 from app.schemas.document import (
     DocumentAnalysisRunResponse,
+    DocumentAnalyticsReport,
+    DocumentArchivePurgeRequest,
+    DocumentArchivePurgeResult,
+    DocumentArchiveRunRequest,
+    DocumentArchiveRunResult,
+    DocumentAuditLogItem,
     DocumentCreateRequest,
     DocumentExtractedFieldResponse,
     DocumentExtractedFieldValidateRequest,
+    DocumentInboxItem,
+    DocumentOverdueItem,
+    DocumentProcessingQueueItem,
     DocumentRequestCreateRequest,
     DocumentRequestDecisionRequest,
     DocumentRequestResponse,
+    DocumentRequirementItem,
     DocumentResponse,
     DocumentTypeCreateRequest,
     DocumentTypeResponse,
@@ -318,6 +328,153 @@ async def decide_document_request(
     return await document_service.decide_request(
         session,
         request_key=request_key,
+        body=body,
+        actor_user_id=current_user.user_id,
+        audit=audit,
+    )
+
+
+# ============================================================================
+# Journal d'audit / Inbox / Overdue / Processing-queue / Requirements / Analytics
+# / Archivage — lot V1.5 documents
+# ============================================================================
+@router.get("/audit-logs", response_model=list[DocumentAuditLogItem])
+async def list_document_audit_logs(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:view", "documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    reference: str | None = None,
+    action: str | None = None,
+    actor: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=1000)] = 200,
+) -> list[DocumentAuditLogItem]:
+    return await document_service.list_document_audit_logs(
+        session,
+        organization_id=current_user.organization_id,
+        reference=reference,
+        action=action,
+        actor=actor,
+        limit=limit,
+    )
+
+
+@router.get("/inbox", response_model=list[DocumentInboxItem])
+async def list_document_inbox(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(
+            require_permissions(
+                any_of=["portal:agent", "portal:manager", "documents:view", "*"]
+            )
+        ),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[DocumentInboxItem]:
+    return await document_service.list_document_inbox(
+        session,
+        organization_id=current_user.organization_id,
+        recipient_employee_id=current_user.employee_id,
+        recipient_user_id=current_user.user_id,
+    )
+
+
+@router.get("/overdue", response_model=list[DocumentOverdueItem])
+async def list_document_overdue(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:view", "documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> list[DocumentOverdueItem]:
+    return await document_service.list_document_overdue(
+        session, organization_id=current_user.organization_id, limit=limit
+    )
+
+
+@router.get("/processing-queue", response_model=list[DocumentProcessingQueueItem])
+async def list_document_processing_queue(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:view", "documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    limit: Annotated[int, Query(ge=1, le=500)] = 100,
+) -> list[DocumentProcessingQueueItem]:
+    return await document_service.list_document_processing_queue(
+        session, organization_id=current_user.organization_id, limit=limit
+    )
+
+
+@router.get("/requirements", response_model=list[DocumentRequirementItem])
+async def list_document_requirements(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:view", "documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    scope: str | None = None,
+    document_type_code: str | None = Query(None, alias="documentTypeCode"),
+    contract_type: str | None = Query(None, alias="contractType"),
+) -> list[DocumentRequirementItem]:
+    return await document_service.list_document_requirements(
+        session,
+        organization_id=current_user.organization_id,
+        scope=scope,
+        document_type_code=document_type_code,
+        contract_type=contract_type,
+    )
+
+
+@router.get("/analytics", response_model=DocumentAnalyticsReport)
+async def get_document_analytics(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:view", "documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> DocumentAnalyticsReport:
+    return await document_service.compute_document_analytics(
+        session, organization_id=current_user.organization_id
+    )
+
+
+@router.post("/archive-run", response_model=DocumentArchiveRunResult)
+async def run_document_archive(
+    body: DocumentArchiveRunRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> DocumentArchiveRunResult:
+    """Lance (ou simule en `dry_run`) une campagne d'archivage."""
+    return await document_service.run_document_archive(
+        session,
+        organization_id=current_user.organization_id,
+        body=body,
+        actor_user_id=current_user.user_id,
+        audit=audit,
+    )
+
+
+@router.post("/purge-archives", response_model=DocumentArchivePurgeResult)
+async def purge_document_archives(
+    body: DocumentArchivePurgeRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["documents:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> DocumentArchivePurgeResult:
+    """Purge (ou simule) les archives plus vieilles que `retention_days`."""
+    return await document_service.purge_document_archives(
+        session,
+        organization_id=current_user.organization_id,
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,
