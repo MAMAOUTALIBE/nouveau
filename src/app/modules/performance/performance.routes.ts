@@ -8,14 +8,12 @@ export const PERFORMANCE_ROUTES: Routes = [
   },
   {
     path: 'campagnes',
-    loadComponent: () =>
-      import('./pages/perf-campaigns/perf-campaigns').then((m) => m.PerfCampaignsPage),
-    data: { parentTitle: 'Pilotage', childTitle: 'Évaluation' },
+    loadComponent: () => import('./performance').then((m) => m.PerformancePage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Évaluation', perfTab: 'campaigns' },
   },
   {
     path: 'resultats',
-    loadComponent: () =>
-      import('./pages/perf-results/perf-results').then((m) => m.PerfResultsPage),
-    data: { parentTitle: 'Pilotage', childTitle: 'Résultats' },
+    loadComponent: () => import('./performance').then((m) => m.PerformancePage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Résultats', perfTab: 'results' },
   },
 ];

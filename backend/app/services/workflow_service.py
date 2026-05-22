@@ -393,21 +393,43 @@ async def create_instance(
     )
 
 
+async def _find_instance_by_key(
+    session: AsyncSession, instance_key: str
+) -> WorkflowInstance | None:
+    """Résout une instance par UUID technique ou par référence métier (WFI-...)."""
+    key = str(instance_key or "").strip()
+    if not key:
+        return None
+    try:
+        instance_uuid: UUID | None = UUID(key)
+    except (ValueError, TypeError):
+        instance_uuid = None
+    if instance_uuid is not None:
+        row = (
+            await session.execute(
+                select(WorkflowInstance).where(
+                    WorkflowInstance.workflow_instance_id == instance_uuid
+                )
+            )
+        ).scalar_one_or_none()
+        if row is not None:
+            return row
+    return (
+        await session.execute(
+            select(WorkflowInstance).where(WorkflowInstance.reference == key)
+        )
+    ).scalar_one_or_none()
+
+
 async def perform_action(
     session: AsyncSession,
     *,
-    workflow_instance_id: UUID,
+    instance_key: str,
     body: WorkflowInstanceActionRequest,
     actor_user_id: UUID,
     audit: AuditWriter,
 ) -> WorkflowInstanceResponse:
-    instance = (
-        await session.execute(
-            select(WorkflowInstance).where(
-                WorkflowInstance.workflow_instance_id == workflow_instance_id
-            )
-        )
-    ).scalar_one_or_none()
+    instance = await _find_instance_by_key(session, instance_key)
     if instance is None:
         raise NotFoundError("Instance introuvable.", code="WORKFLOW_INSTANCE_NOT_FOUND")
 
@@ -469,7 +491,7 @@ async def perform_action(
         },
     )
 
-    return WorkflowInstanceResponse(
+    dto = WorkflowInstanceResponse(
         workflow_instance_id=instance.workflow_instance_id,
         organization_id=instance.organization_id,
         reference=instance.reference,
@@ -490,6 +512,12 @@ async def perform_action(
         created_at=instance.created_at,
         updated_at=instance.updated_at,
     )
+    # Libellés enrichis attendus par le frontend (mapInstance lit `id`/`status`).
+    dto.id = instance.reference
+    dto.status = _INSTANCE_STATUS_LABELS.get(
+        instance.instance_status, instance.instance_status
+    )
+    return dto
 
 
 async def list_instance_events(

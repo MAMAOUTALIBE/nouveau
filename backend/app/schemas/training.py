@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 SessionStatus = Literal["PLANNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"]
 RequestStatus = Literal["PENDING", "APPROVED", "REJECTED", "CANCELLED"]
@@ -142,6 +142,21 @@ class TrainingRequestCreateRequest(BaseModel):
 class TrainingRequestDecisionRequest(BaseModel):
     decision: Literal["APPROVED", "REJECTED"]
     comment: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_frontend_vocabulary(cls, data: Any) -> Any:
+        """Tolère le vocabulaire frontend : {action: APPROUVER|REJETER, reason}."""
+        if isinstance(data, dict):
+            data = dict(data)
+            if not data.get("decision") and data.get("action"):
+                action = str(data.get("action") or "").strip().upper()
+                data["decision"] = (
+                    "REJECTED" if action in ("REJETER", "REJECTED", "REJETE") else "APPROVED"
+                )
+            if not data.get("comment") and data.get("reason"):
+                data["comment"] = data.get("reason")
+        return data
 
 
 # ---------------------------------------------------------------------------

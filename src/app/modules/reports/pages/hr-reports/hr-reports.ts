@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ApexOptions } from 'ng-apexcharts';
 import { ToastrService } from 'ngx-toastr';
 import { finalize } from 'rxjs';
 import { downloadCsv } from '../../../../core/utils/csv-export.utils';
-import { HrReportSnapshot, HrReportsService } from '../../hr-reports.service';
+import { SpkApexcharts } from '../../../../@spk/charts/spk-apexcharts/spk-apexcharts';
+import { HrReportSnapshot, HrReportsService, HrTrendPoint } from '../../hr-reports.service';
 
 @Component({
   selector: 'app-hr-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SpkApexcharts],
   templateUrl: './hr-reports.html',
 })
 export class HrReportsPage implements OnInit {
@@ -20,6 +22,9 @@ export class HrReportsPage implements OnInit {
   snapshot: HrReportSnapshot | null = null;
   selectedPeriodDays = 90;
   selectedDirection = 'all';
+  activeTab: 'trends' | 'risks' | 'turnover' = 'trends';
+  leaveTrendChart: ApexOptions = this.buildTrendChart([], 'Absences', '#f7b731');
+  workflowTrendChart: ApexOptions = this.buildTrendChart([], 'Workflows finalises', '#38cab3');
 
   periodOptions = [
     { value: 30, label: '30 jours' },
@@ -53,6 +58,7 @@ export class HrReportsPage implements OnInit {
         next: (snapshot) => {
           this.snapshot = snapshot;
           this.refreshDirectionOptions(snapshot);
+          this.buildCharts(snapshot);
         },
         error: () => {
           this.toastr.error('Impossible de charger les rapports RH', 'Rapports', {
@@ -156,6 +162,70 @@ export class HrReportsPage implements OnInit {
       default:
         return 'bg-success-transparent text-success';
     }
+  }
+
+  setTab(tab: 'trends' | 'risks' | 'turnover'): void {
+    this.activeTab = tab;
+  }
+
+  /** Pastille de couleur (cercle d'icone) deduite du badge KPI. */
+  kpiCircleClass(badge: string): string {
+    return `${badge || 'bg-primary'}-transparent`;
+  }
+
+  /** Couleur de texte/icone deduite du badge KPI. */
+  kpiTextClass(badge: string): string {
+    return (badge || 'bg-primary').replace('bg-', 'text-');
+  }
+
+  /** Icone Remix associee a chaque indicateur. */
+  kpiIcon(id: string): string {
+    switch (id) {
+      case 'total_agents':
+        return 'ri-team-line';
+      case 'active_agents':
+        return 'ri-user-follow-line';
+      case 'open_leaves':
+        return 'ri-calendar-event-line';
+      case 'vacant_positions':
+        return 'ri-briefcase-line';
+      case 'workflow_breached':
+        return 'ri-error-warning-line';
+      case 'absenteeism_rate':
+        return 'ri-pie-chart-2-line';
+      case 'turnover_high_risk':
+        return 'ri-user-shared-line';
+      default:
+        return 'ri-bar-chart-2-line';
+    }
+  }
+
+  private buildCharts(snapshot: HrReportSnapshot): void {
+    this.leaveTrendChart = this.buildTrendChart(snapshot.leaveTrend, 'Absences', '#f7b731');
+    this.workflowTrendChart = this.buildTrendChart(
+      snapshot.workflowThroughputTrend,
+      'Workflows finalises',
+      '#38cab3'
+    );
+  }
+
+  private buildTrendChart(points: HrTrendPoint[], seriesName: string, color: string): ApexOptions {
+    return {
+      series: [{ name: seriesName, data: points.map((point) => point.value) }],
+      chart: { type: 'bar', height: 260, toolbar: { show: false } },
+      colors: [color],
+      plotOptions: {
+        bar: { columnWidth: '45%', borderRadius: 4, borderRadiusApplication: 'end' },
+      },
+      dataLabels: { enabled: false },
+      grid: { borderColor: '#f2f6f7' },
+      xaxis: { categories: points.map((point) => point.label) },
+      yaxis: {
+        labels: { formatter: (value: number) => `${Math.round(value)}` },
+      },
+      tooltip: { y: { formatter: (value: number) => `${Math.round(value)} element(s)` } },
+      legend: { show: false },
+    };
   }
 
   private refreshDirectionOptions(snapshot: HrReportSnapshot): void {

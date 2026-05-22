@@ -35,6 +35,15 @@ export class PrimAssistantPage {
   /** Vrai pendant que l'assistant IA génère sa réponse. */
   loading = false;
 
+  /**
+   * Cache de session des réponses FAQ déjà obtenues du LLM.
+   * Une même question de navigation a une réponse déterministe : on évite
+   * un aller-retour réseau (et la consommation de tokens Groq) si elle est
+   * re-posée. Clé = question normalisée. Les actions concrètes ne sont
+   * jamais mises en cache (dates relatives, contexte variable).
+   */
+  private readonly responseCache = new Map<string, string>();
+
   readonly quickPrompts = [
     'Comment suivre une candidature ?',
     'Comment demander un conge ?',
@@ -159,6 +168,23 @@ export class PrimAssistantPage {
   });
 
   askQuick(prompt: string): void {
+    if (this.loading) {
+      return;
+    }
+
+    // Les 6 demandes rapides sont des questions de navigation déterministes :
+    // elles ont une réponse curée dans la base de connaissances. On répond
+    // donc instantanément, sans appel LLM (0 ms, 0 token).
+    const match = this.findBestMatch(prompt);
+    if (match) {
+      this.messages = [
+        ...this.messages,
+        { role: 'user', text: prompt, createdAt: new Date().toISOString() },
+      ];
+      this.pushAssistantMessage(this.buildMatchedAnswer(match), match);
+      return;
+    }
+
     this.form.patchValue({ question: prompt });
     this.ask();
   }
@@ -179,6 +205,15 @@ export class PrimAssistantPage {
       { role: 'user', text: question, createdAt: new Date().toISOString() },
     ];
     this.form.reset({ question: '' });
+
+    // Cache de session : question FAQ déjà résolue → réponse immédiate.
+    const cacheKey = this.normalize(question);
+    const cached = this.responseCache.get(cacheKey);
+    if (cached) {
+      this.pushAssistantMessage(cached);
+      return;
+    }
+
     this.loading = true;
     this.cdr.detectChanges();
 
@@ -187,6 +222,11 @@ export class PrimAssistantPage {
     this.primAssistant.chat(question).subscribe({
       next: (response) => {
         const text = (response.text_response || '').trim() || this.offlineAnswer();
+        // On ne met en cache que les réponses FAQ stables : pas d'action
+        // concrète à confirmer, pas de blocage RBAC.
+        if (text && !response.action_draft && !response.blocked_reason) {
+          this.responseCache.set(cacheKey, text);
+        }
         this.pushAssistantMessage(
           response.blocked_reason ? `${text}\n\n⚠️ ${response.blocked_reason}` : text,
         );

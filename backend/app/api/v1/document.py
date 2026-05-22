@@ -17,6 +17,9 @@ from app.schemas.document import (
     DocumentCreateRequest,
     DocumentExtractedFieldResponse,
     DocumentExtractedFieldValidateRequest,
+    DocumentRequestCreateRequest,
+    DocumentRequestDecisionRequest,
+    DocumentRequestResponse,
     DocumentResponse,
     DocumentTypeCreateRequest,
     DocumentTypeResponse,
@@ -232,6 +235,89 @@ async def validate_extracted_field(
     return await document_service.validate_extracted_field(
         session,
         field_id=field_id,
+        body=body,
+        actor_user_id=current_user.user_id,
+        audit=audit,
+    )
+
+
+# ============================================================================
+# Demandes de documents administratifs (Portail manager / Portail agent)
+# ============================================================================
+@router.get("/requests", response_model=list[DocumentRequestResponse])
+async def list_document_requests(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(
+            require_permissions(
+                any_of=["documents:view", "documents:manage", "portal:manager", "*"]
+            )
+        ),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    request_status: str | None = Query(None, alias="status"),
+    employee_id: UUID | None = None,
+) -> list[DocumentRequestResponse]:
+    return await document_service.list_requests(
+        session,
+        organization_id=current_user.organization_id,
+        request_status=request_status,
+        employee_id=employee_id,
+    )
+
+
+@router.post(
+    "/requests",
+    response_model=DocumentRequestResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_document_request(
+    body: DocumentRequestCreateRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(
+            require_permissions(
+                any_of=["portal:agent", "portal:manager", "documents:manage", "*"]
+            )
+        ),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> DocumentRequestResponse:
+    return await document_service.create_request(
+        session,
+        organization_id=current_user.organization_id,
+        requested_by_employee_id=current_user.employee_id,
+        body=body,
+        audit=audit,
+    )
+
+
+@router.post(
+    "/requests/{request_key}/decide",
+    response_model=DocumentRequestResponse,
+)
+@router.post(
+    "/requests/{request_key}/decision",
+    response_model=DocumentRequestResponse,
+    include_in_schema=False,
+)
+async def decide_document_request(
+    request_key: str,
+    body: DocumentRequestDecisionRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(
+            require_permissions(any_of=["documents:manage", "portal:manager", "*"])
+        ),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> DocumentRequestResponse:
+    # `request_key` accepte l'UUID technique ou la référence métier (DDOC-...).
+    return await document_service.decide_request(
+        session,
+        request_key=request_key,
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,

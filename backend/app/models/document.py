@@ -619,3 +619,51 @@ class DocumentRetentionEvent(Base):
         nullable=False,
         server_default=func.now(),
     )
+
+
+# ============================================================================
+# 0006 — document_requests : demandes de documents administratifs
+# (attestations, certificats...) instruites par le manager / la RH.
+# ============================================================================
+
+
+class DocumentRequest(Base, TimestampMixin):
+    """Demande d'un document administratif par un agent, à valider par le manager."""
+
+    __tablename__ = "document_requests"
+    __table_args__ = (
+        CheckConstraint(
+            "request_status in ('PENDING','APPROVED','REJECTED','CANCELLED')",
+            name="document_requests_status_check",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "reference",
+            name="document_requests_ref_key",
+        ),
+        {"schema": DEFAULT_SCHEMA},
+    )
+
+    document_request_id: Mapped[UUID] = uuid_pk_column()
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.organizations.organization_id"),
+        nullable=False,
+    )
+    reference: Mapped[str] = mapped_column(String, nullable=False)
+    requested_by_employee_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.employees.employee_id", ondelete="SET NULL"),
+    )
+    document_type_label: Mapped[str] = mapped_column(String, nullable=False)
+    purpose: Mapped[str] = mapped_column(String, nullable=False)
+    needed_by: Mapped[date | None] = mapped_column(Date)
+    request_status: Mapped[str] = mapped_column(
+        String, nullable=False, default="PENDING", server_default="PENDING"
+    )
+    decided_by_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
+    )
+    decided_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True))
+    decision_comment: Mapped[str | None] = mapped_column(String)

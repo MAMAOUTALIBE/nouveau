@@ -77,11 +77,13 @@ _SESSION_STATUS_LABELS: dict[str, str] = {
     "COMPLETED": "Terminée",
     "CANCELLED": "Annulée",
 }
+# Libellés alignés sur le vocabulaire du frontend (page Demandes + Portail
+# manager) : 'Soumise' / 'Validee' / 'Rejetee' — sans accent, filtrage exact.
 _TRAINING_REQUEST_STATUS_LABELS: dict[str, str] = {
-    "PENDING": "En attente",
-    "APPROVED": "Approuvée",
-    "REJECTED": "Rejetée",
-    "CANCELLED": "Annulée",
+    "PENDING": "Soumise",
+    "APPROVED": "Validee",
+    "REJECTED": "Rejetee",
+    "CANCELLED": "Annulee",
 }
 
 
@@ -471,21 +473,43 @@ async def create_request(
     return TrainingRequestResponse.model_validate(r)
 
 
+async def _find_request_by_key(
+    session: AsyncSession, request_key: str
+) -> TrainingRequest | None:
+    """Résout une demande de formation par UUID ou par référence (DFORM-...)."""
+    key = str(request_key or "").strip()
+    if not key:
+        return None
+    try:
+        request_uuid: UUID | None = UUID(key)
+    except (ValueError, TypeError):
+        request_uuid = None
+    if request_uuid is not None:
+        row = (
+            await session.execute(
+                select(TrainingRequest).where(
+                    TrainingRequest.training_request_id == request_uuid
+                )
+            )
+        ).scalar_one_or_none()
+        if row is not None:
+            return row
+    return (
+        await session.execute(
+            select(TrainingRequest).where(TrainingRequest.reference == key)
+        )
+    ).scalar_one_or_none()
+
+
 async def decide_request(
     session: AsyncSession,
     *,
-    training_request_id: UUID,
+    request_key: str,
     body: TrainingRequestDecisionRequest,
     actor_user_id: UUID,
     audit: AuditWriter,
 ) -> TrainingRequestResponse:
-    r = (
-        await session.execute(
-            select(TrainingRequest).where(
-                TrainingRequest.training_request_id == training_request_id
-            )
-        )
-    ).scalar_one_or_none()
+    r = await _find_request_by_key(session, request_key)
     if r is None:
         raise NotFoundError("Demande introuvable.", code="REQUEST_NOT_FOUND")
     if r.request_status != "PENDING":
@@ -501,14 +525,16 @@ async def decide_request(
     await audit.record(
         action=f"TRAINING_REQUEST_{body.decision}",
         target_type="training_request",
-        target_id=str(training_request_id),
+        target_id=str(r.training_request_id),
         before=before,
         after={
             "request_status": body.decision,
             "decision_comment": body.comment,
         },
     )
-    return TrainingRequestResponse.model_validate(r)
+    dto = TrainingRequestResponse.model_validate(r)
+    dto.status = _TRAINING_REQUEST_STATUS_LABELS.get(r.request_status, r.request_status)
+    return dto
 
 
 # ============================================================================

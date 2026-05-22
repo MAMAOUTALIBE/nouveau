@@ -88,7 +88,11 @@ async def get_definition(
 async def list_instances(
     current_user: Annotated[
         AuthenticatedUser,
-        Depends(require_permissions(any_of=["workflows:view", "workflows:manage", "*"])),
+        Depends(
+            require_permissions(
+                any_of=["workflows:view", "workflows:manage", "portal:manager", "*"]
+            )
+        ),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
     page: Annotated[int, Query(ge=1)] = 1,
@@ -130,22 +134,25 @@ async def create_instance(
 
 
 @router.post(
-    "/instances/{workflow_instance_id}/actions",
+    "/instances/{instance_key}/actions",
     response_model=WorkflowInstanceResponse,
 )
 async def perform_instance_action(
-    workflow_instance_id: UUID,
+    instance_key: str,
     body: WorkflowInstanceActionRequest,
     current_user: Annotated[
         AuthenticatedUser,
-        Depends(require_permissions(any_of=["workflows:manage", "*"])),
+        Depends(
+            require_permissions(any_of=["workflows:manage", "portal:manager", "*"])
+        ),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
     audit: Annotated[AuditWriter, Depends(get_audit_writer)],
 ) -> WorkflowInstanceResponse:
+    # `instance_key` accepte l'UUID technique ou la référence métier (WFI-...).
     return await workflow_service.perform_action(
         session,
-        workflow_instance_id=workflow_instance_id,
+        instance_key=instance_key,
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,

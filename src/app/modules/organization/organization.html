@@ -1,0 +1,116 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+
+    <!-- ============================ COCKPIT ORGANISATION ============================ -->
+    <div class="card custom-card mb-3">
+      <div class="card-header">
+        <div class="card-title">Organisation</div>
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-tabs mb-4" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'organigramme'"
+              (click)="setTab('organigramme')">
+              <i class="ri-node-tree me-1"></i>Organigramme
+              <span class="badge bg-primary-transparent ms-1">{{ unitsCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'budgetaires'"
+              (click)="setTab('budgetaires')">
+              <i class="ri-briefcase-line me-1"></i>Postes budgetaires
+              <span class="badge bg-primary-transparent ms-1">{{ budgetedCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'vacants'"
+              (click)="setTab('vacants')">
+              <i class="ri-user-unfollow-line me-1"></i>Postes vacants
+              <span class="badge bg-primary-transparent ms-1">{{ vacantCount }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="row g-3">
+          <div class="col-6 col-xl-3">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-node-tree fs-5 text-primary"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ unitsCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Unites</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-team-line fs-5 text-success"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ totalStaff }}</div>
+                  <div class="text-muted fs-11 mt-1">Effectif total</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-briefcase-line fs-5 text-info"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ budgetedCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Postes budgetaires</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-xl-3">
+            <div class="card shadow-none border mb-0 h-100" [class.border-danger]="vacantCount > 0">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-user-unfollow-line fs-5 text-danger"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1" [class.text-danger]="vacantCount > 0">{{ vacantCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Postes vacants</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ CONTENU DE L'ONGLET ACTIF ============================ -->
+<app-org-chart *ngIf="activeTab === 'organigramme'"></app-org-chart>
+<app-budgeted-positions *ngIf="activeTab === 'budgetaires'"></app-budgeted-positions>
+<app-vacant-positions *ngIf="activeTab === 'vacants'"></app-vacant-positions>

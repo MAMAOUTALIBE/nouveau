@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DocumentStatus = Literal["DRAFT", "IN_VALIDATION", "VALIDATED", "PUBLISHED", "ARCHIVED"]
 ConfidentialityLevel = Literal["PUBLIC", "INTERNAL", "CONFIDENTIAL", "STRICTLY_CONFIDENTIAL"]
@@ -240,3 +240,73 @@ class DocumentExtractedFieldValidateRequest(BaseModel):
     value_json: dict[str, Any] | None = None
     normalized_value: str | None = None
     is_validated: bool = True
+
+
+# ---------------------------------------------------------------------------
+# Demandes de documents administratifs (Portail manager / Portail agent)
+# ---------------------------------------------------------------------------
+DocumentRequestStatus = Literal["PENDING", "APPROVED", "REJECTED", "CANCELLED"]
+
+
+class DocumentRequestResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    document_request_id: UUID
+    organization_id: UUID
+    reference: str
+    requested_by_employee_id: UUID | None
+    document_type_label: str
+    purpose: str
+    needed_by: date | None
+    request_status: DocumentRequestStatus
+    decided_by_user_id: UUID | None
+    decided_at: datetime | None
+    decision_comment: str | None
+    created_at: datetime
+    # Libellés enrichis attendus par le frontend (Portail manager).
+    document_type: str | None = None
+    requester_name: str | None = None
+    requester_username: str | None = None
+    status: str | None = None
+    decided_by: str | None = None
+
+
+class DocumentRequestCreateRequest(BaseModel):
+    document_type: str = Field(min_length=1, max_length=255)
+    purpose: str = Field(min_length=1)
+    needed_by: date | None = None
+    requested_by_employee_id: UUID | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_frontend_camel_case(cls, data: Any) -> Any:
+        """Tolère le vocabulaire frontend (documentType / neededBy / reason)."""
+        if isinstance(data, dict):
+            data = dict(data)
+            if not data.get("document_type"):
+                data["document_type"] = data.get("documentType") or data.get("type")
+            if not data.get("purpose"):
+                data["purpose"] = data.get("reason")
+            if not data.get("needed_by"):
+                data["needed_by"] = data.get("neededBy") or data.get("dueDate")
+        return data
+
+
+class DocumentRequestDecisionRequest(BaseModel):
+    decision: Literal["APPROVED", "REJECTED"]
+    comment: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_frontend_vocabulary(cls, data: Any) -> Any:
+        """Tolère le vocabulaire frontend : {action: APPROUVER|REJETER, reason}."""
+        if isinstance(data, dict):
+            data = dict(data)
+            if not data.get("decision") and data.get("action"):
+                action = str(data.get("action") or "").strip().upper()
+                data["decision"] = (
+                    "REJECTED" if action in ("REJETER", "REJECTED", "REJETE") else "APPROVED"
+                )
+            if not data.get("comment") and data.get("reason"):
+                data["comment"] = data.get("reason")
+        return data

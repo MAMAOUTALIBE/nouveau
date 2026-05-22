@@ -10,7 +10,13 @@
         </button>
         <button type="button" class="btn btn-outline-primary">Exporter</button>
 
-        <div class="card border shadow-none mt-2 mb-0" *ngIf="showCreateForm">
+        <div
+          class="modal d-block"
+          tabindex="-1"
+          *ngIf="showCreateForm"
+          style="background-color: rgba(0, 0, 0, 0.55)">
+          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveEvent()" class="row g-3">
               <div class="col-12">
@@ -46,6 +52,8 @@
                 </button>
               </div>
             </form>
+          </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,243 +1,411 @@
 <div class="row row-sm">
   <div class="col-xl-12">
-    <div class="card custom-card">
+
+    <!-- ============================ COCKPIT KPI ============================ -->
+    <div class="card custom-card mb-3">
       <div class="card-header justify-content-between">
         <div class="card-title">Portail manager</div>
         <div class="btn-list">
-          <button type="button" class="btn btn-primary" (click)="toggleActionForm()">
-            {{ showActionForm ? 'Fermer le formulaire' : 'Valider' }}
-          </button>
           <button
             type="button"
             class="btn btn-outline-primary"
             [disabled]="isLoading || !pendingInstances.length"
             (click)="exportTeam()">
-            Exports equipe
+            <i class="ri-download-2-line me-1"></i>Exports equipe
           </button>
-          <button
-            type="button"
-            class="btn btn-light"
-            [disabled]="isLoading || isTrainingLoading || isDocumentLoading"
-            (click)="refresh()">
-            {{ isLoading || isTrainingLoading || isDocumentLoading ? 'Chargement...' : 'Rafraichir' }}
+          <button type="button" class="btn btn-light" [disabled]="isBusy" (click)="refresh()">
+            <i class="ri-refresh-line me-1"></i>{{ isBusy ? 'Chargement...' : 'Rafraichir' }}
           </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="card border shadow-none mb-4" *ngIf="showActionForm">
-          <div class="card-body">
-            <form class="row g-3" (ngSubmit)="submitAction()">
-              <div class="col-md-5">
-                <label class="form-label">Instance workflow</label>
-                <select class="form-select" [(ngModel)]="selectedInstanceId" name="selectedInstanceId" required>
-                  <option value="" disabled>Selectionner une instance</option>
-                  <option *ngFor="let instance of pendingInstances" [value]="instance.id">
-                    {{ instance.id }} - {{ instance.requester }} ({{ instance.status }})
-                  </option>
-                </select>
+        <div class="row g-3">
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card shadow-none border h-100 mb-0"
+              role="button"
+              style="cursor: pointer"
+              [class.border-primary]="activeTab === 'training'"
+              (click)="setTab('training')">
+              <div class="card-body d-flex align-items-center gap-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-transparent flex-shrink-0"
+                  style="width: 52px; height: 52px">
+                  <i class="ri-graduation-cap-line fs-4 text-primary"></i>
+                </div>
+                <div>
+                  <div class="fs-3 fw-semibold lh-1">{{ pendingTrainingRequests.length }}</div>
+                  <div class="text-muted fs-12">Formations a arbitrer</div>
+                </div>
               </div>
-              <div class="col-md-3">
-                <label class="form-label">Action</label>
-                <select class="form-select" [(ngModel)]="selectedAction" name="selectedAction">
-                  <option value="APPROUVER">Approuver</option>
-                  <option value="REJETER">Rejeter</option>
-                  <option value="ESCALADER">Escalader</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Note (optionnel)</label>
-                <input type="text" class="form-control" [(ngModel)]="actionNote" name="actionNote" />
-              </div>
-
-              <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-light" (click)="cancelAction()" [disabled]="submitting">
-                  Annuler
-                </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Traitement...' : 'Enregistrer l action' }}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-md-4" *ngFor="let item of quick; let index = index">
-            <div class="card shadow-none border p-3 h-100">
-              <div class="fw-semibold mb-1">{{ item.label }}</div>
-              <div class="text-muted fs-12 mb-2">{{ item.desc }}</div>
-              <button type="button" class="btn btn-sm btn-primary-light" (click)="runQuickAction(index)">
-                {{ item.cta }}
-              </button>
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card shadow-none border h-100 mb-0"
+              role="button"
+              style="cursor: pointer"
+              [class.border-primary]="activeTab === 'documents'"
+              (click)="setTab('documents')">
+              <div class="card-body d-flex align-items-center gap-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info-transparent flex-shrink-0"
+                  style="width: 52px; height: 52px">
+                  <i class="ri-file-text-line fs-4 text-info"></i>
+                </div>
+                <div>
+                  <div class="fs-3 fw-semibold lh-1">{{ pendingDocumentRequests.length }}</div>
+                  <div class="text-muted fs-12">Documents a valider</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card shadow-none border h-100 mb-0"
+              role="button"
+              style="cursor: pointer"
+              [class.border-primary]="activeTab === 'workflows'"
+              (click)="setTab('workflows')">
+              <div class="card-body d-flex align-items-center gap-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary-transparent flex-shrink-0"
+                  style="width: 52px; height: 52px">
+                  <i class="ri-git-merge-line fs-4 text-secondary"></i>
+                </div>
+                <div>
+                  <div class="fs-3 fw-semibold lh-1">{{ pendingInstances.length }}</div>
+                  <div class="text-muted fs-12">Workflows a traiter</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-xl-3">
+            <div
+              class="card shadow-none border h-100 mb-0"
+              role="button"
+              style="cursor: pointer"
+              [class.border-danger]="escalatedCount > 0"
+              (click)="setTab('workflows')">
+              <div class="card-body d-flex align-items-center gap-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-transparent flex-shrink-0"
+                  style="width: 52px; height: 52px">
+                  <i class="ri-alarm-warning-line fs-4 text-danger"></i>
+                </div>
+                <div>
+                  <div class="fs-3 fw-semibold lh-1" [class.text-danger]="escalatedCount > 0">
+                    {{ escalatedCount }}
+                  </div>
+                  <div class="text-muted fs-12">Escalades / en retard</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="table-responsive" id="manager-training-requests">
-          <h6 class="mb-3">Demandes de formation en attente</h6>
-          <table class="table table-bordered text-nowrap mb-0">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Agent</th>
-                <th>Session</th>
-                <th>Date session</th>
-                <th>Motivation</th>
-                <th>Statut</th>
-                <th>Motif decision</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngIf="isTrainingLoading">
-                <td colspan="8" class="text-center text-muted">Chargement des demandes de formation...</td>
-              </tr>
-              <tr *ngIf="!isTrainingLoading && !pendingTrainingRequests.length">
-                <td colspan="8" class="text-center text-muted">Aucune demande de formation a traiter</td>
-              </tr>
-              <tr *ngFor="let request of pendingTrainingRequests">
-                <td>{{ request.reference }}</td>
-                <td>
-                  <div class="fw-semibold">{{ request.applicantName }}</div>
-                  <div class="text-muted fs-11">{{ request.applicantUsername }}</div>
-                </td>
-                <td>{{ request.sessionCode }} - {{ request.sessionTitle }}</td>
-                <td>{{ request.sessionDates || '-' }}</td>
-                <td>{{ request.motivation }}</td>
-                <td>
-                  <span class="badge" [ngClass]="trainingStatusBadgeClass(request.status)">{{ request.status }}</span>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="trainingDecisionNotes[request.reference]"
-                    [name]="'decision-note-' + request.reference"
-                    placeholder="Obligatoire si rejet" />
-                </td>
-                <td>
-                  <div class="d-flex gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-success"
-                      (click)="approveTraining(request)"
-                      [disabled]="trainingUpdatingReference === request.reference">
-                      Valider
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="rejectTraining(request)"
-                      [disabled]="trainingUpdatingReference === request.reference">
-                      Rejeter
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- ============================ FILES D'ATTENTE ============================ -->
+    <div class="card custom-card">
+      <div class="card-body">
+        <ul class="nav nav-tabs mb-4" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'training'"
+              (click)="setTab('training')">
+              <i class="ri-graduation-cap-line me-1"></i>Formations
+              <span class="badge bg-primary-transparent ms-1">{{ pendingTrainingRequests.length }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'documents'"
+              (click)="setTab('documents')">
+              <i class="ri-file-text-line me-1"></i>Documents
+              <span class="badge bg-primary-transparent ms-1">{{ pendingDocumentRequests.length }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'workflows'"
+              (click)="setTab('workflows')">
+              <i class="ri-git-merge-line me-1"></i>Workflows
+              <span class="badge bg-primary-transparent ms-1">{{ pendingInstances.length }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- ===================== ONGLET : FORMATIONS ===================== -->
+        <div *ngIf="activeTab === 'training'">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="ri-graduation-cap-line text-primary fs-5"></i>
+            <h6 class="mb-0">Demandes de formation en attente</h6>
+          </div>
+
+          <div class="text-center py-5 border rounded-3" *ngIf="!isTrainingLoading && !pendingTrainingRequests.length">
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent mb-3"
+              style="width: 64px; height: 64px">
+              <i class="ri-check-double-line fs-3 text-success"></i>
+            </div>
+            <div class="fw-semibold mb-1">Aucune demande de formation a traiter</div>
+            <div class="text-muted fs-12">Toutes les demandes de formation de l'equipe sont a jour.</div>
+          </div>
+
+          <div
+            class="table-responsive border rounded-3"
+            style="max-height: 460px"
+            *ngIf="isTrainingLoading || pendingTrainingRequests.length">
+            <table class="table text-nowrap mb-0">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Agent</th>
+                  <th>Session</th>
+                  <th>Date session</th>
+                  <th>Motivation</th>
+                  <th>Statut</th>
+                  <th>Motif decision</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isTrainingLoading">
+                  <td colspan="8" class="text-center text-muted py-3">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Chargement des demandes de formation...
+                  </td>
+                </tr>
+                <tr *ngFor="let request of pendingTrainingRequests">
+                  <td class="fw-semibold">{{ request.reference }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ request.applicantName }}</div>
+                    <div class="text-muted fs-11">{{ request.applicantUsername }}</div>
+                  </td>
+                  <td>{{ request.sessionCode }} - {{ request.sessionTitle }}</td>
+                  <td>{{ request.sessionDates || '-' }}</td>
+                  <td class="text-wrap" style="min-width: 200px">{{ request.motivation }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="trainingStatusBadgeClass(request.status)">{{ request.status }}</span>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="trainingDecisionNotes[request.reference]"
+                      [name]="'training-note-' + request.reference"
+                      placeholder="Obligatoire si rejet" />
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="approveTraining(request)"
+                        [disabled]="trainingUpdatingReference === request.reference">
+                        <i class="ri-check-line me-1"></i>Valider
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="rejectTraining(request)"
+                        [disabled]="trainingUpdatingReference === request.reference">
+                        <i class="ri-close-line me-1"></i>Rejeter
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="table-responsive mt-4" id="manager-document-requests">
-          <h6 class="mb-3">Demandes de documents en attente</h6>
-          <table class="table table-bordered text-nowrap mb-0">
-            <thead>
-              <tr>
-                <th>Reference</th>
-                <th>Agent</th>
-                <th>Type</th>
-                <th>Date souhaitee</th>
-                <th>Motif / usage</th>
-                <th>Statut</th>
-                <th>Motif decision</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngIf="isDocumentLoading">
-                <td colspan="8" class="text-center text-muted">Chargement des demandes de documents...</td>
-              </tr>
-              <tr *ngIf="!isDocumentLoading && !pendingDocumentRequests.length">
-                <td colspan="8" class="text-center text-muted">Aucune demande de document a traiter</td>
-              </tr>
-              <tr *ngFor="let request of pendingDocumentRequests">
-                <td>{{ request.reference }}</td>
-                <td>
-                  <div class="fw-semibold">{{ request.requesterName }}</div>
-                  <div class="text-muted fs-11">{{ request.requesterUsername }}</div>
-                </td>
-                <td>{{ request.documentType }}</td>
-                <td>{{ request.neededBy || '-' }}</td>
-                <td class="text-wrap" style="min-width: 240px;">{{ request.purpose }}</td>
-                <td>
-                  <span class="badge" [ngClass]="documentStatusBadgeClass(request.status)">{{ request.status }}</span>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    [(ngModel)]="documentDecisionNotes[request.reference]"
-                    [name]="'document-decision-note-' + request.reference"
-                    placeholder="Obligatoire si rejet" />
-                </td>
-                <td>
-                  <div class="d-flex gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-success"
-                      (click)="approveDocumentRequest(request)"
-                      [disabled]="documentUpdatingReference === request.reference">
-                      Valider
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="rejectDocumentRequest(request)"
-                      [disabled]="documentUpdatingReference === request.reference">
-                      Rejeter
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- ===================== ONGLET : DOCUMENTS ===================== -->
+        <div *ngIf="activeTab === 'documents'">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="ri-file-text-line text-primary fs-5"></i>
+            <h6 class="mb-0">Demandes de documents en attente</h6>
+          </div>
+
+          <div class="text-center py-5 border rounded-3" *ngIf="!isDocumentLoading && !pendingDocumentRequests.length">
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent mb-3"
+              style="width: 64px; height: 64px">
+              <i class="ri-check-double-line fs-3 text-success"></i>
+            </div>
+            <div class="fw-semibold mb-1">Aucune demande de document a traiter</div>
+            <div class="text-muted fs-12">Toutes les demandes de documents de l'equipe sont a jour.</div>
+          </div>
+
+          <div
+            class="table-responsive border rounded-3"
+            style="max-height: 460px"
+            *ngIf="isDocumentLoading || pendingDocumentRequests.length">
+            <table class="table text-nowrap mb-0">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Agent</th>
+                  <th>Type</th>
+                  <th>Date souhaitee</th>
+                  <th>Motif / usage</th>
+                  <th>Statut</th>
+                  <th>Motif decision</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isDocumentLoading">
+                  <td colspan="8" class="text-center text-muted py-3">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Chargement des demandes de documents...
+                  </td>
+                </tr>
+                <tr *ngFor="let request of pendingDocumentRequests">
+                  <td class="fw-semibold">{{ request.reference }}</td>
+                  <td>
+                    <div class="fw-semibold">{{ request.requesterName }}</div>
+                    <div class="text-muted fs-11">{{ request.requesterUsername }}</div>
+                  </td>
+                  <td>{{ request.documentType }}</td>
+                  <td>{{ request.neededBy || '-' }}</td>
+                  <td class="text-wrap" style="min-width: 220px">{{ request.purpose }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="documentStatusBadgeClass(request.status)">{{ request.status }}</span>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="documentDecisionNotes[request.reference]"
+                      [name]="'document-note-' + request.reference"
+                      placeholder="Obligatoire si rejet" />
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="approveDocumentRequest(request)"
+                        [disabled]="documentUpdatingReference === request.reference">
+                        <i class="ri-check-line me-1"></i>Valider
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="rejectDocumentRequest(request)"
+                        [disabled]="documentUpdatingReference === request.reference">
+                        <i class="ri-close-line me-1"></i>Rejeter
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="table-responsive mt-4">
-          <h6 class="mb-3">Workflow manager en attente</h6>
-          <table class="table text-nowrap">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Demandeur</th>
-                <th>Workflow</th>
-                <th>Etape</th>
-                <th>Echeance</th>
-                <th>Owner</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngIf="isLoading">
-                <td colspan="7" class="text-center text-muted">Chargement...</td>
-              </tr>
-              <tr *ngIf="!isLoading && !pendingInstances.length">
-                <td colspan="7" class="text-center text-muted">Aucune instance a traiter</td>
-              </tr>
-              <tr *ngFor="let instance of pendingInstances">
-                <td>{{ instance.id }}</td>
-                <td>{{ instance.requester }}</td>
-                <td>{{ instance.definition }}</td>
-                <td>{{ instance.currentStep }}</td>
-                <td>{{ instance.dueOn | date: 'yyyy-MM-dd HH:mm' }}</td>
-                <td>{{ instance.owner }}</td>
-                <td>
-                  <span class="badge" [ngClass]="statusBadgeClass(instance.status)">{{ instance.status }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- ===================== ONGLET : WORKFLOWS ===================== -->
+        <div *ngIf="activeTab === 'workflows'">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <i class="ri-git-merge-line text-primary fs-5"></i>
+            <h6 class="mb-0">Instances workflow en attente</h6>
+          </div>
+
+          <div class="text-center py-5 border rounded-3" *ngIf="!isLoading && !pendingInstances.length">
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent mb-3"
+              style="width: 64px; height: 64px">
+              <i class="ri-check-double-line fs-3 text-success"></i>
+            </div>
+            <div class="fw-semibold mb-1">Aucune instance a traiter</div>
+            <div class="text-muted fs-12">Aucun circuit de validation n'attend votre arbitrage.</div>
+          </div>
+
+          <div
+            class="table-responsive border rounded-3"
+            style="max-height: 460px"
+            *ngIf="isLoading || pendingInstances.length">
+            <table class="table text-nowrap mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Demandeur</th>
+                  <th>Workflow</th>
+                  <th>Etape</th>
+                  <th>Echeance</th>
+                  <th>Owner</th>
+                  <th>Statut</th>
+                  <th>Motif decision</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isLoading">
+                  <td colspan="9" class="text-center text-muted py-3">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Chargement des instances workflow...
+                  </td>
+                </tr>
+                <tr *ngFor="let instance of pendingInstances">
+                  <td class="fw-semibold">{{ instance.id }}</td>
+                  <td>{{ instance.requester }}</td>
+                  <td>{{ instance.definition }}</td>
+                  <td>{{ instance.currentStep }}</td>
+                  <td>{{ instance.dueOn | date: 'yyyy-MM-dd HH:mm' }}</td>
+                  <td>{{ instance.owner }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="statusBadgeClass(instance.status)">{{ instance.status }}</span>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      class="form-control form-control-sm"
+                      [(ngModel)]="instanceActionNotes[instance.id]"
+                      [name]="'workflow-note-' + instance.id"
+                      placeholder="Obligatoire si rejet" />
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="approveInstance(instance)"
+                        [disabled]="instanceUpdatingId === instance.id">
+                        <i class="ri-check-line me-1"></i>Approuver
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="rejectInstance(instance)"
+                        [disabled]="instanceUpdatingId === instance.id">
+                        <i class="ri-close-line me-1"></i>Rejeter
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-warning"
+                        (click)="escalateInstance(instance)"
+                        [disabled]="instanceUpdatingId === instance.id">
+                        <i class="ri-arrow-up-double-line me-1"></i>Escalader
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
     </div>
   </div>

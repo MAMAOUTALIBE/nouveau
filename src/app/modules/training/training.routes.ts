@@ -8,20 +8,17 @@ export const TRAINING_ROUTES: Routes = [
   },
   {
     path: 'sessions',
-    loadComponent: () =>
-      import('./pages/training-sessions/training-sessions').then((m) => m.TrainingSessionsPage),
-    data: { parentTitle: 'Pilotage', childTitle: 'Formation' },
+    loadComponent: () => import('./training').then((m) => m.TrainingPage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Formation', trainingTab: 'sessions' },
   },
   {
     path: 'catalogue',
-    loadComponent: () =>
-      import('./pages/training-catalog/training-catalog').then((m) => m.TrainingCatalogPage),
-    data: { parentTitle: 'Pilotage', childTitle: 'Catalogue' },
+    loadComponent: () => import('./training').then((m) => m.TrainingPage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Catalogue', trainingTab: 'catalog' },
   },
   {
     path: 'demandes',
-    loadComponent: () =>
-      import('./pages/training-requests/training-requests').then((m) => m.TrainingRequestsPage),
-    data: { parentTitle: 'Pilotage', childTitle: 'Demandes' },
+    loadComponent: () => import('./training').then((m) => m.TrainingPage),
+    data: { parentTitle: 'Pilotage', childTitle: 'Demandes', trainingTab: 'requests' },
   },
 ];

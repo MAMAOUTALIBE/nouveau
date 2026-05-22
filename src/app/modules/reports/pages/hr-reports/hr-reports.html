@@ -1,204 +1,294 @@
 <div class="row row-sm">
   <div class="col-xl-12">
-    <div class="card custom-card">
+
+    <!-- ============================ COCKPIT RAPPORTS ============================ -->
+    <div class="card custom-card mb-3">
       <div class="card-header justify-content-between">
         <div class="card-title">Rapports RH</div>
         <div class="btn-list">
-          <button class="btn btn-primary" [disabled]="isLoading || !snapshot" (click)="exportPdf()">Exporter PDF</button>
-          <button class="btn btn-outline-primary" [disabled]="isLoading || !snapshot" (click)="exportExcel()">
-            Exporter Excel
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            [disabled]="isLoading || !snapshot"
+            (click)="exportExcel()">
+            <i class="ri-file-excel-2-line me-1"></i>Exporter Excel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="isLoading || !snapshot"
+            (click)="exportPdf()">
+            <i class="ri-file-pdf-2-line me-1"></i>Exporter PDF
           </button>
         </div>
       </div>
       <div class="card-body">
+        <!-- Filtres -->
         <div class="row g-3 align-items-end mb-4">
-          <div class="col-lg-3 col-md-6">
+          <div class="col-lg-4 col-md-6">
             <label class="form-label fw-semibold">Periode</label>
             <select class="form-select" [(ngModel)]="selectedPeriodDays" (change)="reload()">
               <option *ngFor="let option of periodOptions" [ngValue]="option.value">{{ option.label }}</option>
             </select>
           </div>
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-5 col-md-6">
             <label class="form-label fw-semibold">Direction</label>
             <select class="form-select" [(ngModel)]="selectedDirection" (change)="reload()">
               <option *ngFor="let option of directionOptions" [value]="option.value">{{ option.label }}</option>
             </select>
           </div>
-          <div class="col-lg-2 col-md-6">
-            <button class="btn btn-outline-primary w-100" [disabled]="isLoading" (click)="reload()">Actualiser</button>
+          <div class="col-lg-3 col-md-12">
+            <button class="btn btn-outline-primary w-100" [disabled]="isLoading" (click)="reload()">
+              <i class="ri-refresh-line me-1"></i>{{ isLoading ? 'Calcul...' : 'Actualiser' }}
+            </button>
           </div>
         </div>
 
-        <div *ngIf="isLoading" class="text-center py-4">
+        <!-- Bandeau KPI compact -->
+        <div class="row g-3" *ngIf="!isLoading && snapshot as data">
+          <div class="col-6 col-md-4 col-xl-3" *ngFor="let kpi of data.kpis">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                  [ngClass]="kpiCircleClass(kpi.badge)"
+                  style="width: 46px; height: 46px">
+                  <i class="fs-5" [ngClass]="[kpiIcon(kpi.id), kpiTextClass(kpi.badge)]"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ kpi.value }}{{ kpi.unit || '' }}</div>
+                  <div class="text-muted fs-11 mt-1">{{ kpi.label }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================ DETAIL ============================ -->
+    <div class="card custom-card">
+      <div class="card-body">
+        <div *ngIf="isLoading" class="text-center py-5">
           <div class="spinner-border text-primary" role="status"></div>
           <div class="mt-2 text-muted">Calcul des indicateurs...</div>
         </div>
 
         <ng-container *ngIf="!isLoading && snapshot as data">
-          <div class="row g-3">
-            <div class="col-sm-6 col-lg-4" *ngFor="let kpi of data.kpis">
-              <div class="card shadow-none border text-center p-3 h-100">
-                <span class="badge mb-2" [ngClass]="kpi.badge">{{ kpi.label }}</span>
-                <div class="fs-24 fw-semibold">{{ kpi.value }}{{ kpi.unit || '' }}</div>
+          <ul class="nav nav-tabs mb-4" role="tablist">
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                role="button"
+                style="cursor: pointer"
+                [class.active]="activeTab === 'trends'"
+                (click)="setTab('trends')">
+                <i class="ri-line-chart-line me-1"></i>Tendances
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                role="button"
+                style="cursor: pointer"
+                [class.active]="activeTab === 'risks'"
+                (click)="setTab('risks')">
+                <i class="ri-alarm-warning-line me-1"></i>Risques &amp; insights
+                <span class="badge bg-primary-transparent ms-1">{{ data.riskItems.length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link"
+                role="button"
+                style="cursor: pointer"
+                [class.active]="activeTab === 'turnover'"
+                (click)="setTab('turnover')">
+                <i class="ri-user-shared-line me-1"></i>Turn-over
+                <span class="badge bg-primary-transparent ms-1">{{ data.turnoverRiskItems.length }}</span>
+              </a>
+            </li>
+          </ul>
+
+          <!-- ===================== ONGLET : TENDANCES ===================== -->
+          <div *ngIf="activeTab === 'trends'">
+            <div class="row g-4">
+              <div class="col-xl-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <h6 class="fw-semibold mb-3">
+                    <i class="ri-bar-chart-2-line text-primary me-1"></i>Tendance des absences (6 mois)
+                  </h6>
+                  <spk-apexcharts [id]="'rapport-leave-trend'" [chartOptions]="leaveTrendChart"></spk-apexcharts>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <h6 class="fw-semibold mb-3">
+                    <i class="ri-bar-chart-2-line text-primary me-1"></i>Workflows finalises (6 mois)
+                  </h6>
+                  <spk-apexcharts
+                    [id]="'rapport-workflow-trend'"
+                    [chartOptions]="workflowTrendChart"></spk-apexcharts>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="row mt-4 g-4">
-            <div class="col-xl-6">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Effectifs par direction</h6>
-                <div *ngFor="let item of data.directionDistribution" class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>{{ item.label }}</span>
-                    <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+            <div class="row g-4 mt-1">
+              <div class="col-xl-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <h6 class="fw-semibold mb-3">
+                    <i class="ri-building-line text-primary me-1"></i>Effectifs par direction
+                  </h6>
+                  <div class="text-muted fs-12" *ngIf="!data.directionDistribution.length">
+                    Aucune donnee d'effectif disponible.
                   </div>
-                  <div class="progress mt-2" style="height: 8px">
-                    <div class="progress-bar bg-primary" [style.width.%]="asNumber(item.sharePercent)"></div>
+                  <div *ngFor="let item of data.directionDistribution" class="mb-3">
+                    <div class="d-flex justify-content-between">
+                      <span>{{ item.label }}</span>
+                      <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 8px">
+                      <div class="progress-bar bg-primary" [style.width.%]="asNumber(item.sharePercent)"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-6">
+                <div class="border rounded-3 p-3 h-100">
+                  <h6 class="fw-semibold mb-3">
+                    <i class="ri-calendar-event-line text-primary me-1"></i>Absences par type (periode)
+                  </h6>
+                  <div class="text-muted fs-12" *ngIf="!data.leaveByType.length">
+                    Aucune absence sur la periode selectionnee.
+                  </div>
+                  <div *ngFor="let item of data.leaveByType" class="mb-3">
+                    <div class="d-flex justify-content-between">
+                      <span>{{ item.label }}</span>
+                      <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 8px">
+                      <div class="progress-bar bg-warning" [style.width.%]="asNumber(item.sharePercent)"></div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-xl-6">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Absences par type (periode)</h6>
-                <div *ngFor="let item of data.leaveByType" class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>{{ item.label }}</span>
-                    <span class="fw-semibold">{{ item.value }} ({{ item.sharePercent }}%)</span>
+          </div>
+
+          <!-- ===================== ONGLET : RISQUES & INSIGHTS ===================== -->
+          <div *ngIf="activeTab === 'risks'">
+            <div class="row g-4">
+              <div class="col-xl-7">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <i class="ri-alarm-warning-line text-primary fs-5"></i>
+                  <h6 class="mb-0">Top risques workflow</h6>
+                </div>
+                <div class="text-center py-5 border rounded-3" *ngIf="!data.riskItems.length">
+                  <div
+                    class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent mb-3"
+                    style="width: 64px; height: 64px">
+                    <i class="ri-shield-check-line fs-3 text-success"></i>
                   </div>
-                  <div class="progress mt-2" style="height: 8px">
-                    <div class="progress-bar bg-warning" [style.width.%]="asNumber(item.sharePercent)"></div>
-                  </div>
+                  <div class="fw-semibold mb-1">Aucun risque majeur detecte</div>
+                  <div class="text-muted fs-12">Les circuits de validation respectent leurs delais.</div>
+                </div>
+                <div class="table-responsive border rounded-3" style="max-height: 420px" *ngIf="data.riskItems.length">
+                  <table class="table text-nowrap mb-0">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Workflow</th>
+                        <th>SLA</th>
+                        <th class="text-end">Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let risk of data.riskItems">
+                        <td class="fw-semibold">{{ risk.instanceId }}</td>
+                        <td>{{ risk.definition }}</td>
+                        <td>{{ risk.slaState }}</td>
+                        <td class="text-end fw-semibold">{{ risk.score }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div class="row mt-4 g-4">
-            <div class="col-xl-6">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Tendance absences (6 mois)</h6>
-                <table class="table table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th>Mois</th>
-                      <th class="text-end">Volume</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let point of data.leaveTrend">
-                      <td>{{ point.label }}</td>
-                      <td class="text-end">{{ point.value }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="col-xl-6">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Tendance workflows finalises (6 mois)</h6>
-                <table class="table table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th>Mois</th>
-                      <th class="text-end">Volume</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let point of data.workflowThroughputTrend">
-                      <td>{{ point.label }}</td>
-                      <td class="text-end">{{ point.value }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="row mt-4 g-4">
-            <div class="col-xl-7">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Top risques workflow</h6>
-                <table class="table table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Workflow</th>
-                      <th>SLA</th>
-                      <th class="text-end">Score</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let risk of data.riskItems">
-                      <td>{{ risk.instanceId }}</td>
-                      <td>{{ risk.definition }}</td>
-                      <td>{{ risk.slaState }}</td>
-                      <td class="text-end fw-semibold">{{ risk.score }}</td>
-                    </tr>
-                    <tr *ngIf="!data.riskItems.length">
-                      <td colspan="4" class="text-center text-muted">Aucun risque majeur detecte</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="col-xl-5">
-              <div class="border rounded p-3 mb-4">
-                <h6 class="fw-semibold mb-3">Insights automatiques</h6>
-                <ul class="list-group">
-                  <li class="list-group-item py-2" *ngFor="let insight of data.insights">{{ insight }}</li>
+              <div class="col-xl-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <i class="ri-lightbulb-flash-line text-primary fs-5"></i>
+                  <h6 class="mb-0">Insights automatiques</h6>
+                </div>
+                <ul class="list-group mb-4">
+                  <li class="list-group-item d-flex align-items-start gap-2 py-2" *ngFor="let insight of data.insights">
+                    <i class="ri-checkbox-circle-line text-primary mt-1"></i>
+                    <span>{{ insight }}</span>
+                  </li>
                 </ul>
-              </div>
-              <div class="border rounded p-3">
-                <h6 class="fw-semibold mb-3">Exports rapides</h6>
+
+                <div class="d-flex align-items-center gap-2 mb-3">
+                  <i class="ri-download-cloud-2-line text-primary fs-5"></i>
+                  <h6 class="mb-0">Exports rapides</h6>
+                </div>
                 <div class="d-grid gap-2">
                   <button
                     *ngFor="let report of quickExports"
+                    type="button"
                     class="btn btn-outline-primary text-start"
                     (click)="exportQuick(report.id)">
-                    {{ report.name }} <span class="badge bg-primary-transparent float-end">{{ report.format }}</span>
+                    <i class="ri-download-line me-1"></i>{{ report.name }}
+                    <span class="badge bg-primary-transparent float-end">{{ report.format }}</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="row mt-4 g-4">
-            <div class="col-xl-12">
-              <div class="border rounded p-3 h-100">
-                <h6 class="fw-semibold mb-3">Analyse prédictive du turn-over</h6>
-                <div class="table-responsive">
-                  <table class="table table-sm mb-0">
-                    <thead>
-                      <tr>
-                        <th>Agent</th>
-                        <th>Direction</th>
-                        <th>Score</th>
-                        <th>Niveau</th>
-                        <th>Facteurs</th>
-                        <th>Action recommandée</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let risk of data.turnoverRiskItems">
-                        <td>
-                          <div class="fw-semibold">{{ risk.fullName }}</div>
-                          <div class="text-muted fs-12">{{ risk.matricule }}</div>
-                        </td>
-                        <td>{{ risk.direction }}</td>
-                        <td class="fw-semibold">{{ risk.riskScore }}</td>
-                        <td><span class="badge" [ngClass]="riskLevelBadgeClass(risk.riskLevel)">{{ risk.riskLevel }}</span></td>
-                        <td>{{ risk.factors.join(' | ') }}</td>
-                        <td>{{ risk.recommendedAction }}</td>
-                      </tr>
-                      <tr *ngIf="!data.turnoverRiskItems.length">
-                        <td colspan="6" class="text-center text-muted">Aucun signal de turn-over détecté</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+          <!-- ===================== ONGLET : TURN-OVER ===================== -->
+          <div *ngIf="activeTab === 'turnover'">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <i class="ri-user-shared-line text-primary fs-5"></i>
+              <h6 class="mb-0">Analyse predictive du turn-over</h6>
+            </div>
+            <div class="text-center py-5 border rounded-3" *ngIf="!data.turnoverRiskItems.length">
+              <div
+                class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent mb-3"
+                style="width: 64px; height: 64px">
+                <i class="ri-shield-check-line fs-3 text-success"></i>
               </div>
+              <div class="fw-semibold mb-1">Aucun signal de turn-over detecte</div>
+              <div class="text-muted fs-12">Aucun agent ne presente de risque de depart notable.</div>
+            </div>
+            <div
+              class="table-responsive border rounded-3"
+              style="max-height: 520px"
+              *ngIf="data.turnoverRiskItems.length">
+              <table class="table text-nowrap mb-0">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Direction</th>
+                    <th class="text-end">Score</th>
+                    <th>Niveau</th>
+                    <th>Facteurs</th>
+                    <th>Action recommandee</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let risk of data.turnoverRiskItems">
+                    <td>
+                      <div class="fw-semibold">{{ risk.fullName }}</div>
+                      <div class="text-muted fs-11">{{ risk.matricule }}</div>
+                    </td>
+                    <td>{{ risk.direction }}</td>
+                    <td class="text-end fw-semibold">{{ risk.riskScore }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="riskLevelBadgeClass(risk.riskLevel)">{{ risk.riskLevel }}</span>
+                    </td>
+                    <td class="text-wrap" style="min-width: 240px">{{ risk.factors.join(' | ') }}</td>
+                    <td>{{ risk.recommendedAction }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </ng-container>

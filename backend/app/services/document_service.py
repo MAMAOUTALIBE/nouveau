@@ -25,6 +25,7 @@ from app.models.document import (
     Document,
     DocumentAnalysisRun,
     DocumentExtractedField,
+    DocumentRequest,
     DocumentType,
 )
 from app.models.employee import Employee
@@ -33,6 +34,9 @@ from app.schemas.document import (
     DocumentCreateRequest,
     DocumentExtractedFieldResponse,
     DocumentExtractedFieldValidateRequest,
+    DocumentRequestCreateRequest,
+    DocumentRequestDecisionRequest,
+    DocumentRequestResponse,
     DocumentResponse,
     DocumentTypeCreateRequest,
     DocumentTypeResponse,
@@ -532,3 +536,207 @@ async def validate_extracted_field(
         },
     )
     return _field_to_dto(field)
+
+
+# ============================================================================
+# Demandes de documents administratifs (Portail manager / Portail agent)
+# ============================================================================
+# Libellés alignés sur le vocabulaire du frontend (Portail manager) :
+# 'Soumise' / 'Validee' / 'Rejetee' — sans accent, filtrage exact.
+_DOCUMENT_REQUEST_STATUS_LABELS: dict[str, str] = {
+    "PENDING": "Soumise",
+    "APPROVED": "Validee",
+    "REJECTED": "Rejetee",
+    "CANCELLED": "Annulee",
+}
+
+
+def _request_to_dto(
+    r: DocumentRequest, *, requester_name: str = "—"
+) -> DocumentRequestResponse:
+    dto = DocumentRequestResponse.model_validate(r)
+    dto.document_type = r.document_type_label
+    dto.requester_name = requester_name
+    dto.requester_username = ""
+    dto.status = _DOCUMENT_REQUEST_STATUS_LABELS.get(
+        r.request_status, r.request_status
+    )
+    return dto
+
+
+async def list_requests(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    request_status: str | None = None,
+    employee_id: UUID | None = None,
+) -> list[DocumentRequestResponse]:
+    base = select(DocumentRequest).where(
+        DocumentRequest.organization_id == organization_id
+    )
+    if request_status:
+        base = base.where(DocumentRequest.request_status == request_status)
+    if employee_id:
+        base = base.where(DocumentRequest.requested_by_employee_id == employee_id)
+    rows = (
+        await session.execute(base.order_by(DocumentRequest.created_at.desc()))
+    ).scalars().all()
+
+    employee_ids = {
+        r.requested_by_employee_id
+        for r in rows
+        if r.requested_by_employee_id is not None
+    }
+    employee_names: dict[UUID, str] = {}
+    if employee_ids:
+        employee_names = {
+            emp_id: full_name
+            for emp_id, full_name in (
+                await session.execute(
+                    select(Employee.employee_id, Employee.full_name).where(
+                        Employee.employee_id.in_(employee_ids)
+                    )
+                )
+            ).all()
+        }
+
+    return [
+        _request_to_dto(
+            r,
+            requester_name=employee_names.get(r.requested_by_employee_id, "—")
+            if r.requested_by_employee_id is not None
+            else "—",
+        )
+        for r in rows
+    ]
+
+
+async def _next_request_reference(
+    session: AsyncSession, organization_id: UUID
+) -> str:
+    year = datetime.now(tz=UTC).year
+    prefix = f"DEM-DOC-{year}-"
+    count = (
+        await session.execute(
+            select(func.count())
+            .select_from(DocumentRequest)
+            .where(
+                DocumentRequest.organization_id == organization_id,
+                DocumentRequest.reference.startswith(prefix),
+            )
+        )
+    ).scalar_one()
+    return f"{prefix}{int(count) + 1:05d}"
+
+
+async def create_request(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    requested_by_employee_id: UUID | None,
+    body: DocumentRequestCreateRequest,
+    audit: AuditWriter,
+) -> DocumentRequestResponse:
+    employee_id = body.requested_by_employee_id or requested_by_employee_id
+    reference = await _next_request_reference(session, organization_id)
+    r = DocumentRequest(
+        organization_id=organization_id,
+        reference=reference,
+        requested_by_employee_id=employee_id,
+        document_type_label=body.document_type.strip(),
+        purpose=body.purpose.strip(),
+        needed_by=body.needed_by,
+        request_status="PENDING",
+    )
+    session.add(r)
+    await session.flush([r])
+    await audit.record(
+        action="DOCUMENT_REQUEST_CREATED",
+        target_type="document_request",
+        target_id=str(r.document_request_id),
+        after={
+            "reference": reference,
+            "document_type_label": r.document_type_label,
+        },
+    )
+    requester_name = "—"
+    if employee_id is not None:
+        requester_name = (
+            await session.execute(
+                select(Employee.full_name).where(
+                    Employee.employee_id == employee_id
+                )
+            )
+        ).scalar_one_or_none() or "—"
+    return _request_to_dto(r, requester_name=requester_name)
+
+
+async def _find_request_by_key(
+    session: AsyncSession, request_key: str
+) -> DocumentRequest | None:
+    """Résout une demande de document par UUID ou par référence métier."""
+    key = str(request_key or "").strip()
+    if not key:
+        return None
+    try:
+        request_uuid: UUID | None = UUID(key)
+    except (ValueError, TypeError):
+        request_uuid = None
+    if request_uuid is not None:
+        row = (
+            await session.execute(
+                select(DocumentRequest).where(
+                    DocumentRequest.document_request_id == request_uuid
+                )
+            )
+        ).scalar_one_or_none()
+        if row is not None:
+            return row
+    return (
+        await session.execute(
+            select(DocumentRequest).where(DocumentRequest.reference == key)
+        )
+    ).scalar_one_or_none()
+
+
+async def decide_request(
+    session: AsyncSession,
+    *,
+    request_key: str,
+    body: DocumentRequestDecisionRequest,
+    actor_user_id: UUID,
+    audit: AuditWriter,
+) -> DocumentRequestResponse:
+    r = await _find_request_by_key(session, request_key)
+    if r is None:
+        raise NotFoundError("Demande introuvable.", code="DOCUMENT_REQUEST_NOT_FOUND")
+    if r.request_status != "PENDING":
+        raise ConflictError(
+            f"Demande déjà {r.request_status}.",
+            code="DOCUMENT_REQUEST_ALREADY_DECIDED",
+        )
+    before = {"request_status": r.request_status}
+    r.request_status = body.decision
+    r.decided_by_user_id = actor_user_id
+    r.decided_at = datetime.now(tz=UTC)
+    r.decision_comment = body.comment
+    await audit.record(
+        action=f"DOCUMENT_REQUEST_{body.decision}",
+        target_type="document_request",
+        target_id=str(r.document_request_id),
+        before=before,
+        after={
+            "request_status": body.decision,
+            "decision_comment": body.comment,
+        },
+    )
+    requester_name = "—"
+    if r.requested_by_employee_id is not None:
+        requester_name = (
+            await session.execute(
+                select(Employee.full_name).where(
+                    Employee.employee_id == r.requested_by_employee_id
+                )
+            )
+        ).scalar_one_or_none() or "—"
+    return _request_to_dto(r, requester_name=requester_name)

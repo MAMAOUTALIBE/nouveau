@@ -1,0 +1,155 @@
+<div class="row row-sm">
+  <div class="col-xl-12">
+
+    <!-- ============================ COCKPIT CARRIERE ============================ -->
+    <div class="card custom-card mb-3">
+      <div class="card-header">
+        <div class="card-title">Carriere</div>
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-tabs mb-4" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'advancements'"
+              (click)="setTab('advancements')">
+              <i class="ri-arrow-up-circle-line me-1"></i>Avancements
+              <span class="badge bg-primary-transparent ms-1">{{ advancementsCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'transfers'"
+              (click)="setTab('transfers')">
+              <i class="ri-arrow-left-right-line me-1"></i>Mutations
+              <span class="badge bg-primary-transparent ms-1">{{ transfersCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'secondments'"
+              (click)="setTab('secondments')">
+              <i class="ri-share-forward-line me-1"></i>Detachements
+              <span class="badge bg-primary-transparent ms-1">{{ secondmentsCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'promotions'"
+              (click)="setTab('promotions')">
+              <i class="ri-vip-crown-line me-1"></i>Promotions
+              <span class="badge bg-primary-transparent ms-1">{{ promotionsCount }}</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              style="cursor: pointer"
+              [class.active]="activeTab === 'departures'"
+              (click)="setTab('departures')">
+              <i class="ri-logout-box-r-line me-1"></i>Departs &amp; Retraites
+              <span class="badge bg-primary-transparent ms-1">{{ departuresCount }}</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="row g-3">
+          <div class="col-6 col-md-4 col-xl">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-arrow-up-circle-line fs-5 text-primary"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ advancementsCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Avancements</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-arrow-left-right-line fs-5 text-info"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ transfersCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Mutations</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-share-forward-line fs-5 text-secondary"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ secondmentsCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Detachements</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-vip-crown-line fs-5 text-success"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ promotionsCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Promotions</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-4 col-xl">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning-transparent flex-shrink-0"
+                  style="width: 46px; height: 46px">
+                  <i class="ri-logout-box-r-line fs-5 text-warning"></i>
+                </div>
+                <div>
+                  <div class="fs-4 fw-semibold lh-1">{{ departuresCount }}</div>
+                  <div class="text-muted fs-11 mt-1">Departs</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ CONTENU DE L'ONGLET ACTIF ============================ -->
+<app-advancements *ngIf="activeTab === 'advancements'"></app-advancements>
+<app-transfers *ngIf="activeTab === 'transfers'"></app-transfers>
+<app-secondments *ngIf="activeTab === 'secondments'"></app-secondments>
+<app-promotions *ngIf="activeTab === 'promotions'"></app-promotions>
+<app-departures *ngIf="activeTab === 'departures'"></app-departures>

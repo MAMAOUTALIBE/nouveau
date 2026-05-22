@@ -506,21 +506,9 @@ export class Dashboard1 implements OnInit {
       },
       plotOptions: {
         bar: {
-          colors: {
-            ranges: [
-              {
-                from: -100,
-                to: -46,
-                color: '#ebeff5',
-              },
-              {
-                from: -45,
-                to: 0,
-                color: '#ebeff5',
-              },
-            ],
-          },
-          columnWidth: '40%',
+          columnWidth: '55%',
+          borderRadius: 4,
+          borderRadiusApplication: 'end',
         },
       },
       dataLabels: {

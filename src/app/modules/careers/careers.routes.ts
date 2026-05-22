@@ -3,33 +3,28 @@ import { Routes } from '@angular/router';
 export const CAREERS_ROUTES: Routes = [
   {
     path: 'avancements',
-    loadComponent: () =>
-      import('./pages/advancements/advancements').then((m) => m.AdvancementsPage),
-    data: { parentTitle: 'Carrière', childTitle: 'Avancements' },
+    loadComponent: () => import('./careers').then((m) => m.CareersPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Avancements', careerTab: 'advancements' },
   },
   {
     path: 'mutations',
-    loadComponent: () =>
-      import('./pages/transfers/transfers').then((m) => m.TransfersPage),
-    data: { parentTitle: 'Carrière', childTitle: 'Mutations' },
+    loadComponent: () => import('./careers').then((m) => m.CareersPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Mutations', careerTab: 'transfers' },
   },
   {
     path: 'detachements',
-    loadComponent: () =>
-      import('./pages/secondments/secondments').then((m) => m.SecondmentsPage),
-    data: { parentTitle: 'Carrière', childTitle: 'Détachements' },
+    loadComponent: () => import('./careers').then((m) => m.CareersPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Détachements', careerTab: 'secondments' },
   },
   {
     path: 'promotions',
-    loadComponent: () =>
-      import('./pages/promotions/promotions').then((m) => m.PromotionsPage),
-    data: { parentTitle: 'Carrière', childTitle: 'Promotions' },
+    loadComponent: () => import('./careers').then((m) => m.CareersPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Promotions', careerTab: 'promotions' },
   },
   {
     path: 'departs',
-    loadComponent: () =>
-      import('./pages/departures/departures').then((m) => m.DeparturesPage),
-    data: { parentTitle: 'Carrière', childTitle: 'Départs & Retraites' },
+    loadComponent: () => import('./careers').then((m) => m.CareersPage),
+    data: { parentTitle: 'Carrière', childTitle: 'Départs & Retraites', careerTab: 'departures' },
   },
   { path: '', pathMatch: 'full', redirectTo: 'avancements' },
 ];

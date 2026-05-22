@@ -579,15 +579,36 @@ export class WorkflowsService {
   }
 
   private normalizeStatus(raw: string): WorkflowStatus {
-    const upper = raw.trim().toUpperCase();
-    switch (upper) {
+    // Tolère le code interne (EN_COURS), le libellé backend ("En cours",
+    // "Approuvé"...) et l'enum anglais (IN_PROGRESS) — accents et espaces ignorés.
+    const key = raw
+      .trim()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[\s-]+/g, '_');
+    switch (key) {
       case 'EN_COURS':
+      case 'IN_PROGRESS':
+        return 'EN_COURS';
       case 'APPROUVE':
+      case 'APPROVED':
+        return 'APPROUVE';
       case 'REJETE':
+      case 'REJECTED':
+        return 'REJETE';
+      case 'ANNULE':
+      case 'CANCELLED':
+      case 'CANCELED':
+        return 'REJETE';
       case 'ESCALADE':
+      case 'ESCALATED':
+        return 'ESCALADE';
       case 'EN_RETARD':
-        return upper;
+      case 'OVERDUE':
+        return 'EN_RETARD';
       case 'EN_ATTENTE':
+      case 'PENDING':
       default:
         return 'EN_ATTENTE';
     }

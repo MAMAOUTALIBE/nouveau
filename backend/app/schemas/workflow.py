@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 InstanceStatus = Literal["PENDING", "IN_PROGRESS", "APPROVED", "REJECTED", "CANCELLED", "ESCALATED"]
 Priority = Literal["LOW", "NORMAL", "HIGH", "CRITICAL"]
@@ -109,9 +109,33 @@ class WorkflowInstanceCreateRequest(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+_FRENCH_ACTION_ALIASES: dict[str, str] = {
+    "APPROUVER": "APPROVE",
+    "APPROUVE": "APPROVE",
+    "VALIDER": "APPROVE",
+    "REJETER": "REJECT",
+    "REJETE": "REJECT",
+    "ESCALADER": "ESCALATE",
+    "ESCALADE": "ESCALATE",
+    "ANNULER": "CANCEL",
+    "AVANCER": "ADVANCE",
+}
+
+
 class WorkflowInstanceActionRequest(BaseModel):
     action: Literal["APPROVE", "REJECT", "ESCALATE", "CANCEL", "ADVANCE"]
     note: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _accept_french_actions(cls, data: Any) -> Any:
+        """Tolère le vocabulaire frontend (APPROUVER / REJETER / ESCALADER)."""
+        if isinstance(data, dict):
+            data = dict(data)
+            raw = str(data.get("action") or "").strip().upper()
+            if raw in _FRENCH_ACTION_ALIASES:
+                data["action"] = _FRENCH_ACTION_ALIASES[raw]
+        return data
 
 
 class WorkflowInstanceEventResponse(BaseModel):

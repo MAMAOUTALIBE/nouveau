@@ -227,16 +227,16 @@ async def create_request(
 
 
 @router.post(
-    "/requests/{training_request_id}/decide",
+    "/requests/{request_key}/decide",
     response_model=TrainingRequestResponse,
 )
 @router.post(
-    "/requests/{training_request_id}/decision",
+    "/requests/{request_key}/decision",
     response_model=TrainingRequestResponse,
     include_in_schema=False,
 )
 async def decide_request(
-    training_request_id: UUID,
+    request_key: str,
     body: TrainingRequestDecisionRequest,
     current_user: Annotated[
         AuthenticatedUser,
@@ -245,9 +245,10 @@ async def decide_request(
     session: Annotated[AsyncSession, Depends(get_session)],
     audit: Annotated[AuditWriter, Depends(get_audit_writer)],
 ) -> TrainingRequestResponse:
+    # `request_key` accepte l'UUID technique ou la référence métier (DFORM-...).
     return await training_service.decide_request(
         session,
-        training_request_id=training_request_id,
+        request_key=request_key,
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,

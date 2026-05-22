@@ -17,44 +17,44 @@ export const RECRUITMENT_ROUTES: Routes = [
   {
     path: 'candidatures',
     canActivate: [permissionActivateGuard],
-    loadComponent: () =>
-      import('./pages/applications/applications').then((m) => m.ApplicationsPage),
+    loadComponent: () => import('./recruitment').then((m) => m.RecruitmentPage),
     data: {
       parentTitle: 'Recrutement',
       childTitle: 'Candidatures',
+      recruitmentTab: 'applications',
       requiredAllPermissions: [APP_PERMISSIONS.recruitmentManage],
     },
   },
   {
     path: 'campagnes',
     canActivate: [permissionActivateGuard],
-    loadComponent: () =>
-      import('./pages/campaigns/campaigns').then((m) => m.CampaignsPage),
+    loadComponent: () => import('./recruitment').then((m) => m.RecruitmentPage),
     data: {
       parentTitle: 'Recrutement',
       childTitle: 'Campagnes',
+      recruitmentTab: 'campaigns',
       requiredAllPermissions: [APP_PERMISSIONS.recruitmentManage],
     },
   },
   {
     path: 'commissions',
     canActivate: [permissionActivateGuard],
-    loadComponent: () =>
-      import('./pages/commissions/commissions').then((m) => m.RecruitmentCommissionsPage),
+    loadComponent: () => import('./recruitment').then((m) => m.RecruitmentPage),
     data: {
       parentTitle: 'Recrutement',
       childTitle: 'Commissions',
+      recruitmentTab: 'commissions',
       requiredAllPermissions: [APP_PERMISSIONS.recruitmentManage],
     },
   },
   {
     path: 'integration',
     canActivate: [permissionActivateGuard],
-    loadComponent: () =>
-      import('./pages/onboarding/onboarding').then((m) => m.OnboardingPage),
+    loadComponent: () => import('./recruitment').then((m) => m.RecruitmentPage),
     data: {
       parentTitle: 'Recrutement',
       childTitle: 'Intégration',
+      recruitmentTab: 'onboarding',
       requiredAllPermissions: [APP_PERMISSIONS.recruitmentManage],
     },
   },

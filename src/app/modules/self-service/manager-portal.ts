@@ -21,28 +21,20 @@ export class ManagerPortalPage implements OnInit {
   private documentsService = inject(DocumentsService);
   private toastr = inject(ToastrService);
 
-  showActionForm = false;
   isLoading = false;
   isTrainingLoading = false;
   isDocumentLoading = false;
-  submitting = false;
   trainingUpdatingReference = '';
   documentUpdatingReference = '';
-
-  quick = [
-    { label: 'Valider formations', desc: 'Demandes a arbitrer', cta: 'Traiter' },
-    { label: 'Valider documents', desc: 'Demandes de l equipe', cta: 'Traiter' },
-    { label: 'Rafraichir le portail', desc: 'Mettre a jour les files', cta: 'Actualiser' },
-  ];
+  instanceUpdatingId = '';
+  activeTab: 'training' | 'documents' | 'workflows' = 'training';
 
   pendingInstances: WorkflowInstance[] = [];
   pendingTrainingRequests: TrainingEnrollmentRequest[] = [];
   pendingDocumentRequests: DocumentRequest[] = [];
-  selectedInstanceId = '';
-  selectedAction: WorkflowAction = 'APPROUVER';
-  actionNote = '';
   trainingDecisionNotes: Record<string, string> = {};
   documentDecisionNotes: Record<string, string> = {};
+  instanceActionNotes: Record<string, string> = {};
 
   ngOnInit(): void {
     this.loadPendingInstances();
@@ -56,52 +48,19 @@ export class ManagerPortalPage implements OnInit {
     this.loadPendingDocumentRequests();
   }
 
-  toggleActionForm(): void {
-    this.showActionForm = !this.showActionForm;
-    if (!this.showActionForm) {
-      this.resetActionForm();
-    }
+  setTab(tab: 'training' | 'documents' | 'workflows'): void {
+    this.activeTab = tab;
   }
 
-  cancelAction(): void {
-    this.showActionForm = false;
-    this.resetActionForm();
+  /** Nombre d'instances workflow escaladees ou en retard (KPI prioritaire). */
+  get escalatedCount(): number {
+    return this.pendingInstances.filter(
+      (instance) => instance.status === 'ESCALADE' || instance.status === 'EN_RETARD'
+    ).length;
   }
 
-  submitAction(): void {
-    if (this.submitting) {
-      return;
-    }
-
-    if (!this.selectedInstanceId) {
-      this.toastr.error('Selectionnez une instance a traiter', 'Portail manager', {
-        timeOut: 2500,
-        positionClass: 'toast-top-right',
-      });
-      return;
-    }
-
-    this.submitting = true;
-    this.workflowsService
-      .transitionInstance(this.selectedInstanceId, this.selectedAction, this.actionNote.trim())
-      .pipe(finalize(() => (this.submitting = false)))
-      .subscribe({
-        next: () => {
-          this.toastr.success('Action enregistree avec succes', 'Portail manager', {
-            timeOut: 2200,
-            positionClass: 'toast-top-right',
-          });
-          this.showActionForm = false;
-          this.resetActionForm();
-          this.loadPendingInstances();
-        },
-        error: (error) => {
-          this.toastr.error(this.resolveError(error), 'Portail manager', {
-            timeOut: 3200,
-            positionClass: 'toast-top-right',
-          });
-        },
-      });
+  get isBusy(): boolean {
+    return this.isLoading || this.isTrainingLoading || this.isDocumentLoading;
   }
 
   exportTeam(): void {
@@ -189,20 +148,16 @@ export class ManagerPortalPage implements OnInit {
     this.decideDocumentRequest(request, 'REJETER');
   }
 
-  runQuickAction(index: number): void {
-    if (index === 0) {
-      const target = document.getElementById('manager-training-requests');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
+  approveInstance(instance: WorkflowInstance): void {
+    this.decideInstance(instance, 'APPROUVER');
+  }
 
-    if (index === 1) {
-      const target = document.getElementById('manager-document-requests');
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
+  rejectInstance(instance: WorkflowInstance): void {
+    this.decideInstance(instance, 'REJETER');
+  }
 
-    this.refresh();
+  escalateInstance(instance: WorkflowInstance): void {
+    this.decideInstance(instance, 'ESCALADER');
   }
 
   private loadPendingInstances(): void {
@@ -221,17 +176,6 @@ export class ManagerPortalPage implements OnInit {
               const safeRight = Number.isNaN(rightDue) ? Number.MAX_SAFE_INTEGER : rightDue;
               return safeLeft - safeRight;
             });
-
-          if (this.selectedInstanceId) {
-            const stillPresent = this.pendingInstances.some((instance) => instance.id === this.selectedInstanceId);
-            if (!stillPresent) {
-              this.selectedInstanceId = this.pendingInstances[0]?.id || '';
-            }
-          }
-
-          if (!this.selectedInstanceId && this.pendingInstances.length) {
-            this.selectedInstanceId = this.pendingInstances[0].id;
-          }
         },
         error: (error) => {
           this.pendingInstances = [];
@@ -255,7 +199,9 @@ export class ManagerPortalPage implements OnInit {
       .pipe(finalize(() => (this.isTrainingLoading = false)))
       .subscribe({
         next: (items) => {
-          this.pendingTrainingRequests = items.filter((item) => String(item.status || '').toLowerCase() === 'soumise');
+          this.pendingTrainingRequests = items.filter(
+            (item) => String(item.status || '').toLowerCase() === 'soumise'
+          );
         },
         error: (error) => {
           this.pendingTrainingRequests = [];
@@ -279,7 +225,9 @@ export class ManagerPortalPage implements OnInit {
       .pipe(finalize(() => (this.isDocumentLoading = false)))
       .subscribe({
         next: (items) => {
-          this.pendingDocumentRequests = items.filter((item) => String(item.status || '').toLowerCase() === 'soumise');
+          this.pendingDocumentRequests = items.filter(
+            (item) => String(item.status || '').toLowerCase() === 'soumise'
+          );
         },
         error: (error) => {
           this.pendingDocumentRequests = [];
@@ -377,14 +325,44 @@ export class ManagerPortalPage implements OnInit {
       });
   }
 
-  private isPendingStatus(status: WorkflowStatus): boolean {
-    return status === 'EN_ATTENTE' || status === 'EN_COURS' || status === 'ESCALADE';
+  private decideInstance(instance: WorkflowInstance, action: WorkflowAction): void {
+    if (!instance || this.instanceUpdatingId) {
+      return;
+    }
+
+    const note = String(this.instanceActionNotes[instance.id] || '').trim();
+    if (action === 'REJETER' && note.length < 3) {
+      this.toastr.error('Saisissez un motif de rejet (minimum 3 caracteres)', 'Portail manager', {
+        timeOut: 3200,
+        positionClass: 'toast-top-right',
+      });
+      return;
+    }
+
+    this.instanceUpdatingId = instance.id;
+    this.workflowsService
+      .transitionInstance(instance.id, action, note)
+      .pipe(finalize(() => (this.instanceUpdatingId = '')))
+      .subscribe({
+        next: () => {
+          delete this.instanceActionNotes[instance.id];
+          this.toastr.success('Action workflow enregistree avec succes', 'Portail manager', {
+            timeOut: 2300,
+            positionClass: 'toast-top-right',
+          });
+          this.loadPendingInstances();
+        },
+        error: (error) => {
+          this.toastr.error(this.resolveError(error), 'Portail manager', {
+            timeOut: 3200,
+            positionClass: 'toast-top-right',
+          });
+        },
+      });
   }
 
-  private resetActionForm(): void {
-    this.selectedAction = 'APPROUVER';
-    this.actionNote = '';
-    this.selectedInstanceId = this.pendingInstances[0]?.id || '';
+  private isPendingStatus(status: WorkflowStatus): boolean {
+    return status === 'EN_ATTENTE' || status === 'EN_COURS' || status === 'ESCALADE';
   }
 
   private exportDateSuffix(): string {

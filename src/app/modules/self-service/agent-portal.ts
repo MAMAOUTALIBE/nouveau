@@ -19,6 +19,20 @@ import {
   TrainingSession,
 } from '../training/training.service';
 
+type RequestCategory = 'conge' | 'formation' | 'document';
+
+/** Ligne unifiee de la liste « Mes demandes » (conges + formations + documents). */
+interface UnifiedRequest {
+  category: RequestCategory;
+  categoryLabel: string;
+  reference: string;
+  objet: string;
+  date: string;
+  submittedAt: string;
+  status: string;
+  sortTs: number;
+}
+
 @Component({
   selector: 'app-agent-portal',
   standalone: true,
@@ -49,6 +63,8 @@ export class AgentPortalPage implements OnInit {
   inboxUpdatingReference = '';
   notificationLoading = false;
   notificationUpdatingId = '';
+  activeTab: 'requests' | 'dossier' | 'inbox' = 'requests';
+  requestFilter: 'all' | RequestCategory = 'all';
   agentProfile: AgentDetail | null = null;
   recentRequests: LeaveRequest[] = [];
   trainingRequests: TrainingEnrollmentRequest[] = [];
@@ -68,11 +84,11 @@ export class AgentPortalPage implements OnInit {
     'Convocation a formation',
   ];
 
-  quick = [
-    { label: 'Mon profil', desc: 'Coordonnees, poste et rattachement', cta: 'Voir', action: 'profile' },
-    { label: 'Mes formations', desc: 'Demandes, validations et sessions', cta: 'Voir', action: 'formations' },
-    { label: 'Mes documents assignes', desc: 'Lire, imprimer, accuser reception', cta: 'Voir', action: 'inbox' },
-    { label: 'Demander un document', desc: 'Attestation, autorisation, ordre', cta: 'Ouvrir', action: 'document' },
+  readonly requestFilters: { key: 'all' | RequestCategory; label: string }[] = [
+    { key: 'all', label: 'Tout' },
+    { key: 'conge', label: 'Conges' },
+    { key: 'formation', label: 'Formations' },
+    { key: 'document', label: 'Documents' },
   ];
 
   form = this.fb.group({
@@ -143,14 +159,6 @@ export class AgentPortalPage implements OnInit {
     return this.agentProfile?.documents || [];
   }
 
-  get assignedDocumentsCount(): number {
-    return this.inboxDocuments.length;
-  }
-
-  get dossierDocumentsCount(): number {
-    return this.dossierDocuments.length;
-  }
-
   get approvedTrainingRequests(): TrainingEnrollmentRequest[] {
     return this.trainingRequests.filter((item) => this.normalizeStatusValue(item.status) === 'validee');
   }
@@ -163,16 +171,102 @@ export class AgentPortalPage implements OnInit {
     return this.trainingRequests.filter((item) => this.normalizeStatusValue(item.status) === 'soumise').length;
   }
 
-  get pendingDocumentRequestsCount(): number {
-    return this.documentRequests.filter((item) => this.normalizeStatusValue(item.status) === 'soumise').length;
+  get totalRequestsCount(): number {
+    return this.recentRequests.length + this.trainingRequests.length + this.documentRequests.length;
   }
 
-  get unreadNotificationsCount(): number {
-    return this.notifications.filter((item) => !item.isRead).length;
+  setTab(tab: 'requests' | 'dossier' | 'inbox'): void {
+    this.activeTab = tab;
   }
 
-  get pendingActionsCount(): number {
-    return this.pendingTrainingCount + this.pendingDocumentRequestsCount + this.unreadNotificationsCount;
+  setRequestFilter(key: 'all' | RequestCategory): void {
+    this.requestFilter = key;
+  }
+
+  get isLoadingAnyRequest(): boolean {
+    return this.isLoadingRequests || this.isLoadingTrainingRequests || this.isLoadingDocumentRequests;
+  }
+
+  /** Fusionne conges + formations + documents en une seule liste triee. */
+  get unifiedRequests(): UnifiedRequest[] {
+    const conges: UnifiedRequest[] = this.recentRequests.map((item) => ({
+      category: 'conge',
+      categoryLabel: 'Conge',
+      reference: item.reference,
+      objet: item.type || 'Absence',
+      date: this.formatPeriod(item.startDate, item.endDate),
+      submittedAt: '',
+      status: item.status,
+      sortTs: Date.parse(item.startDate || '') || 0,
+    }));
+    const formations: UnifiedRequest[] = this.trainingRequests.map((item) => ({
+      category: 'formation',
+      categoryLabel: 'Formation',
+      reference: item.reference,
+      objet: [item.sessionCode, item.sessionTitle].filter((value) => !!value).join(' - ') || 'Formation',
+      date: item.sessionDates || '-',
+      submittedAt: item.createdAt || '',
+      status: item.status,
+      sortTs: Date.parse(item.createdAt || '') || 0,
+    }));
+    const documents: UnifiedRequest[] = this.documentRequests.map((item) => ({
+      category: 'document',
+      categoryLabel: 'Document',
+      reference: item.reference,
+      objet: item.documentType || 'Document',
+      date: item.neededBy || '-',
+      submittedAt: item.createdAt || '',
+      status: item.status,
+      sortTs: Date.parse(item.createdAt || '') || 0,
+    }));
+    return [...conges, ...formations, ...documents].sort((left, right) => right.sortTs - left.sortTs);
+  }
+
+  get filteredRequests(): UnifiedRequest[] {
+    if (this.requestFilter === 'all') {
+      return this.unifiedRequests;
+    }
+    return this.unifiedRequests.filter((item) => item.category === this.requestFilter);
+  }
+
+  requestFilterCount(key: 'all' | RequestCategory): number {
+    if (key === 'all') {
+      return this.unifiedRequests.length;
+    }
+    return this.unifiedRequests.filter((item) => item.category === key).length;
+  }
+
+  categoryBadgeClass(category: RequestCategory): string {
+    if (category === 'conge') {
+      return 'bg-success-transparent';
+    }
+    if (category === 'formation') {
+      return 'bg-primary-transparent';
+    }
+    return 'bg-warning-transparent';
+  }
+
+  requestStatusBadgeClass(status: string): string {
+    const normalized = this.normalizeStatusValue(status);
+    if (normalized === 'validee' || normalized === 'approuve' || normalized === 'approuvee') {
+      return 'bg-success-transparent';
+    }
+    if (normalized === 'rejetee' || normalized === 'rejete' || normalized === 'refusee') {
+      return 'bg-danger-transparent';
+    }
+    if (normalized === 'soumise' || normalized.includes('attente')) {
+      return 'bg-warning-transparent';
+    }
+    return 'bg-primary-transparent';
+  }
+
+  private formatPeriod(start: string, end: string): string {
+    const startValue = String(start || '').trim();
+    const endValue = String(end || '').trim();
+    if (startValue && endValue) {
+      return `${startValue} → ${endValue}`;
+    }
+    return startValue || endValue || '-';
   }
 
   fieldError(fieldName: string): string | null {
@@ -216,7 +310,10 @@ export class AgentPortalPage implements OnInit {
 
   toggleCreateForm(): void {
     this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) {
+    if (this.showCreateForm) {
+      this.showTrainingCreateForm = false;
+      this.showDocumentCreateForm = false;
+    } else {
       this.resetForm();
     }
   }
@@ -228,7 +325,10 @@ export class AgentPortalPage implements OnInit {
 
   toggleTrainingCreateForm(): void {
     this.showTrainingCreateForm = !this.showTrainingCreateForm;
-    if (!this.showTrainingCreateForm) {
+    if (this.showTrainingCreateForm) {
+      this.showCreateForm = false;
+      this.showDocumentCreateForm = false;
+    } else {
       this.resetTrainingForm();
     }
   }
@@ -240,7 +340,10 @@ export class AgentPortalPage implements OnInit {
 
   toggleDocumentCreateForm(): void {
     this.showDocumentCreateForm = !this.showDocumentCreateForm;
-    if (!this.showDocumentCreateForm) {
+    if (this.showDocumentCreateForm) {
+      this.showCreateForm = false;
+      this.showTrainingCreateForm = false;
+    } else {
       this.resetDocumentRequestForm();
     }
   }
@@ -594,45 +697,6 @@ export class AgentPortalPage implements OnInit {
           this.cdr.detectChanges();
         },
       });
-  }
-
-  scrollToSection(sectionId: string): void {
-    const target = document.getElementById(sectionId);
-    if (!target) {
-      return;
-    }
-
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  runQuickAction(action: string): void {
-    if (action === 'profile') {
-      this.scrollToSection('profile-section');
-      return;
-    }
-
-    if (action === 'formations') {
-      this.scrollToSection('training-requests-section');
-      return;
-    }
-
-    if (action === 'training') {
-      this.showTrainingCreateForm = true;
-      this.showDocumentCreateForm = false;
-      window.setTimeout(() => this.scrollToSection('training-request-form'));
-      return;
-    }
-
-    if (action === 'document') {
-      this.showDocumentCreateForm = true;
-      this.showTrainingCreateForm = false;
-      window.setTimeout(() => this.scrollToSection('document-request-form'));
-      return;
-    }
-
-    if (action === 'inbox') {
-      this.scrollToSection('documents-recues');
-    }
   }
 
   private loadTrainingSessions(): void {

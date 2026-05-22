@@ -18,40 +18,94 @@
 
       <div class="card-body">
         <div class="row g-3 mb-3">
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Total dossiers</span>
-              <h4 class="value">{{ stats.total }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-folder-3-line fs-6 text-primary"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.total }}</div>
+                  <div class="text-muted fs-11 mt-1">Total dossiers</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Dossiers ouverts</span>
-              <h4 class="value text-primary">{{ stats.ouverts }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-info-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-folder-open-line fs-6 text-info"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.ouverts }}</div>
+                  <div class="text-muted fs-11 mt-1">Dossiers ouverts</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Mediations actives</span>
-              <h4 class="value text-info">{{ stats.mediation }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-secondary-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-discuss-line fs-6 text-secondary"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.mediation }}</div>
+                  <div class="text-muted fs-11 mt-1">Mediations actives</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Sanctions actives</span>
-              <h4 class="value text-warning">{{ stats.sanctionsActives }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-error-warning-line fs-6 text-warning"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.sanctionsActives }}</div>
+                  <div class="text-muted fs-11 mt-1">Sanctions actives</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Radiations</span>
-              <h4 class="value text-danger">{{ stats.radiations }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-danger-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-user-unfollow-line fs-6 text-danger"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.radiations }}</div>
+                  <div class="text-muted fs-11 mt-1">Radiations</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-xl col-md-4 col-sm-6">
-            <div class="discipline-kpi">
-              <span class="label">Recours ouverts</span>
-              <h4 class="value text-success">{{ stats.recoursOuverts }}</h4>
+          <div class="col-6 col-md-4 col-xl-2">
+            <div class="card shadow-none border mb-0 h-100">
+              <div class="card-body d-flex align-items-center gap-2 p-3">
+                <div
+                  class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success-transparent flex-shrink-0"
+                  style="width: 42px; height: 42px">
+                  <i class="ri-scales-3-line fs-6 text-success"></i>
+                </div>
+                <div>
+                  <div class="fs-5 fw-semibold lh-1">{{ stats.recoursOuverts }}</div>
+                  <div class="text-muted fs-11 mt-1">Recours ouverts</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -109,7 +163,13 @@
           </div>
         </div>
 
-        <div class="card border shadow-none mb-3" *ngIf="showCreateForm">
+        <div
+          class="modal d-block"
+          tabindex="-1"
+          *ngIf="showCreateForm"
+          style="background-color: rgba(0, 0, 0, 0.55)">
+          <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveCase()" class="row g-3">
               <div class="col-md-3">
@@ -186,6 +246,8 @@
                 </button>
               </div>
             </form>
+          </div>
+            </div>
           </div>
         </div>
 

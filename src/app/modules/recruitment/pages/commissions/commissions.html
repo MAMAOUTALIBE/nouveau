@@ -45,7 +45,13 @@
           </div>
         </div>
 
-        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
+        <div
+          class="modal d-block"
+          tabindex="-1"
+          *ngIf="showCreateForm"
+          style="background-color: rgba(0, 0, 0, 0.55)">
+          <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="createCommission()" class="row g-3">
               <div class="col-xl-3 col-md-6">
@@ -82,6 +88,8 @@
                 </button>
               </div>
             </form>
+          </div>
+            </div>
           </div>
         </div>
 

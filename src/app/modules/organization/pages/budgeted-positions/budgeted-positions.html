@@ -2,64 +2,83 @@
   <div class="col-xl-12">
     <div class="card custom-card">
       <div class="card-header justify-content-between">
-        <div class="card-title">Postes budgétaires</div>
+        <div class="card-title">Postes budgetaires</div>
         <div class="btn-list">
           <button type="button" class="btn btn-primary" (click)="toggleCreateForm()">
-            {{ showCreateForm ? 'Fermer le formulaire' : 'Creer un poste' }}
+            <i class="ri-add-line me-1"></i>Creer un poste
           </button>
-          <button type="button" class="btn btn-outline-primary">Exporter</button>
+          <button type="button" class="btn btn-outline-primary">
+            <i class="ri-download-2-line me-1"></i>Exporter
+          </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="card border shadow-none mb-4" *ngIf="showCreateForm">
-          <div class="card-body">
-            <form [formGroup]="form" (ngSubmit)="savePosition()" class="row g-3">
-              <div class="col-md-4">
-                <label class="form-label">Code (optionnel)</label>
-                <input type="text" class="form-control" formControlName="code" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Structure</label>
-                <input type="text" class="form-control" formControlName="structure" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('structure') as error">{{ error }}</div>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Intitule</label>
-                <input type="text" class="form-control" formControlName="title" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Grade</label>
-                <input type="text" class="form-control" formControlName="grade" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('grade') as error">{{ error }}</div>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Statut</label>
-                <select class="form-select" formControlName="status">
-                  <option value="Ouvert">Ouvert</option>
-                  <option value="Occupe">Occupe</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Titulaire (optionnel)</label>
-                <input type="text" class="form-control" formControlName="holder" />
-                <div class="text-danger fs-11 mt-1" *ngIf="fieldError('holder') as error">{{ error }}</div>
-              </div>
-              <div class="col-12 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
-                  Annuler
-                </button>
-                <button type="submit" class="btn btn-primary" [disabled]="submitting">
-                  {{ submitting ? 'Enregistrement...' : 'Enregistrer le poste' }}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
         <gridjs-angular [config]="gridConfig"></gridjs-angular>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modale : nouveau poste budgetaire -->
+<div
+  class="modal d-block"
+  tabindex="-1"
+  *ngIf="showCreateForm"
+  style="background-color: rgba(0, 0, 0, 0.55)">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <form [formGroup]="form" (ngSubmit)="savePosition()">
+        <div class="modal-header">
+          <h6 class="modal-title"><i class="ri-briefcase-line me-2 text-primary"></i>Nouveau poste budgetaire</h6>
+          <button type="button" class="btn btn-sm btn-light" (click)="cancelCreate()">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Code (optionnel)</label>
+              <input type="text" class="form-control" formControlName="code" />
+              <div class="text-danger fs-11 mt-1" *ngIf="fieldError('code') as error">{{ error }}</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Structure</label>
+              <input type="text" class="form-control" formControlName="structure" />
+              <div class="text-danger fs-11 mt-1" *ngIf="fieldError('structure') as error">{{ error }}</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Intitule</label>
+              <input type="text" class="form-control" formControlName="title" />
+              <div class="text-danger fs-11 mt-1" *ngIf="fieldError('title') as error">{{ error }}</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Grade</label>
+              <input type="text" class="form-control" formControlName="grade" />
+              <div class="text-danger fs-11 mt-1" *ngIf="fieldError('grade') as error">{{ error }}</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Statut</label>
+              <select class="form-select" formControlName="status">
+                <option value="Ouvert">Ouvert</option>
+                <option value="Occupe">Occupe</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Titulaire (optionnel)</label>
+              <input type="text" class="form-control" formControlName="holder" />
+              <div class="text-danger fs-11 mt-1" *ngIf="fieldError('holder') as error">{{ error }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" (click)="cancelCreate()" [disabled]="submitting">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">
+            {{ submitting ? 'Enregistrement...' : 'Enregistrer le poste' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
