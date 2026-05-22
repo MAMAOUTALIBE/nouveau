@@ -6,7 +6,8 @@ Le scoring turnover est délégué à `app.services.turnover_service`
 
 from __future__ import annotations
 
-from datetime import date
+import re
+from datetime import UTC, date, datetime
 from uuid import UUID
 
 from sqlalchemy import func, select
@@ -16,16 +17,19 @@ from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError
 from app.core.security.rbac import AuthenticatedUser
 from app.models.document import Document, DocumentType
-from app.models.employee import Employee, EmployeeAssignment
+from app.models.employee import Employee, EmployeeAssignment, PersonnelMatriculeSuggestionAudit
 from app.models.organization import Direction, Organization, Unit
+from app.models.user import User
 from app.schemas.personnel import (
     AgentCreateRequest,
     AgentListItem,
+    AgentMatriculeSuggestionResponse,
     AgentResponse,
     AgentUpdateRequest,
     AssignmentCreateRequest,
     AssignmentResponse,
     DossierResponse,
+    MatriculeSuggestionAuditItem,
 )
 
 
@@ -434,4 +438,168 @@ async def list_dossiers(
             updated_at=document.updated_at,
         )
         for document, employee, document_type in rows
+    ]
+
+
+# ============================================================================
+# Suggestion de matricule (page « Création d'agent »)
+# ============================================================================
+_MATRICULE_PATTERN = re.compile(r"^(.*?)(\d+)$")
+_FALLBACK_PREFIX = "AGENT-"
+_FALLBACK_WIDTH = 4
+
+
+def _compute_next_matricule(existing: list[str]) -> tuple[str, str | None, int]:
+    """Calcule (matricule suivant, matricule précédent, numéro suivant).
+
+    Stratégie : reconnaître les matricules existants avec le pattern
+    `<prefixe><chiffres>`, choisir le préfixe le plus fréquent (cas général :
+    un seul préfixe à l'échelle de l'organisation), prendre le plus grand
+    numéro, et incrémenter en conservant la largeur (zero-padding).
+    """
+    parsed: list[tuple[str, int, int]] = []
+    for matricule in existing:
+        match = _MATRICULE_PATTERN.match((matricule or "").strip())
+        if match:
+            parsed.append((match.group(1), int(match.group(2)), len(match.group(2))))
+    if not parsed:
+        return f"{_FALLBACK_PREFIX}{1:0{_FALLBACK_WIDTH}d}", None, 1
+
+    prefix_counts: dict[str, int] = {}
+    for prefix, _, _ in parsed:
+        prefix_counts[prefix] = prefix_counts.get(prefix, 0) + 1
+    common_prefix = max(prefix_counts, key=lambda key: prefix_counts[key])
+    in_prefix = sorted(
+        (entry for entry in parsed if entry[0] == common_prefix),
+        key=lambda entry: entry[1],
+        reverse=True,
+    )
+    prefix, current_num, width = in_prefix[0]
+    next_num = current_num + 1
+    return (
+        f"{prefix}{next_num:0{width}d}",
+        f"{prefix}{current_num:0{width}d}",
+        next_num,
+    )
+
+
+def _matricule_scope_label(direction: str | None, unit: str | None) -> tuple[str, str]:
+    """Libellé d'affichage du scope + clé `based_on`."""
+    direction = (direction or "").strip()
+    unit = (unit or "").strip()
+    if direction and unit:
+        return f"Direction « {direction} » > Unité « {unit} »", "Direction+Unite"
+    if direction:
+        return f"Direction « {direction} »", "Direction"
+    return "Organisation entière", "Global"
+
+
+async def _next_matricule_audit_reference(
+    session: AsyncSession, organization_id: UUID
+) -> str:
+    year = datetime.now(UTC).year
+    prefix = f"MATS-{year}-"
+    count = (
+        await session.execute(
+            select(func.count())
+            .select_from(PersonnelMatriculeSuggestionAudit)
+            .where(
+                PersonnelMatriculeSuggestionAudit.organization_id == organization_id,
+                PersonnelMatriculeSuggestionAudit.reference.startswith(prefix),
+            )
+        )
+    ).scalar_one()
+    return f"{prefix}{int(count) + 1:05d}"
+
+
+async def suggest_matricule(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    requested_by_user_id: UUID,
+    requested_by_username: str,
+    direction: str | None = None,
+    unit: str | None = None,
+    reason: str | None = None,
+) -> AgentMatriculeSuggestionResponse:
+    """Suggère le prochain matricule pour la création d'un agent + audit."""
+    existing = (
+        (
+            await session.execute(
+                select(Employee.matricule).where(Employee.organization_id == organization_id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    next_matricule, previous_matricule, next_number = _compute_next_matricule(list(existing))
+    scope_label, based_on = _matricule_scope_label(direction, unit)
+
+    reference = await _next_matricule_audit_reference(session, organization_id)
+    session.add(
+        PersonnelMatriculeSuggestionAudit(
+            organization_id=organization_id,
+            reference=reference,
+            requested_by_user_id=requested_by_user_id,
+            previous_matricule=previous_matricule,
+            suggested_matricule=next_matricule,
+            direction=direction or None,
+            unit=unit or None,
+            scope_label=scope_label,
+            based_on=based_on,
+            reason=(reason or None),
+        )
+    )
+
+    return AgentMatriculeSuggestionResponse(
+        matricule=next_matricule,
+        scope_label=scope_label,
+        based_on=based_on,
+        next_number=next_number,
+    )
+
+
+async def list_matricule_suggestion_audit(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    username: str | None = None,
+    reason: str | None = None,
+    limit: int = 50,
+) -> list[MatriculeSuggestionAuditItem]:
+    """Historique des suggestions de matricule produites pour l'organisation."""
+    base = select(
+        PersonnelMatriculeSuggestionAudit,
+        User.username,
+    ).join(
+        User,
+        PersonnelMatriculeSuggestionAudit.requested_by_user_id == User.user_id,
+        isouter=True,
+    ).where(
+        PersonnelMatriculeSuggestionAudit.organization_id == organization_id,
+    )
+    if username:
+        base = base.where(User.username.ilike(f"%{username}%"))
+    if reason:
+        base = base.where(PersonnelMatriculeSuggestionAudit.reason.ilike(f"%{reason}%"))
+    rows = (
+        await session.execute(
+            base.order_by(PersonnelMatriculeSuggestionAudit.created_at.desc()).limit(limit)
+        )
+    ).all()
+
+    return [
+        MatriculeSuggestionAuditItem(
+            reference=audit.reference,
+            created_at=audit.created_at,
+            username=username_value or "système",
+            previous_matricule=audit.previous_matricule or "—",
+            suggested_matricule=audit.suggested_matricule,
+            direction=audit.direction or "",
+            unit=audit.unit or "",
+            scope_label=audit.scope_label or "",
+            based_on=audit.based_on,
+            reason=audit.reason or "",
+        )
+        for audit, username_value in rows
     ]

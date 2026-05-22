@@ -28,7 +28,12 @@ from app.models.document import (
     DocumentVersion,
 )
 from app.models.document_extraction_queue import DocumentExtractionQueue
-from app.models.employee import Employee, EmployeeAssignment, EmployeeMovement
+from app.models.employee import (
+    Employee,
+    EmployeeAssignment,
+    EmployeeMovement,
+    PersonnelMatriculeSuggestionAudit,
+)
 from app.models.file_object import FileObject
 from app.models.gpec import (
     CompetencyGapsSnapshot,
@@ -123,6 +128,7 @@ __all__ = [
     "PerformanceCampaign",
     "PerformanceEvaluation",
     "Permission",
+    "PersonnelMatriculeSuggestionAudit",
     "Position",
     "PositionCompetencyRequirement",
     "RecruitmentApplication",

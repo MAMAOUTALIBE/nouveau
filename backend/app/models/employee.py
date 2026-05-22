@@ -201,3 +201,50 @@ class EmployeeMovement(Base, TimestampMixin):
         PG_UUID(as_uuid=True),
         ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
     )
+
+
+class PersonnelMatriculeSuggestionAudit(Base):
+    """Trace une suggestion de matricule produite pour la création d'un agent.
+
+    Chaque appel à `GET /personnel/agents/matricule-suggestion` écrit une ligne
+    ici : qui a demandé la suggestion, dans quel scope (Direction / Unité), et
+    quelle valeur a été proposée.
+    """
+
+    __tablename__ = "personnel_matricule_suggestion_audit"
+    __table_args__ = (
+        CheckConstraint(
+            "based_on in ('Direction+Unite','Direction','Global')",
+            name="personnel_matricule_audit_based_on_check",
+        ),
+        UniqueConstraint(
+            "organization_id",
+            "reference",
+            name="personnel_matricule_audit_ref_key",
+        ),
+        {"schema": DEFAULT_SCHEMA},
+    )
+
+    suggestion_audit_id: Mapped[UUID] = uuid_pk_column()
+    organization_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.organizations.organization_id"),
+        nullable=False,
+    )
+    reference: Mapped[str] = mapped_column(String, nullable=False)
+    requested_by_user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey(f"{DEFAULT_SCHEMA}.users.user_id"),
+    )
+    previous_matricule: Mapped[str | None] = mapped_column(String)
+    suggested_matricule: Mapped[str] = mapped_column(String, nullable=False)
+    direction: Mapped[str | None] = mapped_column(String)
+    unit: Mapped[str | None] = mapped_column(String)
+    scope_label: Mapped[str | None] = mapped_column(String)
+    based_on: Mapped[str] = mapped_column(String, nullable=False)
+    reason: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )

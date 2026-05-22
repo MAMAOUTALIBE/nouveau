@@ -89,23 +89,6 @@ async def stub_personnel_merge(
     return _stub_action(response)
 
 
-@router.get("/personnel/agents/matricule-suggestion")
-async def stub_personnel_matricule_suggestion(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> dict[str, Any]:
-    response.headers.update(_STUB_HEADER)
-    return {"suggestion": None, "candidates": []}
-
-
-@router.get("/personnel/agents/matricule-suggestion-audit")
-async def stub_personnel_matricule_audit(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
 @router.get("/personnel/risques-turnover")
 async def stub_personnel_risques_turnover_alias(
     response: Response,

@@ -16,12 +16,14 @@ from app.schemas.common import Page
 from app.schemas.personnel import (
     AgentCreateRequest,
     AgentListItem,
+    AgentMatriculeSuggestionResponse,
     AgentResponse,
     AgentUpdateRequest,
     AssignmentCreateRequest,
     AssignmentResponse,
     DossierExportResponse,
     DossierResponse,
+    MatriculeSuggestionAuditItem,
     RiskLevel,
     TurnoverRiskItem,
 )
@@ -80,6 +82,60 @@ async def create_agent(
         organization_id=current_user.organization_id,
         body=body,
         audit=audit,
+    )
+
+
+# ============================================================================
+# Suggestion de matricule — DOIT être déclaré avant `/agents/{employee_id}`,
+# sinon « matricule-suggestion » est interprété comme un UUID d'employé.
+# ============================================================================
+@router.get(
+    "/agents/matricule-suggestion",
+    response_model=AgentMatriculeSuggestionResponse,
+)
+async def get_matricule_suggestion(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    direction: str | None = None,
+    unit: str | None = None,
+    reason: str | None = None,
+) -> AgentMatriculeSuggestionResponse:
+    """Suggère un matricule pour la création d'un nouvel agent + audit la demande."""
+    return await personnel_service.suggest_matricule(
+        session,
+        organization_id=current_user.organization_id,
+        requested_by_user_id=current_user.user_id,
+        requested_by_username=current_user.username,
+        direction=direction,
+        unit=unit,
+        reason=reason,
+    )
+
+
+@router.get(
+    "/agents/matricule-suggestion-audit",
+    response_model=list[MatriculeSuggestionAuditItem],
+)
+async def list_matricule_suggestion_audit(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:view", "personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    username: str | None = None,
+    reason: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=500)] = 50,
+) -> list[MatriculeSuggestionAuditItem]:
+    """Historique des suggestions de matricule produites pour l'organisation."""
+    return await personnel_service.list_matricule_suggestion_audit(
+        session,
+        organization_id=current_user.organization_id,
+        username=username,
+        reason=reason,
+        limit=limit,
     )
 
 

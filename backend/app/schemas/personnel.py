@@ -168,3 +168,31 @@ class TurnoverRiskItem(BaseModel):
     recommended_action: str | None = None
     model_name: str = "rules-v1"
     generated_at: datetime
+
+
+# ---------------------------------------------------------------------------
+# Suggestion de matricule
+# ---------------------------------------------------------------------------
+MatriculeScope = Literal["Direction+Unite", "Direction", "Global"]
+
+
+class AgentMatriculeSuggestionResponse(BaseModel):
+    matricule: str
+    scope_label: str
+    based_on: MatriculeScope
+    next_number: int
+
+
+class MatriculeSuggestionAuditItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    reference: str
+    created_at: datetime
+    username: str
+    previous_matricule: str
+    suggested_matricule: str
+    direction: str
+    unit: str
+    scope_label: str
+    based_on: MatriculeScope
+    reason: str
