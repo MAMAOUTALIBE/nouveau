@@ -7,8 +7,12 @@ from functools import lru_cache
 from app.adapters.llm.anthropic import AnthropicLlmAdapter
 from app.adapters.llm.mock import MockLlmAdapter
 from app.adapters.llm.ollama import OllamaLlmAdapter
+from app.adapters.llm.openai_compatible import OpenAICompatibleLlmAdapter
 from app.adapters.llm.port import LlmPort
 from app.core.config import get_settings
+
+# Endpoint Groq compatible OpenAI.
+_GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 
 @lru_cache(maxsize=1)
@@ -22,14 +26,27 @@ def get_llm_adapter() -> LlmPort:
             model_name=settings.llm_model,
         )
 
+    if provider == "groq" and settings.groq_api_key:
+        return OpenAICompatibleLlmAdapter(
+            api_key=settings.groq_api_key.get_secret_value(),
+            base_url=_GROQ_BASE_URL,
+            model_name=settings.groq_model,
+            provider_name="groq",
+        )
+
+    if provider == "openai" and settings.openai_api_key:
+        return OpenAICompatibleLlmAdapter(
+            api_key=settings.openai_api_key.get_secret_value(),
+            base_url=settings.openai_base_url,
+            model_name=settings.llm_model,
+            provider_name="openai",
+        )
+
     if provider == "ollama":
         return OllamaLlmAdapter(
             base_url=settings.ollama_base_url,
             model_name=settings.llm_model,
         )
 
-    if provider == "openai":
-        # Stub : à brancher si choisi.
-        return MockLlmAdapter()
-
+    # Aucun provider exploitable (clé manquante, etc.) → repli mock.
     return MockLlmAdapter()

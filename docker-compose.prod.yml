@@ -65,6 +65,10 @@ services:
       RUN_MIGRATIONS_ON_STARTUP: "false"
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       BCRYPT_ROUNDS: "12"
+      # IA / LLM — défaut "mock" si non renseigné dans .env (aucune casse).
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3.3-70b-versatile}
     depends_on:
       postgres:
         condition: service_healthy

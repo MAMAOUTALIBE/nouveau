@@ -118,11 +118,14 @@ class Settings(BaseSettings):
     bpmn_provider: Literal["internal", "spiff"] = "internal"
     bpmn_models_dir: str = "../bpmn"
 
-    # Provider LLM : "mock" | "anthropic" | "openai" | "ollama"
-    llm_provider: Literal["mock", "anthropic", "openai", "ollama"] = "mock"
+    # Provider LLM : "mock" | "anthropic" | "openai" | "groq" | "ollama"
+    llm_provider: Literal["mock", "anthropic", "openai", "groq", "ollama"] = "mock"
     llm_model: str = "claude-opus-4-7"
     anthropic_api_key: SecretStr | None = None
     openai_api_key: SecretStr | None = None
+    openai_base_url: str = "https://api.openai.com/v1"
+    groq_api_key: SecretStr | None = None
+    groq_model: str = "llama-3.3-70b-versatile"
     ollama_base_url: str = "http://127.0.0.1:11434"
     llm_max_tokens: int = 4096
     llm_temperature: float = 0.2
