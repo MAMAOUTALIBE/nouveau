@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, File, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import AuditWriter, get_audit_writer
@@ -15,6 +15,8 @@ from app.core.security.rbac import AuthenticatedUser, require_permissions
 from app.schemas.common import Page
 from app.schemas.personnel import (
     AgentCreateRequest,
+    AgentDuplicateCase,
+    AgentDuplicateIndexItem,
     AgentListItem,
     AgentMatriculeSuggestionResponse,
     AgentResponse,
@@ -24,6 +26,9 @@ from app.schemas.personnel import (
     DossierExportResponse,
     DossierResponse,
     MatriculeSuggestionAuditItem,
+    MergeDuplicateAgentsRequest,
+    MergeDuplicateAgentsResult,
+    PersonnelUploadedFile,
     RiskLevel,
     TurnoverRiskItem,
 )
@@ -82,6 +87,87 @@ async def create_agent(
         organization_id=current_user.organization_id,
         body=body,
         audit=audit,
+    )
+
+
+# ============================================================================
+# Anti-doublons agents + uploads — déclarés AVANT `/agents/{employee_id}` pour
+# que les segments littéraux ne soient pas pris pour des UUID.
+# ============================================================================
+@router.get("/agents/duplicate-index", response_model=list[AgentDuplicateIndexItem])
+async def list_agent_duplicate_index(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:view", "personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[AgentDuplicateIndexItem]:
+    """Agents impliqués dans au moins un doublon (email / national_id / nom complet)."""
+    return await personnel_service.list_agent_duplicate_index(
+        session, organization_id=current_user.organization_id
+    )
+
+
+@router.get("/agents/duplicate-cases", response_model=list[AgentDuplicateCase])
+async def list_agent_duplicate_cases(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:view", "personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    duplicate_field: Annotated[str | None, Query(alias="duplicateField")] = None,
+) -> list[AgentDuplicateCase]:
+    """Cas de doublons groupés par champ (email / identityNumber / fullName)."""
+    return await personnel_service.list_agent_duplicate_cases(
+        session,
+        organization_id=current_user.organization_id,
+        duplicate_field=duplicate_field,
+    )
+
+
+@router.post("/agents/merge", response_model=MergeDuplicateAgentsResult)
+async def merge_duplicate_agents(
+    body: MergeDuplicateAgentsRequest,
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+) -> MergeDuplicateAgentsResult:
+    """Fusionne deux agents : applique les sources de champs choisies, archive le secondaire."""
+    return await personnel_service.merge_duplicate_agents(
+        session,
+        organization_id=current_user.organization_id,
+        body=body,
+        actor_user_id=current_user.user_id,
+        actor_full_name=current_user.full_name,
+        audit=audit,
+    )
+
+
+@router.post(
+    "/uploads",
+    response_model=PersonnelUploadedFile,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_personnel_file(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["personnel:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    file: Annotated[UploadFile, File(description="Pièce à téléverser")],
+) -> PersonnelUploadedFile:
+    """Téléverse une pièce attachée à un dossier agent (file_objects)."""
+    content = await file.read()
+    return await personnel_service.create_personnel_upload(
+        session,
+        organization_id=current_user.organization_id,
+        uploaded_by_user_id=current_user.user_id,
+        original_filename=file.filename or "fichier",
+        mime_type=file.content_type,
+        content=content,
     )
 
 

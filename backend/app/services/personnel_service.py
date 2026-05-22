@@ -7,21 +7,29 @@ Le scoring turnover est délégué à `app.services.turnover_service`
 from __future__ import annotations
 
 import re
+import uuid as uuid_module
 from datetime import UTC, date, datetime
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError
 from app.core.security.rbac import AuthenticatedUser
 from app.models.document import Document, DocumentType
 from app.models.employee import Employee, EmployeeAssignment, PersonnelMatriculeSuggestionAudit
+from app.models.file_object import FileObject
 from app.models.organization import Direction, Organization, Unit
+from app.models.position import Position
 from app.models.user import User
 from app.schemas.personnel import (
     AgentCreateRequest,
+    AgentDuplicateCase,
+    AgentDuplicateCaseAgentSummary,
+    AgentDuplicateIndexItem,
     AgentListItem,
     AgentMatriculeSuggestionResponse,
     AgentResponse,
@@ -30,6 +38,11 @@ from app.schemas.personnel import (
     AssignmentResponse,
     DossierResponse,
     MatriculeSuggestionAuditItem,
+    MergeDuplicateAgentsRequest,
+    MergeDuplicateAgentsResult,
+    MergeField,
+    MergeFieldSource,
+    PersonnelUploadedFile,
 )
 
 
@@ -603,3 +616,297 @@ async def list_matricule_suggestion_audit(
         )
         for audit, username_value in rows
     ]
+
+
+# ============================================================================
+# Anti-doublons agents (page Personnel > Liste agents / Nouvel agent)
+# ============================================================================
+# Score de confiance associé à chaque type de doublon : un même numéro
+# d'identité national est quasi-certainement un doublon ; un même nom complet
+# peut être une homonymie légitime.
+_DUPLICATE_CONFIDENCE: dict[str, int] = {
+    "identityNumber": 95,
+    "email": 90,
+    "fullName": 70,
+}
+
+
+async def _agent_summary_query(session: AsyncSession, organization_id: UUID) -> Any:
+    """Sélection des agents avec leurs labels direction / unité / poste / manager."""
+    manager_alias = aliased(Employee)
+    return (
+        select(
+            Employee,
+            Direction.name.label("direction_name"),
+            Unit.name.label("unit_name"),
+            Position.title.label("position_title"),
+            manager_alias.full_name.label("manager_full_name"),
+        )
+        .join(Direction, Direction.direction_id == Employee.direction_id, isouter=True)
+        .join(Unit, Unit.unit_id == Employee.unit_id, isouter=True)
+        .join(Position, Position.position_id == Employee.position_id, isouter=True)
+        .join(
+            manager_alias,
+            manager_alias.employee_id == Employee.manager_employee_id,
+            isouter=True,
+        )
+        .where(Employee.organization_id == organization_id)
+    )
+
+
+def _to_duplicate_summary(row: Any) -> AgentDuplicateCaseAgentSummary:
+    employee, direction_name, unit_name, position_title, manager_full_name = row
+    return AgentDuplicateCaseAgentSummary(
+        id=employee.employee_id,
+        matricule=employee.matricule,
+        full_name=employee.full_name,
+        direction=direction_name or "",
+        unit=unit_name or "",
+        position=position_title or "",
+        status=employee.employment_status,
+        manager=manager_full_name or "",
+        email=employee.email or "",
+        identity_number=employee.national_id or "",
+        phone=employee.phone or "",
+        contract_type=employee.contract_type or "",
+    )
+
+
+async def list_agent_duplicate_index(
+    session: AsyncSession, *, organization_id: UUID
+) -> list[AgentDuplicateIndexItem]:
+    """Liste plate des agents impliqués dans au moins un doublon potentiel."""
+    duplicate_ids: set[UUID] = set()
+    for field in (Employee.email, Employee.national_id, func.lower(Employee.full_name)):
+        # Sous-requête : valeurs (non vides) qui apparaissent dans 2+ agents.
+        dup_values = (
+            select(field.label("value"))
+            .where(
+                Employee.organization_id == organization_id,
+                field.isnot(None),
+                field != "",
+            )
+            .group_by(field)
+            .having(func.count() > 1)
+        ).subquery()
+        id_rows = (
+            await session.execute(
+                select(Employee.employee_id).where(
+                    Employee.organization_id == organization_id,
+                    field.in_(select(dup_values.c.value)),
+                )
+            )
+        ).scalars().all()
+        duplicate_ids.update(id_rows)
+
+    if not duplicate_ids:
+        return []
+    employees = (
+        await session.execute(
+            select(Employee)
+            .where(
+                Employee.organization_id == organization_id,
+                Employee.employee_id.in_(duplicate_ids),
+            )
+            .order_by(Employee.full_name)
+        )
+    ).scalars().all()
+    return [
+        AgentDuplicateIndexItem(
+            id=emp.employee_id,
+            full_name=emp.full_name,
+            matricule=emp.matricule,
+            email=emp.email or "",
+            identity_number=emp.national_id or "",
+        )
+        for emp in employees
+    ]
+
+
+async def list_agent_duplicate_cases(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    duplicate_field: str | None = None,
+) -> list[AgentDuplicateCase]:
+    """Groupes de doublons par champ (email / identityNumber / fullName)."""
+    field_configs: tuple[tuple[str, Any], ...] = (
+        ("identityNumber", Employee.national_id),
+        ("email", Employee.email),
+        ("fullName", func.lower(Employee.full_name)),
+    )
+    if duplicate_field:
+        field_configs = tuple(
+            cfg for cfg in field_configs if cfg[0] == duplicate_field
+        )
+
+    cases: list[AgentDuplicateCase] = []
+    summary_base = await _agent_summary_query(session, organization_id)
+
+    for field_name, field_expr in field_configs:
+        # Valeurs en doublon.
+        values_rows = (
+            await session.execute(
+                select(field_expr, func.count().label("count"))
+                .where(
+                    Employee.organization_id == organization_id,
+                    field_expr.isnot(None),
+                    field_expr != "",
+                )
+                .group_by(field_expr)
+                .having(func.count() > 1)
+                .order_by(func.count().desc())
+            )
+        ).all()
+        for value, count in values_rows:
+            agent_rows = (
+                await session.execute(
+                    summary_base.where(field_expr == value).order_by(Employee.full_name)
+                )
+            ).all()
+            agents = [_to_duplicate_summary(row) for row in agent_rows]
+            if not agents:
+                continue
+            cases.append(
+                AgentDuplicateCase(
+                    reference=f"DUP-{field_name}-{str(value)[:32]}",
+                    duplicate_field=field_name,
+                    duplicate_value=str(value),
+                    confidence_score=_DUPLICATE_CONFIDENCE.get(field_name, 70),
+                    impacted_count=int(count),
+                    created_at=datetime.now(UTC),
+                    agents=agents,
+                )
+            )
+    return cases
+
+
+async def merge_duplicate_agents(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    body: MergeDuplicateAgentsRequest,
+    actor_user_id: UUID,
+    actor_full_name: str,
+    audit: AuditWriter,
+) -> MergeDuplicateAgentsResult:
+    """Fusionne deux agents : applique les sources de champs choisies sur le
+    primaire, puis archive le secondaire (statut TERMINATED + métadonnée)."""
+    primary = await _load_agent(session, body.primary_agent_id)
+    secondary = await _load_agent(session, body.secondary_agent_id)
+    if primary.organization_id != organization_id or secondary.organization_id != organization_id:
+        raise NotFoundError("Agent introuvable dans l'organisation.", code="AGENT_NOT_FOUND")
+    if primary.employee_id == secondary.employee_id:
+        raise ConflictError(
+            "Le primaire et le secondaire ne peuvent pas être le même agent.",
+            code="AGENT_MERGE_SAME",
+        )
+
+    field_to_attr: dict[MergeField, tuple[str, ...]] = {
+        "matricule": ("matricule",),
+        "fullName": ("full_name",),
+        "email": ("email",),
+        "phone": ("phone",),
+        "identityNumber": ("national_id",),
+        "contractType": ("contract_type",),
+        "status": ("employment_status",),
+        # Les champs « direction / unit / position / manager » sont des
+        # libellés calculés ; on les ignore pour la fusion en base.
+    }
+    sources = body.field_sources or {}
+    applied: dict[MergeField, MergeFieldSource] = {}
+    for field, source in sources.items():
+        attrs = field_to_attr.get(field)
+        if not attrs or source != "secondary":
+            applied[field] = "primary"
+            continue
+        for attr in attrs:
+            value = getattr(secondary, attr, None)
+            setattr(primary, attr, value)
+        applied[field] = "secondary"
+
+    # Archive le secondaire et trace la fusion dans ses metadata.
+    secondary.employment_status = "TERMINATED"
+    secondary_meta = dict(secondary.employee_metadata or {})
+    secondary_meta["merged_into"] = str(primary.employee_id)
+    secondary_meta["merged_at"] = datetime.now(UTC).isoformat()
+    secondary_meta["merged_by_user_id"] = str(actor_user_id)
+    if body.reason:
+        secondary_meta["merge_reason"] = body.reason
+    secondary.employee_metadata = secondary_meta
+
+    reference = (
+        body.reference
+        or f"MRG-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}-{str(primary.employee_id)[:8]}"
+    )
+    await audit.record(
+        action="AGENT_MERGED",
+        target_type="employee",
+        target_id=str(primary.employee_id),
+        after={
+            "merge_reference": reference,
+            "primary_agent_id": str(primary.employee_id),
+            "secondary_agent_id": str(secondary.employee_id),
+            "field_sources": dict(applied),
+            "reason": body.reason,
+        },
+    )
+
+    # Recharge la vue résumée du primaire pour la réponse.
+    summary_query = (await _agent_summary_query(session, organization_id)).where(
+        Employee.employee_id == primary.employee_id
+    )
+    row = (await session.execute(summary_query)).one()
+    return MergeDuplicateAgentsResult(
+        reference=reference,
+        merged_at=datetime.now(UTC),
+        merged_by=actor_full_name,
+        primary_agent_id=primary.employee_id,
+        secondary_agent_id=secondary.employee_id,
+        reason=body.reason,
+        field_sources=applied,
+        merged_agent=_to_duplicate_summary(row),
+    )
+
+
+# ============================================================================
+# Upload de pièces (page « Nouvel agent » / dossier)
+# ============================================================================
+async def create_personnel_upload(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+    uploaded_by_user_id: UUID,
+    original_filename: str,
+    mime_type: str | None,
+    content: bytes,
+) -> PersonnelUploadedFile:
+    """Enregistre les métadonnées d'un fichier téléversé dans `file_objects`.
+
+    V1 : on n'écrit pas les octets sur disque (pas de stockage S3/MinIO branché
+    en dev) — seul le metadata est tracé. La taille reste exacte pour permettre
+    aux quotas et au cockpit Documents de fonctionner.
+    """
+    safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", original_filename or "fichier")
+    file_id_uuid = uuid_module.uuid4()
+    file_object = FileObject(
+        file_id=file_id_uuid,
+        organization_id=organization_id,
+        storage_provider="stub-v1",
+        bucket_name="nouveau-uploads",
+        object_key=f"{file_id_uuid}-{safe_name}",
+        mime_type=mime_type or "application/octet-stream",
+        byte_size=len(content),
+        original_filename=original_filename or safe_name,
+        uploaded_by_user_id=uploaded_by_user_id,
+    )
+    session.add(file_object)
+    await session.flush([file_object])
+
+    return PersonnelUploadedFile(
+        id=file_object.file_id,
+        file_name=original_filename or safe_name,
+        mime_type=file_object.mime_type or "application/octet-stream",
+        size=file_object.byte_size or 0,
+        url=f"/files/{file_object.file_id}",
+    )

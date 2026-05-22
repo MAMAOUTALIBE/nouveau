@@ -65,30 +65,6 @@ async def stub_dashboard_pilotage(
 # ============================================================================
 # Personnel — anti-doublons / matricule / dossiers / uploads
 # ============================================================================
-@router.get("/personnel/agents/duplicate-index")
-async def stub_personnel_duplicate_index(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-@router.get("/personnel/agents/duplicate-cases")
-async def stub_personnel_duplicate_cases(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-@router.post("/personnel/agents/merge")
-async def stub_personnel_merge(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> dict[str, Any]:
-    return _stub_action(response)
-
-
 @router.get("/personnel/risques-turnover")
 async def stub_personnel_risques_turnover_alias(
     response: Response,
@@ -96,14 +72,6 @@ async def stub_personnel_risques_turnover_alias(
 ) -> list[Any]:
     # Alias historique vers /personnel/turnover-risk
     return _empty_list(response)
-
-
-@router.post("/personnel/uploads")
-async def stub_personnel_uploads(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> dict[str, Any]:
-    return _stub_action(response)
 
 
 # ============================================================================

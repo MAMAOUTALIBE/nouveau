@@ -196,3 +196,90 @@ class MatriculeSuggestionAuditItem(BaseModel):
     scope_label: str
     based_on: MatriculeScope
     reason: str
+
+
+# ---------------------------------------------------------------------------
+# Anti-doublons agents (page « Liste des agents » / « Nouvel agent »)
+# ---------------------------------------------------------------------------
+DuplicateField = Literal["email", "identityNumber", "fullName"]
+
+
+class AgentDuplicateIndexItem(BaseModel):
+    """Agent figurant dans au moins un doublon potentiel."""
+
+    id: UUID
+    full_name: str
+    matricule: str
+    email: str
+    identity_number: str
+
+
+class AgentDuplicateCaseAgentSummary(BaseModel):
+    id: UUID
+    matricule: str
+    full_name: str
+    direction: str
+    unit: str
+    position: str
+    status: str
+    manager: str
+    email: str
+    identity_number: str
+    phone: str
+    contract_type: str
+
+
+class AgentDuplicateCase(BaseModel):
+    reference: str
+    duplicate_field: DuplicateField
+    duplicate_value: str
+    confidence_score: int
+    impacted_count: int
+    created_at: datetime
+    agents: list[AgentDuplicateCaseAgentSummary]
+
+
+MergeFieldSource = Literal["primary", "secondary"]
+MergeField = Literal[
+    "matricule",
+    "fullName",
+    "direction",
+    "unit",
+    "position",
+    "status",
+    "manager",
+    "email",
+    "phone",
+    "identityNumber",
+    "contractType",
+]
+
+
+class MergeDuplicateAgentsRequest(BaseModel):
+    reference: str | None = None
+    primary_agent_id: UUID
+    secondary_agent_id: UUID
+    field_sources: dict[MergeField, MergeFieldSource] | None = None
+    reason: str | None = None
+
+
+class MergeDuplicateAgentsResult(BaseModel):
+    reference: str
+    merged_at: datetime
+    merged_by: str
+    primary_agent_id: UUID
+    secondary_agent_id: UUID
+    reason: str | None = None
+    field_sources: dict[MergeField, MergeFieldSource]
+    merged_agent: AgentDuplicateCaseAgentSummary
+
+
+# ---------------------------------------------------------------------------
+# Upload de pièces (page « Nouvel agent » / dossier)
+# ---------------------------------------------------------------------------
+class PersonnelUploadedFile(BaseModel):
+    id: UUID
+    file_name: str
+    mime_type: str
+    size: int
+    url: str
