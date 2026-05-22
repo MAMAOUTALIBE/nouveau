@@ -109,14 +109,6 @@ async def stub_personnel_uploads(
 # ============================================================================
 # Leave — events
 # ============================================================================
-@router.get("/leave/events")
-async def stub_leave_events(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
 # ============================================================================
 # Documents — surface étendue (archive, audit, analytics, inbox)
 # ============================================================================

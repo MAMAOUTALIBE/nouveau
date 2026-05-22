@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from typing import Annotated
 from uuid import UUID
 
@@ -218,4 +218,26 @@ async def list_leave_calendar(
         user=current_user,
         from_date=from_date,
         to_date=to_date,
+    )
+
+
+@router.get("/events", response_model=list[LeaveCalendarEvent])
+async def list_leave_events(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["leave:view", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    from_date: Annotated[date | None, Query(alias="from")] = None,
+    to_date: Annotated[date | None, Query(alias="to")] = None,
+) -> list[LeaveCalendarEvent]:
+    """Flux d'événements de congé (alias de `/calendar`). Fenêtre par défaut :
+    180 jours en arrière → 365 jours en avant si `from`/`to` ne sont pas fournis."""
+    today = date.today()
+    return await leave_service.list_calendar_events(
+        session,
+        organization_id=current_user.organization_id,
+        user=current_user,
+        from_date=from_date or (today - timedelta(days=180)),
+        to_date=to_date or (today + timedelta(days=365)),
     )
