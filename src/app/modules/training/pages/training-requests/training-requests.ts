@@ -33,6 +33,7 @@ export class TrainingRequestsPage implements OnInit {
   isSessionsLoading = false;
   updatingReference = '';
   decisionNotes: Record<string, string> = {};
+  sessionOptions: Array<{ code: string; label: string }> = [];
 
   filters: {
     q: string;
@@ -71,7 +72,13 @@ export class TrainingRequestsPage implements OnInit {
     return this.items.filter((item) => this.normalizeStatus(item.status) === 'rejetee').length;
   }
 
-  get sessionOptions(): Array<{ code: string; label: string }> {
+  /**
+   * Recalcule les options du filtre « session ». À n'appeler qu'au chargement
+   * des données : en getter, il recréait des objets à chaque cycle de détection
+   * de changement, ce qui faisait boucler `*ngFor` à l'infini (RuntimeError
+   * NG0103 — la vue ne se stabilisait jamais).
+   */
+  private rebuildSessionOptions(): void {
     const source = this.sessions.length
       ? this.sessions.map((session) => ({
           code: session.code,
@@ -90,7 +97,7 @@ export class TrainingRequestsPage implements OnInit {
       unique.set(item.code, item.label);
     });
 
-    return Array.from(unique.entries())
+    this.sessionOptions = Array.from(unique.entries())
       .map(([code, label]) => ({ code, label }))
       .sort((left, right) => left.label.localeCompare(right.label, 'fr'));
   }
@@ -209,6 +216,7 @@ export class TrainingRequestsPage implements OnInit {
       .subscribe({
         next: (items) => {
           this.items = items;
+          this.rebuildSessionOptions();
           this.cdr.detectChanges();
         },
         error: (error) => {
@@ -240,6 +248,7 @@ export class TrainingRequestsPage implements OnInit {
       .subscribe({
         next: (items) => {
           this.sessions = items;
+          this.rebuildSessionOptions();
           this.cdr.detectChanges();
         },
         error: (error) => {
