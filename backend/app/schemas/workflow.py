@@ -38,6 +38,9 @@ class WorkflowDefinitionResponse(BaseModel):
     sla_target_hours: int | None
     auto_escalation: bool
     version_no: int
+    # Libellés enrichis attendus par le frontend (page Définitions).
+    steps: int | None = None
+    used_for: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -88,6 +91,12 @@ class WorkflowInstanceResponse(BaseModel):
     metadata: dict[str, Any]
     created_at: datetime
     updated_at: datetime
+    # Libellés enrichis attendus par le frontend (page Instances).
+    id: str | None = None
+    definition: str | None = None
+    requester: str | None = None
+    current_step: str | None = None
+    status: str | None = None
 
 
 class WorkflowInstanceCreateRequest(BaseModel):

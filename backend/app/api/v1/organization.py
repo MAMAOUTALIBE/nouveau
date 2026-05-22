@@ -12,6 +12,7 @@ from app.core.audit import AuditWriter, get_audit_writer
 from app.core.db import get_session
 from app.core.security.rbac import AuthenticatedUser, require_permissions
 from app.schemas.organization import (
+    BudgetedPositionResponse,
     DirectionCreateRequest,
     DirectionResponse,
     OrgChartDirectionNode,
@@ -20,6 +21,7 @@ from app.schemas.organization import (
     PositionUpdateStatusRequest,
     UnitCreateRequest,
     UnitResponse,
+    VacantPositionResponse,
 )
 from app.services import organization_service
 
@@ -125,6 +127,34 @@ async def list_positions(
         direction_id=direction_id,
         unit_id=unit_id,
         position_status=position_status,
+    )
+
+
+@router.get("/positions/budgeted", response_model=list[BudgetedPositionResponse])
+async def list_budgeted_positions(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["organization:view", "organization:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[BudgetedPositionResponse]:
+    """Liste des postes budgétisés (page Organisation › Postes budgétaires)."""
+    return await organization_service.list_budgeted_positions(
+        session, organization_id=current_user.organization_id
+    )
+
+
+@router.get("/positions/vacant", response_model=list[VacantPositionResponse])
+async def list_vacant_positions(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["organization:view", "organization:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[VacantPositionResponse]:
+    """Liste des postes vacants (page Organisation › Postes vacants)."""
+    return await organization_service.list_vacant_positions(
+        session, organization_id=current_user.organization_id
     )
 
 

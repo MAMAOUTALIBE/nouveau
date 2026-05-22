@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError, ValidationError
+from app.models.employee import Employee
 from app.models.workflow import (
     WorkflowDefinition,
     WorkflowInstance,
@@ -37,6 +38,16 @@ from app.schemas.workflow import (
 # ============================================================================
 # Definitions
 # ============================================================================
+_INSTANCE_STATUS_LABELS: dict[str, str] = {
+    "PENDING": "En attente",
+    "IN_PROGRESS": "En cours",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "CANCELLED": "Annulé",
+    "ESCALATED": "Escaladé",
+}
+
+
 async def list_definitions(
     session: AsyncSession, *, organization_id: UUID
 ) -> list[WorkflowDefinitionResponse]:
@@ -49,7 +60,28 @@ async def list_definitions(
         .order_by(WorkflowDefinition.code, WorkflowDefinition.version_no.desc())
     )
     rows = (await session.execute(stmt)).scalars().all()
-    return [WorkflowDefinitionResponse.model_validate(r) for r in rows]
+
+    definition_ids = [r.workflow_definition_id for r in rows]
+    step_counts: dict[UUID, int] = {}
+    if definition_ids:
+        step_counts = {
+            definition_id: count
+            for definition_id, count in (
+                await session.execute(
+                    select(WorkflowStep.workflow_definition_id, func.count())
+                    .where(WorkflowStep.workflow_definition_id.in_(definition_ids))
+                    .group_by(WorkflowStep.workflow_definition_id)
+                )
+            ).all()
+        }
+
+    items: list[WorkflowDefinitionResponse] = []
+    for r in rows:
+        dto = WorkflowDefinitionResponse.model_validate(r)
+        dto.steps = step_counts.get(r.workflow_definition_id, 0)
+        dto.used_for = r.module_name
+        items.append(dto)
+    return items
 
 
 async def get_definition(
@@ -175,8 +207,50 @@ async def list_instances(
         .limit(page_size)
     )
     rows = (await session.execute(page_stmt)).scalars().all()
-    items = [
-        WorkflowInstanceResponse(
+
+    definition_ids = {i.workflow_definition_id for i in rows}
+    employee_ids = {i.requester_employee_id for i in rows if i.requester_employee_id is not None}
+
+    definition_names: dict[UUID, str] = {}
+    step_labels: dict[tuple[UUID, int], str] = {}
+    if definition_ids:
+        definition_names = {
+            definition_id: name
+            for definition_id, name in (
+                await session.execute(
+                    select(
+                        WorkflowDefinition.workflow_definition_id, WorkflowDefinition.name
+                    ).where(WorkflowDefinition.workflow_definition_id.in_(definition_ids))
+                )
+            ).all()
+        }
+        for did, order, label in (
+            await session.execute(
+                select(
+                    WorkflowStep.workflow_definition_id,
+                    WorkflowStep.step_order,
+                    WorkflowStep.label,
+                ).where(WorkflowStep.workflow_definition_id.in_(definition_ids))
+            )
+        ).all():
+            step_labels[(did, order)] = label
+
+    employee_names: dict[UUID, str] = {}
+    if employee_ids:
+        employee_names = {
+            employee_id: full_name
+            for employee_id, full_name in (
+                await session.execute(
+                    select(Employee.employee_id, Employee.full_name).where(
+                        Employee.employee_id.in_(employee_ids)
+                    )
+                )
+            ).all()
+        }
+
+    items: list[WorkflowInstanceResponse] = []
+    for i in rows:
+        dto = WorkflowInstanceResponse(
             workflow_instance_id=i.workflow_instance_id,
             organization_id=i.organization_id,
             reference=i.reference,
@@ -197,8 +271,20 @@ async def list_instances(
             created_at=i.created_at,
             updated_at=i.updated_at,
         )
-        for i in rows
-    ]
+        dto.id = i.reference
+        dto.definition = definition_names.get(i.workflow_definition_id)
+        dto.requester = (
+            employee_names.get(i.requester_employee_id)
+            if i.requester_employee_id is not None
+            else None
+        )
+        dto.current_step = (
+            step_labels.get((i.workflow_definition_id, i.current_step_order))
+            if i.current_step_order is not None
+            else None
+        )
+        dto.status = _INSTANCE_STATUS_LABELS.get(i.instance_status, i.instance_status)
+        items.append(dto)
     return items, int(total)
 
 

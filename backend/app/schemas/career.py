@@ -18,23 +18,17 @@ ScopeType = Literal["GLOBAL", "DIRECTION", "UNIT", "POSITION"]
 # Mouvements de carrière
 # ---------------------------------------------------------------------------
 class MovementResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    """Mouvement de carrière enrichi des libellés attendus par le frontend
+    (référence, nom d'agent, type en français, structures source/cible)."""
 
     movement_id: UUID
-    employee_id: UUID
-    movement_type: MovementType
-    movement_status: MovementStatus
-    from_direction_id: UUID | None
-    from_unit_id: UUID | None
-    from_position_id: UUID | None
-    to_direction_id: UUID | None
-    to_unit_id: UUID | None
-    to_position_id: UUID | None
+    reference: str
+    agent_name: str
+    movement_type: str
+    from_label: str | None = None
+    to_label: str
     effective_date: date
-    reason: str | None
-    approved_by_user_id: UUID | None
-    approved_at: datetime | None
-    created_at: datetime
+    status: str
 
 
 class MovementCreateRequest(BaseModel):

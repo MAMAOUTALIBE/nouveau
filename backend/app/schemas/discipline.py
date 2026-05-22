@@ -36,6 +36,12 @@ class DisciplineCaseResponse(BaseModel):
     closed_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    # Libellés enrichis attendus par le frontend (page Dossiers disciplinaires).
+    agent_name: str | None = None
+    direction: str | None = None
+    infraction: str | None = None
+    opened_on: date | None = None
+    status: str | None = None
 
 
 class DisciplineCaseCreateRequest(BaseModel):

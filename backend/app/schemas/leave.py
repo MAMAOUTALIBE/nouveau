@@ -38,8 +38,10 @@ class LeaveBalanceResponse(BaseModel):
 
     leave_balance_id: UUID
     employee_id: UUID
+    agent_name: str | None = None
     leave_type_id: UUID
     leave_type_code: str | None = None
+    leave_type: str | None = None
     fiscal_year: int
     allocated_days: Decimal
     consumed_days: Decimal
@@ -65,9 +67,12 @@ class LeaveRequestResponse(BaseModel):
     organization_id: UUID
     reference: str
     employee_id: UUID
+    agent_name: str | None = None
     leave_type_id: UUID
     leave_type_code: str | None = None
+    leave_type: str | None = None
     request_status: LeaveRequestStatus
+    status: str | None = None
     start_date: date
     end_date: date
     duration_days: int

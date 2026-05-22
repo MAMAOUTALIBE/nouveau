@@ -15,8 +15,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError
 from app.core.security.rbac import AuthenticatedUser
+from app.models.document import Document, DocumentType
 from app.models.employee import Employee, EmployeeAssignment
-from app.models.organization import Organization
+from app.models.organization import Direction, Organization, Unit
 from app.schemas.personnel import (
     AgentCreateRequest,
     AgentListItem,
@@ -24,6 +25,7 @@ from app.schemas.personnel import (
     AgentUpdateRequest,
     AssignmentCreateRequest,
     AssignmentResponse,
+    DossierResponse,
 )
 
 
@@ -289,21 +291,60 @@ async def update_agent(
 # ============================================================================
 # Affectations
 # ============================================================================
+_ASSIGNMENT_STATUS_LABELS: dict[str, str] = {
+    "PLANNED": "Planifiée",
+    "ACTIVE": "Active",
+    "ENDED": "Terminée",
+    "CANCELLED": "Annulée",
+}
+
+
+def _assignment_to_response(
+    assignment: EmployeeAssignment,
+    employee: Employee | None,
+    direction: Direction | None,
+    unit: Unit | None,
+) -> AssignmentResponse:
+    """Construit la réponse enrichie d'une affectation (libellés résolus)."""
+    direction_name = direction.name if direction is not None else "Primature"
+    unit_name = unit.name if unit is not None else direction_name
+    return AssignmentResponse(
+        assignment_id=assignment.assignment_id,
+        reference=f"AFF-{str(assignment.assignment_id)[:8].upper()}",
+        agent_id=assignment.employee_id,
+        agent_name=employee.full_name if employee is not None else "—",
+        from_unit=direction_name,
+        to_unit=unit_name,
+        effective_date=assignment.effective_start,
+        effective_end=assignment.effective_end,
+        status=_ASSIGNMENT_STATUS_LABELS.get(
+            assignment.assignment_status, assignment.assignment_status
+        ),
+    )
+
+
 async def list_assignments(
     session: AsyncSession,
     *,
     organization_id: UUID,
     employee_id: UUID | None = None,
 ) -> list[AssignmentResponse]:
-    base = select(EmployeeAssignment).where(EmployeeAssignment.organization_id == organization_id)
-    if employee_id:
-        base = base.where(EmployeeAssignment.employee_id == employee_id)
-    rows = (
-        (await session.execute(base.order_by(EmployeeAssignment.effective_start.desc())))
-        .scalars()
-        .all()
+    stmt = (
+        select(EmployeeAssignment, Employee, Direction, Unit)
+        .join(Employee, Employee.employee_id == EmployeeAssignment.employee_id)
+        .outerjoin(Direction, Direction.direction_id == EmployeeAssignment.direction_id)
+        .outerjoin(Unit, Unit.unit_id == EmployeeAssignment.unit_id)
+        .where(EmployeeAssignment.organization_id == organization_id)
     )
-    return [AssignmentResponse.model_validate(r) for r in rows]
+    if employee_id:
+        stmt = stmt.where(EmployeeAssignment.employee_id == employee_id)
+    stmt = stmt.order_by(EmployeeAssignment.effective_start.desc())
+
+    rows = (await session.execute(stmt)).all()
+    return [
+        _assignment_to_response(assignment, employee, direction, unit)
+        for assignment, employee, direction, unit in rows
+    ]
 
 
 async def create_assignment(
@@ -340,4 +381,57 @@ async def create_assignment(
             "effective_start": body.effective_start.isoformat(),
         },
     )
-    return AssignmentResponse.model_validate(assignment)
+
+    employee = await session.get(Employee, assignment.employee_id)
+    direction = (
+        await session.get(Direction, assignment.direction_id)
+        if assignment.direction_id is not None
+        else None
+    )
+    unit = (
+        await session.get(Unit, assignment.unit_id) if assignment.unit_id is not None else None
+    )
+    return _assignment_to_response(assignment, employee, direction, unit)
+
+
+# ============================================================================
+# Dossiers administratifs (documents rattachés aux agents)
+# ============================================================================
+_DOCUMENT_STATUS_LABELS: dict[str, str] = {
+    "DRAFT": "Brouillon",
+    "IN_VALIDATION": "En validation",
+    "VALIDATED": "Validé",
+    "PUBLISHED": "Publié",
+    "ARCHIVED": "Archivé",
+}
+
+
+async def list_dossiers(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+) -> list[DossierResponse]:
+    """Liste les dossiers administratifs — documents rattachés aux agents."""
+    stmt = (
+        select(Document, Employee, DocumentType)
+        .outerjoin(Employee, Employee.employee_id == Document.employee_id)
+        .outerjoin(DocumentType, DocumentType.document_type_id == Document.document_type_id)
+        .where(Document.organization_id == organization_id)
+        .order_by(Document.updated_at.desc())
+    )
+    rows = (await session.execute(stmt)).all()
+    return [
+        DossierResponse(
+            reference=document.reference,
+            agent_id=document.employee_id,
+            agent_name=(
+                employee.full_name if employee is not None else (document.owner_label or "—")
+            ),
+            type=document_type.label if document_type is not None else document.document_type,
+            status=_DOCUMENT_STATUS_LABELS.get(
+                document.document_status, document.document_status
+            ),
+            updated_at=document.updated_at,
+        )
+        for document, employee, document_type in rows
+    ]

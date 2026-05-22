@@ -154,6 +154,10 @@ class DocumentResponse(BaseModel):
     last_analysis_at: datetime | None = None
     created_at: datetime
     updated_at: datetime
+    # Libellés enrichis attendus par le frontend (page Bibliothèque).
+    type: str | None = None
+    owner: str | None = None
+    status: str | None = None
 
 
 class DocumentCreateRequest(BaseModel):

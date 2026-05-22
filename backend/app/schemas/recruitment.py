@@ -121,3 +121,14 @@ class ApplicationCommentResponse(BaseModel):
 
 class ApplicationCommentCreateRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=4096)
+
+
+class OnboardingItemResponse(BaseModel):
+    """Élément d'intégration dérivé d'une candidature recrutée (statut HIRED)."""
+
+    application_reference: str
+    agent: str
+    position: str
+    start_date: date
+    status: str
+    checklist: list[str]

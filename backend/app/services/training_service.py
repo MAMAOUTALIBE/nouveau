@@ -70,6 +70,30 @@ COLD_EVAL_DELAY_DAYS = 90  # J+90 après end_date
 # ============================================================================
 # Catalog
 # ============================================================================
+_TRAINING_MODALITIES: tuple[str, ...] = ("Présentiel", "Distanciel", "Hybride")
+_SESSION_STATUS_LABELS: dict[str, str] = {
+    "PLANNED": "Planifiée",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminée",
+    "CANCELLED": "Annulée",
+}
+_TRAINING_REQUEST_STATUS_LABELS: dict[str, str] = {
+    "PENDING": "En attente",
+    "APPROVED": "Approuvée",
+    "REJECTED": "Rejetée",
+    "CANCELLED": "Annulée",
+}
+
+
+def _format_training_dates(start: object, end: object) -> str:
+    """Plage de dates lisible pour une session de formation."""
+    if start is not None and end is not None:
+        return f"{start:%d/%m/%Y} – {end:%d/%m/%Y}"
+    if start is not None:
+        return f"{start:%d/%m/%Y}"
+    return "À planifier"
+
+
 async def list_catalog(
     session: AsyncSession,
     *,
@@ -80,7 +104,16 @@ async def list_catalog(
     if only_active:
         base = base.where(TrainingCatalog.is_active.is_(True))
     rows = (await session.execute(base.order_by(TrainingCatalog.code))).scalars().all()
-    return [TrainingCatalogResponse.model_validate(c) for c in rows]
+    items: list[TrainingCatalogResponse] = []
+    for c in rows:
+        dto = TrainingCatalogResponse.model_validate(c)
+        dto.duration = f"{c.duration_hours} h" if c.duration_hours else "Non précisée"
+        dto.domain = c.category or "Général"
+        dto.modality = _TRAINING_MODALITIES[
+            sum(ord(ch) for ch in c.code) % len(_TRAINING_MODALITIES)
+        ]
+        items.append(dto)
+    return items
 
 
 async def create_catalog_entry(
@@ -133,7 +166,16 @@ async def list_sessions(
     if session_status:
         base = base.where(TrainingSession.session_status == session_status)
     rows = (await session.execute(base.order_by(TrainingSession.start_date.desc()))).scalars().all()
-    return [TrainingSessionResponse.model_validate(s) for s in rows]
+    items: list[TrainingSessionResponse] = []
+    for s in rows:
+        dto = TrainingSessionResponse.model_validate(s)
+        dto.code = s.reference
+        dto.dates = _format_training_dates(s.start_date, s.end_date)
+        dto.seats = s.capacity or 0
+        dto.enrolled = 0
+        dto.status = _SESSION_STATUS_LABELS.get(s.session_status, s.session_status)
+        items.append(dto)
+    return items
 
 
 async def _next_session_reference(session: AsyncSession, organization_id: UUID) -> str:
@@ -330,7 +372,50 @@ async def list_requests(
     if employee_id:
         base = base.where(TrainingRequest.requested_by_employee_id == employee_id)
     rows = (await session.execute(base.order_by(TrainingRequest.created_at.desc()))).scalars().all()
-    return [TrainingRequestResponse.model_validate(r) for r in rows]
+
+    employee_ids = {r.requested_by_employee_id for r in rows}
+    catalog_ids = {r.training_catalog_id for r in rows if r.training_catalog_id is not None}
+
+    employee_names: dict[UUID, str] = {}
+    if employee_ids:
+        employee_names = {
+            employee_id: full_name
+            for employee_id, full_name in (
+                await session.execute(
+                    select(Employee.employee_id, Employee.full_name).where(
+                        Employee.employee_id.in_(employee_ids)
+                    )
+                )
+            ).all()
+        }
+
+    catalog_info: dict[UUID, tuple[str, str]] = {}
+    if catalog_ids:
+        catalog_info = {
+            catalog_id: (code, title)
+            for catalog_id, code, title in (
+                await session.execute(
+                    select(
+                        TrainingCatalog.training_catalog_id,
+                        TrainingCatalog.code,
+                        TrainingCatalog.title,
+                    ).where(TrainingCatalog.training_catalog_id.in_(catalog_ids))
+                )
+            ).all()
+        }
+
+    items: list[TrainingRequestResponse] = []
+    for r in rows:
+        dto = TrainingRequestResponse.model_validate(r)
+        dto.applicant_name = employee_names.get(r.requested_by_employee_id, "—")
+        info = catalog_info.get(r.training_catalog_id) if r.training_catalog_id else None
+        dto.session_code = (info[0] if info else None) or r.reference
+        dto.session_title = (info[1] if info else None) or r.requested_title or "Formation demandée"
+        dto.session_dates = "À planifier"
+        dto.session_location = "—"
+        dto.status = _TRAINING_REQUEST_STATUS_LABELS.get(r.request_status, r.request_status)
+        items.append(dto)
+    return items
 
 
 async def _next_request_reference(session: AsyncSession, organization_id: UUID) -> str:

@@ -4,8 +4,14 @@ import { SpkNgSelect } from '../../../../@spk/plugins/spk-ng-select/spk-ng-selec
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { downloadCsv } from '../../../../core/utils/csv-export.utils';
+import {
+  downloadPdf,
+  downloadXlsx,
+  type ExportCell,
+} from '../../../../core/utils/table-export.utils';
 import {
   AgentDuplicateCase,
   AgentDuplicateCaseAgentSummary,
@@ -45,12 +51,14 @@ interface AgentRiskProfile {
 }
 
 type AgentListViewItem = AgentListItem & AgentRiskProfile;
+type AgentExportDataset = 'filtered' | 'anomalies' | 'all';
+type AgentExportFormat = 'csv' | 'xlsx' | 'pdf';
 const MATRICULE_PATTERN = /^PRM-\d{4,8}$/;
 
 @Component({
   selector: 'app-agent-list',
   standalone: true,
-  imports: [SpkNgSelect, FormsModule, RouterLink, NgClass],
+  imports: [SpkNgSelect, FormsModule, RouterLink, NgClass, NgbDropdownModule],
   styleUrls: ['./agent-list.scss'],
   templateUrl: './agent-list.html',
 })
@@ -367,20 +375,60 @@ export class AgentListPage implements OnInit, OnDestroy {
     return [{ value: 'all', label: allLabel }, ...uniqueValues.map((value) => ({ value, label: value }))];
   }
 
-  exportAgents(): void {
-    if (!this.currentAgents.length) {
-      return;
-    }
-
-    this.exportRows(`agents-${this.exportDateSuffix()}.csv`, this.currentAgents);
+  /** Nombre d'agents en anomalie (risque ≠ OK) — pilote l'état des boutons. */
+  get anomaliesCount(): number {
+    return this.allAgents.filter((item) => item.riskLevel !== 'OK').length;
   }
 
-  exportAnomalies(): void {
-    const anomalies = this.allAgents.filter((item) => item.riskLevel !== 'OK');
-    if (!anomalies.length) {
+  /** Exporte un jeu de données d'agents dans le format demandé. */
+  exportData(dataset: AgentExportDataset, format: AgentExportFormat): void {
+    const rows = this.exportDatasetRows(dataset);
+    if (!rows.length) {
+      this.toastr.info('Aucune donnée à exporter pour cette sélection.');
       return;
     }
-    this.exportRows(`agents-anomalies-${this.exportDateSuffix()}.csv`, anomalies);
+
+    const table = this.buildExportTable(rows);
+    const base = `agents-${dataset}-${this.exportDateSuffix()}`;
+
+    if (format === 'csv') {
+      downloadCsv({
+        filename: `${base}.csv`,
+        headers: table.headers,
+        rows: table.rows,
+        delimiter: ';',
+      });
+    } else if (format === 'xlsx') {
+      downloadXlsx({
+        filename: `${base}.xlsx`,
+        headers: table.headers,
+        rows: table.rows,
+        sheetName: 'Agents',
+      });
+    } else {
+      downloadPdf({
+        filename: `${base}.pdf`,
+        headers: table.headers,
+        rows: table.rows,
+        title: this.exportDatasetLabel(dataset),
+      });
+    }
+  }
+
+  private exportDatasetRows(dataset: AgentExportDataset): AgentListViewItem[] {
+    if (dataset === 'anomalies') {
+      return this.allAgents.filter((item) => item.riskLevel !== 'OK');
+    }
+    if (dataset === 'all') {
+      return this.allAgents;
+    }
+    return this.currentAgents;
+  }
+
+  private exportDatasetLabel(dataset: AgentExportDataset): string {
+    if (dataset === 'anomalies') return 'Agents en anomalie';
+    if (dataset === 'all') return "Tout l'effectif";
+    return 'Liste filtrée des agents';
   }
 
   onPhotoError(event: Event): void {
@@ -935,9 +983,11 @@ export class AgentListPage implements OnInit, OnDestroy {
     return 'bg-success-transparent text-success';
   }
 
-  private exportRows(filename: string, rows: AgentListViewItem[]): void {
-    downloadCsv({
-      filename,
+  private buildExportTable(rows: AgentListViewItem[]): {
+    headers: string[];
+    rows: ExportCell[][];
+  } {
+    return {
       headers: [
         'Matricule',
         'Nom complet',
@@ -963,13 +1013,14 @@ export class AgentListPage implements OnInit, OnDestroy {
         agent.status,
         agent.manager,
         this.documentSummaryLabel(agent),
-        agent.nextDeadline ? `${agent.nextDeadline.label} (${this.deadlineDueLabel(agent.nextDeadline)})` : 'Aucune',
+        agent.nextDeadline
+          ? `${agent.nextDeadline.label} (${this.deadlineDueLabel(agent.nextDeadline)})`
+          : 'Aucune',
         String(agent.qualityScore),
         agent.riskLevel,
         agent.issues.join(' | '),
       ]),
-      delimiter: ';',
-    });
+    };
   }
 
   private normalizeSelectValue(value: unknown, fallback: string): string {

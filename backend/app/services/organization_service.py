@@ -13,6 +13,7 @@ from app.models.employee import Employee
 from app.models.organization import Direction, Unit
 from app.models.position import Position
 from app.schemas.organization import (
+    BudgetedPositionResponse,
     DirectionCreateRequest,
     DirectionResponse,
     OrgChartDirectionNode,
@@ -22,6 +23,7 @@ from app.schemas.organization import (
     PositionUpdateStatusRequest,
     UnitCreateRequest,
     UnitResponse,
+    VacantPositionResponse,
 )
 
 
@@ -174,6 +176,91 @@ async def list_positions(
         base = base.where(Position.position_status == position_status)
     rows = (await session.execute(base.order_by(Position.code))).scalars().all()
     return [PositionResponse.model_validate(p) for p in rows]
+
+
+# ============================================================================
+# Postes budgétaires / vacants (vues liste du module Organisation)
+# ============================================================================
+_GRADE_PRIORITY: dict[str, str] = {"A": "Haute", "B": "Normale", "C": "Basse"}
+
+
+def _position_structure_name(unit: Unit | None, direction: Direction | None) -> str:
+    if unit is not None:
+        return unit.name
+    if direction is not None:
+        return direction.name
+    return "Primature"
+
+
+async def list_budgeted_positions(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+) -> list[BudgetedPositionResponse]:
+    """Liste tous les postes budgétisés, avec leur titulaire éventuel."""
+    stmt = (
+        select(Position, Unit, Direction)
+        .outerjoin(Unit, Unit.unit_id == Position.unit_id)
+        .outerjoin(Direction, Direction.direction_id == Position.direction_id)
+        .where(Position.organization_id == organization_id)
+        .order_by(Position.code)
+    )
+    rows = (await session.execute(stmt)).all()
+
+    holders: dict[UUID, str] = {}
+    employee_rows = (
+        await session.execute(
+            select(Employee.position_id, Employee.full_name).where(
+                Employee.organization_id == organization_id,
+                Employee.position_id.is_not(None),
+            )
+        )
+    ).all()
+    for position_id, full_name in employee_rows:
+        holders.setdefault(position_id, full_name)
+
+    return [
+        BudgetedPositionResponse(
+            code=position.code,
+            structure_name=_position_structure_name(unit, direction),
+            title=position.title,
+            grade=position.grade or "—",
+            status="Occupé" if holders.get(position.position_id) else "Ouvert",
+            holder_name=holders.get(position.position_id),
+        )
+        for position, unit, direction in rows
+    ]
+
+
+async def list_vacant_positions(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+) -> list[VacantPositionResponse]:
+    """Liste les postes vacants (statut OPEN)."""
+    stmt = (
+        select(Position, Unit, Direction)
+        .outerjoin(Unit, Unit.unit_id == Position.unit_id)
+        .outerjoin(Direction, Direction.direction_id == Position.direction_id)
+        .where(
+            Position.organization_id == organization_id,
+            Position.position_status == "OPEN",
+        )
+        .order_by(Position.code)
+    )
+    rows = (await session.execute(stmt)).all()
+
+    return [
+        VacantPositionResponse(
+            code=position.code,
+            structure_name=_position_structure_name(unit, direction),
+            title=position.title,
+            grade=position.grade or "—",
+            opened_on=position.created_at.date(),
+            priority=_GRADE_PRIORITY.get((position.grade or "")[:1].upper(), "Normale"),
+        )
+        for position, unit, direction in rows
+    ]
 
 
 async def create_position(

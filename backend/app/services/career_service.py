@@ -66,6 +66,64 @@ def _level_rank(level: str) -> int:
 # ============================================================================
 # Mouvements de carrière
 # ============================================================================
+_MOVEMENT_TYPE_LABELS: dict[str, str] = {
+    "TRANSFER": "Mutation",
+    "PROMOTION": "Promotion",
+    "SECONDMENT": "Détachement",
+    "RECLASSIFICATION": "Avancement",
+    "EXIT": "Départ",
+}
+_MOVEMENT_STATUS_LABELS: dict[str, str] = {
+    "DRAFT": "Brouillon",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "EXECUTED": "Exécuté",
+    "CANCELLED": "Annulé",
+}
+
+
+async def _structure_label(
+    session: AsyncSession, unit_id: UUID | None, direction_id: UUID | None
+) -> str | None:
+    """Résout le libellé d'une structure : unité prioritaire, sinon direction."""
+    if unit_id is not None:
+        unit = await session.get(Unit, unit_id)
+        if unit is not None:
+            return unit.name
+    if direction_id is not None:
+        direction = await session.get(Direction, direction_id)
+        if direction is not None:
+            return direction.name
+    return None
+
+
+async def _build_movement_response(
+    session: AsyncSession,
+    movement: EmployeeMovement,
+    *,
+    employee: Employee | None = None,
+) -> MovementResponse:
+    """Construit la réponse enrichie d'un mouvement (libellés résolus)."""
+    if employee is None:
+        employee = await session.get(Employee, movement.employee_id)
+    from_label = await _structure_label(
+        session, movement.from_unit_id, movement.from_direction_id
+    )
+    to_label = await _structure_label(session, movement.to_unit_id, movement.to_direction_id)
+    return MovementResponse(
+        movement_id=movement.movement_id,
+        reference=f"MVT-{str(movement.movement_id)[:8].upper()}",
+        agent_name=employee.full_name if employee is not None else "—",
+        movement_type=_MOVEMENT_TYPE_LABELS.get(movement.movement_type, movement.movement_type),
+        from_label=from_label,
+        to_label=to_label or "—",
+        effective_date=movement.effective_date,
+        status=_MOVEMENT_STATUS_LABELS.get(
+            movement.movement_status, movement.movement_status
+        ),
+    )
+
+
 async def list_movements(
     session: AsyncSession,
     *,
@@ -83,7 +141,7 @@ async def list_movements(
         .scalars()
         .all()
     )
-    return [MovementResponse.model_validate(m) for m in rows]
+    return [await _build_movement_response(session, movement) for movement in rows]
 
 
 async def create_movement(
@@ -127,7 +185,7 @@ async def create_movement(
             "effective_date": body.effective_date.isoformat(),
         },
     )
-    return MovementResponse.model_validate(movement)
+    return await _build_movement_response(session, movement, employee=employee)
 
 
 async def decide_movement(
@@ -188,7 +246,7 @@ async def decide_movement(
         before=before,
         after={"movement_status": body.decision, "comment": body.comment},
     )
-    return MovementResponse.model_validate(movement)
+    return await _build_movement_response(session, movement)
 
 
 # ============================================================================

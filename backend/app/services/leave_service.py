@@ -51,17 +51,49 @@ def _duration_days(start: object, end: object) -> int:
     return (end - start).days + 1
 
 
+_LEAVE_STATUS_LABELS: dict[str, str] = {
+    "PENDING": "En attente",
+    "IN_REVIEW": "En cours d'examen",
+    "APPROVED": "Approuvé",
+    "REJECTED": "Rejeté",
+    "CANCELLED": "Annulé",
+}
+
+
+async def _employee_name_map(
+    session: AsyncSession, employee_ids: set[UUID]
+) -> dict[UUID, str]:
+    """Table de correspondance employee_id → nom complet."""
+    if not employee_ids:
+        return {}
+    rows = (
+        await session.execute(
+            select(Employee.employee_id, Employee.full_name).where(
+                Employee.employee_id.in_(employee_ids)
+            )
+        )
+    ).all()
+    return {employee_id: full_name for employee_id, full_name in rows}
+
+
 def _leave_request_to_dto(
-    request: LeaveRequest, *, leave_type_code: str | None = None
+    request: LeaveRequest,
+    *,
+    leave_type_code: str | None = None,
+    leave_type_label: str | None = None,
+    agent_name: str | None = None,
 ) -> LeaveRequestResponse:
     return LeaveRequestResponse(
         leave_request_id=request.leave_request_id,
         organization_id=request.organization_id,
         reference=request.reference,
         employee_id=request.employee_id,
+        agent_name=agent_name,
         leave_type_id=request.leave_type_id,
         leave_type_code=leave_type_code,
+        leave_type=leave_type_label or leave_type_code,
         request_status=request.request_status,
+        status=_LEAVE_STATUS_LABELS.get(request.request_status, request.request_status),
         start_date=request.start_date,
         end_date=request.end_date,
         duration_days=_duration_days(request.start_date, request.end_date),
@@ -142,7 +174,7 @@ async def list_balances(
     user: AuthenticatedUser,
 ) -> list[LeaveBalanceResponse]:
     base = (
-        select(LeaveBalance, LeaveType.code)
+        select(LeaveBalance, LeaveType.code, LeaveType.label)
         .join(LeaveType, LeaveType.leave_type_id == LeaveBalance.leave_type_id)
         .where(LeaveBalance.organization_id == organization_id)
     )
@@ -166,14 +198,17 @@ async def list_balances(
             base = base.where(LeaveBalance.employee_id.is_(None))
 
     rows = (await session.execute(base)).all()
+    names = await _employee_name_map(session, {balance.employee_id for balance, _c, _l in rows})
     out: list[LeaveBalanceResponse] = []
-    for balance, code in rows:
+    for balance, code, label in rows:
         out.append(
             LeaveBalanceResponse(
                 leave_balance_id=balance.leave_balance_id,
                 employee_id=balance.employee_id,
+                agent_name=names.get(balance.employee_id),
                 leave_type_id=balance.leave_type_id,
                 leave_type_code=code,
+                leave_type=label or code,
                 fiscal_year=balance.fiscal_year,
                 allocated_days=balance.allocated_days,
                 consumed_days=balance.consumed_days,
@@ -262,7 +297,7 @@ async def list_requests(
     leave_type_id: UUID | None = None,
 ) -> tuple[list[LeaveRequestResponse], int]:
     base = (
-        select(LeaveRequest, LeaveType.code)
+        select(LeaveRequest, LeaveType.code, LeaveType.label)
         .join(LeaveType, LeaveType.leave_type_id == LeaveRequest.leave_type_id)
         .where(LeaveRequest.organization_id == organization_id)
     )
@@ -287,7 +322,16 @@ async def list_requests(
         .limit(page_size)
     )
     rows = (await session.execute(page_stmt)).all()
-    items = [_leave_request_to_dto(req, leave_type_code=code) for req, code in rows]
+    names = await _employee_name_map(session, {req.employee_id for req, _c, _l in rows})
+    items = [
+        _leave_request_to_dto(
+            req,
+            leave_type_code=code,
+            leave_type_label=label,
+            agent_name=names.get(req.employee_id),
+        )
+        for req, code, label in rows
+    ]
     return items, int(total)
 
 

@@ -1,5 +1,125 @@
 <div class="row row-sm">
   <div class="col-xl-12">
+    <!-- En-tête de page : titre unique « Liste des agents » + actions sur une
+         seule ligne. L'en-tête de page partagé est masqué pour cette route
+         (hidePageHeader) afin d'éviter le doublon de titre. -->
+    <div
+      class="d-md-flex d-block align-items-center justify-content-between gap-2 my-3 agent-list-header">
+      <h1 class="page-title fw-semibold fs-18 mb-0">Liste des agents</h1>
+      <div class="btn-list">
+        <a routerLink="/personnel/agents/nouveau" class="btn btn-primary">Nouvel agent</a>
+
+        <!-- Export unifié : choix du contenu (3 jeux) × du format (CSV/Excel/PDF) -->
+        <div ngbDropdown #exportDrop="ngbDropdown" class="d-inline-block">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            ngbDropdownToggle
+            [disabled]="isLoading">
+            Exporter
+          </button>
+          <div ngbDropdownMenu class="dropdown-menu-end agent-export-menu">
+            <div class="agent-export-group">
+              <div class="agent-export-title">Liste filtrée affichée</div>
+              <div class="agent-export-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!currentAgents.length"
+                  (click)="exportData('filtered', 'csv'); exportDrop.close()">
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!currentAgents.length"
+                  (click)="exportData('filtered', 'xlsx'); exportDrop.close()">
+                  Excel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!currentAgents.length"
+                  (click)="exportData('filtered', 'pdf'); exportDrop.close()">
+                  PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="agent-export-group">
+              <div class="agent-export-title">
+                Anomalies uniquement
+                <span class="text-muted fw-normal">({{ anomaliesCount }})</span>
+              </div>
+              <div class="agent-export-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!anomaliesCount"
+                  (click)="exportData('anomalies', 'csv'); exportDrop.close()">
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!anomaliesCount"
+                  (click)="exportData('anomalies', 'xlsx'); exportDrop.close()">
+                  Excel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!anomaliesCount"
+                  (click)="exportData('anomalies', 'pdf'); exportDrop.close()">
+                  PDF
+                </button>
+              </div>
+            </div>
+
+            <div class="agent-export-group">
+              <div class="agent-export-title">
+                Tout l'effectif
+                <span class="text-muted fw-normal">({{ allAgents.length }})</span>
+              </div>
+              <div class="agent-export-actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!allAgents.length"
+                  (click)="exportData('all', 'csv'); exportDrop.close()">
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!allAgents.length"
+                  (click)="exportData('all', 'xlsx'); exportDrop.close()">
+                  Excel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  [disabled]="!allAgents.length"
+                  (click)="exportData('all', 'pdf'); exportDrop.close()">
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-primary" (click)="showFilters = !showFilters">
+          {{ showFilters ? 'Masquer les filtres' : 'Filtres avancés' }}
+          @if (activeFilterCount() > 0) {
+            <span class="badge bg-primary ms-1">{{ activeFilterCount() }}</span>
+          }
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="resetFilters()">
+          Réinitialiser
+        </button>
+      </div>
+    </div>
+
     <div class="card custom-card">
       @if (isLoading) {
         <div class="agents-loading-overlay">
@@ -8,26 +128,6 @@
         </div>
       }
 
-      <div class="card-header justify-content-between">
-        <div class="card-title">Liste des agents</div>
-        <div class="btn-list">
-          <a routerLink="/personnel/agents/nouveau" class="btn btn-primary">Nouvel agent</a>
-          <button
-            type="button"
-            class="btn btn-outline-warning"
-            [disabled]="isLoading || !allAgents.length"
-            (click)="exportAnomalies()">
-            Exporter anomalies
-          </button>
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            [disabled]="isLoading || !currentAgents.length"
-            (click)="exportAgents()">
-            Exporter
-          </button>
-        </div>
-      </div>
       <div class="card-body">
         <!-- Indicateurs synthétiques : bande compacte (remplace 7 grandes cartes) -->
         <div class="agent-kpi-strip mb-3">
@@ -64,9 +164,11 @@
           </div>
         </div>
 
-        <!-- Barre d'outils : recherche globale toujours visible + accès aux filtres -->
-        <div class="row g-2 mb-3">
-          <div class="col-lg-6">
+        <!-- Barre d'outils : recherche (toujours visible, 1/4 de largeur) et
+             filtres avancés repliables sur une seule grille → 2 lignes au max
+             (1 recherche + 7 filtres = 8 contrôles, 4 par ligne). -->
+        <div class="row g-3 mb-3">
+          <div class="col-xl-3 col-md-6">
             <input
               type="text"
               class="form-control"
@@ -74,24 +176,8 @@
               placeholder="Recherche : matricule, nom, poste, manager..."
               (input)="onSearchInput(($any($event.target)).value)" />
           </div>
-          <div class="col-lg-6">
-            <div class="d-flex gap-2 justify-content-lg-end">
-              <button type="button" class="btn btn-outline-primary" (click)="showFilters = !showFilters">
-                {{ showFilters ? 'Masquer les filtres' : 'Filtres avancés' }}
-                @if (activeFilterCount() > 0) {
-                  <span class="badge bg-primary ms-1">{{ activeFilterCount() }}</span>
-                }
-              </button>
-              <button type="button" class="btn btn-outline-secondary" (click)="resetFilters()">
-                Réinitialiser
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <!-- Filtres avancés : repliés par défaut -->
-        @if (showFilters) {
-          <div class="row g-3 mb-3">
+          @if (showFilters) {
             <div class="col-xl-3 col-md-6">
               <spk-ng-select
                 [options]="directions"
@@ -153,8 +239,8 @@
                 placeholder="Filtre manager..."
                 (input)="onManagerInput(($any($event.target)).value)" />
             </div>
-          </div>
-        }
+          }
+        </div>
 
         @if (isLoading) {
           <div class="d-flex align-items-center gap-2 mb-3 text-muted">

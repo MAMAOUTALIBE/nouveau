@@ -18,6 +18,7 @@ from app.schemas.performance import (
     PerformanceCampaignTransitionRequest,
     PerformanceEvaluationResponse,
     PerformanceEvaluationUpsertRequest,
+    PerformanceResultResponse,
     Survey360EmployeeResult,
     Survey360InvitationResponse,
     Survey360InvitationsBulkRequest,
@@ -200,6 +201,23 @@ async def get_360_results(
         session,
         campaign_id=campaign_id,
         target_employee_id=target_employee_id,
+    )
+
+
+# ============================================================================
+# Résultats d'évaluation
+# ============================================================================
+@router.get("/results", response_model=list[PerformanceResultResponse])
+async def list_results(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["performance:view", "performance:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[PerformanceResultResponse]:
+    """Résultats des évaluations classiques (page Pilotage › Résultats)."""
+    return await performance_service.list_results(
+        session, organization_id=current_user.organization_id
     )
 
 

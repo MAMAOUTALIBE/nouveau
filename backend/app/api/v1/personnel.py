@@ -21,6 +21,7 @@ from app.schemas.personnel import (
     AssignmentCreateRequest,
     AssignmentResponse,
     DossierExportResponse,
+    DossierResponse,
     RiskLevel,
     TurnoverRiskItem,
 )
@@ -149,6 +150,27 @@ async def create_assignment(
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,
+    )
+
+
+# ============================================================================
+# Dossiers administratifs
+# ============================================================================
+@router.get("/dossiers", response_model=list[DossierResponse])
+async def list_dossiers(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(
+            require_permissions(
+                any_of=["personnel:view", "personnel:manage", "documents:view", "*"]
+            )
+        ),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[DossierResponse]:
+    """Liste les dossiers administratifs (documents rattachés aux agents)."""
+    return await personnel_service.list_dossiers(
+        session, organization_id=current_user.organization_id
     )
 
 

@@ -27,6 +27,7 @@ from app.models.document import (
     DocumentExtractedField,
     DocumentType,
 )
+from app.models.employee import Employee
 from app.schemas.document import (
     DocumentAnalysisRunResponse,
     DocumentCreateRequest,
@@ -60,7 +61,21 @@ def _doc_type_to_dto(dt: DocumentType) -> DocumentTypeResponse:
     )
 
 
-def _doc_to_dto(doc: Document) -> DocumentResponse:
+_DOCUMENT_STATUS_LABELS: dict[str, str] = {
+    "DRAFT": "Brouillon",
+    "IN_VALIDATION": "En validation",
+    "VALIDATED": "Validé",
+    "PUBLISHED": "Publié",
+    "ARCHIVED": "Archivé",
+}
+
+
+def _doc_to_dto(
+    doc: Document,
+    *,
+    type_label: str | None = None,
+    owner_name: str | None = None,
+) -> DocumentResponse:
     return DocumentResponse(
         document_id=doc.document_id,
         organization_id=doc.organization_id,
@@ -68,6 +83,9 @@ def _doc_to_dto(doc: Document) -> DocumentResponse:
         reference=doc.reference,
         title=doc.title,
         document_type=doc.document_type,
+        type=type_label or doc.document_type,
+        owner=owner_name or doc.owner_label or "—",
+        status=_DOCUMENT_STATUS_LABELS.get(doc.document_status, doc.document_status),
         document_type_id=doc.document_type_id,
         document_status=doc.document_status,
         direction_id=doc.direction_id,
@@ -248,7 +266,44 @@ async def list_documents(
         base.order_by(Document.updated_at.desc()).offset((page - 1) * page_size).limit(page_size)
     )
     rows = (await session.execute(page_stmt)).scalars().all()
-    return [_doc_to_dto(d) for d in rows], int(total)
+
+    employee_ids = {d.employee_id for d in rows if d.employee_id is not None}
+    type_ids = {d.document_type_id for d in rows if d.document_type_id is not None}
+
+    employee_names: dict[UUID, str] = {}
+    if employee_ids:
+        employee_names = {
+            eid: name
+            for eid, name in (
+                await session.execute(
+                    select(Employee.employee_id, Employee.full_name).where(
+                        Employee.employee_id.in_(employee_ids)
+                    )
+                )
+            ).all()
+        }
+    type_labels: dict[UUID, str] = {}
+    if type_ids:
+        type_labels = {
+            tid: label
+            for tid, label in (
+                await session.execute(
+                    select(DocumentType.document_type_id, DocumentType.label).where(
+                        DocumentType.document_type_id.in_(type_ids)
+                    )
+                )
+            ).all()
+        }
+
+    items = [
+        _doc_to_dto(
+            d,
+            type_label=type_labels.get(d.document_type_id) if d.document_type_id else None,
+            owner_name=employee_names.get(d.employee_id) if d.employee_id else None,
+        )
+        for d in rows
+    ]
+    return items, int(total)
 
 
 async def _next_reference(session: AsyncSession, organization_id: UUID, document_type: str) -> str:

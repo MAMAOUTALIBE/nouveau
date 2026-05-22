@@ -28,6 +28,10 @@ class TrainingCatalogResponse(BaseModel):
     description: str | None
     duration_hours: int | None
     is_active: bool
+    # Libellés enrichis attendus par le frontend (page Catalogue).
+    duration: str | None = None
+    modality: str | None = None
+    domain: str | None = None
 
 
 class TrainingCatalogCreateRequest(BaseModel):
@@ -58,6 +62,12 @@ class TrainingSessionResponse(BaseModel):
     cold_eval_launched_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    # Libellés enrichis attendus par le frontend (page Sessions).
+    code: str | None = None
+    dates: str | None = None
+    seats: int | None = None
+    enrolled: int | None = None
+    status: str | None = None
 
 
 class TrainingSessionCreateRequest(BaseModel):
@@ -113,6 +123,13 @@ class TrainingRequestResponse(BaseModel):
     decided_at: datetime | None
     decision_comment: str | None
     created_at: datetime
+    # Libellés enrichis attendus par le frontend (page Demandes).
+    applicant_name: str | None = None
+    session_code: str | None = None
+    session_title: str | None = None
+    session_dates: str | None = None
+    session_location: str | None = None
+    status: str | None = None
 
 
 class TrainingRequestCreateRequest(BaseModel):

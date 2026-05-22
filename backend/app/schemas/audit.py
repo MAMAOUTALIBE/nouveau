@@ -15,6 +15,7 @@ class AuditLogResponse(BaseModel):
     audit_log_id: UUID
     organization_id: UUID
     user_id: UUID | None
+    username: str | None = None
     action: str
     target_type: str | None
     target_id: str | None

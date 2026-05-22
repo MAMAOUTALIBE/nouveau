@@ -106,14 +106,6 @@ async def stub_personnel_matricule_audit(
     return _empty_list(response)
 
 
-@router.get("/personnel/dossiers")
-async def stub_personnel_dossiers(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
 @router.get("/personnel/risques-turnover")
 async def stub_personnel_risques_turnover_alias(
     response: Response,
@@ -136,36 +128,6 @@ async def stub_personnel_uploads(
 # ============================================================================
 @router.get("/leave/events")
 async def stub_leave_events(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-# ============================================================================
-# Organization — positions budgétisées / vacantes
-# ============================================================================
-@router.get("/organization/positions/budgeted")
-async def stub_org_positions_budgeted(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-@router.get("/organization/positions/vacant")
-async def stub_org_positions_vacant(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-# ============================================================================
-# Performance — results
-# ============================================================================
-@router.get("/performance/results")
-async def stub_performance_results(
     response: Response,
     _: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> list[Any]:
@@ -264,7 +226,6 @@ _RECRUITMENT_LIST_STUBS = [
     "/recruitment/interviews",
     "/recruitment/notifications",
     "/recruitment/observability/events",
-    "/recruitment/onboarding",
     "/recruitment/onboarding/306090",
     "/recruitment/onboarding/success-scores",
     "/recruitment/onboarding/sync-logs",

@@ -88,17 +88,18 @@ class AgentUpdateRequest(BaseModel):
 # Affectations (employee_assignments)
 # ---------------------------------------------------------------------------
 class AssignmentResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    """Affectation enrichie des libellés attendus par le frontend
+    (référence, nom de l'agent, structures source/cible)."""
 
     assignment_id: UUID
-    employee_id: UUID
-    direction_id: UUID | None
-    unit_id: UUID | None
-    position_id: UUID | None
-    assignment_status: Literal["PLANNED", "ACTIVE", "ENDED", "CANCELLED"]
-    effective_start: date
-    effective_end: date | None
-    created_at: datetime
+    reference: str
+    agent_id: UUID
+    agent_name: str
+    from_unit: str
+    to_unit: str
+    effective_date: date
+    effective_end: date | None = None
+    status: str
 
 
 class AssignmentCreateRequest(BaseModel):
@@ -109,6 +110,20 @@ class AssignmentCreateRequest(BaseModel):
     assignment_status: Literal["PLANNED", "ACTIVE", "ENDED", "CANCELLED"] = "PLANNED"
     effective_start: date
     effective_end: date | None = None
+
+
+# ---------------------------------------------------------------------------
+# Dossiers administratifs (documents rattachés aux agents)
+# ---------------------------------------------------------------------------
+class DossierResponse(BaseModel):
+    """Dossier administratif — vue liste pour la page Personnel › Dossiers."""
+
+    reference: str
+    agent_id: UUID | None
+    agent_name: str
+    type: str
+    status: str
+    updated_at: datetime
 
 
 # ---------------------------------------------------------------------------

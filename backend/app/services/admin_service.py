@@ -53,14 +53,17 @@ def _user_to_dto(user: User) -> UserResponse:
 
 
 def _role_to_dto(role: Role) -> RoleResponse:
+    permission_codes = [p.code for p in role.permissions]
     return RoleResponse(
         role_id=role.role_id,
         code=role.code,
         label=role.label,
         is_system=role.is_system,
-        permissions=[p.code for p in role.permissions],
+        permissions=permission_codes,
         created_at=role.created_at,
         updated_at=role.updated_at,
+        description=role.label,
+        permissions_count=len(permission_codes),
     )
 
 

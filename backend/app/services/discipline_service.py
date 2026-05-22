@@ -18,6 +18,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError
 from app.models.discipline import DisciplineCase, DisciplineEvent
+from app.models.employee import Employee
+from app.models.organization import Direction
 from app.schemas.discipline import (
     DisciplineCaseCreateRequest,
     DisciplineCaseResponse,
@@ -35,6 +37,16 @@ VALID_TRANSITIONS: dict[str, set[str]] = {
 }
 
 
+_DISCIPLINE_STATUS_LABELS: dict[str, str] = {
+    "OPEN": "Ouvert",
+    "UNDER_INVESTIGATION": "En investigation",
+    "SANCTION_PROPOSED": "Sanction proposée",
+    "SANCTION_APPLIED": "Sanction appliquée",
+    "CLOSED": "Clôturé",
+    "DISMISSED": "Classé sans suite",
+}
+
+
 async def list_cases(
     session: AsyncSession,
     *,
@@ -43,15 +55,30 @@ async def list_cases(
     employee_id: UUID | None = None,
     severity: str | None = None,
 ) -> list[DisciplineCaseResponse]:
-    base = select(DisciplineCase).where(DisciplineCase.organization_id == organization_id)
+    base = (
+        select(DisciplineCase, Employee.full_name, Direction.name)
+        .join(Employee, Employee.employee_id == DisciplineCase.employee_id)
+        .outerjoin(Direction, Direction.direction_id == Employee.direction_id)
+        .where(DisciplineCase.organization_id == organization_id)
+    )
     if case_status:
         base = base.where(DisciplineCase.case_status == case_status)
     if employee_id:
         base = base.where(DisciplineCase.employee_id == employee_id)
     if severity:
         base = base.where(DisciplineCase.severity == severity)
-    rows = (await session.execute(base.order_by(DisciplineCase.created_at.desc()))).scalars().all()
-    return [DisciplineCaseResponse.model_validate(c) for c in rows]
+    rows = (await session.execute(base.order_by(DisciplineCase.created_at.desc()))).all()
+
+    items: list[DisciplineCaseResponse] = []
+    for case, agent_name, direction_name in rows:
+        dto = DisciplineCaseResponse.model_validate(case)
+        dto.agent_name = agent_name
+        dto.direction = direction_name
+        dto.infraction = case.title
+        dto.opened_on = case.created_at.date()
+        dto.status = _DISCIPLINE_STATUS_LABELS.get(case.case_status, case.case_status)
+        items.append(dto)
+    return items
 
 
 async def _next_reference(session: AsyncSession, organization_id: UUID) -> str:

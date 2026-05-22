@@ -33,6 +33,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.models.employee import Employee
+from app.models.organization import Direction
 from app.models.performance import (
     Performance360Invitation,
     Performance360Response,
@@ -45,6 +46,7 @@ from app.schemas.performance import (
     PerformanceCampaignTransitionRequest,
     PerformanceEvaluationResponse,
     PerformanceEvaluationUpsertRequest,
+    PerformanceResultResponse,
     Survey360CategoryResult,
     Survey360EmployeeResult,
     Survey360InvitationResponse,
@@ -57,8 +59,35 @@ from app.schemas.performance import (
 # ============================================================================
 # Helpers
 # ============================================================================
-def _campaign_to_dto(c: PerformanceCampaign) -> PerformanceCampaignResponse:
-    return PerformanceCampaignResponse.model_validate(c)
+_CAMPAIGN_STATUS_LABELS: dict[str, str] = {
+    "DRAFT": "Brouillon",
+    "OPEN": "En cours",
+    "CLOSED": "Clôturée",
+    "CANCELLED": "Annulée",
+}
+_EVALUATION_STATUS_LABELS: dict[str, str] = {
+    "DRAFT": "Brouillon",
+    "SUBMITTED": "Soumise",
+    "VALIDATED": "Validée",
+}
+
+
+def _campaign_period(c: PerformanceCampaign) -> str:
+    if c.period_start is not None and c.period_end is not None:
+        return f"{c.period_start:%d/%m/%Y} – {c.period_end:%d/%m/%Y}"
+    if c.period_start is not None:
+        return f"À partir du {c.period_start:%d/%m/%Y}"
+    return "Non planifiée"
+
+
+def _campaign_to_dto(
+    c: PerformanceCampaign, *, direction_name: str | None = None
+) -> PerformanceCampaignResponse:
+    dto = PerformanceCampaignResponse.model_validate(c)
+    dto.period = _campaign_period(c)
+    dto.population = direction_name or "Tous les agents"
+    dto.status = _CAMPAIGN_STATUS_LABELS.get(c.campaign_status, c.campaign_status)
+    return dto
 
 
 def _evaluation_to_dto(e: PerformanceEvaluation) -> PerformanceEvaluationResponse:
@@ -95,7 +124,63 @@ async def list_campaigns(
         .limit(page_size)
     )
     rows = (await session.execute(page_stmt)).scalars().all()
-    return [_campaign_to_dto(c) for c in rows], int(total)
+
+    direction_ids = {c.direction_id for c in rows if c.direction_id is not None}
+    direction_names: dict[UUID, str] = {}
+    if direction_ids:
+        direction_names = {
+            direction_id: name
+            for direction_id, name in (
+                await session.execute(
+                    select(Direction.direction_id, Direction.name).where(
+                        Direction.direction_id.in_(direction_ids)
+                    )
+                )
+            ).all()
+        }
+    items = [
+        _campaign_to_dto(c, direction_name=direction_names.get(c.direction_id))
+        for c in rows
+    ]
+    return items, int(total)
+
+
+async def list_results(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+) -> list[PerformanceResultResponse]:
+    """Résultats d'évaluation classique — page Pilotage › Résultats."""
+    stmt = (
+        select(PerformanceEvaluation, Employee, Direction)
+        .join(Employee, Employee.employee_id == PerformanceEvaluation.employee_id)
+        .outerjoin(Direction, Direction.direction_id == Employee.direction_id)
+        .where(PerformanceEvaluation.organization_id == organization_id)
+        .order_by(Employee.full_name)
+    )
+    rows = (await session.execute(stmt)).all()
+
+    results: list[PerformanceResultResponse] = []
+    for evaluation, employee, direction in rows:
+        manager = float(evaluation.manager_score) if evaluation.manager_score is not None else 0.0
+        self_score = float(evaluation.self_score) if evaluation.self_score is not None else 0.0
+        if evaluation.final_score is not None:
+            final = float(evaluation.final_score)
+        else:
+            final = round((manager + self_score) / 2, 2)
+        results.append(
+            PerformanceResultResponse(
+                agent=employee.full_name,
+                direction=direction.name if direction is not None else "Primature",
+                manager_score=manager,
+                self_score=self_score,
+                final_score=final,
+                status=_EVALUATION_STATUS_LABELS.get(
+                    evaluation.evaluation_status, evaluation.evaluation_status
+                ),
+            )
+        )
+    return results
 
 
 async def create_campaign(

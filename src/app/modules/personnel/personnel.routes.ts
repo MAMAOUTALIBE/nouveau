@@ -7,7 +7,7 @@ export const PERSONNEL_ROUTES: Routes = [
     path: 'agents',
     loadComponent: () =>
       import('./pages/agent-list/agent-list').then((m) => m.AgentListPage),
-    data: { parentTitle: 'Personnel', childTitle: 'Liste des agents' },
+    data: { parentTitle: 'Personnel', childTitle: 'Liste des agents', hidePageHeader: true },
   },
   {
     path: 'agents/nouveau',

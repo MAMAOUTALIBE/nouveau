@@ -87,6 +87,9 @@ class RoleResponse(BaseModel):
     permissions: list[str] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
+    # Libellés enrichis attendus par le frontend (page Rôles).
+    description: str | None = None
+    permissions_count: int | None = None
 
 
 class RoleCreateRequest(BaseModel):

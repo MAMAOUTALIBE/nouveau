@@ -14,6 +14,7 @@ from app.core.audit import AuditWriter, get_audit_writer
 from app.core.db import get_session
 from app.core.security.rbac import AuthenticatedUser, require_permissions
 from app.models.audit_log import AuditLog
+from app.models.user import User
 from app.schemas.admin import (
     PermissionResponse,
     RoleCreateRequest,
@@ -79,6 +80,19 @@ async def list_audit_logs(
     )
     rows = (await session.execute(items_stmt)).scalars().all()
 
+    # Résolution des noms d'utilisateur (affichage lisible dans le journal).
+    user_ids = {row.user_id for row in rows if row.user_id is not None}
+    usernames: dict[UUID, str] = {}
+    if user_ids:
+        usernames = {
+            user_id: username
+            for user_id, username in (
+                await session.execute(
+                    select(User.user_id, User.username).where(User.user_id.in_(user_ids))
+                )
+            ).all()
+        }
+
     # Construction manuelle : le champ `audit_metadata` est mappé à la colonne
     # DB `metadata`, mais `from_attributes` taperait sur `Base.metadata` global.
     items = [
@@ -86,6 +100,7 @@ async def list_audit_logs(
             audit_log_id=row.audit_log_id,
             organization_id=row.organization_id,
             user_id=row.user_id,
+            username=usernames.get(row.user_id) if row.user_id is not None else None,
             action=row.action,
             target_type=row.target_type,
             target_id=row.target_id,

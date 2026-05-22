@@ -35,7 +35,10 @@
               "dropzone",
               "inputmask",
               "quill-delta",
-              "qrcode"
+              "qrcode",
+              "xlsx",
+              "jspdf",
+              "jspdf-autotable"
             ],
             "outputPath": {
               "base": "dist/nowa-angular-21",

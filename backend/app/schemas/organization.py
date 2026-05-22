@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -112,3 +112,28 @@ class OrgChartDirectionNode(BaseModel):
 
 
 OrgChartUnitNode.model_rebuild()
+
+
+# ---------------------------------------------------------------------------
+# Postes budgétaires / vacants (vues liste du module Organisation)
+# ---------------------------------------------------------------------------
+class BudgetedPositionResponse(BaseModel):
+    """Poste budgétisé — vue liste de Organisation › Postes budgétaires."""
+
+    code: str
+    structure_name: str
+    title: str
+    grade: str
+    status: str
+    holder_name: str | None = None
+
+
+class VacantPositionResponse(BaseModel):
+    """Poste vacant — vue liste de Organisation › Postes vacants."""
+
+    code: str
+    structure_name: str
+    title: str
+    grade: str
+    opened_on: date
+    priority: str

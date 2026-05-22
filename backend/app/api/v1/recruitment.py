@@ -21,6 +21,7 @@ from app.schemas.recruitment import (
     ApplicationStatusUpdateRequest,
     CampaignCreateRequest,
     CampaignResponse,
+    OnboardingItemResponse,
 )
 from app.services import recruitment_service
 
@@ -197,4 +198,21 @@ async def add_comment(
         body=body,
         actor_user_id=current_user.user_id,
         audit=audit,
+    )
+
+
+# ============================================================================
+# Intégration (onboarding)
+# ============================================================================
+@router.get("/onboarding", response_model=list[OnboardingItemResponse])
+async def list_onboarding(
+    current_user: Annotated[
+        AuthenticatedUser,
+        Depends(require_permissions(any_of=["recruitment:view", "recruitment:manage", "*"])),
+    ],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[OnboardingItemResponse]:
+    """Parcours d'intégration des nouvelles recrues (page Recrutement › Intégration)."""
+    return await recruitment_service.list_onboarding(
+        session, organization_id=current_user.organization_id
     )

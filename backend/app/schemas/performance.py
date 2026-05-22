@@ -28,6 +28,9 @@ class PerformanceCampaignResponse(BaseModel):
     title: str
     campaign_kind: CampaignKind
     campaign_status: CampaignStatus
+    period: str | None = None
+    population: str | None = None
+    status: str | None = None
     period_start: date | None
     period_end: date | None
     direction_id: UUID | None
@@ -156,3 +159,17 @@ class Survey360EmployeeResult(BaseModel):
     campaign_code: str
     min_respondents_per_category: int
     categories: list[Survey360CategoryResult]
+
+
+# ---------------------------------------------------------------------------
+# Résultats d'évaluation (vue liste de la page Pilotage › Résultats)
+# ---------------------------------------------------------------------------
+class PerformanceResultResponse(BaseModel):
+    """Résultat d'évaluation classique d'un agent."""
+
+    agent: str
+    direction: str
+    manager_score: float
+    self_score: float
+    final_score: float
+    status: str

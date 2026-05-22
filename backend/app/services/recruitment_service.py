@@ -30,6 +30,7 @@ from app.schemas.recruitment import (
     ApplicationStatusUpdateRequest,
     CampaignCreateRequest,
     CampaignResponse,
+    OnboardingItemResponse,
 )
 
 
@@ -361,3 +362,51 @@ async def add_comment(
         target_id=str(application_id),
     )
     return ApplicationCommentResponse.model_validate(comment)
+
+
+# ============================================================================
+# Intégration (onboarding) — dérivé des candidatures recrutées
+# ============================================================================
+_ONBOARDING_CHECKLIST: tuple[str, ...] = (
+    "Signature du contrat d'engagement",
+    "Création du compte utilisateur et des accès",
+    "Remise du matériel de travail",
+    "Formation d'accueil et présentation des services",
+    "Affectation et prise de poste effective",
+    "Entretien de fin de période d'essai",
+)
+
+
+async def list_onboarding(
+    session: AsyncSession,
+    *,
+    organization_id: UUID,
+) -> list[OnboardingItemResponse]:
+    """Parcours d'intégration dérivé des candidatures recrutées (statut HIRED)."""
+    stmt = (
+        select(RecruitmentApplication)
+        .where(
+            RecruitmentApplication.organization_id == organization_id,
+            RecruitmentApplication.application_status == "HIRED",
+        )
+        .order_by(RecruitmentApplication.received_on.desc())
+    )
+    rows = (await session.execute(stmt)).scalars().all()
+
+    today = datetime.now(UTC).date()
+    items: list[OnboardingItemResponse] = []
+    for application in rows:
+        start_date = application.received_on or application.created_at.date()
+        days_elapsed = (today - start_date).days
+        status = "Terminé" if days_elapsed > 90 else "En cours"
+        items.append(
+            OnboardingItemResponse(
+                application_reference=application.reference,
+                agent=application.candidate_full_name,
+                position=application.desired_position or "—",
+                start_date=start_date,
+                status=status,
+                checklist=list(_ONBOARDING_CHECKLIST),
+            )
+        )
+    return items

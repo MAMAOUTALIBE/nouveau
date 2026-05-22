@@ -12,6 +12,7 @@ export class PageHeader {
    parentTitle?: string;
   subParentTitle?: string;
   childTitle?: string;
+  hidden = false;
 
   constructor(
     private router: Router,
@@ -22,6 +23,7 @@ export class PageHeader {
       .subscribe(() => {
         const context = this.childrenOutletContexts.getContext('primary');
         const routeData = context?.route?.snapshot?.data;
+        this.hidden = routeData?.['hidePageHeader'] === true;
         if (routeData) {
           this.childTitle = routeData['childTitle'] ?? '';
           this.parentTitle = routeData['parentTitle'] ?? '';
