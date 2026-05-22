@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { PrimAssistantService } from './prim-assistant.service';
 
 interface AssistantKnowledgeEntry {
   id: string;
@@ -29,6 +30,10 @@ interface AssistantMessage {
 export class PrimAssistantPage {
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
+  private primAssistant = inject(PrimAssistantService);
+
+  /** Vrai pendant que l'assistant IA génère sa réponse. */
+  loading = false;
 
   readonly quickPrompts = [
     'Comment suivre une candidature ?',
@@ -165,23 +170,48 @@ export class PrimAssistantPage {
     }
 
     const question = String(this.form.value.question || '').trim();
-    if (!question) {
+    if (!question || this.loading) {
       return;
     }
 
-    const match = this.findBestMatch(question);
-    const answer = match
-      ? this.buildMatchedAnswer(match)
-      : 'Je n ai pas trouve de correspondance exacte. Reformulez avec un mot cle comme conge, candidature, dossier, formation, workflow ou rapport.';
-
-    const now = new Date().toISOString();
     this.messages = [
       ...this.messages,
-      { role: 'user', text: question, createdAt: now },
-      { role: 'assistant', text: answer, matchedEntry: match, createdAt: now },
+      { role: 'user', text: question, createdAt: new Date().toISOString() },
     ];
     this.form.reset({ question: '' });
+    this.loading = true;
     this.cdr.detectChanges();
+
+    // Appel du vrai assistant IA (backend → LLM). En cas d'indisponibilité,
+    // repli sur le moteur de mots-clés local.
+    this.primAssistant.chat(question).subscribe({
+      next: (response) => {
+        const text = (response.text_response || '').trim() || this.offlineAnswer();
+        this.pushAssistantMessage(
+          response.blocked_reason ? `${text}\n\n⚠️ ${response.blocked_reason}` : text,
+        );
+      },
+      error: () => {
+        const match = this.findBestMatch(question);
+        this.pushAssistantMessage(
+          match ? this.buildMatchedAnswer(match) : this.offlineAnswer(),
+          match,
+        );
+      },
+    });
+  }
+
+  private pushAssistantMessage(text: string, matchedEntry?: AssistantKnowledgeEntry): void {
+    this.messages = [
+      ...this.messages,
+      { role: 'assistant', text, matchedEntry, createdAt: new Date().toISOString() },
+    ];
+    this.loading = false;
+    this.cdr.detectChanges();
+  }
+
+  private offlineAnswer(): string {
+    return 'Je n ai pas trouve de correspondance exacte. Reformulez avec un mot cle comme conge, candidature, dossier, formation, workflow ou rapport.';
   }
 
   clearConversation(): void {

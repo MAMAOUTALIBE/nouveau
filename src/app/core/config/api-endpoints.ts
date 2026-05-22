@@ -148,4 +148,8 @@ export const API_ENDPOINTS = {
     roles: '/admin/roles',
     audit: '/admin/audit-logs',
   },
+  aiAssistant: {
+    chat: '/ai-assistant/chat',
+    confirm: '/ai-assistant/confirm',
+  },
 };
