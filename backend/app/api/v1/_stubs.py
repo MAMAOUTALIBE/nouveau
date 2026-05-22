@@ -135,7 +135,7 @@ async def stub_leave_events(
 
 
 # ============================================================================
-# Documents — surface étendue (archive, audit, analytics, inbox, requests)
+# Documents — surface étendue (archive, audit, analytics, inbox)
 # ============================================================================
 @router.get("/documents/analytics")
 async def stub_doc_analytics(
@@ -171,14 +171,6 @@ async def stub_doc_overdue(
 
 @router.get("/documents/processing-queue")
 async def stub_doc_processing_queue(
-    response: Response,
-    _: Annotated[AuthenticatedUser, Depends(get_current_user)],
-) -> list[Any]:
-    return _empty_list(response)
-
-
-@router.get("/documents/requests")
-async def stub_doc_requests(
     response: Response,
     _: Annotated[AuthenticatedUser, Depends(get_current_user)],
 ) -> list[Any]:
