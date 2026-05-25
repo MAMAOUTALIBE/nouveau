@@ -29,6 +29,10 @@ def _make_settings(env: Environment) -> Settings:
         # conftest force BCRYPT_ROUNDS=4 pour la vitesse, mais le validator prod
         # exige ≥ 10. On override explicitement pour rester valide en PROD.
         bcrypt_rounds=10,
+        # Clés PII synthétiques valides pour passer les validators staging/prod
+        # introduits par le Sub-ticket A PII (44 chars base64-urlsafe Fernet + 64 hex HMAC).
+        pii_encryption_keys="kv1:" + "A" * 43 + "=",
+        email_lookup_hmac_key="0" * 64,
     )
 
 
