@@ -11,8 +11,9 @@ Le frontend Angular `proxy.conf.json` proxie `/api/*` vers ce serveur.
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
+from typing import cast
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -87,7 +88,19 @@ def create_app() -> FastAPI:
     )
 
     # CORS — durci en prod/staging (méthodes et headers explicites).
-    app.add_middleware(CORSMiddleware, **build_cors_kwargs(settings))
+    # `build_cors_kwargs` retourne `dict[str, object]` (valeurs hétérogènes) :
+    # on éclate en kwargs positionnels et on cast chaque valeur au type attendu
+    # par Starlette pour satisfaire le typage strict.
+    cors_kwargs = build_cors_kwargs(settings)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cast(Sequence[str], cors_kwargs["allow_origins"]),
+        allow_credentials=cast(bool, cors_kwargs["allow_credentials"]),
+        allow_methods=cast(Sequence[str], cors_kwargs["allow_methods"]),
+        allow_headers=cast(Sequence[str], cors_kwargs["allow_headers"]),
+        expose_headers=cast(Sequence[str], cors_kwargs["expose_headers"]),
+        max_age=cast(int, cors_kwargs["max_age"]),
+    )
     # Security headers — CSP/HSTS/COOP/COEP/Permissions-Policy.
     app.add_middleware(SecurityHeadersMiddleware, settings=settings)
 

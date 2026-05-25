@@ -106,9 +106,7 @@ async def _build_movement_response(
     """Construit la réponse enrichie d'un mouvement (libellés résolus)."""
     if employee is None:
         employee = await session.get(Employee, movement.employee_id)
-    from_label = await _structure_label(
-        session, movement.from_unit_id, movement.from_direction_id
-    )
+    from_label = await _structure_label(session, movement.from_unit_id, movement.from_direction_id)
     to_label = await _structure_label(session, movement.to_unit_id, movement.to_direction_id)
     return MovementResponse(
         movement_id=movement.movement_id,
@@ -118,9 +116,7 @@ async def _build_movement_response(
         from_label=from_label,
         to_label=to_label or "—",
         effective_date=movement.effective_date,
-        status=_MOVEMENT_STATUS_LABELS.get(
-            movement.movement_status, movement.movement_status
-        ),
+        status=_MOVEMENT_STATUS_LABELS.get(movement.movement_status, movement.movement_status),
     )
 
 

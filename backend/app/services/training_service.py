@@ -380,16 +380,17 @@ async def list_requests(
 
     employee_names: dict[UUID, str] = {}
     if employee_ids:
-        employee_names = {
-            employee_id: full_name
-            for employee_id, full_name in (
+        employee_names = dict(
+            (
                 await session.execute(
                     select(Employee.employee_id, Employee.full_name).where(
                         Employee.employee_id.in_(employee_ids)
                     )
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     catalog_info: dict[UUID, tuple[str, str]] = {}
     if catalog_ids:
@@ -473,9 +474,7 @@ async def create_request(
     return TrainingRequestResponse.model_validate(r)
 
 
-async def _find_request_by_key(
-    session: AsyncSession, request_key: str
-) -> TrainingRequest | None:
+async def _find_request_by_key(session: AsyncSession, request_key: str) -> TrainingRequest | None:
     """Résout une demande de formation par UUID ou par référence (DFORM-...)."""
     key = str(request_key or "").strip()
     if not key:
@@ -487,17 +486,13 @@ async def _find_request_by_key(
     if request_uuid is not None:
         row = (
             await session.execute(
-                select(TrainingRequest).where(
-                    TrainingRequest.training_request_id == request_uuid
-                )
+                select(TrainingRequest).where(TrainingRequest.training_request_id == request_uuid)
             )
         ).scalar_one_or_none()
         if row is not None:
             return row
     return (
-        await session.execute(
-            select(TrainingRequest).where(TrainingRequest.reference == key)
-        )
+        await session.execute(select(TrainingRequest).where(TrainingRequest.reference == key))
     ).scalar_one_or_none()
 
 

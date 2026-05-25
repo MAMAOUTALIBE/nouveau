@@ -34,7 +34,6 @@ from app.schemas.workflow import (
     WorkflowStepResponse,
 )
 
-
 # ============================================================================
 # Definitions
 # ============================================================================
@@ -64,16 +63,17 @@ async def list_definitions(
     definition_ids = [r.workflow_definition_id for r in rows]
     step_counts: dict[UUID, int] = {}
     if definition_ids:
-        step_counts = {
-            definition_id: count
-            for definition_id, count in (
+        step_counts = dict(
+            (
                 await session.execute(
                     select(WorkflowStep.workflow_definition_id, func.count())
                     .where(WorkflowStep.workflow_definition_id.in_(definition_ids))
                     .group_by(WorkflowStep.workflow_definition_id)
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     items: list[WorkflowDefinitionResponse] = []
     for r in rows:
@@ -214,16 +214,17 @@ async def list_instances(
     definition_names: dict[UUID, str] = {}
     step_labels: dict[tuple[UUID, int], str] = {}
     if definition_ids:
-        definition_names = {
-            definition_id: name
-            for definition_id, name in (
+        definition_names = dict(
+            (
                 await session.execute(
                     select(
                         WorkflowDefinition.workflow_definition_id, WorkflowDefinition.name
                     ).where(WorkflowDefinition.workflow_definition_id.in_(definition_ids))
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
         for did, order, label in (
             await session.execute(
                 select(
@@ -237,16 +238,17 @@ async def list_instances(
 
     employee_names: dict[UUID, str] = {}
     if employee_ids:
-        employee_names = {
-            employee_id: full_name
-            for employee_id, full_name in (
+        employee_names = dict(
+            (
                 await session.execute(
                     select(Employee.employee_id, Employee.full_name).where(
                         Employee.employee_id.in_(employee_ids)
                     )
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     items: list[WorkflowInstanceResponse] = []
     for i in rows:
@@ -415,9 +417,7 @@ async def _find_instance_by_key(
         if row is not None:
             return row
     return (
-        await session.execute(
-            select(WorkflowInstance).where(WorkflowInstance.reference == key)
-        )
+        await session.execute(select(WorkflowInstance).where(WorkflowInstance.reference == key))
     ).scalar_one_or_none()
 
 
@@ -514,9 +514,7 @@ async def perform_action(
     )
     # Libellés enrichis attendus par le frontend (mapInstance lit `id`/`status`).
     dto.id = instance.reference
-    dto.status = _INSTANCE_STATUS_LABELS.get(
-        instance.instance_status, instance.instance_status
-    )
+    dto.status = _INSTANCE_STATUS_LABELS.get(instance.instance_status, instance.instance_status)
     return dto
 
 

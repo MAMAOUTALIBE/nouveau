@@ -46,7 +46,9 @@ class WorkflowDefinitionResponse(BaseModel):
 
 
 class WorkflowDefinitionDetail(WorkflowDefinitionResponse):
-    steps: list[WorkflowStepResponse] = Field(default_factory=list)
+    # Override volontaire : le parent expose `steps` comme compteur (int | None) pour la
+    # liste, le détail le remplace par les étapes complètes (override Pydantic légitime).
+    steps: list[WorkflowStepResponse] = Field(default_factory=list)  # type: ignore[assignment]
 
 
 class WorkflowStepCreateRequest(BaseModel):

@@ -24,7 +24,6 @@ from starlette.types import ASGIApp
 
 from app.core.config import Environment, Settings
 
-
 # ---------------------------------------------------------------------------
 # Construction des valeurs CSP / HSTS / Permissions-Policy.
 # ---------------------------------------------------------------------------
@@ -59,7 +58,13 @@ def _csp_for_env(settings: Settings) -> str:
         # Vite dev server expose un WS pour HMR.
         base_directives["script-src"] = ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"]
         base_directives["style-src"] = ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"]
-        base_directives["connect-src"] = ["'self'", "ws:", "wss:", "http://localhost:*", "http://127.0.0.1:*"]
+        base_directives["connect-src"] = [
+            "'self'",
+            "ws:",
+            "wss:",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+        ]
 
     parts: list[str] = []
     for directive, sources in base_directives.items():

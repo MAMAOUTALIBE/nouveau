@@ -60,20 +60,22 @@ _LEAVE_STATUS_LABELS: dict[str, str] = {
 }
 
 
-async def _employee_name_map(
-    session: AsyncSession, employee_ids: set[UUID]
-) -> dict[UUID, str]:
+async def _employee_name_map(session: AsyncSession, employee_ids: set[UUID]) -> dict[UUID, str]:
     """Table de correspondance employee_id → nom complet."""
     if not employee_ids:
         return {}
     rows = (
-        await session.execute(
-            select(Employee.employee_id, Employee.full_name).where(
-                Employee.employee_id.in_(employee_ids)
+        (
+            await session.execute(
+                select(Employee.employee_id, Employee.full_name).where(
+                    Employee.employee_id.in_(employee_ids)
+                )
             )
         )
-    ).all()
-    return {employee_id: full_name for employee_id, full_name in rows}
+        .tuples()
+        .all()
+    )
+    return dict(rows)
 
 
 def _leave_request_to_dto(

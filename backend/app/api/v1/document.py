@@ -286,9 +286,7 @@ async def create_document_request(
     current_user: Annotated[
         AuthenticatedUser,
         Depends(
-            require_permissions(
-                any_of=["portal:agent", "portal:manager", "documents:manage", "*"]
-            )
+            require_permissions(any_of=["portal:agent", "portal:manager", "documents:manage", "*"])
         ),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
@@ -317,9 +315,7 @@ async def decide_document_request(
     body: DocumentRequestDecisionRequest,
     current_user: Annotated[
         AuthenticatedUser,
-        Depends(
-            require_permissions(any_of=["documents:manage", "portal:manager", "*"])
-        ),
+        Depends(require_permissions(any_of=["documents:manage", "portal:manager", "*"])),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
     audit: Annotated[AuditWriter, Depends(get_audit_writer)],
@@ -365,9 +361,7 @@ async def list_document_inbox(
     current_user: Annotated[
         AuthenticatedUser,
         Depends(
-            require_permissions(
-                any_of=["portal:agent", "portal:manager", "documents:view", "*"]
-            )
+            require_permissions(any_of=["portal:agent", "portal:manager", "documents:view", "*"])
         ),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],

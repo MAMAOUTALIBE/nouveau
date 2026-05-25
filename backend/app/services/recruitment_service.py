@@ -514,9 +514,7 @@ async def update_scoring_policy(
     )
 
 
-def _criterion_raw_score(
-    application: RecruitmentApplication, criterion: ScoringCriterion
-) -> float:
+def _criterion_raw_score(application: RecruitmentApplication, criterion: ScoringCriterion) -> float:
     """Score brut 0-100 d'une candidature pour un critère donné."""
     if criterion.key == "experienceYears":
         cap = criterion.maxYears or 10
@@ -549,9 +547,7 @@ def _criterion_justification(
             else "Aucune évaluation d'entretien enregistrée."
         )
     return (
-        f"Résultat du test technique {raw:g}%."
-        if raw > 0
-        else "Aucun test technique enregistré."
+        f"Résultat du test technique {raw:g}%." if raw > 0 else "Aucun test technique enregistré."
     )
 
 
@@ -689,27 +685,32 @@ async def suggest_shortlist(
     validations: dict[str, RecruitmentShortlistValidation] = {}
     if refs:
         rows = (
-            await session.execute(
-                select(RecruitmentShortlistValidation).where(
-                    RecruitmentShortlistValidation.organization_id == organization_id,
-                    RecruitmentShortlistValidation.application_reference.in_(refs),
+            (
+                await session.execute(
+                    select(RecruitmentShortlistValidation).where(
+                        RecruitmentShortlistValidation.organization_id == organization_id,
+                        RecruitmentShortlistValidation.application_reference.in_(refs),
+                    )
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         validations = {row.application_reference: row for row in rows}
 
     # Résout les noms d'utilisateurs validateurs.
     user_ids = {v.validated_by_user_id for v in validations.values() if v.validated_by_user_id}
     user_names: dict[UUID, str] = {}
     if user_ids:
-        user_names = {
-            user_id: full_name
-            for user_id, full_name in (
+        user_names = dict(
+            (
                 await session.execute(
                     select(User.user_id, User.full_name).where(User.user_id.in_(user_ids))
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     entries: list[ShortlistSuggestionEntry] = []
     for item in top:
@@ -756,9 +757,7 @@ async def suggest_shortlist(
         )
 
     criteria_version = (
-        scores.policy_updated_at.isoformat()
-        if scores.policy_updated_at is not None
-        else "default"
+        scores.policy_updated_at.isoformat() if scores.policy_updated_at is not None else "default"
     )
 
     return ShortlistSuggestionResponse(
