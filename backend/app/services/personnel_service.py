@@ -12,12 +12,13 @@ from datetime import UTC, date, datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from app.core.audit import AuditWriter
 from app.core.errors import ConflictError, NotFoundError
+from app.core.security.crypto import hmac_lookup
 from app.core.security.rbac import AuthenticatedUser
 from app.models.document import Document, DocumentType
 from app.models.employee import Employee, EmployeeAssignment, PersonnelMatriculeSuggestionAudit
@@ -142,9 +143,23 @@ async def list_agents(
         base = base.where(Employee.direction_id == direction_id)
     if unit_id:
         base = base.where(Employee.unit_id == unit_id)
-    if search:
+    if search and search.strip():
         like = f"%{search}%"
-        base = base.where(Employee.full_name.ilike(like) | Employee.matricule.ilike(like))
+        # full_name / matricule sont en clair en base : match partiel ILIKE.
+        conditions: list[Any] = [
+            Employee.full_name.ilike(like),
+            Employee.matricule.ilike(like),
+        ]
+        # Email : la colonne est chiffree (Fernet, nonce aleatoire) donc
+        # imcomparable en SQL clair. On expose un match EXACT via
+        # `email_lookup_hash` (HMAC-SHA256 deterministe, normalize=True) si le
+        # terme ressemble a un email (presence d'un '@'). Pas de LIKE possible
+        # sur un hash : la recherche partielle d'email n'est pas supportee.
+        if "@" in search:
+            email_hash = hmac_lookup(search.strip(), normalize=True)
+            if email_hash is not None:
+                conditions.append(Employee.email_lookup_hash == email_hash)
+        base = base.where(or_(*conditions))
 
     base = _scope_employee_query(base, user)
 
@@ -216,7 +231,13 @@ async def create_agent(
         first_name=body.first_name,
         last_name=body.last_name,
         national_id=body.national_id,
+        # HMAC strict (casse / espaces preserves) : un identifiant national
+        # peut etre sensible a la casse (ex : prefixe / suffixe alphabetique).
+        national_id_lookup_hash=hmac_lookup(body.national_id, normalize=False),
         email=body.email,
+        # HMAC normalise (strip + lowercase) : les emails sont insensibles a la
+        # casse et aux espaces de bordure (RFC 5321 § 2.4 / pratique courante).
+        email_lookup_hash=hmac_lookup(body.email, normalize=True),
         phone=body.phone,
         direction_id=body.direction_id,
         unit_id=body.unit_id,
@@ -282,6 +303,9 @@ async def update_agent(
         value = getattr(body, field)
         if value is not None:
             setattr(emp, field, value)
+            # Maintenir le hash de lookup en phase avec la PII chiffree.
+            if field == "email":
+                emp.email_lookup_hash = hmac_lookup(value, normalize=True)
     if body.metadata is not None:
         emp.employee_metadata = body.metadata
 
@@ -675,7 +699,14 @@ async def list_agent_duplicate_index(
 ) -> list[AgentDuplicateIndexItem]:
     """Liste plate des agents impliqués dans au moins un doublon potentiel."""
     duplicate_ids: set[UUID] = set()
-    for field in (Employee.email, Employee.national_id, func.lower(Employee.full_name)):
+    # email / national_id sont chiffres avec un nonce Fernet : impossibles a
+    # comparer en clair en SQL. On passe par les colonnes `*_lookup_hash`
+    # (HMAC-SHA256 deterministe) alimentees par les services applicatifs.
+    for field in (
+        Employee.email_lookup_hash,
+        Employee.national_id_lookup_hash,
+        func.lower(Employee.full_name),
+    ):
         # Sous-requête : valeurs (non vides) qui apparaissent dans 2+ agents.
         dup_values = (
             select(field.label("value"))
@@ -735,11 +766,20 @@ async def list_agent_duplicate_cases(
     organization_id: UUID,
     duplicate_field: str | None = None,
 ) -> list[AgentDuplicateCase]:
-    """Groupes de doublons par champ (email / identityNumber / fullName)."""
-    field_configs: tuple[tuple[str, Any], ...] = (
-        ("identityNumber", Employee.national_id),
-        ("email", Employee.email),
-        ("fullName", func.lower(Employee.full_name)),
+    """Groupes de doublons par champ (email / identityNumber / fullName).
+
+    email / national_id sont chiffres avec un nonce Fernet : on regroupe via
+    leurs colonnes `*_lookup_hash` (HMAC deterministe). La valeur en clair
+    affichee dans `duplicate_value` est relue depuis le premier agent du
+    groupe (TypeDecorator dechiffre cote ORM).
+    """
+    # (field_name, expression SQL groupable, attribut clair correspondant)
+    # `display_attr=None` signifie : `duplicate_value` reutilise directement la
+    # valeur de regroupement (cas du nom complet, deja en clair).
+    field_configs: tuple[tuple[str, Any, str | None], ...] = (
+        ("identityNumber", Employee.national_id_lookup_hash, "national_id"),
+        ("email", Employee.email_lookup_hash, "email"),
+        ("fullName", func.lower(Employee.full_name), None),
     )
     if duplicate_field:
         field_configs = tuple(cfg for cfg in field_configs if cfg[0] == duplicate_field)
@@ -747,7 +787,7 @@ async def list_agent_duplicate_cases(
     cases: list[AgentDuplicateCase] = []
     summary_base = await _agent_summary_query(session, organization_id)
 
-    for field_name, field_expr in field_configs:
+    for field_name, field_expr, display_attr in field_configs:
         # Valeurs en doublon.
         values_rows = (
             await session.execute(
@@ -771,11 +811,18 @@ async def list_agent_duplicate_cases(
             agents = [_to_duplicate_summary(row) for row in agent_rows]
             if not agents:
                 continue
+            # Pour email / national_id : on lit la valeur en clair sur le
+            # premier employee de la liste (les hashs ne sont pas affichables).
+            if display_attr is not None:
+                first_employee: Employee = agent_rows[0][0]
+                display_value = getattr(first_employee, display_attr) or ""
+            else:
+                display_value = str(value)
             cases.append(
                 AgentDuplicateCase(
-                    reference=f"DUP-{field_name}-{str(value)[:32]}",
+                    reference=f"DUP-{field_name}-{display_value[:32]}",
                     duplicate_field=field_name,
-                    duplicate_value=str(value),
+                    duplicate_value=display_value,
                     confidence_score=_DUPLICATE_CONFIDENCE.get(field_name, 70),
                     impacted_count=int(count),
                     created_at=datetime.now(UTC),
@@ -819,6 +866,13 @@ async def merge_duplicate_agents(
     }
     sources = body.field_sources or {}
     applied: dict[MergeField, MergeFieldSource] = {}
+    # Lors d'une fusion, copier la PII chiffree depuis le secondaire impose
+    # aussi de recalculer le hash de lookup associe (sinon il pointerait encore
+    # vers l'ancienne valeur du primaire — dedup casse).
+    attr_to_hash: dict[str, tuple[str, bool]] = {
+        "email": ("email_lookup_hash", True),
+        "national_id": ("national_id_lookup_hash", False),
+    }
     for field, source in sources.items():
         attrs = field_to_attr.get(field)
         if not attrs or source != "secondary":
@@ -827,6 +881,10 @@ async def merge_duplicate_agents(
         for attr in attrs:
             value = getattr(secondary, attr, None)
             setattr(primary, attr, value)
+            hash_target = attr_to_hash.get(attr)
+            if hash_target is not None:
+                hash_attr, normalize = hash_target
+                setattr(primary, hash_attr, hmac_lookup(value, normalize=normalize))
         applied[field] = "secondary"
 
     # Archive le secondaire et trace la fusion dans ses metadata.
