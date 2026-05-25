@@ -1,3 +1,4 @@
+<h1 class="visually-hidden">Candidatures - Recrutement</h1>
 <div class="row row-sm">
   <div class="col-xl-12">
     <div class="card custom-card">
@@ -38,12 +39,12 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidateEmail') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Telephone candidat</label>
+                <label class="form-label">Téléphone candidat</label>
                 <input type="text" class="form-control" formControlName="candidatePhone" placeholder="+224..." />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('candidatePhone') as error">{{ error }}</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Identite (CNI/Passeport)</label>
+                <label class="form-label">Identité (CNI/Passeport)</label>
                 <input type="text" class="form-control" formControlName="identityNumber" placeholder="CNI-GN-XXXX" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('identityNumber') as error">{{ error }}</div>
               </div>
@@ -71,7 +72,7 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Recu le</label>
+                <label class="form-label">Reçu le</label>
                 <input type="date" class="form-control" formControlName="receivedOn" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('receivedOn') as error">{{ error }}</div>
               </div>
@@ -79,12 +80,12 @@
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="allowDuplicateCandidate" formControlName="allowDuplicate" />
                   <label class="form-check-label" for="allowDuplicateCandidate">
-                    Autoriser creation meme si un doublon potentiel est detecte
+                    Autoriser création même si un doublon potentiel est détecté
                   </label>
                 </div>
               </div>
               <div class="col-12">
-                <label class="form-label">Pieces jointes candidat</label>
+                <label class="form-label">Pièces jointes candidat</label>
                 <input
                   type="file"
                   class="form-control"
@@ -93,10 +94,10 @@
                   (change)="onCreateAttachmentsSelected($event)"
                 />
                 <div class="text-muted fs-11 mt-1">
-                  Formats acceptes: PDF, PNG, JPG, JPEG, WEBP (15 Mo max / fichier).
+                  Formats acceptés : PDF, PNG, JPG, JPEG, WEBP (15 Mo max / fichier).
                 </div>
                 <div class="text-info fs-12 mt-1" *ngIf="uploadingAttachments > 0">
-                  Televersement en cours ({{ uploadingAttachments }})...
+                  Téléversement en cours ({{ uploadingAttachments }})...
                 </div>
                 <ul class="list-group list-group-flush border rounded mt-2" *ngIf="createAttachments.length > 0">
                   <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let attachment of createAttachments; let i = index">
@@ -121,7 +122,7 @@
                         target="_blank"
                         rel="noopener"
                       >
-                        Telecharger
+                        Télécharger
                       </a>
                       <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCreateAttachment(i)">
                         Retirer
@@ -135,7 +136,7 @@
                   Annuler
                 </button>
                 <button type="submit" class="btn btn-primary" [disabled]="!canManageRecruitment() || submittingCreate || uploadingAttachments > 0">
-                  {{ submittingCreate ? 'Enregistrement...' : (uploadingAttachments > 0 ? 'Attente pieces jointes...' : 'Enregistrer la candidature') }}
+                  {{ submittingCreate ? 'Enregistrement...' : (uploadingAttachments > 0 ? 'Attente pièces jointes...' : 'Enregistrer la candidature') }}
                 </button>
               </div>
             </form>
@@ -147,8 +148,8 @@
         <div class="card border shadow-none mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="fw-semibold mb-1">Planification et evaluation entretiens</h6>
-              <div class="text-muted fs-12">Reservation, replanification historisee et consolidation multi-interviewers</div>
+              <h6 class="fw-semibold mb-1">Planification et évaluation entretiens</h6>
+              <div class="text-muted fs-12">Réservation, replanification historisée et consolidation multi-interviewers</div>
             </div>
             <button
               type="button"
@@ -260,7 +261,7 @@
                 <input type="number" class="form-control" min="0" max="100" formControlName="cultureFitScore" />
               </div>
               <div class="col-xl-3 col-md-6">
-                <label class="form-label">Recommendation</label>
+                <label class="form-label">Recommandation</label>
                 <select class="form-select" formControlName="recommendation">
                   <option value="Go">Go</option>
                   <option value="No-Go">No-Go</option>
@@ -275,7 +276,7 @@
                   Annuler
                 </button>
                 <button type="submit" class="btn btn-success btn-sm" [disabled]="!canManageRecruitment() || submittingInterviewEvaluation">
-                  {{ submittingInterviewEvaluation ? 'Enregistrement...' : 'Enregistrer evaluation' }}
+                  {{ submittingInterviewEvaluation ? 'Enregistrement...' : 'Enregistrer évaluation' }}
                 </button>
               </div>
             </form>
@@ -491,7 +492,7 @@
               </div>
               <div class="col-xl-3 col-md-6" *ngIf="scoringPolicy">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Derniere maj regles</div>
+                  <div class="text-muted fs-11 text-uppercase">Dernière maj règles</div>
                   <div class="fw-semibold mt-1">{{ scoringPolicy.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</div>
                   <div class="text-muted fs-11">{{ scoringPolicy.updatedBy }}</div>
                 </div>
@@ -664,7 +665,7 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>
               <h6 class="fw-semibold mb-1">Dedoublonnage avance candidatures</h6>
-              <div class="text-muted fs-12">Detection email / telephone / identite + liaison/fusion</div>
+              <div class="text-muted fs-12">Détection email / téléphone / identité + liaison/fusion</div>
             </div>
             <span class="badge bg-warning-transparent text-warning">{{ duplicateCases.length }} cas</span>
           </div>
@@ -713,7 +714,7 @@
               </table>
             </div>
             <ng-template #emptyDuplicateState>
-              <div class="alert alert-light border mb-0">Aucun doublon detecte.</div>
+              <div class="alert alert-light border mb-0">Aucun doublon détecté.</div>
             </ng-template>
 
             <div class="table-responsive" *ngIf="duplicateLinks.length > 0">
@@ -1011,7 +1012,7 @@
                 <th>Campagne</th>
                 <th>Source</th>
                 <th>Statut</th>
-                <th>Recu le</th>
+                <th>Reçu le</th>
                 <th class="text-end">Actions</th>
               </tr>
             </thead>
@@ -1124,18 +1125,18 @@
             <div class="row g-3 mb-3">
               <div class="col-md-3"><strong>Campagne:</strong> {{ selected.campaign }}</div>
               <div class="col-md-3"><strong>Source:</strong> {{ selected.source }}</div>
-              <div class="col-md-3"><strong>Recu le:</strong> {{ selected.receivedOn }}</div>
+              <div class="col-md-3"><strong>Reçu le :</strong> {{ selected.receivedOn }}</div>
               <div class="col-md-3">
                 <strong>Statut:</strong>
                 <span class="badge ms-1" [ngClass]="statusBadgeClass(selected.status)">{{ selected.status }}</span>
               </div>
               <div class="col-md-4"><strong>Email:</strong> {{ selected.candidateEmail || '-' }}</div>
-              <div class="col-md-4"><strong>Telephone:</strong> {{ selected.candidatePhone || '-' }}</div>
-              <div class="col-md-4"><strong>Identite:</strong> {{ selected.identityNumber || '-' }}</div>
+              <div class="col-md-4"><strong>Téléphone :</strong> {{ selected.candidatePhone || '-' }}</div>
+              <div class="col-md-4"><strong>Identité :</strong> {{ selected.identityNumber || '-' }}</div>
             </div>
 
             <div class="mb-3">
-              <h6 class="fw-semibold mb-2">Pieces jointes candidat</h6>
+              <h6 class="fw-semibold mb-2">Pièces jointes candidat</h6>
               <ul class="list-group list-group-flush border rounded">
                 <li class="list-group-item" *ngFor="let attachment of attachmentsOf(selected)">
                   <div class="d-flex justify-content-between align-items-center gap-2">
@@ -1161,13 +1162,13 @@
                         target="_blank"
                         rel="noopener"
                       >
-                        Telecharger
+                        Télécharger
                       </a>
                     </div>
                   </div>
                 </li>
                 <li class="list-group-item text-muted fs-12" *ngIf="attachmentsOf(selected).length === 0">
-                  Aucune piece jointe.
+                  Aucune pièce jointe.
                 </li>
               </ul>
             </div>

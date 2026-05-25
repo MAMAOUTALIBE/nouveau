@@ -4,7 +4,7 @@
       <div class="card-header justify-content-between">
         <div>
           <div class="card-title">Portail candidat</div>
-          <div class="text-muted fs-12">Depot de candidature et suivi du dossier en temps reel</div>
+          <div class="text-muted fs-12">Dépôt de candidature et suivi du dossier en temps réel</div>
         </div>
         <span class="badge bg-primary-transparent">{{ activeCampaigns().length }} campagne(s) ouverte(s)</span>
       </div>
@@ -28,9 +28,9 @@
           </div>
           <div class="col-xl-4 col-md-12">
             <div class="border rounded p-3 h-100">
-              <div class="text-muted fs-11 text-uppercase">Derniere reference</div>
+              <div class="text-muted fs-11 text-uppercase">Dernière référence</div>
               <div class="fs-4 fw-semibold mt-1">{{ createdApplication?.reference || '-' }}</div>
-              <div class="text-muted fs-12 mt-1">Reference a conserver pour le suivi</div>
+              <div class="text-muted fs-12 mt-1">Référence à conserver pour le suivi</div>
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@
             <div class="card border shadow-none mb-0">
               <div class="card-header">
                 <h6 class="card-title mb-1">Soumettre une candidature</h6>
-                <div class="text-muted fs-12">Profil candidat, campagne cible et pieces justificatives</div>
+                <div class="text-muted fs-12">Profil candidat, campagne cible et pièces justificatives</div>
               </div>
               <div class="card-body">
                 <form [formGroup]="applicationForm" (ngSubmit)="submitApplication()" class="row g-3">
@@ -55,12 +55,12 @@
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('application', 'candidateEmail') as error">{{ error }}</div>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Telephone</label>
+                    <label class="form-label">Téléphone</label>
                     <input type="text" class="form-control" formControlName="candidatePhone" />
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('application', 'candidatePhone') as error">{{ error }}</div>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Piece d'identite</label>
+                    <label class="form-label">Pièce d'identité</label>
                     <input type="text" class="form-control" formControlName="identityNumber" />
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('application', 'identityNumber') as error">{{ error }}</div>
                   </div>
@@ -71,7 +71,7 @@
                       formControlName="campaign"
                       (change)="onCampaignChange($any($event.target).value)"
                     >
-                      <option value="">Selectionner...</option>
+                      <option value="">Sélectionner...</option>
                       <option *ngFor="let campaign of activeCampaigns()" [value]="campaign.code">
                         {{ campaign.code }} - {{ campaign.title }}
                       </option>
@@ -79,12 +79,12 @@
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('application', 'campaign') as error">{{ error }}</div>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Poste vise</label>
+                    <label class="form-label">Poste visé</label>
                     <input type="text" class="form-control" formControlName="position" />
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('application', 'position') as error">{{ error }}</div>
                   </div>
                   <div class="col-12">
-                    <label class="form-label">Pieces jointes</label>
+                    <label class="form-label">Pièces jointes</label>
                     <input
                       type="file"
                       class="form-control"
@@ -120,18 +120,18 @@
             <div class="card border shadow-none mb-3">
               <div class="card-header">
                 <h6 class="card-title mb-1">Suivre un dossier</h6>
-                <div class="text-muted fs-12">Recherche par reference, e-mail, telephone ou piece d'identite</div>
+                <div class="text-muted fs-12">Recherche par référence, e-mail, téléphone ou pièce d'identité</div>
               </div>
               <div class="card-body">
                 <form [formGroup]="trackingForm" (ngSubmit)="trackApplication()" class="row g-2">
                   <div class="col-12">
-                    <label class="form-label">Reference de suivi</label>
+                    <label class="form-label">Référence de suivi</label>
                     <input type="text" class="form-control" formControlName="query" placeholder="REC-2026-001" />
                     <div class="text-danger fs-11 mt-1" *ngIf="fieldError('tracking', 'query') as error">{{ error }}</div>
                   </div>
                   <div class="col-12 d-flex justify-content-end">
                     <button type="submit" class="btn btn-outline-primary" [disabled]="tracking">
-                      {{ tracking ? 'Recherche...' : 'Verifier le statut' }}
+                      {{ tracking ? 'Recherche...' : 'Vérifier le statut' }}
                     </button>
                   </div>
                 </form>
@@ -139,7 +139,7 @@
             </div>
 
             <div class="alert alert-light border mb-0" *ngIf="trackedApplications.length === 0">
-              Aucun dossier selectionne.
+              Aucun dossier sélectionné.
             </div>
 
             <div class="card border shadow-none mb-3" *ngFor="let item of trackedApplications">
@@ -161,7 +161,7 @@
                   <table class="table table-sm align-middle mb-0">
                     <tbody>
                       <tr>
-                        <td class="text-muted">Depot</td>
+                        <td class="text-muted">Dépôt</td>
                         <td class="text-end fw-semibold">{{ item.receivedOn }}</td>
                       </tr>
                       <tr>
@@ -169,7 +169,7 @@
                         <td class="text-end fw-semibold">{{ item.source }}</td>
                       </tr>
                       <tr>
-                        <td class="text-muted">Pieces</td>
+                        <td class="text-muted">Pièces</td>
                         <td class="text-end fw-semibold">{{ item.attachments?.length || 0 }}</td>
                       </tr>
                     </tbody>
@@ -183,7 +183,7 @@
         <div class="card border shadow-none mt-4 mb-0">
           <div class="card-header">
             <h6 class="card-title mb-1">Campagnes ouvertes</h6>
-            <div class="text-muted fs-12">Postes publies et delais de candidature</div>
+            <div class="text-muted fs-12">Postes publiés et délais de candidature</div>
           </div>
           <div class="card-body">
             <div class="alert alert-light border mb-0" *ngIf="!loadingCampaigns && activeCampaigns().length === 0">
@@ -206,7 +206,7 @@
                     Places: <span class="fw-semibold text-default">{{ campaign.openings }}</span>
                   </div>
                   <div class="text-muted fs-12">
-                    Cloture: <span class="fw-semibold text-default">{{ campaign.endDate }}</span>
+                    Clôture : <span class="fw-semibold text-default">{{ campaign.endDate }}</span>
                   </div>
                   <button
                     type="button"
