@@ -11,7 +11,7 @@ from alembic import context
 from app import models  # noqa: F401
 from app.core.config import get_settings
 from app.core.db import Base
-from sqlalchemy import pool
+from sqlalchemy import pool, text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
@@ -35,7 +35,13 @@ def _include_object(object: object, name: str | None, type_: str, *_args: object
 
 
 def run_migrations_offline() -> None:
-    """Mode offline — génère le SQL sans connexion à la base."""
+    """Mode offline — génère le SQL sans connexion à la base.
+
+    En offline, on ne peut pas exécuter `CREATE SCHEMA IF NOT EXISTS` côté DB
+    (aucune connexion). Le SQL généré devra inclure la création du schéma
+    via la migration 0001 elle-même. On laisse donc l'usage offline tel quel ;
+    en pratique le projet n'utilise que le mode online (CI + dev).
+    """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -51,6 +57,9 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
+    # Garantit que le schéma cible existe avant qu'Alembic ne tente de
+    # créer sa table de versions (`hr.alembic_version`). Idempotent.
+    connection.execute(text(f'CREATE SCHEMA IF NOT EXISTS "{settings.schema_name}"'))
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
