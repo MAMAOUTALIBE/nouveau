@@ -1,0 +1,33 @@
+# =============================================================================
+# Cron template — backup quotidien DB RH Primature
+# =============================================================================
+#
+# Installation sur le VPS (Hostinger) :
+#   sudo cp /opt/rh-primature/scripts/db-backup.cron /etc/cron.d/rh-primature-backup
+#   sudo chmod 644 /etc/cron.d/rh-primature-backup
+#
+# Alternative (crontab utilisateur root) :
+#   sudo crontab -u root /opt/rh-primature/scripts/db-backup.cron
+#
+# Variables d'environnement attendues : exporter via /etc/cron.d/rh-primature-backup
+# en utilisant la syntaxe "VAR=valeur" en début de fichier, OU charger un .env
+# dans la commande (voir exemple ci-dessous).
+#
+# Logs : /var/log/rh-primature-backup.log (à logrotate, voir runbook).
+#
+# Référence : docs/security/db_backup_runbook.md
+# =============================================================================
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+
+# Charge les variables sensibles depuis /etc/rh-primature/backup.env (mode 600).
+# Format attendu (une variable par ligne) :
+#   POSTGRES_PASSWORD=...
+#   POSTGRES_HOST=...
+#   BACKUP_S3_BUCKET=...
+#   BACKUP_S3_ENDPOINT=...
+#
+# Backup quotidien à 02h30 (Africa/Conakry = UTC, donc 02h30 UTC = 02h30 locale).
+30 2 * * * root set -a && . /etc/rh-primature/backup.env && set +a && cd /opt/rh-primature && /usr/bin/env bash scripts/db-backup.sh >> /var/log/rh-primature-backup.log 2>&1
