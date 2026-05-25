@@ -123,9 +123,7 @@ def test_audit_national_id_hash_non_normalisee() -> None:
 @pytest.mark.usefixtures("isolate_env")
 def test_audit_national_id_strict_preserve_la_casse() -> None:
     """Pour les ID alphanumériques (prefixes/suffixes), la casse doit compter."""
-    assert hmac_lookup("ABC123", normalize=False) != hmac_lookup(
-        "abc123", normalize=False
-    )
+    assert hmac_lookup("ABC123", normalize=False) != hmac_lookup("abc123", normalize=False)
 
 
 # ---------------------------------------------------------------------------
@@ -192,9 +190,7 @@ class _FakeEmployee:
     national_id_lookup_hash: str | None = None
 
 
-def _simulate_merge_copy(
-    primary: _FakeEmployee, secondary: _FakeEmployee, attr: str
-) -> None:
+def _simulate_merge_copy(primary: _FakeEmployee, secondary: _FakeEmployee, attr: str) -> None:
     """Reproduit la logique exacte du diff merge_duplicate_agents.
 
     Mapping copié depuis le service (NE PAS modifier sans mettre à jour le
@@ -237,13 +233,9 @@ def test_audit_merge_preserves_hash_when_email_copied() -> None:
 
     assert primary.email == new_secondary_email
     # Le hash du primaire doit refléter la NOUVELLE valeur.
-    assert primary.email_lookup_hash == hmac_lookup(
-        new_secondary_email, normalize=True
-    )
+    assert primary.email_lookup_hash == hmac_lookup(new_secondary_email, normalize=True)
     # Et NE doit PLUS correspondre à l'ancienne valeur du primaire.
-    assert primary.email_lookup_hash != hmac_lookup(
-        old_primary_email, normalize=True
-    )
+    assert primary.email_lookup_hash != hmac_lookup(old_primary_email, normalize=True)
 
 
 @pytest.mark.usefixtures("isolate_env")
@@ -261,9 +253,7 @@ def test_audit_merge_recalcule_hash_national_id_strict() -> None:
     _simulate_merge_copy(primary, secondary, "national_id")
 
     assert primary.national_id == "GN-NEW-002"
-    assert primary.national_id_lookup_hash == hmac_lookup(
-        "GN-NEW-002", normalize=False
-    )
+    assert primary.national_id_lookup_hash == hmac_lookup("GN-NEW-002", normalize=False)
 
 
 @pytest.mark.usefixtures("isolate_env")

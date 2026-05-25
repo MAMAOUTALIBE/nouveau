@@ -12,7 +12,7 @@ from datetime import UTC, date, datetime
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -143,9 +143,23 @@ async def list_agents(
         base = base.where(Employee.direction_id == direction_id)
     if unit_id:
         base = base.where(Employee.unit_id == unit_id)
-    if search:
+    if search and search.strip():
         like = f"%{search}%"
-        base = base.where(Employee.full_name.ilike(like) | Employee.matricule.ilike(like))
+        # full_name / matricule sont en clair en base : match partiel ILIKE.
+        conditions: list[Any] = [
+            Employee.full_name.ilike(like),
+            Employee.matricule.ilike(like),
+        ]
+        # Email : la colonne est chiffree (Fernet, nonce aleatoire) donc
+        # imcomparable en SQL clair. On expose un match EXACT via
+        # `email_lookup_hash` (HMAC-SHA256 deterministe, normalize=True) si le
+        # terme ressemble a un email (presence d'un '@'). Pas de LIKE possible
+        # sur un hash : la recherche partielle d'email n'est pas supportee.
+        if "@" in search:
+            email_hash = hmac_lookup(search.strip(), normalize=True)
+            if email_hash is not None:
+                conditions.append(Employee.email_lookup_hash == email_hash)
+        base = base.where(or_(*conditions))
 
     base = _scope_employee_query(base, user)
 
