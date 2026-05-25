@@ -1,0 +1,45 @@
+# =============================================================================
+# systemd unit — db-backup.service
+# =============================================================================
+#
+# Installation sur le VPS :
+#   sudo cp scripts/db-backup.service /etc/systemd/system/db-backup.service
+#   sudo cp scripts/db-backup.timer   /etc/systemd/system/db-backup.timer
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now db-backup.timer
+#
+# Vérification :
+#   systemctl status db-backup.timer
+#   systemctl list-timers --all | grep db-backup
+#   journalctl -u db-backup.service --since "1 day ago"
+#
+# Variables d'env : chargées depuis /etc/rh-primature/backup.env (mode 600).
+#   POSTGRES_PASSWORD=...
+#   POSTGRES_HOST=...
+#   BACKUP_S3_BUCKET=...
+#   BACKUP_S3_ENDPOINT=...
+#
+# Référence : docs/security/db_backup_runbook.md
+# =============================================================================
+
+[Unit]
+Description=RH Primature - Backup quotidien PostgreSQL
+Documentation=file:///opt/rh-primature/docs/security/db_backup_runbook.md
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/rh-primature
+EnvironmentFile=/etc/rh-primature/backup.env
+ExecStart=/usr/bin/env bash /opt/rh-primature/scripts/db-backup.sh
+StandardOutput=append:/var/log/rh-primature-backup.log
+StandardError=append:/var/log/rh-primature-backup.log
+
+# Durcissement : pas de réseau privilégié, pas de /home, pas de /root.
+ProtectSystem=strict
+ReadWritePaths=/var/backups/rh-primature /var/log
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true

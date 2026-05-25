@@ -1,0 +1,22 @@
+# =============================================================================
+# systemd timer — db-backup.timer
+# =============================================================================
+#
+# Déclenche db-backup.service tous les jours à 02h30.
+# Si la machine est éteinte à l'heure prévue, Persistent=true rattrape au boot.
+#
+# Référence : docs/security/db_backup_runbook.md
+# =============================================================================
+
+[Unit]
+Description=RH Primature - Timer quotidien backup PostgreSQL
+Documentation=file:///opt/rh-primature/docs/security/db_backup_runbook.md
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+Unit=db-backup.service
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target
