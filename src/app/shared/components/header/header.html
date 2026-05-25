@@ -23,7 +23,7 @@
       <!-- Start::header-element -->
       <div class="header-element">
         <!-- Start::header-link -->
-        <a (click)="toggleSidebar()" aria-label="Hide Sidebar"
+        <a (click)="toggleSidebar()" aria-label="Afficher ou masquer le menu latéral"
           class="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle" data-bs-toggle="sidebar"
           href="javascript:void(0);"><span></span></a>
         <!-- End::header-link -->
@@ -36,8 +36,8 @@
           <input type="text" class="header-search-bar form-control " id="header-search" placeholder="Search"
             spellcheck=false autocomplete="off" autocapitalize="off" (click)="SearchHeader()" [(ngModel)]="text"
             [ngModelOptions]="{ standalone: true }" (keyup)="Search(text)">
-          <a href="javascript:void(0);" class="header-search-icon border-0">
-            <i class="bi bi-search fs-12 mb-1"></i>
+          <a href="javascript:void(0);" class="header-search-icon border-0" aria-label="Rechercher">
+            <i class="bi bi-search fs-12 mb-1" aria-hidden="true"></i>
           </a>
         </div>
 
@@ -81,9 +81,9 @@
       <!-- Start::header-element -->
       <li class="header-element d-md-none d-block">
         <a (click)="openModal(content)" href="javascript:void(0);" class="header-link" data-bs-toggle="modal"
-          data-bs-target="#header-responsive-search">
+          data-bs-target="#header-responsive-search" aria-label="Ouvrir la recherche">
           <!-- Start::header-link-icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" viewBox="0 0 256 256">
+          <svg xmlns="http://www.w3.org/2000/svg" class="header-link-icon" viewBox="0 0 256 256" aria-hidden="true">
             <rect width="256" height="256" fill="none" />
             <circle cx="112" cy="112" r="80" opacity="0.2" />
             <circle cx="112" cy="112" r="80" fill="none" stroke="currentColor" stroke-linecap="round"

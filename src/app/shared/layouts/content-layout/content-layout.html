@@ -1,16 +1,17 @@
 
+<a class="skip-link visually-hidden-focusable" href="#main-content">Aller au contenu principal</a>
 <div class="page">
     <app-header />
     <app-sidebar appHoverEffectSidebar />
     <!-- Start::app-content -->
-    <div class="main-content app-content" (click)="clickOnBody()">
+    <main id="main-content" role="main" class="main-content app-content" (click)="clickOnBody()" tabindex="-1">
         <div class="container-fluid">
             <!-- Page Header -->
         <app-page-header />
             <!-- Page Header Close -->
             <router-outlet />
         </div>
-    </div>
+    </main>
     <app-footer />
     <app-tab-to-top />
 </div>
