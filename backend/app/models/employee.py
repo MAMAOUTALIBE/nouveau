@@ -54,11 +54,11 @@ class Employee(Base, TimestampMixin):
     phone: Mapped[str | None] = mapped_column(EncryptedString)
     # Hash de lookup pour requetes/dedup sur les champs chiffres. HMAC-SHA256
     # hexadecimal (64 chars). Indexes partiels WHERE col IS NOT NULL crees
-    # par la migration 0011. Alimentation : services applicatifs (Sub-C).
-    email_lookup_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
-    national_id_lookup_hash: Mapped[str | None] = mapped_column(
-        String(64), nullable=True, index=True
-    )
+    # explicitement par la migration 0011 (on ne declare PAS index=True ici
+    # pour eviter qu'autogenerate propose un index doublon sans clause WHERE).
+    # Alimentation : services applicatifs (Sub-C).
+    email_lookup_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    national_id_lookup_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     direction_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey(f"{DEFAULT_SCHEMA}.directions.direction_id"),
