@@ -15,11 +15,12 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
+from app.core.security.types import EncryptedDate, EncryptedString
 from app.models._mixins import DEFAULT_SCHEMA, TimestampMixin, uuid_pk_column
 
 
@@ -44,9 +45,20 @@ class Employee(Base, TimestampMixin):
     first_name: Mapped[str | None] = mapped_column(String)
     last_name: Mapped[str | None] = mapped_column(String)
     full_name: Mapped[str] = mapped_column(String, nullable=False)
-    national_id: Mapped[str | None] = mapped_column(String)
-    email: Mapped[str | None] = mapped_column(CITEXT)
-    phone: Mapped[str | None] = mapped_column(String)
+    # Colonnes PII chiffrees au repos (Sub-B). Le DDL en base reste TEXT
+    # (cf. migration 0011 qui convertit email CITEXT->TEXT). Les recherches
+    # par email/national_id passent par les colonnes _lookup_hash ci-dessous
+    # (HMAC deterministe) car le nonce Fernet rend WHERE col = X impossible.
+    national_id: Mapped[str | None] = mapped_column(EncryptedString)
+    email: Mapped[str | None] = mapped_column(EncryptedString)
+    phone: Mapped[str | None] = mapped_column(EncryptedString)
+    # Hash de lookup pour requetes/dedup sur les champs chiffres. HMAC-SHA256
+    # hexadecimal (64 chars). Indexes partiels WHERE col IS NOT NULL crees
+    # par la migration 0011. Alimentation : services applicatifs (Sub-C).
+    email_lookup_hash: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    national_id_lookup_hash: Mapped[str | None] = mapped_column(
+        String(64), nullable=True, index=True
+    )
     direction_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey(f"{DEFAULT_SCHEMA}.directions.direction_id"),
@@ -69,7 +81,10 @@ class Employee(Base, TimestampMixin):
     contract_type: Mapped[str | None] = mapped_column(String)
     hire_date: Mapped[date | None] = mapped_column(Date)
     exit_date: Mapped[date | None] = mapped_column(Date)
-    birth_date: Mapped[date | None] = mapped_column(Date)
+    # birth_date chiffree (PII sensible). Stockage TEXT (ciphertext opaque) :
+    # pas d'ORDER BY ni de BETWEEN possible cote SQL. Le calcul d'age/retraite
+    # se fait en Python apres lecture ORM.
+    birth_date: Mapped[date | None] = mapped_column(EncryptedDate)
     contract_end_date: Mapped[date | None] = mapped_column(Date)
     photo_file_id: Mapped[UUID | None] = mapped_column(
         PG_UUID(as_uuid=True),

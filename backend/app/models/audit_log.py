@@ -12,6 +12,7 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
+from app.core.security.redaction import RedactedJSONB
 from app.models._mixins import DEFAULT_SCHEMA, uuid_pk_column
 
 
@@ -46,8 +47,12 @@ class AuditLog(Base):
     )
     source_ip: Mapped[str | None] = mapped_column(INET)
     user_agent: Mapped[str | None] = mapped_column(String)
-    before_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
-    after_data: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    # before_data / after_data appliquent la redaction PII a l'ecriture
+    # (RedactedJSONB.process_bind_param). Le DDL reste JSONB : aucune
+    # migration necessaire. Garantie defense-en-profondeur si un service
+    # oublie de filtrer les payloads d'audit.
+    before_data: Mapped[dict[str, Any] | None] = mapped_column(RedactedJSONB)
+    after_data: Mapped[dict[str, Any] | None] = mapped_column(RedactedJSONB)
     audit_metadata: Mapped[dict[str, Any]] = mapped_column(
         "metadata",
         JSONB,

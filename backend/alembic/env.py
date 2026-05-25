@@ -81,6 +81,11 @@ async def run_async_migrations() -> None:
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)
+        # SQLAlchemy 2.0 + asyncpg : la connexion async externe n'auto-commit pas
+        # à la sortie du `async with`. Sans ce commit explicite, toute la migration
+        # est silencieusement rollbackée (Postgres logue "Running upgrade ... -> 00xx"
+        # mais aucune table n'est créée et hr.alembic_version reste à l'ancienne valeur).
+        await connection.commit()
     await connectable.dispose()
 
 
