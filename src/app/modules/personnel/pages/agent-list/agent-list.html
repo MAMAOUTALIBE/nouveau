@@ -1,12 +1,21 @@
 <div class="row row-sm">
   <div class="col-xl-12">
-    <!-- En-tête de page : titre unique « Liste des agents » + actions sur une
-         seule ligne. L'en-tête de page partagé est masqué pour cette route
-         (hidePageHeader) afin d'éviter le doublon de titre. -->
+    <!-- Bandeau sticky : titre + actions + KPIs (reste fixe au scroll) -->
+    <div class="agent-list-sticky">
     <div
-      class="d-md-flex d-block align-items-center justify-content-between gap-2 my-3 agent-list-header">
-      <h1 class="page-title fw-semibold fs-18 mb-0">Liste des agents</h1>
-      <div class="btn-list">
+      class="d-md-flex d-block align-items-center justify-content-between gap-2 agent-list-header">
+      <span
+        class="btn btn-outline-primary fw-semibold agent-list-title"
+        role="heading"
+        aria-level="1">Liste des agents</span>
+      <div class="btn-list align-items-center">
+        <input
+          type="search"
+          class="form-control agent-list-search"
+          [value]="searchTerm"
+          placeholder="Recherche : matricule, nom, poste, manager..."
+          (input)="onSearchInput(($any($event.target)).value)"
+          aria-label="Recherche agents" />
         <a routerLink="/personnel/agents/nouveau" class="btn btn-primary">Nouvel agent</a>
 
         <!-- Export unifié : choix du contenu (3 jeux) × du format (CSV/Excel/PDF) -->
@@ -120,17 +129,8 @@
       </div>
     </div>
 
-    <div class="card custom-card">
-      @if (isLoading) {
-        <div class="agents-loading-overlay">
-          <div class="spinner-border text-white" role="status" aria-label="Chargement"></div>
-          <div class="mt-2 fw-semibold">Chargement des agents…</div>
-        </div>
-      }
-
-      <div class="card-body">
-        <!-- Indicateurs synthétiques : bande compacte (remplace 7 grandes cartes) -->
-        <div class="agent-kpi-strip mb-3">
+    <!-- KPIs : restent dans le bandeau sticky -->
+    <div class="agent-kpi-strip">
           <div class="agent-kpi border rounded-2">
             <div class="text-muted fs-11">Effectif filtré</div>
             <div class="agent-kpi-value">
@@ -163,21 +163,22 @@
             <div class="agent-kpi-value">{{ kpiWithoutDossier }}</div>
           </div>
         </div>
+    </div>
+    <!-- /agent-list-sticky -->
 
-        <!-- Barre d'outils : recherche (toujours visible, 1/4 de largeur) et
-             filtres avancés repliables sur une seule grille → 2 lignes au max
-             (1 recherche + 7 filtres = 8 contrôles, 4 par ligne). -->
+    <div class="card custom-card">
+      @if (isLoading) {
+        <div class="agents-loading-overlay">
+          <div class="spinner-border text-white" role="status" aria-label="Chargement"></div>
+          <div class="mt-2 fw-semibold">Chargement des agents…</div>
+        </div>
+      }
+
+      <div class="card-body">
+        <!-- Filtres avancés repliables. La recherche libre est dans l'en-tête,
+             toujours visible à côté des actions. -->
+        @if (showFilters) {
         <div class="row g-3 mb-3">
-          <div class="col-xl-3 col-md-6">
-            <input
-              type="text"
-              class="form-control"
-              [value]="searchTerm"
-              placeholder="Recherche : matricule, nom, poste, manager..."
-              (input)="onSearchInput(($any($event.target)).value)" />
-          </div>
-
-          @if (showFilters) {
             <div class="col-xl-3 col-md-6">
               <spk-ng-select
                 [options]="directions"
@@ -239,8 +240,8 @@
                 placeholder="Filtre manager..."
                 (input)="onManagerInput(($any($event.target)).value)" />
             </div>
-          }
         </div>
+        }
 
         @if (isLoading) {
           <div class="d-flex align-items-center gap-2 mb-3 text-muted">

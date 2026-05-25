@@ -17,6 +17,34 @@
   }
 }
 
+.agent-list-sticky {
+  position: sticky;
+  top: 4rem; // = hauteur de .app-header
+  z-index: 90;
+  background-color: var(--default-body-bg-color);
+  padding-block: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.agent-list-title {
+  pointer-events: none;
+  cursor: default;
+}
+
+.agent-list-search {
+  display: inline-block;
+  width: 280px;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+@media (max-width: 767.98px) {
+  .agent-list-search {
+    display: block;
+    width: 100%;
+  }
+}
+
 .agents-loading-overlay {
   position: absolute;
   inset: 0;
