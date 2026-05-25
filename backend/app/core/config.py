@@ -8,12 +8,20 @@ production, plutôt que de planter en cours d'exécution.
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from functools import lru_cache
-from typing import Annotated, Literal
+from typing import Annotated, Final, Literal
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Format attendu pour PII_ENCRYPTION_KEYS : CSV de ``kv\d+:<base64-fernet>``.
+# Une clé Fernet base64-urlsafe fait toujours 44 caractères (32 bytes encodés
+# + padding ``=``).
+_PII_KEYS_RE: Final[re.Pattern[str]] = re.compile(
+    r"^(kv\d+:[A-Za-z0-9_\-=]{44})(,kv\d+:[A-Za-z0-9_\-=]{44})*$"
+)
 
 
 class Environment(StrEnum):
@@ -66,6 +74,14 @@ class Settings(BaseSettings):
 
     # ---------------- Audit ----------------
     audit_log_request_body: bool = False  # JAMAIS true en prod (PII)
+
+    # ---------------- Chiffrement PII (Vague 9) ----------------
+    # Format : "kv1:<fernet-44>,kv2:<fernet-44>". Première = clé d'écriture,
+    # les suivantes servent au déchiffrement durant la rotation.
+    pii_encryption_keys: SecretStr = Field(default=SecretStr(""))
+    # HMAC-SHA256 hex (≥ 32 bytes = 64 chars hex) pour les lookups
+    # déterministes sur PII (ex. recherche par email).
+    email_lookup_hmac_key: SecretStr = Field(default=SecretStr(""))
 
     # ---------------- Observabilité (Vague 8) ----------------
     sentry_dsn: SecretStr | None = None
@@ -142,6 +158,41 @@ class Settings(BaseSettings):
             )
         return v
 
+    @field_validator("pii_encryption_keys")
+    @classmethod
+    def _check_pii_keys_format(cls, v: SecretStr, info: ValidationInfo) -> SecretStr:
+        raw = v.get_secret_value()
+        env = info.data.get("env", Environment.DEV)
+        if not raw:
+            if env in {Environment.STAGING, Environment.PROD}:
+                raise ValueError("PII_ENCRYPTION_KEYS est requis en staging/prod.")
+            return v
+        if not _PII_KEYS_RE.match(raw):
+            raise ValueError(
+                "PII_ENCRYPTION_KEYS doit matcher "
+                "`kvN:<base64-fernet-44>[,kvN:<base64-fernet-44>]...`."
+            )
+        return v
+
+    @field_validator("email_lookup_hmac_key")
+    @classmethod
+    def _check_hmac_key_strength(cls, v: SecretStr, info: ValidationInfo) -> SecretStr:
+        raw = v.get_secret_value()
+        env = info.data.get("env", Environment.DEV)
+        if not raw:
+            if env in {Environment.STAGING, Environment.PROD}:
+                raise ValueError("EMAIL_LOOKUP_HMAC_KEY est requis en staging/prod.")
+            return v
+        if len(raw) < 64:
+            raise ValueError(
+                "EMAIL_LOOKUP_HMAC_KEY doit contenir au moins 64 caractères hex (32 bytes minimum)."
+            )
+        try:
+            bytes.fromhex(raw)
+        except ValueError as err:
+            raise ValueError("EMAIL_LOOKUP_HMAC_KEY doit être une chaîne hexadécimale.") from err
+        return v
+
     @field_validator("database_url")
     @classmethod
     def _check_database_url_async_driver(cls, v: str) -> str:
@@ -179,6 +230,13 @@ class Settings(BaseSettings):
     @property
     def is_test(self) -> bool:
         return self.env is Environment.TEST
+
+    def is_pii_crypto_configured(self) -> bool:
+        """True si les deux secrets PII (chiffrement + HMAC lookup) sont définis."""
+        return bool(
+            self.pii_encryption_keys.get_secret_value()
+            and self.email_lookup_hmac_key.get_secret_value()
+        )
 
 
 @lru_cache(maxsize=1)
