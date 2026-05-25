@@ -7,7 +7,10 @@ license = { text = "Proprietary" }
 authors = [{ name = "Primature de Guinée" }]
 
 dependencies = [
-    "fastapi>=0.115.0,<0.120",
+    "fastapi>=0.120.0,<0.130",
+    # CVE-2025-62727 (HIGH) — Starlette DoS via Range header merging, fixed in 0.49.1.
+    # Pin explicite car fastapi 0.129.x accepte starlette ~0.48 mais autorise aussi 0.49.
+    "starlette>=0.49.1",
     "uvicorn[standard]>=0.32.0",
     "gunicorn>=23.0.0",
     "sqlalchemy[asyncio]>=2.0.36",
