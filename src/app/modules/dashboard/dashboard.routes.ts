@@ -21,15 +21,15 @@ export const DASHBOARD_ROUTES: Routes = [
     pathMatch: 'full',
     loadComponent: () =>
       import('../../components/dashboards/dashboard-1/dashboard-1').then((m) => m.Dashboard1),
-    data: { parentTitle: 'Tableau de bord', childTitle: 'Vue generale' },
+    data: { parentTitle: 'Tableau de bord', childTitle: 'Vue générale' },
     title: 'RH-ADMIN - Tableau de bord',
   },
   {
     path: 'operations',
     loadComponent: () =>
       import('../../components/dashboards/dashboard-2/dashboard-2').then((m) => m.Dashboard2),
-    data: { parentTitle: 'Tableau de bord', childTitle: 'Vue operationnelle' },
-    title: 'RH-ADMIN - Dashboard operations',
+    data: { parentTitle: 'Tableau de bord', childTitle: 'Vue opérationnelle' },
+    title: 'RH-ADMIN - Dashboard opérations',
   },
   {
     path: 'pilotage',
