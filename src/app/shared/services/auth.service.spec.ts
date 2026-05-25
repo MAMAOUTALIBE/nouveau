@@ -78,7 +78,9 @@ describe('AuthService', () => {
     const refreshPromise = service.refreshToken();
     const req = httpMock.expectOne(`${environment.api.baseUrl}${API_ENDPOINTS.auth.refresh}`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ refreshToken: 'refresh-token' });
+    // Le service envoie les deux variantes (camelCase + snake_case) pour
+    // matcher à la fois les conventions Angular et l'API Python.
+    expect(req.request.body).toEqual({ refreshToken: 'refresh-token', refresh_token: 'refresh-token' });
     req.flush({ accessToken: 'new-access-token', refreshToken: 'new-refresh-token' });
 
     await expect(refreshPromise).resolves.toBe('new-access-token');

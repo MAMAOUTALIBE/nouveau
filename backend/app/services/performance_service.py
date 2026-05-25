@@ -138,7 +138,15 @@ async def list_campaigns(
             .tuples()
             .all()
         )
-    items = [_campaign_to_dto(c, direction_name=direction_names.get(c.direction_id)) for c in rows]
+    items = [
+        _campaign_to_dto(
+            c,
+            direction_name=(
+                direction_names.get(c.direction_id) if c.direction_id is not None else None
+            ),
+        )
+        for c in rows
+    ]
     return items, int(total)
 
 
