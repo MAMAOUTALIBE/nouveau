@@ -84,14 +84,15 @@ async def list_audit_logs(
     user_ids = {row.user_id for row in rows if row.user_id is not None}
     usernames: dict[UUID, str] = {}
     if user_ids:
-        usernames = {
-            user_id: username
-            for user_id, username in (
+        usernames = dict(
+            (
                 await session.execute(
                     select(User.user_id, User.username).where(User.user_id.in_(user_ids))
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     # Construction manuelle : le champ `audit_metadata` est mappé à la colonne
     # DB `metadata`, mais `from_attributes` taperait sur `Base.metadata` global.

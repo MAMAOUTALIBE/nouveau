@@ -19,7 +19,6 @@ import structlog
 
 from app.core.config import Environment, Settings
 
-
 # ---------------------------------------------------------------------------
 # Strip PII — clés de champs et patterns à expurger.
 # ---------------------------------------------------------------------------
@@ -68,7 +67,10 @@ PII_KEYS_TO_REDACT: frozenset[str] = frozenset(
 # Patterns de chaînes typiques à masquer dans les valeurs textuelles longues.
 PII_VALUE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     # JWT (3 segments base64url séparés par .)
-    (re.compile(r"\beyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b"), "[REDACTED_JWT]"),
+    (
+        re.compile(r"\beyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\b"),
+        "[REDACTED_JWT]",
+    ),
     # Bearer tokens dans Authorization header
     (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._\-]{16,}"), "Bearer [REDACTED]"),
 )

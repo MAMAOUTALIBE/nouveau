@@ -52,7 +52,11 @@ def test_pii_health_birthdate_redacted() -> None:
 
 
 def test_jwt_pattern_in_free_text_is_masked() -> None:
-    jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    jwt = (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+        "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0."
+        "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    )
     out = _run({"event": "request_in", "raw_url": f"/login?token={jwt}"})
     assert "eyJ" not in out["raw_url"]  # type: ignore[operator]
     assert "REDACTED_JWT" in out["raw_url"]  # type: ignore[operator]

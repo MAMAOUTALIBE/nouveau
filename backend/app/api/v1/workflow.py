@@ -142,9 +142,7 @@ async def perform_instance_action(
     body: WorkflowInstanceActionRequest,
     current_user: Annotated[
         AuthenticatedUser,
-        Depends(
-            require_permissions(any_of=["workflows:manage", "portal:manager", "*"])
-        ),
+        Depends(require_permissions(any_of=["workflows:manage", "portal:manager", "*"])),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
     audit: Annotated[AuditWriter, Depends(get_audit_writer)],

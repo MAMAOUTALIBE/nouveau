@@ -295,28 +295,30 @@ async def list_documents(
 
     employee_names: dict[UUID, str] = {}
     if employee_ids:
-        employee_names = {
-            eid: name
-            for eid, name in (
+        employee_names = dict(
+            (
                 await session.execute(
                     select(Employee.employee_id, Employee.full_name).where(
                         Employee.employee_id.in_(employee_ids)
                     )
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
     type_labels: dict[UUID, str] = {}
     if type_ids:
-        type_labels = {
-            tid: label
-            for tid, label in (
+        type_labels = dict(
+            (
                 await session.execute(
                     select(DocumentType.document_type_id, DocumentType.label).where(
                         DocumentType.document_type_id.in_(type_ids)
                     )
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     items = [
         _doc_to_dto(
@@ -570,16 +572,12 @@ _DOCUMENT_REQUEST_STATUS_LABELS: dict[str, str] = {
 }
 
 
-def _request_to_dto(
-    r: DocumentRequest, *, requester_name: str = "—"
-) -> DocumentRequestResponse:
+def _request_to_dto(r: DocumentRequest, *, requester_name: str = "—") -> DocumentRequestResponse:
     dto = DocumentRequestResponse.model_validate(r)
     dto.document_type = r.document_type_label
     dto.requester_name = requester_name
     dto.requester_username = ""
-    dto.status = _DOCUMENT_REQUEST_STATUS_LABELS.get(
-        r.request_status, r.request_status
-    )
+    dto.status = _DOCUMENT_REQUEST_STATUS_LABELS.get(r.request_status, r.request_status)
     return dto
 
 
@@ -590,34 +588,29 @@ async def list_requests(
     request_status: str | None = None,
     employee_id: UUID | None = None,
 ) -> list[DocumentRequestResponse]:
-    base = select(DocumentRequest).where(
-        DocumentRequest.organization_id == organization_id
-    )
+    base = select(DocumentRequest).where(DocumentRequest.organization_id == organization_id)
     if request_status:
         base = base.where(DocumentRequest.request_status == request_status)
     if employee_id:
         base = base.where(DocumentRequest.requested_by_employee_id == employee_id)
-    rows = (
-        await session.execute(base.order_by(DocumentRequest.created_at.desc()))
-    ).scalars().all()
+    rows = (await session.execute(base.order_by(DocumentRequest.created_at.desc()))).scalars().all()
 
     employee_ids = {
-        r.requested_by_employee_id
-        for r in rows
-        if r.requested_by_employee_id is not None
+        r.requested_by_employee_id for r in rows if r.requested_by_employee_id is not None
     }
     employee_names: dict[UUID, str] = {}
     if employee_ids:
-        employee_names = {
-            emp_id: full_name
-            for emp_id, full_name in (
+        employee_names = dict(
+            (
                 await session.execute(
                     select(Employee.employee_id, Employee.full_name).where(
                         Employee.employee_id.in_(employee_ids)
                     )
                 )
-            ).all()
-        }
+            )
+            .tuples()
+            .all()
+        )
 
     return [
         _request_to_dto(
@@ -630,9 +623,7 @@ async def list_requests(
     ]
 
 
-async def _next_request_reference(
-    session: AsyncSession, organization_id: UUID
-) -> str:
+async def _next_request_reference(session: AsyncSession, organization_id: UUID) -> str:
     year = datetime.now(tz=UTC).year
     prefix = f"DEM-DOC-{year}-"
     count = (
@@ -682,17 +673,13 @@ async def create_request(
     if employee_id is not None:
         requester_name = (
             await session.execute(
-                select(Employee.full_name).where(
-                    Employee.employee_id == employee_id
-                )
+                select(Employee.full_name).where(Employee.employee_id == employee_id)
             )
         ).scalar_one_or_none() or "—"
     return _request_to_dto(r, requester_name=requester_name)
 
 
-async def _find_request_by_key(
-    session: AsyncSession, request_key: str
-) -> DocumentRequest | None:
+async def _find_request_by_key(session: AsyncSession, request_key: str) -> DocumentRequest | None:
     """Résout une demande de document par UUID ou par référence métier."""
     key = str(request_key or "").strip()
     if not key:
@@ -704,17 +691,13 @@ async def _find_request_by_key(
     if request_uuid is not None:
         row = (
             await session.execute(
-                select(DocumentRequest).where(
-                    DocumentRequest.document_request_id == request_uuid
-                )
+                select(DocumentRequest).where(DocumentRequest.document_request_id == request_uuid)
             )
         ).scalar_one_or_none()
         if row is not None:
             return row
     return (
-        await session.execute(
-            select(DocumentRequest).where(DocumentRequest.reference == key)
-        )
+        await session.execute(select(DocumentRequest).where(DocumentRequest.reference == key))
     ).scalar_one_or_none()
 
 
@@ -753,9 +736,7 @@ async def decide_request(
     if r.requested_by_employee_id is not None:
         requester_name = (
             await session.execute(
-                select(Employee.full_name).where(
-                    Employee.employee_id == r.requested_by_employee_id
-                )
+                select(Employee.full_name).where(Employee.employee_id == r.requested_by_employee_id)
             )
         ).scalar_one_or_none() or "—"
     return _request_to_dto(r, requester_name=requester_name)
@@ -789,24 +770,14 @@ async def list_document_audit_logs(
     if actor:
         base = base.where(User.full_name.ilike(f"%{actor}%") | User.username.ilike(f"%{actor}%"))
 
-    rows = (
-        await session.execute(base.order_by(AuditLog.occurred_at.desc()).limit(limit))
-    ).all()
+    rows = (await session.execute(base.order_by(AuditLog.occurred_at.desc()).limit(limit))).all()
 
     items: list[DocumentAuditLogItem] = []
     for log, full_name, username in rows:
         before = log.before_data or {}
         after = log.after_data or {}
-        status_before = (
-            before.get("document_status")
-            or before.get("request_status")
-            or ""
-        )
-        status_after = (
-            after.get("document_status")
-            or after.get("request_status")
-            or ""
-        )
+        status_before = before.get("document_status") or before.get("request_status") or ""
+        status_after = after.get("document_status") or after.get("request_status") or ""
         items.append(
             DocumentAuditLogItem(
                 id=str(log.audit_log_id),
@@ -903,9 +874,7 @@ async def list_document_overdue(
             DocumentDispatch.delivery_status.in_(["ASSIGNED", "READ", "REMINDED"]),
         )
     )
-    rows = (
-        await session.execute(base.order_by(DocumentDispatch.due_at.asc()).limit(limit))
-    ).all()
+    rows = (await session.execute(base.order_by(DocumentDispatch.due_at.asc()).limit(limit))).all()
 
     items: list[DocumentOverdueItem] = []
     for dispatch, document, doc_type, emp_name in rows:
@@ -988,9 +957,7 @@ async def list_document_requirements(
         base = base.where(DocumentType.code == document_type_code)
     if contract_type:
         base = base.where(DocumentRequirement.contract_type == contract_type)
-    rows = (
-        await session.execute(base.order_by(DocumentRequirement.requirement_code))
-    ).all()
+    rows = (await session.execute(base.order_by(DocumentRequirement.requirement_code))).all()
     return [
         DocumentRequirementItem(
             id=req.document_requirement_id,
@@ -1049,8 +1016,7 @@ async def compute_document_analytics(
     pending_acknowledgements = sum(
         1
         for d in dispatches
-        if d.acknowledged_at is None
-        and d.delivery_status in ("ASSIGNED", "READ", "REMINDED")
+        if d.acknowledged_at is None and d.delivery_status in ("ASSIGNED", "READ", "REMINDED")
     )
     overdue_documents = sum(
         1
@@ -1068,13 +1034,9 @@ async def compute_document_analytics(
     )
 
     acknowledgement_rate = (
-        round(acknowledged_documents / assigned_documents * 100, 1)
-        if assigned_documents
-        else 0.0
+        round(acknowledged_documents / assigned_documents * 100, 1) if assigned_documents else 0.0
     )
-    signature_rate = (
-        round(signed_documents / total_documents * 100, 1) if total_documents else 0.0
-    )
+    signature_rate = round(signed_documents / total_documents * 100, 1) if total_documents else 0.0
 
     ack_hours = [
         (d.acknowledged_at - d.assigned_at).total_seconds() / 3600
@@ -1110,9 +1072,7 @@ async def compute_document_analytics(
         )
     ).all()
 
-    overdue_preview = await list_document_overdue(
-        session, organization_id=organization_id, limit=5
-    )
+    overdue_preview = await list_document_overdue(session, organization_id=organization_id, limit=5)
 
     return DocumentAnalyticsReport(
         generated_at=now,
@@ -1239,14 +1199,18 @@ async def purge_document_archives(
     threshold = now - timedelta(days=body.retention_days)
 
     rows = (
-        await session.execute(
-            select(Document).where(
-                Document.organization_id == organization_id,
-                Document.document_status == "ARCHIVED",
-                Document.updated_at < threshold,
+        (
+            await session.execute(
+                select(Document).where(
+                    Document.organization_id == organization_id,
+                    Document.document_status == "ARCHIVED",
+                    Document.updated_at < threshold,
+                )
             )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     references = [doc.reference for doc in rows]
     purged = 0

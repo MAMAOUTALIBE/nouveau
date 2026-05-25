@@ -405,9 +405,7 @@ async def create_assignment(
         if assignment.direction_id is not None
         else None
     )
-    unit = (
-        await session.get(Unit, assignment.unit_id) if assignment.unit_id is not None else None
-    )
+    unit = await session.get(Unit, assignment.unit_id) if assignment.unit_id is not None else None
     return _assignment_to_response(assignment, employee, direction, unit)
 
 
@@ -445,9 +443,7 @@ async def list_dossiers(
                 employee.full_name if employee is not None else (document.owner_label or "—")
             ),
             type=document_type.label if document_type is not None else document.document_type,
-            status=_DOCUMENT_STATUS_LABELS.get(
-                document.document_status, document.document_status
-            ),
+            status=_DOCUMENT_STATUS_LABELS.get(document.document_status, document.document_status),
             updated_at=document.updated_at,
         )
         for document, employee, document_type in rows
@@ -507,9 +503,7 @@ def _matricule_scope_label(direction: str | None, unit: str | None) -> tuple[str
     return "Organisation entière", "Global"
 
 
-async def _next_matricule_audit_reference(
-    session: AsyncSession, organization_id: UUID
-) -> str:
+async def _next_matricule_audit_reference(session: AsyncSession, organization_id: UUID) -> str:
     year = datetime.now(UTC).year
     prefix = f"MATS-{year}-"
     count = (
@@ -581,15 +575,19 @@ async def list_matricule_suggestion_audit(
     limit: int = 50,
 ) -> list[MatriculeSuggestionAuditItem]:
     """Historique des suggestions de matricule produites pour l'organisation."""
-    base = select(
-        PersonnelMatriculeSuggestionAudit,
-        User.username,
-    ).join(
-        User,
-        PersonnelMatriculeSuggestionAudit.requested_by_user_id == User.user_id,
-        isouter=True,
-    ).where(
-        PersonnelMatriculeSuggestionAudit.organization_id == organization_id,
+    base = (
+        select(
+            PersonnelMatriculeSuggestionAudit,
+            User.username,
+        )
+        .join(
+            User,
+            PersonnelMatriculeSuggestionAudit.requested_by_user_id == User.user_id,
+            isouter=True,
+        )
+        .where(
+            PersonnelMatriculeSuggestionAudit.organization_id == organization_id,
+        )
     )
     if username:
         base = base.where(User.username.ilike(f"%{username}%"))
@@ -690,27 +688,35 @@ async def list_agent_duplicate_index(
             .having(func.count() > 1)
         ).subquery()
         id_rows = (
-            await session.execute(
-                select(Employee.employee_id).where(
-                    Employee.organization_id == organization_id,
-                    field.in_(select(dup_values.c.value)),
+            (
+                await session.execute(
+                    select(Employee.employee_id).where(
+                        Employee.organization_id == organization_id,
+                        field.in_(select(dup_values.c.value)),
+                    )
                 )
             )
-        ).scalars().all()
+            .scalars()
+            .all()
+        )
         duplicate_ids.update(id_rows)
 
     if not duplicate_ids:
         return []
     employees = (
-        await session.execute(
-            select(Employee)
-            .where(
-                Employee.organization_id == organization_id,
-                Employee.employee_id.in_(duplicate_ids),
+        (
+            await session.execute(
+                select(Employee)
+                .where(
+                    Employee.organization_id == organization_id,
+                    Employee.employee_id.in_(duplicate_ids),
+                )
+                .order_by(Employee.full_name)
             )
-            .order_by(Employee.full_name)
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
     return [
         AgentDuplicateIndexItem(
             id=emp.employee_id,
@@ -736,9 +742,7 @@ async def list_agent_duplicate_cases(
         ("fullName", func.lower(Employee.full_name)),
     )
     if duplicate_field:
-        field_configs = tuple(
-            cfg for cfg in field_configs if cfg[0] == duplicate_field
-        )
+        field_configs = tuple(cfg for cfg in field_configs if cfg[0] == duplicate_field)
 
     cases: list[AgentDuplicateCase] = []
     summary_base = await _agent_summary_query(session, organization_id)

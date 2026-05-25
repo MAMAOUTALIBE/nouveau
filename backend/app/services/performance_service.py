@@ -55,7 +55,6 @@ from app.schemas.performance import (
     Survey360RespondRequest,
 )
 
-
 # ============================================================================
 # Helpers
 # ============================================================================
@@ -128,20 +127,18 @@ async def list_campaigns(
     direction_ids = {c.direction_id for c in rows if c.direction_id is not None}
     direction_names: dict[UUID, str] = {}
     if direction_ids:
-        direction_names = {
-            direction_id: name
-            for direction_id, name in (
+        direction_names = dict(
+            (
                 await session.execute(
                     select(Direction.direction_id, Direction.name).where(
                         Direction.direction_id.in_(direction_ids)
                     )
                 )
-            ).all()
-        }
-    items = [
-        _campaign_to_dto(c, direction_name=direction_names.get(c.direction_id))
-        for c in rows
-    ]
+            )
+            .tuples()
+            .all()
+        )
+    items = [_campaign_to_dto(c, direction_name=direction_names.get(c.direction_id)) for c in rows]
     return items, int(total)
 
 

@@ -10,11 +10,9 @@ Couvre :
 from __future__ import annotations
 
 import importlib
-from collections.abc import Iterator
 from typing import Any
 
 import pytest
-
 from app.core.config import Environment, Settings
 
 
@@ -28,6 +26,9 @@ def _make_settings(env: Environment) -> Settings:
         jwt_secret_key="x" * 64,  # >= 32 chars (validator prod)
         database_url="postgresql+asyncpg://u:p@localhost:5432/db",
         allowed_origins="https://prim.gov.gn,https://app.prim.gov.gn",
+        # conftest force BCRYPT_ROUNDS=4 pour la vitesse, mais le validator prod
+        # exige ≥ 10. On override explicitement pour rester valide en PROD.
+        bcrypt_rounds=10,
     )
 
 
@@ -115,8 +116,12 @@ def test_middleware_adds_hsts_only_in_prod(headers_module: Any) -> None:
     prod_settings = _make_settings(Environment.PROD)
     dev_settings = _make_settings(Environment.DEV)
 
-    prod_mw = headers_module.SecurityHeadersMiddleware(app=lambda *a, **kw: None, settings=prod_settings)
-    dev_mw = headers_module.SecurityHeadersMiddleware(app=lambda *a, **kw: None, settings=dev_settings)
+    prod_mw = headers_module.SecurityHeadersMiddleware(
+        app=lambda *a, **kw: None, settings=prod_settings
+    )
+    dev_mw = headers_module.SecurityHeadersMiddleware(
+        app=lambda *a, **kw: None, settings=dev_settings
+    )
 
     assert "Strict-Transport-Security" in prod_mw._common_headers
     assert "max-age=31536000" in prod_mw._common_headers["Strict-Transport-Security"]

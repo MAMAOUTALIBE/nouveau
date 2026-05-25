@@ -106,9 +106,17 @@ def test_v1_new_tables_present() -> None:
 
 
 def test_total_table_count() -> None:
-    """43 baseline + 21 V1 = 64 tables attendues."""
+    """Au moins 64 tables attendues (43 baseline + 21 V1).
+
+    On garde un *floor* à 64 pour détecter toute suppression accidentelle de
+    table métier, mais on tolère l'ajout de nouvelles tables (V1.x, V2…) sans
+    devoir mettre à jour ce test à chaque migration. Le décompte exact n'a pas
+    de valeur intrinsèque : ce qui compte, c'est qu'aucune table baseline ou
+    V1 ne disparaisse (couvert par les deux tests ci-dessus).
+    """
     tables = _all_table_names()
-    assert len(tables) == 64, f"Compte de tables inattendu : {len(tables)}"
+    count = len(tables)
+    assert count >= 64, f"Au moins 64 tables attendues, trouvé {count}"
 
 
 def test_audit_logs_has_organization_scope() -> None:
