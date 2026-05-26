@@ -242,6 +242,16 @@ export class AgentListPage implements OnInit, OnDestroy {
     return String(agent.photoUrl || '').trim() || this.fallbackPhoto;
   }
 
+  /**
+   * True si l'agent a une vraie photo téléversée (pas le fallback générique
+   * `profile.jpg` que `personnel.service` injecte par défaut). Utilisé pour
+   * basculer entre `<img>` et `<initials-avatar>` dans le template.
+   */
+  hasRealPhoto(agent: AgentListViewItem): boolean {
+    const photo = String(agent.photoUrl || '').trim();
+    return photo.length > 0 && photo !== this.fallbackPhoto;
+  }
+
   documentSummaryLabel(agent: AgentListViewItem): string {
     if (!agent.hasDocumentData) {
       return 'Non calculé';

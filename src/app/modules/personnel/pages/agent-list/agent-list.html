@@ -460,7 +460,7 @@
                     <td>{{ agent.matricule }}</td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
-                        @if (agent.photoUrl) {
+                        @if (hasRealPhoto(agent)) {
                           <span class="avatar avatar-sm avatar-rounded">
                             <img
                               [src]="agent.photoUrl"
