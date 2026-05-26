@@ -37,6 +37,14 @@ services:
       ENV: prod
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY requis dans .env (>=32 caracteres)}
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-rh_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-rh_primature}
+      # Clés PII (Sub-B) : Settings.model_post_init valide ces vars au boot,
+      # même pour un job one-shot comme `alembic upgrade head`. Sans elles,
+      # le job rh-migrate échoue et le backend n'est jamais (re)démarré.
+      PII_ENCRYPTION_KEYS: ${PII_ENCRYPTION_KEYS:?PII_ENCRYPTION_KEYS requis dans .env (cf. .env.prod.example)}
+      EMAIL_LOOKUP_HMAC_KEY: ${EMAIL_LOOKUP_HMAC_KEY:?EMAIL_LOOKUP_HMAC_KEY requis dans .env (cf. .env.prod.example)}
+      # Cookies JWT : validators staging/prod exigent ces flags meme pour migrate.
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-true}
+      JWT_RETURN_TOKEN_IN_BODY: ${JWT_RETURN_TOKEN_IN_BODY:-false}
     # La migration baseline 0001 rejoue les fichiers SQL de db/postgresql/,
     # qui ne sont pas dans l'image backend (hors contexte de build) : on les
     # monte là où la migration les cherche.
@@ -65,6 +73,27 @@ services:
       RUN_MIGRATIONS_ON_STARTUP: "false"
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       BCRYPT_ROUNDS: "12"
+      # === Chiffrement PII au repos (Sub-B / loi 037/AN/2016) ===
+      # Validators Pydantic refusent le boot prod sans ces vars.
+      # Cf. docs/security/pii_migration_runbook.md
+      PII_ENCRYPTION_KEYS: ${PII_ENCRYPTION_KEYS:?PII_ENCRYPTION_KEYS requis dans .env (cf. .env.prod.example)}
+      EMAIL_LOOKUP_HMAC_KEY: ${EMAIL_LOOKUP_HMAC_KEY:?EMAIL_LOOKUP_HMAC_KEY requis dans .env (cf. .env.prod.example)}
+      # === JWT cookies httpOnly (P0 #4) ===
+      # Secure=true et tokens hors body OBLIGATOIRES en prod.
+      # Cf. docs/security/auth_runbook.md
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-true}
+      JWT_RETURN_TOKEN_IN_BODY: ${JWT_RETURN_TOKEN_IN_BODY:-false}
+      JWT_COOKIE_NAME: ${JWT_COOKIE_NAME:-rh_access}
+      JWT_REFRESH_COOKIE_NAME: ${JWT_REFRESH_COOKIE_NAME:-rh_refresh}
+      JWT_COOKIE_SAMESITE: ${JWT_COOKIE_SAMESITE:-lax}
+      JWT_COOKIE_DOMAIN: ${JWT_COOKIE_DOMAIN:-}
+      # === Rate-limit /refresh dédié (plus serré que /login) ===
+      RATE_LIMIT_REFRESH_MAX: ${RATE_LIMIT_REFRESH_MAX:-10}
+      RATE_LIMIT_REFRESH_WINDOW_SECONDS: ${RATE_LIMIT_REFRESH_WINDOW_SECONDS:-60}
+      RATE_LIMIT_REFRESH_LOCK_SECONDS: ${RATE_LIMIT_REFRESH_LOCK_SECONDS:-300}
+      # === Upload guard (P0 #6) — défauts OK, opt-in ClamAV ===
+      UPLOAD_MAX_SIZE_BYTES: ${UPLOAD_MAX_SIZE_BYTES:-52428800}
+      CLAMAV_ENABLED: ${CLAMAV_ENABLED:-false}
       # IA / LLM — défaut "mock" si non renseigné dans .env (aucune casse).
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
