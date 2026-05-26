@@ -7,7 +7,8 @@
       <span
         class="btn btn-outline-primary fw-semibold agent-list-title"
         role="heading"
-        aria-level="1">Liste des agents</span>
+        aria-level="1"
+        i18n="@@personnel.agents.title">Liste des agents</span>
       <div class="btn-list align-items-center">
         <input
           type="search"
@@ -16,7 +17,7 @@
           placeholder="Recherche : matricule, nom, poste, manager..."
           (input)="onSearchInput(($any($event.target)).value)"
           aria-label="Recherche agents" />
-        <a routerLink="/personnel/agents/nouveau" class="btn btn-primary">Nouvel agent</a>
+        <a routerLink="/personnel/agents/nouveau" class="btn btn-primary" i18n="@@personnel.agents.create_button">Nouvel agent</a>
 
         <!-- Export unifié : choix du contenu (3 jeux) × du format (CSV/Excel/PDF) -->
         <div ngbDropdown #exportDrop="ngbDropdown" class="d-inline-block">
@@ -434,9 +435,9 @@
           <table class="table text-nowrap">
             <thead>
               <tr>
-                <th>Matricule</th>
-                <th>Nom complet</th>
-                <th>Direction</th>
+                <th i18n="@@personnel.agents.col_matricule">Matricule</th>
+                <th i18n="@@personnel.agents.col_fullname">Nom complet</th>
+                <th i18n="@@personnel.agents.col_direction">Direction</th>
                 <th>Unité</th>
                 <th>Poste</th>
                 <th>Contrat</th>
