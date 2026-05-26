@@ -134,6 +134,26 @@ class Settings(BaseSettings):
     bpmn_provider: Literal["internal", "spiff"] = "internal"
     bpmn_models_dir: str = "../bpmn"
 
+    # ---------------- Upload guard (P0 #6) ----------------
+    upload_max_size_bytes: Annotated[int, Field(ge=1)] = 50 * 1024 * 1024  # 50 MB
+    # CSV ou liste : types MIME autorisés pour les pièces téléversées. Le défaut
+    # couvre PDF, images web et bureautique Word (.doc/.docx).
+    upload_allowed_mime_types: str | list[str] = (
+        "application/pdf,"
+        "image/jpeg,"
+        "image/png,"
+        "image/webp,"
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document,"
+        "application/msword"
+    )
+
+    # ---------------- Antivirus ClamAV (opt-in) ----------------
+    clamav_enabled: bool = False
+    clamav_unix_socket: str = "/var/run/clamav/clamd.ctl"
+    clamav_tcp_host: str | None = None
+    clamav_tcp_port: Annotated[int, Field(ge=1, le=65535)] = 3310
+    clamav_timeout_seconds: Annotated[int, Field(ge=1, le=600)] = 30
+
     # Provider LLM : "mock" | "anthropic" | "openai" | "groq" | "ollama"
     llm_provider: Literal["mock", "anthropic", "openai", "groq", "ollama"] = "mock"
     llm_model: str = "claude-opus-4-7"
@@ -222,6 +242,22 @@ class Settings(BaseSettings):
     def cors_origins(self) -> list[str]:
         """Liste des origines CORS autorisées (parsée depuis CSV)."""
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+
+    def upload_allowed_mime_types_list(self) -> list[str]:
+        """Liste normalisée des types MIME autorisés pour les uploads.
+
+        Accepte aussi bien une chaîne CSV venue de l'env qu'une liste injectée
+        en test. Lowercased, dédupliqué, ordre préservé.
+        """
+        raw = self.upload_allowed_mime_types
+        if isinstance(raw, str):
+            items = [t.strip().lower() for t in raw.split(",") if t.strip()]
+        else:
+            items = [t.strip().lower() for t in raw if t and t.strip()]
+        seen: dict[str, None] = {}
+        for it in items:
+            seen.setdefault(it, None)
+        return list(seen.keys())
 
     @property
     def is_prod(self) -> bool:
