@@ -61,7 +61,7 @@
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needQuota') as error">{{ error }}</div>
               </div>
               <div class="col-md-2">
-                <label class="form-label">Besoin - Delai</label>
+                <label class="form-label">Besoin - Délai</label>
                 <input type="date" class="form-control" formControlName="needDeadline" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('needDeadline') as error">{{ error }}</div>
               </div>
@@ -153,14 +153,14 @@
           <div class="card-header">
             <h6 class="card-title mb-1">KPI Operationnels Campagne</h6>
             <div class="text-muted fs-12">
-              Delai moyen de traitement, volume hebdomadaire et taux rejet/retenu - {{ funnelScopeLabel() }}
+              Délai moyen de traitement, volume hebdomadaire et taux rejet/retenu - {{ funnelScopeLabel() }}
             </div>
           </div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-xl-4 col-md-6">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Delai moyen de traitement</div>
+                  <div class="text-muted fs-11 text-uppercase">Délai moyen de traitement</div>
                   <div class="fs-3 fw-semibold mt-1">{{ operationalKpis.averageProcessingDays | number: '1.1-1' }} j</div>
                   <div class="text-muted fs-12 mt-1">
                     Calcule sur {{ operationalKpis.processedCount }} candidature(s) finalisee(s)
@@ -186,7 +186,7 @@
             <div class="mt-4">
               <h6 class="fw-semibold mb-2">Volume hebdomadaire (8 dernieres semaines)</h6>
               <div class="alert alert-light border mb-0" *ngIf="weeklyVolumes.length === 0">
-                Aucune donnee hebdomadaire disponible.
+                Aucune donnée hebdomadaire disponible.
               </div>
               <div class="row g-2" *ngIf="weeklyVolumes.length > 0">
                 <div class="col-12" *ngFor="let week of weeklyVolumes">
@@ -241,7 +241,7 @@
               </table>
             </div>
             <ng-template #emptyWorkloadState>
-              <div class="alert alert-light border mb-0">Aucune donnee de charge disponible.</div>
+              <div class="alert alert-light border mb-0">Aucune donnée de charge disponible.</div>
             </ng-template>
           </div>
         </div>
@@ -256,7 +256,7 @@
               <div class="col-xl-3 col-md-6">
                 <label class="form-label">Campagne</label>
                 <select class="form-select" formControlName="campaignCode">
-                  <option value="">Selectionner...</option>
+                  <option value="">Sélectionner...</option>
                   <option *ngFor="let campaign of items" [value]="campaign.code">{{ campaign.code }}</option>
                 </select>
               </div>
@@ -314,7 +314,7 @@
               </table>
             </div>
             <ng-template #emptyBudgetState>
-              <div class="alert alert-light border mb-0">Aucune donnee budget disponible.</div>
+              <div class="alert alert-light border mb-0">Aucune donnée budget disponible.</div>
             </ng-template>
           </div>
         </div>
@@ -323,7 +323,7 @@
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-title mb-1">Control Tower recrutement</h6>
-              <div class="text-muted fs-12">Vue unifiee campagnes/candidatures/integration + drill-down fiche detail</div>
+              <div class="text-muted fs-12">Vue unifiee campagnes/candidatures/integration + drill-down fiche détail</div>
             </div>
             <button type="button" class="btn btn-sm btn-outline-primary" (click)="refreshControlTower()">Rafraichir</button>
           </div>
@@ -393,7 +393,7 @@
               <table class="table table-sm table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Candidat</th>
                     <th>Campagne</th>
                     <th>Statut candidature</th>
@@ -422,7 +422,7 @@
               </table>
             </div>
             <ng-template #emptyControlTowerState>
-              <div class="alert alert-light border mb-0">Aucune donnee control tower.</div>
+              <div class="alert alert-light border mb-0">Aucune donnée control tower.</div>
             </ng-template>
           </div>
         </div>
@@ -657,7 +657,7 @@
 
         <div class="card border shadow-none mb-4">
           <div class="card-header">
-            <h6 class="card-title mb-1">Qualite, perf et observabilite</h6>
+            <h6 class="card-title mb-1">Qualité, perf et observabilite</h6>
             <div class="text-muted fs-12">Seuils performance, monitoring erreurs et remontes d'evenements</div>
           </div>
           <div class="card-body" *ngIf="observability as obs; else emptyObservabilityState">
@@ -678,7 +678,7 @@
               </div>
               <div class="col-xl-3 col-md-6">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Donnees stale</div>
+                  <div class="text-muted fs-11 text-uppercase">Données stale</div>
                   <div class="fs-4 fw-semibold mt-1">{{ obs.metrics.staleDataMinutes }} min</div>
                   <div class="text-muted fs-11">Seuil: {{ obs.thresholds.staleDataMinutes }} min</div>
                 </div>

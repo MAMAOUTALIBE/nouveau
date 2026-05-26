@@ -97,7 +97,7 @@
                           <tr>
                             <th>Capacite</th>
                             <th>Statut</th>
-                            <th>Detail</th>
+                            <th>Détail</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -155,7 +155,7 @@
                     <div class="d-flex justify-content-between gap-2">
                       <div>
                         <div class="fw-semibold">{{ item.label }}</div>
-                        <div class="text-muted fs-12">{{ item.owner }} - echeance {{ item.dueDate }}</div>
+                        <div class="text-muted fs-12">{{ item.owner }} - échéance {{ item.dueDate }}</div>
                       </div>
                       <span class="badge align-self-start" [ngClass]="statusBadgeClass(item.status)">
                         {{ item.status }}

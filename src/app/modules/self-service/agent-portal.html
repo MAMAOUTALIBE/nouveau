@@ -139,7 +139,7 @@
               <thead>
                 <tr>
                   <th>Categorie</th>
-                  <th>Reference</th>
+                  <th>Référence</th>
                   <th>Objet</th>
                   <th>Date</th>
                   <th>Soumise le</th>
@@ -188,7 +188,7 @@
             </div>
             <div class="fw-semibold mb-1">Aucun document au dossier RH</div>
             <div class="text-muted fs-12">
-              Les pieces administratives liees a votre fiche agent apparaitront ici.
+              Les pièces administratives liees a votre fiche agent apparaitront ici.
             </div>
           </div>
           <div class="table-responsive" *ngIf="profileLoading || dossierDocuments.length">
@@ -196,7 +196,7 @@
               <thead>
                 <tr>
                   <th>Type</th>
-                  <th>Reference</th>
+                  <th>Référence</th>
                   <th>Statut</th>
                   <th>Obligatoire</th>
                   <th>Fichier</th>
@@ -230,7 +230,7 @@
           <!-- Documents recus -->
           <div class="d-flex align-items-center gap-2 mb-3">
             <i class="ri-mail-download-line text-primary fs-5"></i>
-            <h6 class="mb-0">Documents recus dans mon espace</h6>
+            <h6 class="mb-0">Documents reçus dans mon espace</h6>
           </div>
           <div class="text-center py-5 border rounded-3 mb-4" *ngIf="!inboxLoading && !inboxDocuments.length">
             <div
@@ -238,14 +238,14 @@
               style="width: 64px; height: 64px">
               <i class="ri-inbox-line fs-3 text-primary"></i>
             </div>
-            <div class="fw-semibold mb-1">Aucun document recu</div>
+            <div class="fw-semibold mb-1">Aucun document reçu</div>
             <div class="text-muted fs-12">Les documents qui vous sont transmis apparaitront ici.</div>
           </div>
           <div class="table-responsive mb-4" *ngIf="inboxLoading || inboxDocuments.length">
             <table class="table table-bordered text-nowrap mb-0">
               <thead>
                 <tr>
-                  <th>Reference</th>
+                  <th>Référence</th>
                   <th>Titre</th>
                   <th>Type</th>
                   <th>Date assignation</th>
@@ -258,7 +258,7 @@
               <tbody>
                 <tr *ngIf="inboxLoading">
                   <td colspan="8" class="text-center text-muted py-3">
-                    <span class="spinner-border spinner-border-sm me-2"></span>Chargement des documents recus...
+                    <span class="spinner-border spinner-border-sm me-2"></span>Chargement des documents reçus...
                   </td>
                 </tr>
                 <tr *ngFor="let item of inboxDocuments">
@@ -380,7 +380,7 @@
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Reference (optionnel)</label>
+              <label class="form-label">Référence (optionnel)</label>
               <input type="text" class="form-control" formControlName="reference" />
               <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
             </div>
@@ -444,7 +444,7 @@
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Reference (optionnel)</label>
+              <label class="form-label">Référence (optionnel)</label>
               <input type="text" class="form-control" formControlName="reference" />
               <div class="text-danger fs-11 mt-1" *ngIf="trainingFieldError('reference') as error">{{ error }}</div>
             </div>
@@ -455,7 +455,7 @@
             <div class="col-12">
               <label class="form-label">Session de formation</label>
               <select class="form-select" formControlName="sessionCode">
-                <option value="" disabled>Selectionner une session</option>
+                <option value="" disabled>Sélectionner une session</option>
                 <option *ngFor="let session of trainingSessions" [value]="session.code">
                   {{ session.code }} - {{ session.title }} ({{ session.dates }})
                 </option>
@@ -505,7 +505,7 @@
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Reference (optionnel)</label>
+              <label class="form-label">Référence (optionnel)</label>
               <input type="text" class="form-control" formControlName="reference" />
               <div class="text-danger fs-11 mt-1" *ngIf="documentRequestFieldError('reference') as error">
                 {{ error }}

@@ -30,11 +30,11 @@
                 <input type="text" class="form-control" formControlName="position" (blur)="applyTemplateFromPosition(false)" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('position') as error">{{ error }}</div>
                 <div class="text-muted fs-11 mt-1" *ngIf="detectedTemplateLabel">
-                  Template detecte: {{ detectedTemplateLabel }}
+                  Template détecté: {{ detectedTemplateLabel }}
                 </div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Reference candidature source (optionnel)</label>
+                <label class="form-label">Référence candidature source (optionnel)</label>
                 <input type="text" class="form-control" formControlName="applicationReference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('applicationReference') as error">{{ error }}</div>
               </div>
@@ -54,7 +54,7 @@
                   rows="3"
                   class="form-control"
                   formControlName="checklistText"
-                  placeholder="Contrat signe&#10;Badge cree&#10;Compte SI active"
+                  placeholder="Contrat signe&#10;Badge créé&#10;Compte SI active"
                 ></textarea>
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('checklistText') as error">{{ error }}</div>
               </div>
@@ -97,7 +97,7 @@
               (ngSubmit)="submitMilestoneFeedback()"
             >
               <div class="col-xl-3 col-md-6">
-                <label class="form-label">Reference</label>
+                <label class="form-label">Référence</label>
                 <input type="text" class="form-control" formControlName="applicationReference" />
               </div>
               <div class="col-xl-2 col-md-6">
@@ -137,7 +137,7 @@
               <table class="table table-sm table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Agent</th>
                     <th>J+30</th>
                     <th>J+60</th>
@@ -228,7 +228,7 @@
               <table class="table table-sm table-hover align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Agent</th>
                     <th>Cohorte</th>
                     <th>Completude</th>
@@ -297,7 +297,7 @@
                 <thead>
                   <tr>
                     <th>Synchronise le</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Agent</th>
                     <th>Dossier</th>
                     <th>Affectation</th>
@@ -373,7 +373,7 @@
                     <div class="pe-2">
                       <div class="fw-semibold fs-13">{{ step.label }}</div>
                       <div class="text-muted fs-12">Assigne a: {{ step.assignedTo }}</div>
-                      <div class="text-muted fs-12" *ngIf="step.dueDate">Echeance: {{ step.dueDate }}</div>
+                      <div class="text-muted fs-12" *ngIf="step.dueDate">Échéance: {{ step.dueDate }}</div>
                       <div class="text-danger fs-12" *ngIf="step.status === 'Bloquee' && step.blockedReason">
                         Blocage: {{ step.blockedReason }}
                       </div>

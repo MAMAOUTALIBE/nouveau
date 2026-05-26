@@ -23,7 +23,7 @@
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveApplication()" class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Reference (optionnel)</label>
+                <label class="form-label">Référence (optionnel)</label>
                 <input type="text" class="form-control" formControlName="reference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>
@@ -162,7 +162,7 @@
           <div class="card-body">
             <form class="row g-3 mb-3" [formGroup]="interviewForm" *ngIf="showInterviewCreateForm" (ngSubmit)="saveInterview()">
               <div class="col-xl-3 col-md-6">
-                <label class="form-label">Reference candidature</label>
+                <label class="form-label">Référence candidature</label>
                 <input type="text" class="form-control" formControlName="applicationReference" placeholder="APP-2026-001" />
               </div>
               <div class="col-xl-3 col-md-6">
@@ -285,7 +285,7 @@
                 <thead>
                   <tr>
                     <th>Entretien</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Candidat</th>
                     <th>Creneau</th>
                     <th>Panel</th>
@@ -404,7 +404,7 @@
                 />
               </div>
               <div class="col-xl-2 col-md-4">
-                <label class="form-label">Periode du</label>
+                <label class="form-label">Période du</label>
                 <input
                   type="date"
                   class="form-control"
@@ -502,7 +502,7 @@
               <table class="table table-sm align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>Critere</th>
+                    <th>Critère</th>
                     <th style="width: 180px">Ponderation (%)</th>
                   </tr>
                 </thead>
@@ -540,7 +540,7 @@
                 <thead>
                   <tr>
                     <th>Rang</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Candidat</th>
                     <th>Poste</th>
                     <th>Score</th>
@@ -598,7 +598,7 @@
                 <thead>
                   <tr>
                     <th>Rang</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Candidat</th>
                     <th>Score</th>
                     <th>Justification</th>
@@ -675,7 +675,7 @@
                   <tr>
                     <th>Type</th>
                     <th>Valeur</th>
-                    <th>References</th>
+                    <th>Références</th>
                     <th class="text-end">Action</th>
                   </tr>
                 </thead>
@@ -827,7 +827,7 @@
                     <th>Poste</th>
                     <th>Version</th>
                     <th>Questions</th>
-                    <th>Cree par</th>
+                    <th>Créé par</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -888,7 +888,7 @@
                   <tr>
                     <th>Envoye le</th>
                     <th>Type</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Destinataire</th>
                     <th>Message</th>
                     <th>Gravite</th>
@@ -941,7 +941,7 @@
             <div class="row g-3 mb-3">
               <div class="col-xl-3 col-md-6">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Candidatures creees</div>
+                  <div class="text-muted fs-11 text-uppercase">Candidatures créées</div>
                   <div class="fs-4 fw-semibold mt-1">{{ auditSummary.createdApplications }}</div>
                 </div>
               </div>
@@ -953,13 +953,13 @@
               </div>
               <div class="col-xl-3 col-md-6">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Integrations creees</div>
+                  <div class="text-muted fs-11 text-uppercase">Integrations créées</div>
                   <div class="fs-4 fw-semibold mt-1">{{ auditSummary.onboardingCreates }}</div>
                 </div>
               </div>
               <div class="col-xl-3 col-md-6">
                 <div class="border rounded p-3 h-100">
-                  <div class="text-muted fs-11 text-uppercase">Campagnes creees</div>
+                  <div class="text-muted fs-11 text-uppercase">Campagnes créées</div>
                   <div class="fs-4 fw-semibold mt-1">{{ auditSummary.campaignCreates }}</div>
                 </div>
               </div>
@@ -972,9 +972,9 @@
                     <th>Date</th>
                     <th>Action</th>
                     <th>Entite</th>
-                    <th>Reference</th>
+                    <th>Référence</th>
                     <th>Acteur</th>
-                    <th>Detail</th>
+                    <th>Détail</th>
                     <th>Resultat</th>
                   </tr>
                 </thead>
@@ -1005,7 +1005,7 @@
           <table class="table table-hover align-middle mb-0">
             <thead>
               <tr>
-                <th>Reference</th>
+                <th>Référence</th>
                 <th>Candidat</th>
                 <th>Poste</th>
                 <th>Campagne</th>
@@ -1068,7 +1068,7 @@
                         class="btn btn-sm btn-outline-info"
                         (click)="openDetails(item)"
                       >
-                        Detail
+                        Détail
                       </button>
                       <button
                         type="button"
@@ -1115,7 +1115,7 @@
         <div class="card border shadow-none mt-4" *ngIf="selectedApplication as selected">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-              <div class="card-title mb-1">Detail candidature {{ selected.reference }}</div>
+              <div class="card-title mb-1">Détail candidature {{ selected.reference }}</div>
               <div class="text-muted fs-12">{{ selected.candidate }} - {{ selected.position }}</div>
             </div>
             <button type="button" class="btn btn-sm btn-light" (click)="closeDetails()">Fermer</button>

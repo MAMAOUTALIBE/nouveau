@@ -26,7 +26,7 @@
             <div class="border rounded p-3 h-100">
               <div class="text-muted fs-11 text-uppercase">PV signes</div>
               <div class="fs-3 fw-semibold mt-1">{{ signedCount() }}</div>
-              <div class="text-muted fs-12 mt-1">Signatures electroniques simulees</div>
+              <div class="text-muted fs-12 mt-1">Signatures électroniques simulees</div>
             </div>
           </div>
           <div class="col-xl-3 col-md-6">
@@ -57,7 +57,7 @@
               <div class="col-xl-3 col-md-6">
                 <label class="form-label">Campagne</label>
                 <select class="form-select" formControlName="campaignCode">
-                  <option value="">Selectionner...</option>
+                  <option value="">Sélectionner...</option>
                   <option *ngFor="let campaign of campaigns" [value]="campaign.code">
                     {{ campaign.code }} - {{ campaign.title }}
                   </option>
@@ -145,7 +145,7 @@
                   <table class="table table-sm table-hover align-middle mb-0">
                     <thead>
                       <tr>
-                        <th>Reference</th>
+                        <th>Référence</th>
                         <th>Candidat</th>
                         <th>Poste</th>
                         <th>Score IA</th>
@@ -194,7 +194,7 @@
               </div>
               <div class="card-footer d-flex flex-wrap justify-content-between gap-2">
                 <div class="text-muted fs-12">
-                  Cree le {{ commission.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                  Créé le {{ commission.createdAt | date: 'dd/MM/yyyy HH:mm' }}
                 </div>
                 <div class="btn-list">
                   <button

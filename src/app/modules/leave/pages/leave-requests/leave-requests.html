@@ -27,7 +27,7 @@
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveRequest()" class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Reference (optionnel)</label>
+                <label class="form-label">Référence (optionnel)</label>
                 <input type="text" class="form-control" formControlName="reference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>
@@ -99,7 +99,7 @@
               type="text"
               class="form-control"
               [value]="searchTerm"
-              placeholder="Recherche reference, agent, type..."
+              placeholder="Recherche référence, agent, type..."
               (input)="onSearchInput(($any($event.target)).value)" />
           </div>
         </div>
@@ -128,7 +128,7 @@
           <div class="col-xl-4">
             <div class="card border shadow-none h-100 mb-0">
               <div class="card-header">
-                <h6 class="card-title mb-1">Detection d'anomalies</h6>
+                <h6 class="card-title mb-1">Détection d'anomalies</h6>
                 <div class="text-muted fs-12">Absences longues, repetitions et retards de traitement</div>
               </div>
               <div class="card-body">
@@ -148,7 +148,7 @@
                   </li>
                 </ul>
                 <ng-template #noAnomaly>
-                  <div class="text-muted fs-12">Aucune anomalie detectee dans la vue courante.</div>
+                  <div class="text-muted fs-12">Aucune anomalie détectée dans la vue courante.</div>
                 </ng-template>
               </div>
             </div>
@@ -157,7 +157,7 @@
             <div class="card border shadow-none h-100 mb-0">
               <div class="card-header">
                 <h6 class="card-title mb-1">Continuite de service</h6>
-                <div class="text-muted fs-12">Periodes avec concentration d'absences</div>
+                <div class="text-muted fs-12">Périodes avec concentration d'absences</div>
               </div>
               <div class="card-body">
                 <div class="fs-3 fw-semibold mb-2">{{ continuityRisks.length }}</div>
@@ -171,7 +171,7 @@
                   </li>
                 </ul>
                 <ng-template #noContinuityRisk>
-                  <div class="text-muted fs-12">Aucun risque de concentration detecte.</div>
+                  <div class="text-muted fs-12">Aucun risque de concentration détecté.</div>
                 </ng-template>
               </div>
             </div>

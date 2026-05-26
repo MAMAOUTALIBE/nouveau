@@ -113,7 +113,7 @@
           <div class="col-lg-4">
             <div class="card border shadow-none mb-3" *ngIf="selectedUnit; else emptySelection">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <div class="fw-semibold">Detail unite</div>
+                <div class="fw-semibold">Détail unite</div>
                 <button type="button" class="btn btn-sm btn-light" (click)="clearSelectedUnit()">Fermer</button>
               </div>
               <div class="card-body">
@@ -177,7 +177,7 @@
             <ng-template #emptySelection>
               <div class="card border shadow-none mb-3">
                 <div class="card-body text-muted">
-                  Selectionnez une unite dans l arbre pour voir les details et modifier son rattachement.
+                  Sélectionnez une unite dans l arbre pour voir les détails et modifier son rattachement.
                 </div>
               </div>
             </ng-template>
@@ -205,7 +205,7 @@
                     Workflow: {{ snapshot.workflowInstanceId }}
                   </div>
                   <div class="text-muted fs-12" *ngIf="snapshot.publishedAt">
-                    Publie: {{ snapshot.publishedAt | date: 'dd/MM/yyyy HH:mm' }}
+                    Publié: {{ snapshot.publishedAt | date: 'dd/MM/yyyy HH:mm' }}
                   </div>
 
                   <div class="d-flex flex-wrap gap-2 mt-2">
