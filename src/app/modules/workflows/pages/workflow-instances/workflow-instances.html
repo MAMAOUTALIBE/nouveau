@@ -43,7 +43,7 @@
                   (ngModelChange)="onCreateDefinitionChange()"
                   required
                 >
-                  <option value="" disabled>Selectionner un workflow</option>
+                  <option value="" disabled>Sélectionner un workflow</option>
                   @for (definition of workflowDefinitions; track definition.code) {
                   <option [value]="definition.code">{{ definition.name }} ({{ definition.code }})</option>
                   }
@@ -77,7 +77,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Echeance</label>
+                <label class="form-label">Échéance</label>
                 <input
                   type="datetime-local"
                   class="form-control"
@@ -125,7 +125,7 @@
             <div>
               <h6 class="mb-1">Auto-escalade SLA</h6>
               <p class="mb-0 text-muted fs-11">
-                Supervision continue des echeances critiques avec actions automatiques et journal temps reel.
+                Supervision continue des échéances critiques avec actions automatiques et journal temps reel.
               </p>
             </div>
             <div class="automation-actions">
@@ -399,7 +399,7 @@
                 </span>
               </div>
               <div class="simulation-stat-card wide">
-                <span class="simulation-stat-label">Generation</span>
+                <span class="simulation-stat-label">Génération</span>
                 <span class="simulation-stat-value fs-11">
                   {{ simulationResult.generatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
                 </span>
@@ -417,7 +417,7 @@
                     <th>Score actuel</th>
                     <th>Score projete</th>
                     <th>Delta</th>
-                    <th>Echeance</th>
+                    <th>Échéance</th>
                     <th>Action</th>
                   </tr>
                 </thead>
@@ -557,7 +557,7 @@
               <div class="queue-main">
                 <div class="fw-semibold">{{ instance.id }} - {{ instance.definition }}</div>
                 <div class="text-muted fs-11">
-                  {{ instance.requester }} - Echeance {{ instance.dueOn | date: 'dd/MM HH:mm' }} -
+                  {{ instance.requester }} - Échéance {{ instance.dueOn | date: 'dd/MM HH:mm' }} -
                   {{ recommendationReasons(instance).join(' | ') }}
                 </div>
               </div>
@@ -595,7 +595,7 @@
                 <th>Owner</th>
                 <th>Escalade</th>
                 <th>Priorite</th>
-                <th>Echeance</th>
+                <th>Échéance</th>
                 <th>SLA</th>
                 <th>Score risque</th>
                 <th>Urgence</th>

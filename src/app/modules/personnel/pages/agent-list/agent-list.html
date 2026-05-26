@@ -270,7 +270,7 @@
           @if (showDuplicates) {
             <div class="p-3 pt-1">
               <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
-                <div class="text-muted fs-12">Detection automatique des fiches agents a fusionner</div>
+                <div class="text-muted fs-12">Détection automatique des fiches agents a fusionner</div>
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-primary"
@@ -287,7 +287,7 @@
                   <table class="table text-nowrap align-middle mb-0 agents-table">
                     <thead>
                       <tr>
-                        <th>Reference</th>
+                        <th>Référence</th>
                         <th>Champ</th>
                         <th>Valeur</th>
                         <th>Impact</th>
@@ -298,7 +298,7 @@
                     <tbody>
                       @if (!duplicateCases.length) {
                         <tr>
-                          <td colspan="6" class="text-center text-muted">Aucun doublon detecte</td>
+                          <td colspan="6" class="text-center text-muted">Aucun doublon détecté</td>
                         </tr>
                       } @else {
                         @for (item of duplicateCases; track item.reference) {

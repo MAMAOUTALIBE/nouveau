@@ -26,7 +26,7 @@
         <!-- Filtres -->
         <div class="row g-3 align-items-end mb-4">
           <div class="col-lg-4 col-md-6">
-            <label class="form-label fw-semibold">Periode</label>
+            <label class="form-label fw-semibold">Période</label>
             <select class="form-select" [(ngModel)]="selectedPeriodDays" (change)="reload()">
               <option *ngFor="let option of periodOptions" [ngValue]="option.value">{{ option.label }}</option>
             </select>
@@ -140,7 +140,7 @@
                     <i class="ri-building-line text-primary me-1"></i>Effectifs par direction
                   </h6>
                   <div class="text-muted fs-12" *ngIf="!data.directionDistribution.length">
-                    Aucune donnee d'effectif disponible.
+                    Aucune donnée d'effectif disponible.
                   </div>
                   <div *ngFor="let item of data.directionDistribution" class="mb-3">
                     <div class="d-flex justify-content-between">
@@ -156,10 +156,10 @@
               <div class="col-xl-6">
                 <div class="border rounded-3 p-3 h-100">
                   <h6 class="fw-semibold mb-3">
-                    <i class="ri-calendar-event-line text-primary me-1"></i>Absences par type (periode)
+                    <i class="ri-calendar-event-line text-primary me-1"></i>Absences par type (période)
                   </h6>
                   <div class="text-muted fs-12" *ngIf="!data.leaveByType.length">
-                    Aucune absence sur la periode selectionnee.
+                    Aucune absence sur la période sélectionnée.
                   </div>
                   <div *ngFor="let item of data.leaveByType" class="mb-3">
                     <div class="d-flex justify-content-between">
@@ -189,8 +189,8 @@
                     style="width: 64px; height: 64px">
                     <i class="ri-shield-check-line fs-3 text-success"></i>
                   </div>
-                  <div class="fw-semibold mb-1">Aucun risque majeur detecte</div>
-                  <div class="text-muted fs-12">Les circuits de validation respectent leurs delais.</div>
+                  <div class="fw-semibold mb-1">Aucun risque majeur détecté</div>
+                  <div class="text-muted fs-12">Les circuits de validation respectent leurs délais.</div>
                 </div>
                 <div class="table-responsive border rounded-3" style="max-height: 420px" *ngIf="data.riskItems.length">
                   <table class="table text-nowrap mb-0">
@@ -255,7 +255,7 @@
                 style="width: 64px; height: 64px">
                 <i class="ri-shield-check-line fs-3 text-success"></i>
               </div>
-              <div class="fw-semibold mb-1">Aucun signal de turn-over detecte</div>
+              <div class="fw-semibold mb-1">Aucun signal de turn-over détecté</div>
               <div class="text-muted fs-12">Aucun agent ne presente de risque de depart notable.</div>
             </div>
             <div

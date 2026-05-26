@@ -21,7 +21,7 @@
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveAffectation()" class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Reference (optionnel)</label>
+                <label class="form-label">Référence (optionnel)</label>
                 <input type="text" class="form-control" formControlName="reference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>

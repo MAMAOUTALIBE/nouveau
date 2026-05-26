@@ -3,7 +3,7 @@
     <div class="card custom-card">
       <div class="card-header justify-content-between">
         <div>
-          <h5 class="card-title mb-1">Discipline - Pilotage operationnel</h5>
+          <h5 class="card-title mb-1">Discipline - Pilotage opérationnel</h5>
           <p class="mb-0 text-muted fs-12">
             Gestion des conflits, sanctions, recours et radiations sur un cycle complet.
           </p>
@@ -115,7 +115,7 @@
             <form class="row g-2" [formGroup]="filtersForm">
               <div class="col-lg-3 col-md-6">
                 <label class="form-label mb-1">Recherche</label>
-                <input type="text" class="form-control" formControlName="q" placeholder="Reference, agent, motif..." />
+                <input type="text" class="form-control" formControlName="q" placeholder="Référence, agent, motif..." />
               </div>
               <div class="col-lg-2 col-md-6">
                 <label class="form-label mb-1">Statut</label>
@@ -173,7 +173,7 @@
           <div class="card-body">
             <form [formGroup]="form" (ngSubmit)="saveCase()" class="row g-3">
               <div class="col-md-3">
-                <label class="form-label">Reference (optionnel)</label>
+                <label class="form-label">Référence (optionnel)</label>
                 <input type="text" class="form-control" formControlName="reference" />
                 <div class="text-danger fs-11 mt-1" *ngIf="fieldError('reference') as error">{{ error }}</div>
               </div>
@@ -263,7 +263,7 @@
                   <table class="table table-hover text-nowrap align-middle mb-0">
                     <thead>
                       <tr>
-                        <th>Reference</th>
+                        <th>Référence</th>
                         <th>Agent</th>
                         <th>Motif</th>
                         <th>Gravite</th>
@@ -305,7 +305,7 @@
                         <td class="text-end">
                           <div class="d-inline-flex gap-1">
                             <button type="button" class="btn btn-sm btn-light" (click)="selectCase(item)">
-                              Detail
+                              Détail
                             </button>
                             <button
                               type="button"
@@ -348,7 +348,7 @@
               </div>
               <div class="card-body">
                 <div *ngIf="!selectedCase" class="alert alert-info-transparent mb-0">
-                  Selectionne un dossier dans la table pour gerer mediation, sanction, recours et cloture.
+                  Selectionne un dossier dans la table pour gérer mediation, sanction, recours et cloture.
                 </div>
 
                 <div *ngIf="selectedCase">
@@ -393,7 +393,7 @@
                       </select>
                     </div>
                     <div class="col-md-4">
-                      <label class="form-label mb-1">Duree (jours)</label>
+                      <label class="form-label mb-1">Durée (jours)</label>
                       <input type="number" min="0" class="form-control" formControlName="sanctionDurationDays" />
                     </div>
                     <div class="col-md-4">
