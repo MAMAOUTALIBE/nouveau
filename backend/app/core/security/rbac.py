@@ -23,6 +23,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.config import get_settings
 from app.core.db import get_session
 from app.core.errors import AuthenticationError, ForbiddenError
 from app.core.security.tokens import decode_token
@@ -131,11 +132,22 @@ async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> AuthenticatedUser:
-    """Dépendance principale : extrait le JWT, charge l'utilisateur en DB."""
-    if credentials is None or credentials.scheme.lower() != "bearer":
+    """Dépendance principale : extrait le JWT, charge l'utilisateur en DB.
+
+    Ordre de lecture (cf. ADR P0 #4) :
+    1. Cookie httpOnly ``settings.jwt_cookie_name`` (mode cible).
+    2. Header ``Authorization: Bearer <token>`` (compat : tests E2E,
+       scripts cURL et clients pas encore migrés — D5).
+    3. Sinon → 401.
+    """
+    settings = get_settings()
+    token = request.cookies.get(settings.jwt_cookie_name)
+    if not token and credentials is not None and credentials.scheme.lower() == "bearer":
+        token = credentials.credentials
+    if not token:
         raise AuthenticationError("Authentification requise.")
 
-    payload = decode_token(credentials.credentials, expected_type="access")
+    payload = decode_token(token, expected_type="access")
     user = await _load_user(session, payload.user_id)
     if user is None:
         raise AuthenticationError("Utilisateur introuvable.", code="USER_NOT_FOUND")
