@@ -21,6 +21,7 @@ def _make_settings(env: Environment) -> Settings:
 
     On bypasse `.env` pour rester déterministe en CI.
     """
+    is_secure_env = env in {Environment.STAGING, Environment.PROD}
     return Settings(  # type: ignore[call-arg]
         env=env,
         jwt_secret_key="x" * 64,  # >= 32 chars (validator prod)
@@ -33,6 +34,10 @@ def _make_settings(env: Environment) -> Settings:
         # introduits par le Sub-ticket A PII (44 chars base64-urlsafe Fernet + 64 hex HMAC).
         pii_encryption_keys="kv1:" + "A" * 43 + "=",
         email_lookup_hmac_key="0" * 64,
+        # P0 #4 cookies httpOnly : validators staging/prod requièrent Secure=True
+        # et tokens hors body. Helper expose les bonnes valeurs par env.
+        jwt_cookie_secure=is_secure_env,
+        jwt_return_token_in_body=not is_secure_env,
     )
 
 

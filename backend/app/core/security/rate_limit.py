@@ -88,6 +88,7 @@ class LoginRateLimiter:
 
 # Singleton applicatif
 _default_limiter: LoginRateLimiter | None = None
+_refresh_limiter: LoginRateLimiter | None = None
 
 
 def get_login_limiter() -> LoginRateLimiter:
@@ -95,3 +96,29 @@ def get_login_limiter() -> LoginRateLimiter:
     if _default_limiter is None:
         _default_limiter = LoginRateLimiter()
     return _default_limiter
+
+
+def get_refresh_limiter() -> LoginRateLimiter:
+    """Limiteur dédié à /refresh (compteur séparé du login).
+
+    Réutilise la classe :class:`LoginRateLimiter` (même mécanique fenêtre
+    glissante + lock) avec une configuration dédiée (seuils plus serrés).
+    L'isolation du state interne (``self._state``) évite que les échecs
+    /refresh fassent basculer le compteur /login en lock — et inversement.
+    """
+    global _refresh_limiter
+    if _refresh_limiter is None:
+        s = get_settings()
+        _refresh_limiter = LoginRateLimiter(
+            max_attempts=s.rate_limit_refresh_max,
+            window_seconds=s.rate_limit_refresh_window_seconds,
+            lock_seconds=s.rate_limit_refresh_lock_seconds,
+        )
+    return _refresh_limiter
+
+
+def reset_limiters_for_tests() -> None:
+    """Reset des singletons (à utiliser uniquement dans les tests)."""
+    global _default_limiter, _refresh_limiter
+    _default_limiter = None
+    _refresh_limiter = None

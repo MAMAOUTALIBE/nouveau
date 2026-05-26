@@ -61,6 +61,22 @@ class Settings(BaseSettings):
     rate_limit_login_window_seconds: Annotated[int, Field(ge=10)] = 60
     rate_limit_login_lock_seconds: Annotated[int, Field(ge=60)] = 900
 
+    # Rate-limit /refresh (compteur séparé du login, seuils plus serrés).
+    rate_limit_refresh_max: Annotated[int, Field(ge=1)] = 10
+    rate_limit_refresh_window_seconds: Annotated[int, Field(ge=10)] = 60
+    rate_limit_refresh_lock_seconds: Annotated[int, Field(ge=60)] = 300
+
+    # ---------------- Cookies JWT (httpOnly) ----------------
+    # Cf. ADR P0 #4 : deux cookies distincts, refresh confiné par path.
+    jwt_cookie_name: str = "rh_access"
+    jwt_refresh_cookie_name: str = "rh_refresh"
+    jwt_cookie_samesite: str = "lax"
+    jwt_cookie_secure: bool = False
+    jwt_cookie_domain: str | None = None
+    # Transition : en dev on renvoie aussi les tokens dans le body (compat
+    # tests E2E + scripts cURL). En staging/prod : interdit (validator).
+    jwt_return_token_in_body: bool = True
+
     allowed_origins: str = "http://127.0.0.1:4200,http://localhost:4200"
 
     # ---------------- Base de données ----------------
@@ -213,6 +229,36 @@ class Settings(BaseSettings):
             raise ValueError("EMAIL_LOOKUP_HMAC_KEY doit être une chaîne hexadécimale.") from err
         return v
 
+    @field_validator("jwt_cookie_samesite")
+    @classmethod
+    def _check_cookie_samesite(cls, v: str) -> str:
+        normalized = v.lower()
+        if normalized not in {"strict", "lax", "none"}:
+            raise ValueError("JWT_COOKIE_SAMESITE doit être l'une de {strict, lax, none}.")
+        return normalized
+
+    @field_validator("jwt_cookie_secure")
+    @classmethod
+    def _check_cookie_secure(cls, v: bool, info: ValidationInfo) -> bool:
+        env = info.data.get("env", Environment.DEV)
+        if env in {Environment.STAGING, Environment.PROD} and not v:
+            raise ValueError(
+                "JWT_COOKIE_SECURE doit être True en staging/prod "
+                "(les cookies d'authentification doivent exiger HTTPS)."
+            )
+        return v
+
+    @field_validator("jwt_return_token_in_body")
+    @classmethod
+    def _check_token_in_body(cls, v: bool, info: ValidationInfo) -> bool:
+        env = info.data.get("env", Environment.DEV)
+        if env in {Environment.STAGING, Environment.PROD} and v:
+            raise ValueError(
+                "JWT_RETURN_TOKEN_IN_BODY doit être False en staging/prod "
+                "(les tokens ne doivent pas fuiter via le body de la réponse)."
+            )
+        return v
+
     @field_validator("database_url")
     @classmethod
     def _check_database_url_async_driver(cls, v: str) -> str:
@@ -251,13 +297,20 @@ class Settings(BaseSettings):
         """
         raw = self.upload_allowed_mime_types
         if isinstance(raw, str):
-            items = [t.strip().lower() for t in raw.split(",") if t.strip()]
+            candidates = [mime.strip() for mime in raw.split(",")]
         else:
-            items = [t.strip().lower() for t in raw if t and t.strip()]
-        seen: dict[str, None] = {}
-        for it in items:
-            seen.setdefault(it, None)
-        return list(seen.keys())
+            candidates = [mime.strip() for mime in raw]
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for mime in candidates:
+            if not mime:
+                continue
+            lowered = mime.lower()
+            if lowered in seen:
+                continue
+            seen.add(lowered)
+            normalized.append(lowered)
+        return normalized
 
     @property
     def is_prod(self) -> bool:

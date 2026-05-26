@@ -36,13 +36,33 @@ class UserSummary(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    """Réponse /login.
+
+    Le champ ``tokens`` est optionnel : en mode cookie httpOnly (staging/prod),
+    les tokens sont posés en cookies et NE doivent PAS apparaître dans le body.
+    En dev, ils restent dans le body pour préserver la compat (tests E2E,
+    scripts cURL). Cf. ``settings.jwt_return_token_in_body``.
+    """
+
     user: UserSummary
-    tokens: TokenPair
+    tokens: TokenPair | None = None
 
 
 class RefreshRequest(BaseModel):
-    refresh_token: str = Field(..., min_length=10)
+    """Body de /refresh.
+
+    En mode cookie httpOnly, le refresh token est lu depuis le cookie
+    ``rh_refresh`` et le body peut être vide. Le champ reste accepté pour
+    préserver la compat (clients qui n'ont pas encore migré).
+    """
+
+    refresh_token: str | None = Field(default=None, min_length=10)
 
 
 class RefreshResponse(BaseModel):
-    tokens: TokenPair
+    """Réponse /refresh.
+
+    Tokens optionnels pour la même raison que :class:`LoginResponse`.
+    """
+
+    tokens: TokenPair | None = None
