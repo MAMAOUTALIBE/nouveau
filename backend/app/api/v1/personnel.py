@@ -380,6 +380,11 @@ async def list_dossiers(
 # Turnover risk — restreint aux rôles habilités (DRH)
 # ============================================================================
 @router.get("/turnover-risk", response_model=list[TurnoverRiskItem])
+@router.get(
+    "/risques-turnover",
+    response_model=list[TurnoverRiskItem],
+    name="list_turnover_risk_fr_alias",
+)
 async def list_turnover_risk(
     current_user: Annotated[
         AuthenticatedUser,
@@ -390,6 +395,11 @@ async def list_turnover_risk(
     min_level: RiskLevel | None = None,
 ) -> list[TurnoverRiskItem]:
     """Liste les agents avec leur score de turnover.
+
+    Exposé sous deux chemins équivalents :
+    - ``/personnel/turnover-risk`` (canonique, anglais)
+    - ``/personnel/risques-turnover`` (alias français, hérité du
+      mock-backend Angular — câblé en V1.0 pour remplacer le stub vide).
 
     **Règle métier non négociable** : le scoring n'est lisible que par les
     rôles habilités (hr_manager, super_admin). Un manager direct (N+1)

@@ -67,3 +67,36 @@ class ModernizationSummary(BaseModel):
     total_in_progress: int
     total_planned: int
     overall_progress_pct: float
+
+
+# ---------------------------------------------------------------------------
+# Vues métier composées (dashboard ops/pilotage) — V1.0
+# ---------------------------------------------------------------------------
+class DashboardOperationsResponse(BaseModel):
+    """Vue Opérations : indicateurs court-terme (RH au quotidien).
+
+    Composée d'agrégats déjà calculés par ``dashboard_service`` — pas de
+    nouvelle requête métier, juste un regroupement frontend-friendly.
+    """
+
+    organization_id: UUID
+    generated_at: datetime
+    leave_requests_pending: int
+    documents_pending_validation: int
+    workflows_in_progress: int
+    discipline_cases_open: int
+    employees_by_direction: list[dict[str, str | int]] = Field(default_factory=list)
+    leave_by_status: list[dict[str, str | int]] = Field(default_factory=list)
+
+
+class DashboardPilotageResponse(BaseModel):
+    """Vue Pilotage : indicateurs stratégiques (DRH).
+
+    Re-projette le ``DashboardSummary`` avec un focus pilotage (effectifs,
+    formation, départs prévisibles, charge auditable).
+    """
+
+    organization_id: UUID
+    generated_at: datetime
+    summary: DashboardSummary
+    counts: list[DashboardCount] = Field(default_factory=list)
