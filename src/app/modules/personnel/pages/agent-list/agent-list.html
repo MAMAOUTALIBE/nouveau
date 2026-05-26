@@ -460,13 +460,17 @@
                     <td>{{ agent.matricule }}</td>
                     <td>
                       <div class="d-flex align-items-center gap-2">
-                        <span class="avatar avatar-sm avatar-rounded">
-                          <img
-                            [src]="agentPhoto(agent)"
-                            [alt]="'Photo de ' + agent.fullName"
-                            class="object-fit-cover"
-                            (error)="onPhotoError($event)" />
-                        </span>
+                        @if (agent.photoUrl) {
+                          <span class="avatar avatar-sm avatar-rounded">
+                            <img
+                              [src]="agent.photoUrl"
+                              [alt]="'Photo de ' + agent.fullName"
+                              class="object-fit-cover"
+                              (error)="onPhotoError($event)" />
+                          </span>
+                        } @else {
+                          <initials-avatar [name]="agent.fullName" size="sm" />
+                        }
                         <div>
                           <div>{{ agent.fullName }}</div>
                           <div class="text-muted fs-11">Manager: {{ agent.manager || '—' }}</div>

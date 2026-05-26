@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import * as QRCode from 'qrcode';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { SpkReusableTables } from '../../../../@spk/tables/spk-reusable-tables/spk-reusable-tables/spk-reusable-tables';
+import { InitialsAvatar } from '../../../../shared/components/initials-avatar/initials-avatar';
 import { ActivatedRoute } from '@angular/router';
 import { APP_PERMISSIONS, AccessControlService } from '../../../../core/security/access-control.service';
 import { DisciplineCase, DisciplineService } from '../../../discipline/discipline.service';
@@ -73,7 +74,7 @@ const DEPENDENT_STATUSES: AgentDependent['coverageStatus'][] = ['Actif', 'Suspen
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgbNavModule, SpkReusableTables],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgbNavModule, SpkReusableTables, InitialsAvatar],
   templateUrl: './agent-detail.html',
   styles: [
     `
@@ -200,6 +201,11 @@ export class AgentDetailPage implements OnInit {
   loadingAuditTrail = false;
   photoPreview = this.fallbackPhoto;
   selectedPhotoFileName = '';
+
+  hasRealPhoto(): boolean {
+    const preview = String(this.photoPreview || '').trim();
+    return preview.length > 0 && preview !== this.fallbackPhoto;
+  }
   competencyLevels = COMPETENCY_LEVELS;
   dependentStatuses = DEPENDENT_STATUSES;
   competencyDraft: AgentCompetency = this.createEmptyCompetency();

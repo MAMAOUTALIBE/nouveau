@@ -29,6 +29,7 @@ import {
   summarizeDocumentCompliance,
 } from '../../personnel-document-compliance';
 import { AccessControlService } from '../../../../core/security/access-control.service';
+import { InitialsAvatar } from '../../../../shared/components/initials-avatar/initials-avatar';
 
 interface AgentHrDeadline {
   label: string;
@@ -58,7 +59,7 @@ const MATRICULE_PATTERN = /^PRM-\d{4,8}$/;
 @Component({
   selector: 'app-agent-list',
   standalone: true,
-  imports: [SpkNgSelect, FormsModule, RouterLink, NgClass, NgbDropdownModule],
+  imports: [SpkNgSelect, FormsModule, RouterLink, NgClass, NgbDropdownModule, InitialsAvatar],
   styleUrls: ['./agent-list.scss'],
   templateUrl: './agent-list.html',
 })
