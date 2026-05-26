@@ -432,16 +432,12 @@
         }
 
         <div class="table-responsive">
-          <table class="table text-nowrap">
+          <table class="table text-nowrap agents-table">
             <thead>
               <tr>
                 <th i18n="@@personnel.agents.col_matricule">Matricule</th>
                 <th i18n="@@personnel.agents.col_fullname">Nom complet</th>
                 <th i18n="@@personnel.agents.col_direction">Direction</th>
-                <th>Unité</th>
-                <th>Poste</th>
-                <th>Contrat</th>
-                <th>Statut</th>
                 <th>Documents</th>
                 <th>Échéance RH</th>
                 <th>Qualité</th>
@@ -452,7 +448,7 @@
             <tbody>
               @if (!currentAgents.length) {
                 <tr>
-                  <td colspan="12" class="text-center text-muted">Aucun agent trouvé</td>
+                  <td colspan="8" class="text-center text-muted">Aucun agent trouvé</td>
                 </tr>
               } @else {
                 @for (agent of displayedAgents(); track agent.id) {
@@ -478,21 +474,17 @@
                       </div>
                     </td>
                     <td>{{ agent.direction }}</td>
-                    <td>{{ agent.unit || '—' }}</td>
-                    <td>{{ agent.position }}</td>
-                    <td>{{ agent.contractType || '—' }}</td>
-                    <td>{{ agent.status }}</td>
                     <td>
-                      <div class="d-flex flex-column gap-1" [attr.title]="documentSummaryTooltip(agent)">
-                        <span class="badge align-self-start agent-document-badge" [ngClass]="documentBadgeClass(agent)">
-                          {{ documentSummaryLabel(agent) }}
-                        </span>
+                      <span
+                        class="badge agent-document-badge"
+                        [ngClass]="documentBadgeClass(agent)"
+                        [attr.title]="documentSummaryTooltip(agent)">
                         @if (agent.hasDocumentData) {
-                          <div class="text-muted fs-11">{{ agent.documentSummary.requiredCount }} pièce(s) suivie(s)</div>
+                          <i class="ri-file-list-3-line me-1" aria-hidden="true"></i>{{ agent.documentSummary.compliantCount }}/{{ agent.documentSummary.requiredCount }}
                         } @else {
-                          <div class="text-muted fs-11">Source non enrichie</div>
+                          <i class="ri-question-mark me-1" aria-hidden="true"></i>—
                         }
-                      </div>
+                      </span>
                     </td>
                     <td>
                       @if (!agent.nextDeadline) {
@@ -516,12 +508,15 @@
                     </td>
                     <td>
                       @if (!agent.issues.length) {
-                        <span class="text-success fs-12">Aucune</span>
+                        <span class="badge bg-success-transparent">
+                          <i class="ri-check-line me-1" aria-hidden="true"></i>OK
+                        </span>
                       } @else {
-                        <div class="text-danger fs-12">{{ agent.issues[0] }}</div>
-                        @if (agent.issues.length > 1) {
-                          <div class="text-muted fs-11">+{{ agent.issues.length - 1 }} autres</div>
-                        }
+                        <span
+                          class="badge bg-danger-transparent text-danger"
+                          [attr.title]="agent.issues.join(' • ')">
+                          <i class="ri-alert-line me-1" aria-hidden="true"></i>{{ agent.issues.length }}
+                        </span>
                       }
                     </td>
                     <td class="text-end">

@@ -15,6 +15,21 @@
     background-color: transparent !important;
     color: inherit !important;
   }
+
+  // Action sticky-right pour rester visible meme avec scroll horizontal residuel.
+  thead th:last-child,
+  tbody td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: var(--default-body-bg-color);
+  }
+
+  // Compaction verticale : +1-2 lignes visibles sans scroll
+  tbody td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 }
 
 .agent-list-sticky {
@@ -58,11 +73,15 @@
   color: #fff;
 }
 
-.agent-document-badge,
 .agent-deadline-badge {
   white-space: normal;
   text-align: left;
   line-height: 1.2;
+}
+
+// Badges compacts pour Documents/Anomalies
+.agent-document-badge {
+  white-space: nowrap;
 }
 
 /* Bande d'indicateurs compacte : remplace les 7 grandes cartes KPI */
