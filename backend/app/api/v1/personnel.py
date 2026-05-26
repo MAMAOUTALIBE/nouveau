@@ -5,13 +5,20 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.audit import AuditWriter, get_audit_writer
+from app.core.config import Settings, get_settings
 from app.core.db import get_session
 from app.core.errors import ForbiddenError
 from app.core.security.rbac import AuthenticatedUser, require_permissions
+from app.core.security.upload_guard import (
+    UploadInvalidMimeError,
+    UploadMalwareDetectedError,
+    UploadTooLargeError,
+    validate_upload,
+)
 from app.schemas.common import Page
 from app.schemas.personnel import (
     AgentCreateRequest,
@@ -157,10 +164,63 @@ async def upload_personnel_file(
         Depends(require_permissions(any_of=["personnel:manage", "*"])),
     ],
     session: Annotated[AsyncSession, Depends(get_session)],
+    audit: Annotated[AuditWriter, Depends(get_audit_writer)],
+    settings: Annotated[Settings, Depends(get_settings)],
     file: Annotated[UploadFile, File(description="Pièce à téléverser")],
 ) -> PersonnelUploadedFile:
-    """Téléverse une pièce attachée à un dossier agent (file_objects)."""
-    content = await file.read()
+    """Téléverse une pièce attachée à un dossier agent (file_objects).
+
+    Le fichier est validé par :func:`validate_upload` (taille, MIME, scan AV
+    optionnel) AVANT d'atteindre le service métier — un upload trop gros est
+    coupé en streaming sans charger la RAM.
+    """
+    try:
+        content = await validate_upload(file, settings)
+    except UploadTooLargeError as err:
+        # FastAPI/Starlette : "REQUEST_ENTITY_TOO_LARGE" est déprécié, on
+        # utilise la constante moderne. Code HTTP inchangé (413).
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail=(f"Le fichier dépasse la taille maximale autorisée ({err.max_size} octets)."),
+        ) from err
+    except UploadInvalidMimeError as err:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail={
+                "message": "Type de fichier non autorisé.",
+                "received": err.received,
+                "allowed": err.allowed,
+            },
+        ) from err
+    except UploadMalwareDetectedError as err:
+        # Audit du scan rejeté (sans le contenu du fichier).
+        if settings.clamav_enabled:
+            await audit.record(
+                action="UPLOAD_ANTIVIRUS_REJECTED",
+                target_type="file_object",
+                metadata={
+                    "filename": file.filename,
+                    "mime_type": file.content_type,
+                    "verdict": err.virus_name,
+                },
+                status="FAILURE",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Fichier rejeté par le scan antivirus.",
+        ) from err
+
+    if settings.clamav_enabled:
+        await audit.record(
+            action="UPLOAD_ANTIVIRUS_PASSED",
+            target_type="file_object",
+            metadata={
+                "filename": file.filename,
+                "mime_type": file.content_type,
+                "byte_size": len(content),
+            },
+        )
+
     return await personnel_service.create_personnel_upload(
         session,
         organization_id=current_user.organization_id,
