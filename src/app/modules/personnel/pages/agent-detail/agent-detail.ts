@@ -8,7 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import * as QRCode from 'qrcode';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { SpkReusableTables } from '../../../../@spk/tables/spk-reusable-tables/spk-reusable-tables/spk-reusable-tables';
-import { InitialsAvatar } from '../../../../shared/components/initials-avatar/initials-avatar';
+import { CartoonAvatar } from '../../../../shared/components/cartoon-avatar/cartoon-avatar';
 import { ActivatedRoute } from '@angular/router';
 import { APP_PERMISSIONS, AccessControlService } from '../../../../core/security/access-control.service';
 import { DisciplineCase, DisciplineService } from '../../../discipline/discipline.service';
@@ -74,7 +74,7 @@ const DEPENDENT_STATUSES: AgentDependent['coverageStatus'][] = ['Actif', 'Suspen
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgbNavModule, SpkReusableTables, InitialsAvatar],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, NgbNavModule, SpkReusableTables, CartoonAvatar],
   templateUrl: './agent-detail.html',
   styles: [
     `
