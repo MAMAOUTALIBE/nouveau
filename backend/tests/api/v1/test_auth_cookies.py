@@ -280,6 +280,9 @@ async def test_login_cookies_have_secure_flag_in_prod(
         "JWT_SECRET_KEY",
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
     )
+    # Sub-A PII : validators staging/prod exigent ces 2 clés
+    monkeypatch.setenv("PII_ENCRYPTION_KEYS", "kv1:" + "A" * 43 + "=")
+    monkeypatch.setenv("EMAIL_LOOKUP_HMAC_KEY", "0" * 64)
     get_settings.cache_clear()
     _patch_login_success(monkeypatch)
 
@@ -359,6 +362,9 @@ async def test_login_body_omits_tokens_when_flag_false(
         "JWT_SECRET_KEY",
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
     )
+    # Sub-A PII : validators staging/prod exigent ces 2 clés
+    monkeypatch.setenv("PII_ENCRYPTION_KEYS", "kv1:" + "A" * 43 + "=")
+    monkeypatch.setenv("EMAIL_LOOKUP_HMAC_KEY", "0" * 64)
     get_settings.cache_clear()
     _patch_login_success(monkeypatch)
 
