@@ -17,6 +17,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:ui": "playwright test --ui",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "i18n:extract": "ng extract-i18n --output-path=src/locale --out-file=messages.xlf --format=xlf",
+    "i18n:build:en": "ng build --configuration production-en",
     "sass": "sass  ./public/assets/scss:./public/assets/css/",
     "sass-min": "sass ./public/assets/scss:./public/assets/css/ --style compressed"
   },

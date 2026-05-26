@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="fr-GN" target-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <trans-unit id="auth.login.title" datatype="html">
+        <source>Connexion RH</source>
+        <target>HR Sign-in</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication/login/login.html</context>
+          <context context-type="linenumber">28,29</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.subtitle" datatype="html">
+        <source>Connectez-vous pour accéder au portail de gestion RH.</source>
+        <target>Sign in to access the HR management portal.</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication/login/login.html</context>
+          <context context-type="linenumber">29,30</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.email_label" datatype="html">
+        <source>Adresse e-mail</source>
+        <target>Email address</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication/login/login.html</context>
+          <context context-type="linenumber">32,34</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.password_label" datatype="html">
+        <source>Mot de passe</source>
+        <target>Password</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication/login/login.html</context>
+          <context context-type="linenumber">44,45</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="auth.login.submit" datatype="html">
+        <source> Se connecter </source>
+        <target> Sign in </target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/authentication/login/login.html</context>
+          <context context-type="linenumber">75,76</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="personnel.agents.title" datatype="html">
+        <source>Liste des agents</source>
+        <target>Agents list</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/personnel/pages/agent-list/agent-list.html</context>
+          <context context-type="linenumber">11,12</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="personnel.agents.create_button" datatype="html">
+        <source>Nouvel agent</source>
+        <target>New agent</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/personnel/pages/agent-list/agent-list.html</context>
+          <context context-type="linenumber">20,22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="personnel.agents.col_matricule" datatype="html">
+        <source>Matricule</source>
+        <target>ID number</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/personnel/pages/agent-list/agent-list.html</context>
+          <context context-type="linenumber">438,439</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="personnel.agents.col_fullname" datatype="html">
+        <source>Nom complet</source>
+        <target>Full name</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/personnel/pages/agent-list/agent-list.html</context>
+          <context context-type="linenumber">439,440</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="personnel.agents.col_direction" datatype="html">
+        <source>Direction</source>
+        <target>Department</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/modules/personnel/pages/agent-list/agent-list.html</context>
+          <context context-type="linenumber">440,442</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="shared.header.toggle_sidebar" datatype="html">
+        <source>Afficher ou masquer le menu latéral</source>
+        <target>Show or hide the side menu</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/shared/components/header/header.ts</context>
+          <context context-type="linenumber">63</context>
+        </context-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

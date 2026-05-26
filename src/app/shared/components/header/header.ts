@@ -60,6 +60,7 @@ export class Header implements OnInit, OnDestroy {
   commandResults: CommandItem[] = [];
   activeCommandIndex = 0;
   readonly commandHint = this.isMacPlatform() ? 'Cmd+K' : 'Ctrl+K';
+  readonly toggleSidebarLabel = $localize`:@@shared.header.toggle_sidebar:Afficher ou masquer le menu latéral`;
 
   constructor() { }
 

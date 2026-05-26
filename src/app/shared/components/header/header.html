@@ -23,7 +23,7 @@
       <!-- Start::header-element -->
       <div class="header-element">
         <!-- Start::header-link -->
-        <a (click)="toggleSidebar()" aria-label="Afficher ou masquer le menu latéral"
+        <a (click)="toggleSidebar()" [attr.aria-label]="toggleSidebarLabel"
           class="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle" data-bs-toggle="sidebar"
           href="javascript:void(0);"><span></span></a>
         <!-- End::header-link -->

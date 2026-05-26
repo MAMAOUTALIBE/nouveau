@@ -25,11 +25,11 @@
                   src="./assets/images/brand-logos/toggle-logo.png" class="sign-favicon ht-40" alt="logo"></a></div>
             <div class="">
               <div class="main-signup-header">
-                <h2>Connexion RH</h2>
-                <h6 class="font-weight-semibold mb-4">Connectez-vous pour accéder au portail de gestion RH.</h6>
+                <h2 i18n="@@auth.login.title">Connexion RH</h2>
+                <h6 class="font-weight-semibold mb-4" i18n="@@auth.login.subtitle">Connectez-vous pour accéder au portail de gestion RH.</h6>
                 <form [formGroup]="loginForm" (ngSubmit)="submit()">
                   <div class="col-xl-12">
-                    <label for="signin-username" class="form-label text-default">Adresse e-mail</label>
+                    <label for="signin-username" class="form-label text-default" i18n="@@auth.login.email_label">Adresse e-mail</label>
                     <input
                       type="email"
                       class="form-control mb-3"
@@ -41,7 +41,7 @@
                   </div>
 
                   <div class="col-xl-12 mb-2">
-                    <label for="signin-password" class="form-label text-default d-block">Mot de passe</label>
+                    <label for="signin-password" class="form-label text-default d-block" i18n="@@auth.login.password_label">Mot de passe</label>
                     <div class="input-group">
                       <input
                         formControlName="password"
@@ -70,6 +70,7 @@
                       type="submit"
                       [disabled]="!loginForm.valid || authservice.showLoader"
                       class="btn btn-lg btn-primary"
+                      i18n="@@auth.login.submit"
                     >
                       Se connecter
                     </button>
