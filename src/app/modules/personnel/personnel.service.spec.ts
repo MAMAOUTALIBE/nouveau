@@ -753,4 +753,86 @@ describe('PersonnelService', () => {
       status: 'Planifiee',
     });
   });
+
+  it('creates an agent via POST /personnel/agents and maps the response', async () => {
+    const responsePromise = firstValueFrom(
+      service.createAgent({
+        fullName: 'Mariam Toure',
+        direction: 'Direction RH',
+        position: 'Gestionnaire',
+        status: 'Actif',
+        manager: 'Seydou Traore',
+      })
+    );
+
+    const req = httpMock.expectOne(`${environment.api.baseUrl}${API_ENDPOINTS.personnel.agents}`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toMatchObject({
+      fullName: 'Mariam Toure',
+      direction: 'Direction RH',
+      position: 'Gestionnaire',
+      status: 'Actif',
+      manager: 'Seydou Traore',
+    });
+
+    req.flush({
+      employee_id: 'PRM-0123',
+      full_name: 'Mariam Toure',
+      direction_name: 'Direction RH',
+      position_title: 'Gestionnaire',
+      status: 'Actif',
+      manager_name: 'Seydou Traore',
+    });
+
+    await expect(responsePromise).resolves.toMatchObject({
+      id: 'PRM-0123',
+      matricule: 'PRM-0123',
+      fullName: 'Mariam Toure',
+      direction: 'Direction RH',
+      position: 'Gestionnaire',
+      status: 'Actif',
+      manager: 'Seydou Traore',
+    });
+  });
+
+  it('updates an agent via PUT /personnel/agents/:id and forwards the audit reason', async () => {
+    const responsePromise = firstValueFrom(
+      service.updateAgent('PRM-0001', {
+        fullName: 'Aminata Diallo',
+        manager: 'Nouveau Manager',
+        auditReason: 'Correction nom complet',
+      })
+    );
+
+    const req = httpMock.expectOne(`${environment.api.baseUrl}${API_ENDPOINTS.personnel.agentDetail('PRM-0001')}`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toMatchObject({
+      fullName: 'Aminata Diallo',
+      manager: 'Nouveau Manager',
+      auditReason: 'Correction nom complet',
+    });
+
+    req.flush({
+      employee_id: 'PRM-0001',
+      full_name: 'Aminata Diallo',
+      manager_name: 'Nouveau Manager',
+    });
+
+    await expect(responsePromise).resolves.toMatchObject({
+      id: 'PRM-0001',
+      matricule: 'PRM-0001',
+      fullName: 'Aminata Diallo',
+      manager: 'Nouveau Manager',
+    });
+  });
+
+  it('returns null when getAgentById hits a 404 (agent inconnu)', async () => {
+    const responsePromise = firstValueFrom(service.getAgentById('UNKNOWN-9999'));
+    const req = httpMock.expectOne(
+      `${environment.api.baseUrl}${API_ENDPOINTS.personnel.agentDetail('UNKNOWN-9999')}`
+    );
+    req.flush({ detail: 'Agent not found' }, { status: 404, statusText: 'Not Found' });
+
+    await expect(responsePromise).resolves.toBeNull();
+  });
 });
