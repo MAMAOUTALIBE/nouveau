@@ -8,7 +8,7 @@
               @if (hasRealPhoto()) {
                 <img [src]="photoPreview" alt="Photo agent" class="agent-photo br-5" />
               } @else {
-                <initials-avatar [name]="agent.fullName" size="lg" />
+                <cartoon-avatar [name]="agent.fullName" size="lg" />
               }
             </div>
             @if (editMode) {
