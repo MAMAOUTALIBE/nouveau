@@ -13,6 +13,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideSweetAlert2 } from '@sweetalert2/ngx-sweetalert2';
 import { QuillModule } from 'ngx-quill';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { credentialsInterceptor } from './core/interceptors/credentials.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { requestContextInterceptor } from './core/interceptors/request-context.interceptor';
 
@@ -20,7 +21,14 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([requestContextInterceptor, errorInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        credentialsInterceptor,
+        requestContextInterceptor,
+        errorInterceptor,
+        authInterceptor,
+      ])
+    ),
     provideCharts(withDefaultRegisterables()),
     ColorPickerService,
     provideAnimations(),

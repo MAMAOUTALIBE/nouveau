@@ -322,12 +322,13 @@ export class AccessControlService {
       };
     }
 
-    const hasToken = !!localStorage.getItem('rh_token');
-    if (!hasToken) {
+    // Post-migration cookie httpOnly : le token n'est plus visible côté JS.
+    // On s'appuie sur la présence du méta-username pour réhydrater
+    // l'état de session (heuristique UX, validée côté serveur à chaque appel).
+    const username = localStorage.getItem('rh_username') || '';
+    if (!username) {
       return { roles: [], permissions: [], scopes: [] };
     }
-
-    const username = localStorage.getItem('rh_username') || '';
     const inferredRoles = this.inferRolesFromUsername(username);
     return {
       roles: inferredRoles,
