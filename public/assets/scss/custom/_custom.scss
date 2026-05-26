@@ -1795,7 +1795,9 @@ button {
   background-color: variables.$primary;
   color: variables.$white;
   position: fixed;
-  bottom: 20px;
+  // 80px = hauteur approximative du footer (~50-60px) + 20px de marge
+  // pour eviter le chevauchement avec le contenu pagine / footer legal.
+  bottom: 80px;
   inset-inline-end: 20px;
   display: flex;
   align-items: center;
