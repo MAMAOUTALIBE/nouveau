@@ -1,7 +1,7 @@
 import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { API_ENDPOINTS } from '../../core/config/api-endpoints';
 import { SKIP_ERROR_TOAST } from '../../core/interceptors/error.interceptor';
 import { normalizeHttpError } from '../../core/errors/api-error';
@@ -58,7 +58,7 @@ interface AuthResponse {
     token_type?: string;
     access_expires_at?: string;
     refresh_expires_at?: string;
-  };
+  } | null;
   user?: {
     username?: string;
     email?: string;
@@ -74,11 +74,26 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private accessControl = inject(AccessControlService);
+  private readonly usernameStorageKey = 'rh_username';
   private readonly tokenExpiresAtStorageKey = 'rh_token_expires_at';
   private readonly refreshExpiresAtStorageKey = 'rh_refresh_token_expires_at';
   private readonly defaultAccessTokenTtlMs = 30 * 60 * 1000;
   private readonly defaultRefreshTokenTtlMs = 24 * 60 * 60 * 1000;
+  /**
+   * Dev-only : conserve en mémoire le token renvoyé dans le body (mode
+   * `jwt_return_token_in_body=True`) — uniquement pour faciliter le debug ou
+   * exercices E2E. Jamais persisté côté localStorage.
+   */
+  private inMemoryDevAccessToken: string | null = null;
   public showLoader = false;
+
+  /**
+   * État de session côté UI. Hydraté au bootstrap par la présence du méta
+   * username (cookie httpOnly invisible côté JS). Bascule à `false` lors de
+   * `logout()` ou d'un 401 non récupérable.
+   */
+  private readonly isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasSession());
+  readonly isAuthenticated$: Observable<boolean> = this.isAuthenticatedSubject.asObservable();
 
   async loginWithEmail(email: string, password: string): Promise<{ token: string }> {
     this.showLoader = true;
@@ -93,12 +108,11 @@ export class AuthService {
           )
         );
 
+        // En mode cookie-only (prod), `tokens` est `null` et il n'y a pas de
+        // token dans le body. La session est uniquement portée par les cookies
+        // httpOnly. En dev (jwt_return_token_in_body=True), on peut récupérer
+        // le token pour faciliter le debug en mémoire (jamais en localStorage).
         const token = this.extractAccessToken(response);
-        if (!token) {
-          throw new AuthError('INVALID_AUTH_RESPONSE', 'Token absent dans la réponse de login');
-        }
-
-        const refreshToken = this.extractRefreshToken(response);
         const username = response.username || response.user?.username || response.user?.email || email;
         const roles = this.extractRoles(response, username);
         const permissions = this.extractPermissions(response);
@@ -106,7 +120,6 @@ export class AuthService {
         const expirations = this.resolveTokenExpirations(response);
         this.storeSession({
           token,
-          refreshToken,
           username,
           roles,
           permissions,
@@ -114,7 +127,11 @@ export class AuthService {
           accessTokenExpiresAt: expirations.accessTokenExpiresAt,
           refreshTokenExpiresAt: expirations.refreshTokenExpiresAt,
         });
-        return { token };
+        // En cookie-only, le caller (login page) n'a pas besoin du token —
+        // l'authentification est portée par les cookies. On renvoie une chaîne
+        // vide pour conserver la signature publique, sans exposer rien de
+        // sensible.
+        return { token: token ?? '' };
       } catch (error) {
         const fallback = this.tryDevelopmentFallback(email, password, error);
         if (fallback) {
@@ -128,91 +145,117 @@ export class AuthService {
     }
   }
 
-  refreshToken(): Promise<string> {
-    const currentToken = localStorage.getItem('rh_token');
-    if (currentToken?.startsWith('dev-fallback-')) {
+  /**
+   * Demande un nouveau couple de tokens au backend. Le refresh token est lu
+   * côté serveur via le cookie httpOnly `rh_refresh` (path-scoped sur
+   * `/api/v1/auth/refresh`). Aucun body n'est nécessaire : il est envoyé vide.
+   *
+   * @returns `true` si refresh ok, lève sinon (utilisé par l'intercepteur 401).
+   */
+  refreshToken(): Promise<boolean> {
+    // Dev fallback : on n'a jamais pu joindre le backend → on régénère un
+    // pseudo-état pour conserver la session locale, sans toucher au cookie.
+    if (this.inMemoryDevAccessToken?.startsWith('dev-fallback-')) {
       const refreshed = this.generateDevToken();
       const currentAccess = this.accessControl.snapshot();
       const now = Date.now();
       this.storeSession({
         token: refreshed,
-        refreshToken: localStorage.getItem('rh_refresh_token') || `dev-refresh-${Date.now()}`,
-        username: localStorage.getItem('rh_username') || environment.auth?.devFallback?.username,
+        username:
+          localStorage.getItem(this.usernameStorageKey) || environment.auth?.devFallback?.username,
         roles: currentAccess.roles,
         permissions: currentAccess.permissions,
         scopes: currentAccess.scopes,
         accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
         refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
       });
-      return Promise.resolve(refreshed);
-    }
-
-    const refreshToken = localStorage.getItem('rh_refresh_token');
-    if (!refreshToken) {
-      return Promise.reject('missing refresh token');
+      return Promise.resolve(true);
     }
 
     const context = new HttpContext().set(SKIP_ERROR_TOAST, true);
     return firstValueFrom(
-      this.http.post<AuthResponse>(
-        this.buildUrl(API_ENDPOINTS.auth.refresh),
-        { refreshToken, refresh_token: refreshToken },
-        { context }
-      )
-    ).then((response) => {
-      const token = this.extractAccessToken(response);
-      if (!token) {
-        throw new AuthError('INVALID_AUTH_RESPONSE', 'Token absent dans la réponse de refresh');
-      }
-      const nextRefresh = this.extractRefreshToken(response) || refreshToken;
-      const username = localStorage.getItem('rh_username') || response.username || response.user?.username || '';
-      const currentAccess = this.accessControl.snapshot();
-      const roles = this.extractRoles(response, username);
-      const responsePermissions = this.extractPermissions(response);
-      const responseScopes = this.extractScopes(response);
-      const permissions = responsePermissions.length ? responsePermissions : currentAccess.permissions;
-      const scopes = responseScopes.length ? responseScopes : currentAccess.scopes;
-      const expirations = this.resolveTokenExpirations(response);
-      this.storeSession({
-        token,
-        refreshToken: nextRefresh,
-        username,
-        roles,
-        permissions,
-        scopes,
-        accessTokenExpiresAt: expirations.accessTokenExpiresAt,
-        refreshTokenExpiresAt: expirations.refreshTokenExpiresAt,
-      });
-      return token;
-    }).catch((error) => {
-      if (this.canUseDevelopmentFallback() && this.isNetworkOrServerUnavailable(error)) {
-        const fallbackToken = this.generateDevToken();
+      // Body vide : le cookie rh_refresh est envoyé automatiquement
+      // grâce à `withCredentials: true` (credentialsInterceptor).
+      this.http.post<AuthResponse>(this.buildUrl(API_ENDPOINTS.auth.refresh), {}, { context })
+    )
+      .then((response) => {
+        const token = this.extractAccessToken(response);
+        const username =
+          localStorage.getItem(this.usernameStorageKey) ||
+          response.username ||
+          response.user?.username ||
+          '';
         const currentAccess = this.accessControl.snapshot();
-        const now = Date.now();
+        const roles = this.extractRoles(response, username);
+        const responsePermissions = this.extractPermissions(response);
+        const responseScopes = this.extractScopes(response);
+        const permissions = responsePermissions.length ? responsePermissions : currentAccess.permissions;
+        const scopes = responseScopes.length ? responseScopes : currentAccess.scopes;
+        const expirations = this.resolveTokenExpirations(response);
         this.storeSession({
-          token: fallbackToken,
-          refreshToken,
-          username: localStorage.getItem('rh_username') || environment.auth?.devFallback?.username,
-          roles: currentAccess.roles,
-          permissions: currentAccess.permissions,
-          scopes: currentAccess.scopes,
-          accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
-          refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
+          token,
+          username,
+          roles,
+          permissions,
+          scopes,
+          accessTokenExpiresAt: expirations.accessTokenExpiresAt,
+          refreshTokenExpiresAt: expirations.refreshTokenExpiresAt,
         });
-        return fallbackToken;
-      }
-      throw this.toAuthError(error);
-    });
+        return true;
+      })
+      .catch((error) => {
+        if (this.canUseDevelopmentFallback() && this.isNetworkOrServerUnavailable(error)) {
+          const fallbackToken = this.generateDevToken();
+          const currentAccess = this.accessControl.snapshot();
+          const now = Date.now();
+          this.storeSession({
+            token: fallbackToken,
+            username:
+              localStorage.getItem(this.usernameStorageKey) ||
+              environment.auth?.devFallback?.username,
+            roles: currentAccess.roles,
+            permissions: currentAccess.permissions,
+            scopes: currentAccess.scopes,
+            accessTokenExpiresAt: now + this.defaultAccessTokenTtlMs,
+            refreshTokenExpiresAt: now + this.defaultRefreshTokenTtlMs,
+          });
+          return true;
+        }
+        throw this.toAuthError(error);
+      });
   }
 
+  /**
+   * Déconnecte l'utilisateur :
+   * 1. Appelle `POST /auth/logout` — le backend efface les cookies httpOnly.
+   * 2. Nettoie les méta-données locales (username, exp, roles).
+   * 3. Notifie les abonnés `isAuthenticated$` et redirige vers /auth/login.
+   *
+   * On ne propage pas les erreurs HTTP : un échec réseau ne doit pas
+   * empêcher la déconnexion locale (sinon l'utilisateur reste "bloqué"
+   * avec un état partiel).
+   */
   logout(): void {
+    const context = new HttpContext().set(SKIP_ERROR_TOAST, true);
+    // Fire & forget : on n'attend pas le serveur pour nettoyer côté client.
+    this.http
+      .post(this.buildUrl('/auth/logout'), {}, { context })
+      .subscribe({ next: () => undefined, error: () => undefined });
     this.clearSession();
     this.router.navigate(['/auth/login']);
   }
 
+  /**
+   * Indique si une session UI est probablement active.
+   *
+   * Comme le cookie d'accès est httpOnly (invisible côté JS), on s'appuie sur
+   * la présence du méta-username + l'absence d'expiration dépassée pour la
+   * fenêtre access. C'est une heuristique optimiste : la véritable
+   * autorisation est validée par le backend à chaque requête, et un 401
+   * déclenche le refresh / logout via `authInterceptor`.
+   */
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('rh_token');
-    if (!token) {
+    if (!this.hasSession()) {
       return false;
     }
 
@@ -224,13 +267,20 @@ export class AuthService {
     return true;
   }
 
+  /**
+   * Variante "non destructive" de `isAuthenticated()` : utilisée par
+   * l'intercepteur 401 pour décider s'il vaut la peine de tenter un refresh.
+   */
+  hasSession(): boolean {
+    return !!localStorage.getItem(this.usernameStorageKey);
+  }
+
   currentUserName(): string | null {
-    return localStorage.getItem('rh_username');
+    return localStorage.getItem(this.usernameStorageKey);
   }
 
   private storeSession(session: {
-    token: string;
-    refreshToken?: string;
+    token: string | null;
     username?: string;
     roles?: string[];
     permissions?: string[];
@@ -238,12 +288,14 @@ export class AuthService {
     accessTokenExpiresAt?: number;
     refreshTokenExpiresAt?: number;
   }): void {
-    localStorage.setItem('rh_token', session.token);
-    if (session.refreshToken) {
-      localStorage.setItem('rh_refresh_token', session.refreshToken);
+    // Pas de localStorage.setItem('rh_token', ...) : le token JWT est dans
+    // un cookie httpOnly, invisible côté JS — c'est la cible de la migration.
+    // On garde uniquement les méta-données UX (username, exp) en localStorage.
+    if (session.token) {
+      this.inMemoryDevAccessToken = session.token;
     }
     if (session.username) {
-      localStorage.setItem('rh_username', session.username);
+      localStorage.setItem(this.usernameStorageKey, session.username);
     }
     this.accessControl.applyAccess({
       roles: session.roles,
@@ -263,23 +315,21 @@ export class AuthService {
     } else {
       localStorage.removeItem(this.refreshExpiresAtStorageKey);
     }
+
+    this.isAuthenticatedSubject.next(true);
   }
 
   private clearSession(): void {
-    localStorage.removeItem('rh_token');
-    localStorage.removeItem('rh_refresh_token');
-    localStorage.removeItem('rh_username');
+    this.inMemoryDevAccessToken = null;
+    localStorage.removeItem(this.usernameStorageKey);
     localStorage.removeItem(this.tokenExpiresAtStorageKey);
     localStorage.removeItem(this.refreshExpiresAtStorageKey);
     this.accessControl.clearAccess();
+    this.isAuthenticatedSubject.next(false);
   }
 
   private extractAccessToken(response: AuthResponse): string | null {
     return response.accessToken || response.token || response.tokens?.access_token || null;
-  }
-
-  private extractRefreshToken(response: AuthResponse): string {
-    return response.refreshToken || response.tokens?.refresh_token || '';
   }
 
   private buildUrl(path: string): string {
@@ -312,7 +362,6 @@ export class AuthService {
     const now = Date.now();
     this.storeSession({
       token,
-      refreshToken: `dev-refresh-${Date.now()}`,
       username: fallbackUser,
       roles,
       permissions: [],

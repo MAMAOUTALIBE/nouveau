@@ -5,18 +5,27 @@ import { AuthService } from '../../shared/services/auth.service';
 import { API_ENDPOINTS } from '../config/api-endpoints';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 
+/**
+ * Intercepteur d'authentification post-migration cookie httpOnly.
+ *
+ * Le cookie `rh_access` est désormais envoyé automatiquement par le navigateur
+ * grâce à `credentialsInterceptor` (qui pose `withCredentials: true`). On
+ * n'ajoute donc plus aucun header `Authorization: Bearer ...`.
+ *
+ * Le rôle restant de cet intercepteur :
+ * - Sur 401, tenter un refresh via `authService.refreshToken()` (qui s'appuie
+ *   sur le cookie `rh_refresh` path-scoped) puis rejouer la requête initiale.
+ * - Si pas de session (jamais loggué) ou refresh KO, déconnecter l'utilisateur.
+ */
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
   const authService = inject(AuthService);
   const toastr = inject(ToastrService);
-  const token = localStorage.getItem('rh_token');
   const isAuthRequest = isAuthenticationRequest(req.url);
 
-  const authReq = token && !isAuthRequest ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
-
-  return next(authReq).pipe(
+  return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401 && !isAuthRequest) {
-        if (!token) {
+        if (!authService.hasSession()) {
           toastr.warning('Authentification requise. Veuillez vous reconnecter.', 'DRH', {
             timeOut: 4000,
             positionClass: 'toast-top-right',
@@ -26,10 +35,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
         }
 
         return from(authService.refreshToken()).pipe(
-          switchMap((newToken) => {
-            const retryReq = req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } });
-            return next(retryReq);
-          }),
+          switchMap(() => next(req)),
           catchError((err) => {
             toastr.error('Session expiree. Veuillez vous reconnecter.', 'DRH', {
               timeOut: 4000,
